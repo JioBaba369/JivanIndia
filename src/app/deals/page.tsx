@@ -15,7 +15,8 @@ export const deals = [
     business: "Taste of India Restaurant",
     category: "Food",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "indian buffet"
+    aiHint: "indian buffet",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
   },
   {
     id: "2",
@@ -23,7 +24,8 @@ export const deals = [
     business: "Bollywood Styles Boutique",
     category: "Shopping",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "saree shop"
+    aiHint: "saree shop",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
   },
   {
     id: "3",
@@ -31,7 +33,8 @@ export const deals = [
     business: "Fly High Travel Agency",
     category: "Travel",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "travel agency"
+    aiHint: "travel agency",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 4)).toISOString(),
   },
   {
     id: "4",
@@ -39,7 +42,8 @@ export const deals = [
     business: "Peaceful Warrior Yoga",
     category: "Health & Wellness",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "yoga class"
+    aiHint: "yoga class",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString(),
   },
   {
     id: "5",
@@ -47,7 +51,8 @@ export const deals = [
     business: "Mumbai Spice Market",
     category: "Groceries",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "spice market"
+    aiHint: "spice market",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
   },
   {
     id: "6",
@@ -55,7 +60,8 @@ export const deals = [
     business: "Moments Captured Studio",
     category: "Services",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "family photo"
+    aiHint: "family photo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 12)).toISOString(),
   },
 ];
 

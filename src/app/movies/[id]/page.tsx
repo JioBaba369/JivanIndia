@@ -1,10 +1,14 @@
 
+
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock, Users } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const movieDetails = {
@@ -14,6 +18,7 @@ const movieDetails = {
     rating: 4.5,
     duration: "2h 49m",
     releaseDate: "September 7, 2023",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
     backdropUrl: "https://images.unsplash.com/photo-1620188467123-64355428675a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXIlMjBjdXJ0YWlufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHintBackdrop: "movie theater curtain",
     posterUrl: "https://placehold.co/600x900.png",
@@ -45,6 +50,7 @@ const movieDetails = {
 export default function MovieDetailPage({ params }: { params: { id: string } }) {
   // You can use params.id to fetch the correct movie data from your backend
   const movie = movieDetails;
+  const postedAt = formatDistanceToNow(new Date(movie.postedAt), { addSuffix: true });
 
   return (
     <div className="bg-background">
@@ -97,7 +103,11 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
                     <Card>
                         <CardContent className="p-6">
                             <h2 className="font-headline text-2xl font-semibold">Synopsis</h2>
-                            <p className="mt-4 text-muted-foreground leading-relaxed">{movie.synopsis}</p>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground my-4">
+                                <History className="h-4 w-4" />
+                                <span>Posted {postedAt}</span>
+                            </div>
+                            <p className="text-muted-foreground leading-relaxed">{movie.synopsis}</p>
                              <h3 className="font-headline text-lg font-semibold mt-6 mb-3">Starring</h3>
                              <div className="flex flex-wrap gap-2">
                                 {movie.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}

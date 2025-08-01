@@ -18,7 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -34,11 +33,11 @@ export default function NewEventPage() {
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
   const [organizer, setOrganizer] = useState('');
+  const [duration, setDuration] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newEvent: Event = {
-      id: uuidv4(),
+    const newEvent: Omit<Event, 'id' | 'postedAt'> = {
       title,
       category,
       date,
@@ -49,6 +48,7 @@ export default function NewEventPage() {
       organizer,
       imageUrl: 'https://placehold.co/600x400.png',
       aiHint: 'community event',
+      duration,
     };
 
     addEvent(newEvent);
@@ -168,6 +168,17 @@ export default function NewEventPage() {
                     placeholder="e.g., India Cultural Center"
                     value={organizer}
                     onChange={(e) => setOrganizer(e.target.value)}
+                    required
+                />
+            </div>
+            
+             <div className="space-y-2">
+                <Label htmlFor="duration">Duration</Label>
+                <Input
+                    id="duration"
+                    placeholder="e.g., 3 hours"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
                     required
                 />
             </div>

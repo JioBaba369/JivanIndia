@@ -4,7 +4,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
+import { formatDistanceToNow } from 'date-fns';
 
 
 export default function EventDetailPage() {
@@ -72,6 +73,7 @@ export default function EventDetailPage() {
   }
 
   const eventIsSaved = user ? isEventSaved(event.id) : false;
+  const postedAt = formatDistanceToNow(new Date(event.postedAt), { addSuffix: true });
 
 
   return (
@@ -102,6 +104,10 @@ export default function EventDetailPage() {
                 <h2 className="font-headline text-2xl font-semibold mb-4">
                   About this event
                 </h2>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <History className="h-4 w-4" />
+                    <span>Posted {postedAt}</span>
+                </div>
                 <p className="text-muted-foreground leading-relaxed">
                   {event.description}
                 </p>
@@ -145,6 +151,13 @@ export default function EventDetailPage() {
                         <h4 className="font-semibold">Date and time</h4>
                         <p className="text-muted-foreground text-sm">{event.date}</p>
                         <p className="text-muted-foreground text-sm">{event.time}</p>
+                      </div>
+                    </div>
+                     <div className="flex items-start gap-4">
+                      <Clock className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold">Duration</h4>
+                        <p className="text-muted-foreground text-sm">{event.duration}</p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">

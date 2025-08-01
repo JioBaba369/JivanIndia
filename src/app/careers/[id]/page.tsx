@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, Building, Share2, Bookmark } from "lucide-react";
+import { Briefcase, MapPin, Building, Share2, Bookmark, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,7 @@ import { useState } from 'react';
 import { ApplyForm } from "@/components/apply-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const jobDetails = {
@@ -22,6 +24,7 @@ const jobDetails = {
     type: "Full-time",
     experience: "Mid-Senior Level",
     salary: "$120,000 - $160,000",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
     imageUrl: "https://placehold.co/1200x400.png",
     aiHint: "modern office space",
     companyLogoUrl: "https://placehold.co/100x100.png",
@@ -52,6 +55,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [isApplyFormOpen, setIsApplyFormOpen] = useState(false);
   const { user, saveJob, unsaveJob, isJobSaved } = useAuth();
   const router = useRouter();
+  const postedAt = formatDistanceToNow(new Date(job.postedAt), { addSuffix: true });
 
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -147,6 +151,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <div className="lg:col-span-2">
                 <div>
                     <h2 className="font-headline text-2xl font-semibold mb-4 border-b pb-2">Job Description</h2>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                        <History className="h-4 w-4" />
+                        <span>Posted {postedAt}</span>
+                    </div>
                     <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
                         <p>{job.companyDescription}</p>
                         <h3 className="font-headline text-xl font-semibold">Responsibilities</h3>

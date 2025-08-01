@@ -1,15 +1,17 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from 'date-fns';
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const dealDetails = {
@@ -22,6 +24,7 @@ const dealDetails = {
     description: "Enjoy a delicious and authentic Indian lunch buffet at a 20% discount. Our buffet features a wide variety of vegetarian and non-vegetarian dishes, including tandoori chicken, paneer makhani, biryani, and fresh naan bread. A perfect way to sample the best of Indian cuisine.",
     terms: "Offer valid Monday to Friday, 11:30 AM to 2:30 PM. Not valid on holidays. Cannot be combined with other offers. Mention this deal to redeem.",
     expires: "December 31, 2024",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
     businessWebsite: "www.tasteofindiala.com", 
     businessLocation: "Los Angeles, CA",
     businessId: "1", // Link to an organization profile if available
@@ -34,6 +37,7 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
   const router = useRouter();
+  const postedAt = formatDistanceToNow(new Date(deal.postedAt), { addSuffix: true });
 
 
    const handleShare = () => {
@@ -104,6 +108,10 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <h2 className="font-headline text-2xl font-semibold mb-4 border-b pb-2">Deal Details</h2>
+                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <History className="h-4 w-4" />
+                    <span>Posted {postedAt}</span>
+                </div>
                 <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
                     <p>{deal.description}</p>
                     <h3 className="font-headline text-xl font-semibold">Terms & Conditions</h3>

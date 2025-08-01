@@ -21,7 +21,8 @@ const movies = [
     genre: "Action/Thriller",
     rating: 4.5,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "action movie poster"
+    aiHint: "action movie poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
   },
   {
     id: "2",
@@ -29,7 +30,8 @@ const movies = [
     genre: "Action/Spy",
     rating: 4.2,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "spy movie poster"
+    aiHint: "spy movie poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 3)).toISOString(),
   },
   {
     id: "3",
@@ -37,7 +39,8 @@ const movies = [
     genre: "Action/Drama",
     rating: 4.8,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "historical drama poster"
+    aiHint: "historical drama poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString(),
   },
   {
     id: "4",
@@ -45,7 +48,8 @@ const movies = [
     genre: "Fantasy/Action",
     rating: 4.0,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "fantasy movie poster"
+    aiHint: "fantasy movie poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 14)).toISOString(),
   },
   {
     id: "5",
@@ -53,7 +57,8 @@ const movies = [
     genre: "Comedy/Drama",
     rating: 4.9,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "college comedy poster"
+    aiHint: "college comedy poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 20)).toISOString(),
   },
   {
     id: "6",
@@ -61,7 +66,8 @@ const movies = [
     genre: "Biographical/Sports",
     rating: 4.7,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "wrestling movie poster"
+    aiHint: "wrestling movie poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 25)).toISOString(),
   },
    {
     id: "7",
@@ -69,7 +75,8 @@ const movies = [
     genre: "Drama/Romance",
     rating: 4.6,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "dramatic movie poster"
+    aiHint: "dramatic movie poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString(),
   },
    {
     id: "8",
@@ -77,7 +84,8 @@ const movies = [
     genre: "Musical/Drama",
     rating: 4.4,
     imageUrl: "https://placehold.co/600x900.png",
-    aiHint: "hip hop movie poster"
+    aiHint: "hip hop movie poster",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 40)).toISOString(),
   },
 ];
 

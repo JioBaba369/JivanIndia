@@ -15,11 +15,13 @@ export interface Event {
   aiHint: string;
   description: string;
   organizer: string;
+  postedAt: string; // ISO 8601 date string
+  duration: string;
 }
 
 interface EventsContextType {
   events: Event[];
-  addEvent: (event: Event) => void;
+  addEvent: (event: Omit<Event, 'id' | 'postedAt'>) => void;
   getEventById: (id: string) => Event | undefined;
   // In a real app, you'd also have updateEvent and deleteEvent
 }
@@ -39,6 +41,8 @@ const initialEvents: Event[] = [
     aiHint: "diwali festival",
     description: "Experience the magic of Diwali at the annual Festival of Lights. This family-friendly event will feature traditional music, dance performances, delicious Indian food from local vendors, and a spectacular fireworks display to conclude the evening. Come and celebrate the victory of light over darkness with the community.",
     organizer: "India Cultural Center",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
+    duration: "4 hours",
   },
   {
     id: "2",
@@ -52,6 +56,8 @@ const initialEvents: Event[] = [
     aiHint: "bollywood dance",
      description: "Learn the latest Bollywood moves in this energetic and fun workshop, open to all skill levels. Get ready to dance your heart out to popular tracks.",
     organizer: "Mumbai Dance Studio",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
+    duration: "2 hours",
   },
   {
     id: "3",
@@ -65,6 +71,8 @@ const initialEvents: Event[] = [
     aiHint: "indian food",
     description: "A gastronomic journey through India! Sample a wide variety of regional dishes from dozens of local restaurants and home chefs.",
     organizer: "Community Events Co.",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
+    duration: "8 hours",
   },
 ];
 
@@ -89,8 +97,13 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const addEvent = (event: Event) => {
-    const newEvents = [...events, event];
+  const addEvent = (event: Omit<Event, 'id' | 'postedAt'>) => {
+    const newEvent: Event = {
+      ...event,
+      id: new Date().getTime().toString(),
+      postedAt: new Date().toISOString(),
+    };
+    const newEvents = [...events, newEvent];
     setEvents(newEvents);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newEvents));
   };

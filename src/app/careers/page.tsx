@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,8 @@ export const jobs = [
     location: "San Francisco, CA",
     type: "Full-time",
     imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "tech company logo"
+    aiHint: "tech company logo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
   },
   {
     id: "2",
@@ -37,7 +39,8 @@ export const jobs = [
     location: "New York, NY",
     type: "Full-time",
     imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "retail logo"
+    aiHint: "retail logo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
   },
   {
     id: "3",
@@ -46,7 +49,8 @@ export const jobs = [
     location: "Chicago, IL",
     type: "Part-time",
     imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "restaurant logo"
+    aiHint: "restaurant logo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
   },
   {
     id: "4",
@@ -55,7 +59,8 @@ export const jobs = [
     location: "Houston, TX",
     type: "Contract",
     imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "real estate logo"
+    aiHint: "real estate logo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString(),
   },
   {
     id: "5",
@@ -64,7 +69,8 @@ export const jobs = [
     location: "San Jose, CA",
     type: "Full-time",
     imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "finance logo"
+    aiHint: "finance logo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
   },
   {
     id: "6",
@@ -73,7 +79,8 @@ export const jobs = [
     location: "Remote",
     type: "Freelance",
     imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "design agency logo"
+    aiHint: "design agency logo",
+    postedAt: new Date(new Date().setDate(new Date().getDate() - 15)).toISOString(),
   },
 ];
 
@@ -169,7 +176,7 @@ export default function CareersPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="space-y-6">
           {jobs.map((job) => (
-            <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
+             <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <div className="flex-shrink-0">
