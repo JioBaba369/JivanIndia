@@ -70,6 +70,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
   const [state, setState] = useState<T>(() => {
+    if (typeof window === 'undefined') {
+      return defaultValue;
+    }
     try {
       const storedValue = localStorage.getItem(key);
       return storedValue ? JSON.parse(storedValue) : defaultValue;
@@ -80,10 +83,16 @@ const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(key, JSON.stringify(state));
-    } catch (error) {
-       console.warn(`Error setting localStorage key "${key}":`, error);
+    if (typeof window !== 'undefined') {
+      try {
+        if (state === null || state === undefined) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, JSON.stringify(state));
+        }
+      } catch (error) {
+         console.warn(`Error setting localStorage key "${key}":`, error);
+      }
     }
   }, [key, state]);
 
@@ -145,6 +154,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    setSavedJobs([]);
+    setSavedEvents([]);
+    setJoinedCommunities([]);
+    setSavedDeals([]);
   };
 
   const createSaveFunctions = (
