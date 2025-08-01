@@ -9,10 +9,10 @@ import Image from 'next/image';
 import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEvents } from '@/hooks/use-events';
 
 // Mock data from other pages
 import { jobs as allJobs } from '../careers/page';
-import { events as allEvents } from '../events/page';
 import { organizations as allOrgs } from '../organizations/page';
 import { deals as allDeals } from '../deals/page';
 
@@ -25,6 +25,7 @@ export default function ProfilePage() {
     savedDeals, unsaveDeal,
   } = useAuth();
   const { toast } = useToast();
+  const { events: allEvents } = useEvents();
 
   const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
