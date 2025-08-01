@@ -21,7 +21,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import type { MouseEvent } from 'react';
+import { type MouseEvent, useState, useMemo } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -109,6 +109,30 @@ export default function CommunitiesPage() {
     const { toast } = useToast();
     const { user, joinCommunity, isCommunityJoined } = useAuth();
     const router = useRouter();
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [locationQuery, setLocationQuery] = useState('');
+    const [category, setCategory] = useState('all');
+
+    const communityCategories = useMemo(() => {
+      const categories = new Set(communities.map(c => c.type));
+      return ['all', ...Array.from(categories)];
+    }, []);
+
+    const filteredCommunities = useMemo(() => {
+        return communities.filter(community => {
+          const matchesSearch =
+            community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            community.description.toLowerCase().includes(searchQuery.toLowerCase());
+          
+          const matchesLocation = community.region.toLowerCase().includes(locationQuery.toLowerCase());
+    
+          const matchesCategory = category === 'all' || community.type === category;
+    
+          return matchesSearch && matchesLocation && matchesCategory;
+        });
+    }, [searchQuery, locationQuery, category]);
+
 
     const handleSave = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {
         e.preventDefault();
@@ -204,24 +228,32 @@ export default function CommunitiesPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search by name or keyword..."
-                    className="pl-10"
+                    className="pl-10 text-base"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Select>
-                  <SelectTrigger>
+                 <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Location"
+                    className="pl-10 text-base"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="text-base">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="community">Community Center</SelectItem>
-                    <SelectItem value="arts">Arts & Culture</SelectItem>
-                    <SelectItem value="business">Business Network</SelectItem>
-                    <SelectItem value="religious">Religious</SelectItem>
-                     <SelectItem value="charity">Charity</SelectItem>
-                    <SelectItem value="student">Student Group</SelectItem>
-                    <SelectItem value="film">Film Distributor</SelectItem>
+                     {communityCategories.map((cat, index) => (
+                      <SelectItem key={index} value={cat}>
+                        {cat === 'all' ? 'All Categories' : cat}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Button className="w-full">Search</Button>
               </div>
             </CardContent>
           </Card>
@@ -230,7 +262,7 @@ export default function CommunitiesPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {communities.map((org) => (
+          {filteredCommunities.length > 0 ? filteredCommunities.map((org) => (
             <Card key={org.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
                 <Link href={`/communities/${org.id}`} className="block h-full flex flex-col flex-grow">
                     <CardContent className="p-0 flex flex-col flex-grow">
@@ -271,9 +303,20 @@ export default function CommunitiesPage() {
                     </Button>
                  </CardFooter>
             </Card>
-          ))}
+          )) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
+                <p className="text-muted-foreground">No communities found matching your criteria.</p>
+                <Button variant="link" onClick={() => {
+                    setSearchQuery('');
+                    setLocationQuery('');
+                    setCategory('all');
+                }}>Clear filters</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>
   );
 }
+
+    
