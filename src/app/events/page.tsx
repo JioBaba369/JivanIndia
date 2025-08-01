@@ -15,7 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-const events = [
+export const events = [
   {
     id: 1,
     title: "Diwali Festival of Lights",

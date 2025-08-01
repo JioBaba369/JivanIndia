@@ -8,7 +8,7 @@ import { PlusCircle, Search, Tag, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const deals = [
+export const deals = [
   {
     id: "1",
     title: "20% Off Lunch Buffet",
