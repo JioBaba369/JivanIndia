@@ -10,6 +10,8 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from 'react';
 import { ApplyForm } from "@/components/apply-form";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const jobDetails = {
@@ -48,6 +50,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const job = jobDetails;
   const { toast } = useToast();
   const [isApplyFormOpen, setIsApplyFormOpen] = useState(false);
+  const { user, saveJob, unsaveJob, isJobSaved } = useAuth();
+  const router = useRouter();
 
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -57,12 +61,34 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
     });
   };
 
-  const handleSave = () => {
-     toast({
-      title: "Job Saved!",
-      description: `The ${job.title} position has been saved to your profile.`,
-    });
+  const handleSaveToggle = () => {
+    if (!user) {
+        toast({
+            title: "Please log in",
+            description: "You need to be logged in to save jobs.",
+            variant: "destructive",
+        });
+        router.push("/login");
+        return;
+    }
+
+    const currentlySaved = isJobSaved(job.id);
+    if (currentlySaved) {
+        unsaveJob(job.id);
+        toast({
+            title: "Job Unsaved",
+            description: `The ${job.title} position has been removed from your saved jobs.`,
+        });
+    } else {
+        saveJob(job.id);
+        toast({
+            title: "Job Saved!",
+            description: `The ${job.title} position has been saved to your profile.`,
+        });
+    }
   }
+
+  const jobIsSaved = user ? isJobSaved(job.id) : false;
 
   return (
     <>
@@ -145,9 +171,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <Button size="lg" className="w-full" onClick={() => setIsApplyFormOpen(true)}>
                         Apply Now
                     </Button>
-                    <Button size="lg" variant="secondary" className="w-full" onClick={handleSave}>
+                    <Button size="lg" variant={jobIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
                         <Bookmark className="mr-2"/>
-                        Save Job
+                        {jobIsSaved ? "Job Saved" : "Save Job"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
