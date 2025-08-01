@@ -32,6 +32,9 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
+  const [phone, setPhone] = useState('');
+  const [homeAddress, setHomeAddress] = useState('');
+  const [indianAddress, setIndianAddress] = useState('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,6 +45,9 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
       setName(user.name);
       setEmail(user.email);
       setBio(user.bio || '');
+      setPhone(user.phone || '');
+      setHomeAddress(user.homeAddress || '');
+      setIndianAddress(user.indianAddress || '');
       setProfileImageUrl(user.profileImageUrl || user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png");
     }
   }, [user, isOpen]);
@@ -51,10 +57,8 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
     setIsSubmitting(true);
 
     try {
-        let newImageUrl = user?.profileImageUrl || '';
+        let newImageUrl = profileImageUrl;
         if (profileImage) {
-            // In a real app, you'd upload this file to a storage service (like Firebase Storage)
-            // and get a URL back. For this demo, we'll convert it to a base64 Data URL.
             newImageUrl = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(profileImage);
@@ -63,10 +67,9 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
             });
         }
         
-        // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        updateUser({ name, email, bio, profileImageUrl: newImageUrl });
+        updateUser({ name, email, bio, profileImageUrl: newImageUrl, phone, homeAddress, indianAddress });
 
         onOpenChange(false);
         toast({
@@ -90,7 +93,6 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
     if (e.target.files && e.target.files.length > 0) {
         const file = e.target.files[0];
         setProfileImage(file);
-        // Create a temporary URL to preview the image
         setProfileImageUrl(URL.createObjectURL(file));
     }
   }
@@ -105,7 +107,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                 Make changes to your profile here. Click save when you're done.
             </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-6 py-4">
+            <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto px-2">
 
             <div className="flex flex-col items-center gap-4">
                 <Image
@@ -148,6 +150,16 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                     required
                 />
             </div>
+             <div className="grid gap-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input 
+                    id="phone" 
+                    type="tel"
+                    placeholder="e.g., (123) 456-7890"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                />
+            </div>
             <div className="grid gap-2">
                 <Label htmlFor="bio">Your Bio</Label>
                 <Textarea
@@ -158,8 +170,30 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                 />
             </div>
 
+            <div className="grid gap-2">
+                <Label htmlFor="homeAddress">Home Address</Label>
+                <Textarea
+                    id="homeAddress"
+                    placeholder="Your address in your current country of residence."
+                    value={homeAddress}
+                    onChange={(e) => setHomeAddress(e.target.value)}
+                    rows={3}
+                />
             </div>
-            <DialogFooter>
+
+             <div className="grid gap-2">
+                <Label htmlFor="indianAddress">Indian Address (Optional)</Label>
+                <Textarea
+                    id="indianAddress"
+                    placeholder="Your address in India, if applicable."
+                    value={indianAddress}
+                    onChange={(e) => setIndianAddress(e.target.value)}
+                    rows={3}
+                />
+            </div>
+
+            </div>
+            <DialogFooter className='pt-4'>
             <DialogClose asChild>
                 <Button type="button" variant="secondary" disabled={isSubmitting}>
                     Cancel

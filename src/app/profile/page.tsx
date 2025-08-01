@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -89,8 +89,8 @@ export default function ProfilePage() {
     <EditProfileForm isOpen={isEditFormOpen} onOpenChange={setIsEditFormOpen} />
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="md:col-span-1 lg:col-span-1 space-y-8">
                 <Card>
                     <CardHeader className="items-center text-center">
                         <div className="relative h-24 w-24">
@@ -129,8 +129,46 @@ export default function ProfilePage() {
                          <Button variant="outline" className="w-full" onClick={() => setIsEditFormOpen(true)}>Edit Profile</Button>
                     </CardFooter>
                 </Card>
+                
+                 {(user.phone || user.homeAddress || user.indianAddress) && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl">Contact Information</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {user.phone && (
+                                <div className="flex items-start gap-4">
+                                    <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <div>
+                                        <p className="font-semibold">Phone</p>
+                                        <p className="text-muted-foreground text-sm">{user.phone}</p>
+                                    </div>
+                                </div>
+                            )}
+                            {user.homeAddress && (
+                                <div className="flex items-start gap-4">
+                                    <Home className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <div>
+                                        <p className="font-semibold">Home Address</p>
+                                        <p className="text-muted-foreground text-sm">{user.homeAddress}</p>
+                                    </div>
+                                </div>
+                            )}
+                            {user.indianAddress && (
+                                <div className="flex items-start gap-4">
+                                    <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <div>
+                                        <p className="font-semibold">Indian Address</p>
+                                        <p className="text-muted-foreground text-sm">{user.indianAddress}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
+
             </div>
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 lg:col-span-3">
                 <Tabs defaultValue="jobs" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
                     <TabsTrigger value="jobs">Jobs ({userSavedJobs.length})</TabsTrigger>

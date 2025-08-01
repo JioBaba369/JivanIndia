@@ -14,6 +14,9 @@ interface User {
     orgLogoUrl: string;
     orgLogoAiHint: string;
   };
+  phone?: string;
+  homeAddress?: string;
+  indianAddress?: string;
 }
 
 interface AuthContextType {
