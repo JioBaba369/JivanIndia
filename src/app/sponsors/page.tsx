@@ -11,37 +11,43 @@ const sponsors = [
     name: "Saffron Restaurant Group",
     industry: "Food & Beverage",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "luxury restaurant"
+    aiHint: "luxury restaurant",
+    website: "#"
   },
   {
     name: "Desi Grocers Inc.",
     industry: "Retail",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "grocery store"
+    aiHint: "grocery store",
+    website: "#"
   },
   {
     name: "InnovateTech Solutions",
     industry: "Technology",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "tech company"
+    aiHint: "tech company",
+    website: "#"
   },
   {
     name: "Sahara Real Estate",
     industry: "Real Estate",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "modern house"
+    aiHint: "modern house",
+    website: "#"
   },
   {
     name: "Air India",
     industry: "Travel & Tourism",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "airplane wing"
+    aiHint: "airplane wing",
+    website: "#"
   },
   {
     name: "Bollywood Cinemas",
     industry: "Entertainment",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "movie theater"
+    aiHint: "movie theater",
+    website: "#"
   },
 ];
 
@@ -83,29 +89,29 @@ export default function SponsorsPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {sponsors.map((sponsor, index) => (
             <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-               <Link href="#" className="block h-full">
-                <CardContent className="p-0 flex flex-col h-full">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={sponsor.imageUrl}
-                      alt={sponsor.name}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={sponsor.aiHint}
-                    />
+              <CardContent className="p-0 flex flex-col h-full">
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={sponsor.imageUrl}
+                    alt={sponsor.name}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    data-ai-hint={sponsor.aiHint}
+                  />
+                </div>
+                <div className="p-6 text-center flex flex-col flex-grow">
+                  <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
+                  <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
+                      <HeartHandshake className="h-4 w-4" />
+                      <span>{sponsor.industry}</span>
                   </div>
-                  <div className="p-6 text-center flex flex-col flex-grow">
-                    <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
-                    <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
-                       <HeartHandshake className="h-4 w-4" />
-                       <span>{sponsor.industry}</span>
-                    </div>
-                     <Button variant="outline" className="mt-6 w-full">
+                  <Button variant="secondary" className="mt-6 w-full" asChild>
+                    <a href={sponsor.website} target="_blank" rel="noopener noreferrer">
                       Visit Website
-                    </Button>
-                  </div>
-                </CardContent>
-              </Link>
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
             </Card>
           ))}
         </div>
