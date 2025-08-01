@@ -151,9 +151,19 @@ export default function NewEventPage() {
                 />
               </div>
             </div>
-
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="space-y-2">
+                    <Label htmlFor="duration">Duration</Label>
+                    <Input
+                        id="duration"
+                        placeholder="e.g., 4 hours"
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="space-y-2">
                     <Label htmlFor="location">Location Name</Label>
                     <Input
                     id="location"
@@ -163,16 +173,17 @@ export default function NewEventPage() {
                     required
                     />
                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="address">Full Address</Label>
-                    <Input
-                    id="address"
-                    placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                    />
-                </div>
+            </div>
+
+             <div className="space-y-2">
+                <Label htmlFor="address">Full Address</Label>
+                <Input
+                id="address"
+                placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                />
             </div>
             
             <div className="space-y-2">
@@ -185,17 +196,6 @@ export default function NewEventPage() {
                 />
             </div>
             
-             <div className="space-y-2">
-                <Label htmlFor="duration">Duration</Label>
-                <Input
-                    id="duration"
-                    placeholder="e.g., 3 hours"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    required
-                />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="description">Event Description</Label>
               <Textarea
