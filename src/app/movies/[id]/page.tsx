@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,7 @@ const movieDetails = {
     aiHintPoster: "action movie poster",
     synopsis: "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in the society. He is accompanied by a core team of six women, and they are up against a deadly outlaw who has caused suffering to many.",
     cast: ["Shah Rukh Khan", "Nayanthara", "Vijay Sethupathi", "Deepika Padukone"],
+    distributor: "Yash Raj Films",
     trailerUrl: "https://www.youtube.com/embed/COv52Qyctws",
     theaters: [
         {
@@ -99,6 +100,22 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
                              <h3 className="font-headline text-lg font-semibold mt-6 mb-3">Starring</h3>
                              <div className="flex flex-wrap gap-2">
                                 {movie.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}
+                            </div>
+                             <div className="mt-6">
+                               <h3 className="font-headline text-lg font-semibold mb-3">
+                                 Distributed By
+                               </h3>
+                               <div className="flex items-center gap-4">
+                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+                                   <Users className="h-6 w-6 text-secondary-foreground" />
+                                 </div>
+                                 <div>
+                                   <p className="font-semibold">{movie.distributor}</p>
+                                   <Link href="#" className="text-sm text-primary hover:underline">
+                                     View Distributor
+                                   </Link>
+                                 </div>
+                               </div>
                             </div>
                         </CardContent>
                     </Card>
