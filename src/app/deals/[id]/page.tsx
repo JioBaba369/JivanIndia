@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +20,8 @@ const dealDetails = {
     description: "Enjoy a delicious and authentic Indian lunch buffet at a 20% discount. Our buffet features a wide variety of vegetarian and non-vegetarian dishes, including tandoori chicken, paneer makhani, biryani, and fresh naan bread. A perfect way to sample the best of Indian cuisine.",
     terms: "Offer valid Monday to Friday, 11:30 AM to 2:30 PM. Not valid on holidays. Cannot be combined with other offers. Mention this deal to redeem.",
     expires: "December 31, 2024",
-    businessWebsite: "#", // In a real app, this would be a real URL
+    businessWebsite: "www.tasteofindiala.com", 
+    businessLocation: "Los Angeles, CA",
     businessId: "1", // Link to an organization profile if available
 };
 
@@ -35,6 +36,13 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
     toast({
       title: "Link Copied!",
       description: "Deal link copied to clipboard.",
+    });
+  };
+
+  const handleRedeem = () => {
+    toast({
+        title: "Deal Redeemed!",
+        description: "Show this confirmation at the business to get your discount.",
     });
   };
 
@@ -70,7 +78,7 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full">
+                    <Button size="lg" className="w-full" onClick={handleRedeem}>
                         <Tag className="mr-2"/>
                         Redeem Deal Now
                     </Button>
@@ -89,6 +97,13 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
                                 <p className="text-sm text-muted-foreground">Visit the business profile for more information.</p>
                             </div>
                         </div>
+                        <div className="flex items-start gap-4">
+                            <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                            <div>
+                                <p className="font-semibold">Location</p>
+                                <p className="text-muted-foreground text-sm">{deal.businessLocation}</p>
+                            </div>
+                        </div>
                          <div className="flex items-start gap-4">
                             <Calendar className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
@@ -100,8 +115,8 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
                             <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Website</p>
-                                <a href={deal.businessWebsite} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-                                    Visit Business Website
+                                <a href={`https://${deal.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                    {deal.businessWebsite}
                                 </a>
                             </div>
                         </div>
