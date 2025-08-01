@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Ticket, Share2, Plus, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const eventDetails = {
@@ -39,9 +40,9 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
+              <Badge>
                 {event.category}
-              </span>
+              </Badge>
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
                 {event.title}
               </h1>
