@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const organizationDetails = {
@@ -59,8 +60,10 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
   // You can use params.id to fetch the correct organization data from your backend
   const org = organizationDetails;
   const { toast } = useToast();
+  const [isJoined, setIsJoined] = useState(false);
 
   const handleJoin = () => {
+    setIsJoined(true);
     toast({
       title: "Successfully Joined!",
       description: `You are now a member of ${org.name}.`,
@@ -124,9 +127,9 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full" onClick={handleJoin}>
+                    <Button size="lg" className="w-full" onClick={handleJoin} disabled={isJoined}>
                         <Users className="mr-2"/>
-                        Join Now
+                        {isJoined ? "Joined" : "Join Now"}
                     </Button>
                     <Button size="lg" variant="secondary" className="w-full">
                         <Share2 className="mr-2"/>
