@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -10,77 +11,17 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from "@/hooks/use-auth";
-
-// Mock data - in a real app, you'd fetch this based on the `params.id`
-// A real implementation would fetch the specific org data based on the ID
-const allCommunitiesData: { [key: string]: any } = {
-  "1": {
-    id: "1",
-    name: "India Cultural Center",
-    type: "Community Center",
-    region: "San Francisco, CA",
-    imageUrl: "https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "community center",
-    description: "Established in 1998, the India Cultural Center has grown to become a pivotal institution for the Indian diaspora in the San Francisco Bay Area. We offer a diverse range of programs including language classes (Hindi, Tamil, Telugu), classical and Bollywood dance instruction, music lessons, and yoga and meditation workshops. Our facilities include a large auditorium for performances, multiple classrooms, a library with a rich collection of Indian literature, and a community hall for private events. We are a non-profit organization run by a dedicated team of volunteers and staff, committed to serving the community's cultural, social, and educational needs.",
-    membersCount: "5,000+ Members",
-    founded: "1998",
-    contactEmail: "contact@sfindiacc.org",
-    website: "www.sfindiacc.org",
-    phone: "555-123-4567",
-    address: "123 Cultural Way, Fremont, CA 94539",
-    tags: ["Culture", "Community", "Events", "Education", "Non-Profit"],
-    isVerified: true,
-  },
-  "7": {
-    id: "7",
-    name: "Yash Raj Films",
-    type: "Film Distributor",
-    region: "Mumbai, IN",
-    imageUrl: "https://images.unsplash.com/photo-1594904523995-18b0831c26ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwc3R1ZGlvfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "film studio",
-    description: "Yash Raj Films (YRF) is one of India's largest and most successful film production and distribution companies. Founded by the late Yash Chopra, a veteran of the Indian film industry, in 1970, YRF has grown to be a powerhouse in Indian cinema. The company has produced some of the most iconic and highest-grossing Hindi films of all time. YRF also operates a state-of-the-art studio complex in Mumbai, which includes shooting stages, sound-recording studios, and post-production facilities.",
-    membersCount: "N/A",
-    founded: "1970",
-    contactEmail: "helpdesk@yashrajfilms.com",
-    website: "www.yashrajfilms.com",
-    phone: "+91-22-3061-3500",
-    address: "Veera Desai Road, Andheri West, Mumbai, Maharashtra 400053, India",
-    tags: ["Film", "Entertainment", "Bollywood", "Production", "Distribution"],
-    isVerified: true,
-  },
-  // Add other communities here...
-};
-
-// Mock data for related events
-const relatedEvents = [
-    {
-        id: 1,
-        title: "Annual Diwali Gala",
-        date: "Nov 4, 2024",
-        imageUrl: "https://images.unsplash.com/photo-1600813633279-997f77a83777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaXdhbGklMjBmZXN0aXZhbHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-        aiHint: "diwali gala"
-    },
-    {
-        id: 2,
-        title: "Holi Celebration in the Park",
-        date: "Mar 23, 2025",
-        imageUrl: "https://images.unsplash.com/photo-1518826767222-2262145719a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxob2xpJTIwZmVzdGl2YWx8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-        aiHint: "holi celebration"
-    },
-    {
-        id: 3,
-        title: "Summer Indian Food Festival",
-        date: "Jul 15, 2024",
-        imageUrl: "https://images.unsplash.com/photo-1589301760014-d929f39791e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-        aiHint: "indian food festival"
-    }
-]
+import { communities } from '../page';
+import { useEvents } from "@/hooks/use-events";
 
 export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  const community = allCommunitiesData[id] || allCommunitiesData["1"];
+  const community = communities.find(c => c.id === id);
+  const { events } = useEvents();
+
+  const relatedEvents = events.filter(event => event.organizerId === id && event.status === 'Approved').slice(0, 3);
   
   const { toast } = useToast();
   const { user, joinCommunity, leaveCommunity, isCommunityJoined } = useAuth();
@@ -94,13 +35,13 @@ export default function CommunityDetailPage() {
   };
 
   const handleJoinToggle = () => {
-    if (!user) {
+    if (!user || !community) {
         toast({
             title: "Please log in",
             description: "You need to be logged in to join communities.",
             variant: "destructive",
         });
-        router.push("/login");
+        if (!user) router.push("/login");
         return;
     }
 
@@ -118,6 +59,18 @@ export default function CommunityDetailPage() {
             description: `You have successfully joined ${community.name}.`,
         });
     }
+  }
+
+  if (!community) {
+    return (
+        <div className="container mx-auto px-4 py-12 text-center">
+            <h1 className="font-headline text-3xl font-bold">Community not found</h1>
+            <p className="mt-4 text-muted-foreground">The community you are looking for does not exist.</p>
+            <Button asChild className="mt-6">
+                <Link href="/communities">Back to Communities</Link>
+            </Button>
+        </div>
+    );
   }
 
   const orgIsJoined = user ? isCommunityJoined(community.id) : false;
@@ -154,12 +107,12 @@ export default function CommunityDetailPage() {
                   About Our Community
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {community.description}
+                  {community.fullDescription}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                     {community.tags.map((tag: string) => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                 </div>
-                 <div className="mt-10">
+                 {relatedEvents.length > 0 && <div className="mt-10">
                    <h3 className="font-headline text-xl font-semibold mb-4">
                      Upcoming Events Hosted by Us
                    </h3>
@@ -172,13 +125,13 @@ export default function CommunityDetailPage() {
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>
-                                        <p className="text-sm text-muted-foreground">{event.date}</p>
+                                        <p className="text-sm text-muted-foreground">{new Date(event.startDateTime).toLocaleDateString()}</p>
                                     </CardContent>
                                 </Card>
                             </Link>
                         ))}
                    </div>
-                </div>
+                </div>}
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">

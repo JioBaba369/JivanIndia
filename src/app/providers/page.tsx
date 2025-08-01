@@ -16,7 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 
-const providers = [
+export const providers = [
   {
     id: "1",
     name: "Dr. Anjali Sharma, MD",
@@ -59,7 +59,7 @@ const providers = [
     category: "Creative Services",
     specialty: "Graphic Design",
     location: "Seattle, WA",
-    imageUrl: "https://images.unsplash.com/photo-1569396116180-210c182bedb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNpZ24lMjBzdHVkaW98ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib-rb-4.1.0&q=80&w=1080",
+    imageUrl: "https://images.unsplash.com/photo-1569396116180-210c182bedb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNpZ24lMjBzdHVkaW98ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "design studio"
   },
   {
@@ -68,7 +68,7 @@ const providers = [
     category: "Financial Services",
     specialty: "Tax & Accounting",
     location: "San Jose, CA",
-    imageUrl: "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhY2NvdW50YW50JTIwb2ZmaWNlfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib-rb-4.1.0&q=80&w=1080",
+    imageUrl: "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhY2NvdW50YW50JTIwb2ZmaWNlfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "accountant office"
   },
 ];

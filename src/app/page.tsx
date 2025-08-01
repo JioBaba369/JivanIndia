@@ -16,95 +16,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-
-const events = [
-  {
-    id: 1,
-    title: "Diwali Festival of Lights",
-    category: "Festival",
-    date: "Sat, Nov 4, 7:00 PM",
-    location: "Grand Park, Downtown LA",
-    imageUrl: "https://images.unsplash.com/photo-1600813633279-997f77a83777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaXdhbGklMjBmZXN0aXZhbHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "diwali festival",
-  },
-  {
-    id: 2,
-    title: "Bollywood Dance Workshop",
-    category: "Workshop",
-    date: "Sun, Nov 5, 2:00 PM",
-    location: "Mumbai Dance Studio",
-    imageUrl: "https://images.unsplash.com/photo-1511210100424-03d3623f0010?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxib2xseXdvb2QlMjBkYW5jZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "bollywood dance",
-  },
-  {
-    id: 3,
-    title: "Indian Food Fair",
-    category: "Food",
-    date: "Sat, Nov 11, 12:00 PM",
-    location: "Exhibition Center",
-    imageUrl: "https://images.unsplash.com/photo-1589301760014-d929f39791e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "indian food",
-  },
-];
-
-const deals = [
-    {
-    id: "1",
-    title: "20% Off Lunch Buffet",
-    business: "Taste of India Restaurant",
-    category: "Food",
-    imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBidWZmZXR8ZW58MHx8fHwxNzU0MDQyNjA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "indian buffet"
-  },
-  {
-    id: "2",
-    title: "Buy One Get One Free Saree",
-    business: "Bollywood Styles Boutique",
-    category: "Shopping",
-    imageUrl: "https://images.unsplash.com/photo-1617196020993-9417f77b8a7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzYXJlZSUyMHNob3B8ZW58MHx8fHwxNzU0MDQyNjA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "saree shop"
-  },
-  {
-    id: "3",
-    title: "$50 Off International Flights",
-    business: "Fly High Travel Agency",
-    category: "Travel",
-    imageUrl: "https://images.unsplash.com/photo-1549922572-80b6245f7895?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmbGlnaHQlMjB0byUyMEluZGliaWVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "travel agency"
-  },
-];
-
-const jobs = [
-   {
-    id: "1",
-    title: "Software Engineer",
-    company: "InnovateTech Solutions",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "tech company logo"
-  },
-  {
-    id: "2",
-    title: "Marketing Manager",
-    company: "Desi Grocers Inc.",
-    location: "New York, NY",
-    type: "Full-time",
-    imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "retail logo"
-  },
-  {
-    id: "3",
-    title: "Restaurant Chef",
-    company: "Saffron Restaurant Group",
-    location: "Chicago, IL",
-    type: "Part-time",
-    imageUrl: "https://placehold.co/100x100.png",
-    aiHint: "restaurant logo"
-  },
-]
+import { useEvents } from "@/hooks/use-events";
+import { deals } from "./deals/page";
+import { jobs } from "./careers/page";
+import { format } from "date-fns";
 
 export default function HomePage() {
+  const { events } = useEvents();
+  const latestEvents = events.filter(e => e.status === 'Approved').slice(0, 3);
+  const latestDeals = deals.slice(0, 3);
+  const latestJobs = jobs.slice(0, 3);
+
   return (
     <div className="flex flex-col">
       <section className="relative bg-background text-white">
@@ -172,7 +94,7 @@ export default function HomePage() {
 
           <TabsContent value="events">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {events.map((event) => (
+              {latestEvents.map((event) => (
                 <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                   <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
                     <CardContent className="p-0 flex flex-col h-full">
@@ -184,18 +106,18 @@ export default function HomePage() {
                           className="object-cover transition-transform group-hover:scale-105"
                           data-ai-hint={event.aiHint}
                         />
-                        <Badge className="absolute top-2 right-2">{event.category}</Badge>
+                        <Badge className="absolute top-2 right-2">{event.eventType}</Badge>
                       </div>
                       <div className="p-6 flex flex-col flex-grow">
                         <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
                         <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
-                            <span>{event.date}</span>
+                            <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
-                            <span>{event.location}</span>
+                            <span>{event.location.venueName}</span>
                           </div>
                         </div>
                         <Button variant="outline" className="mt-6 w-full">
@@ -217,7 +139,7 @@ export default function HomePage() {
 
           <TabsContent value="deals">
              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {deals.map((deal) => (
+              {latestDeals.map((deal) => (
                 <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                   <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
                      <CardContent className="p-0 h-full flex flex-col">
@@ -255,7 +177,7 @@ export default function HomePage() {
           
           <TabsContent value="careers">
              <div className="space-y-6">
-              {jobs.map((job) => (
+              {latestJobs.map((job) => (
                  <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
                    <Link href={`/careers/${job.id}`} className="block">
                     <CardContent className="p-6">

@@ -27,7 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 
-const featuredCommunities = [
+export const communities = [
    {
     id: "1",
     name: "India Cultural Center",
@@ -36,7 +36,14 @@ const featuredCommunities = [
     imageUrl: "https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "community center",
     description: "The heart of the Bay Area's Indian community, offering cultural events, classes, and support services.",
+    fullDescription: "Established in 1998, the India Cultural Center has grown to become a pivotal institution for the Indian diaspora in the San Francisco Bay Area. We offer a diverse range of programs including language classes (Hindi, Tamil, Telugu), classical and Bollywood dance instruction, music lessons, and yoga and meditation workshops. Our facilities include a large auditorium for performances, multiple classrooms, a library with a rich collection of Indian literature, and a community hall for private events. We are a non-profit organization run by a dedicated team of volunteers and staff, committed to serving the community's cultural, social, and educational needs.",
     membersCount: "5,000+ Members",
+    founded: "1998",
+    contactEmail: "contact@sfindiacc.org",
+    website: "www.sfindiacc.org",
+    phone: "555-123-4567",
+    address: "123 Cultural Way, Fremont, CA 94539",
+    tags: ["Culture", "Community", "Events", "Education", "Non-Profit"],
     isVerified: true,
   },
    {
@@ -47,7 +54,14 @@ const featuredCommunities = [
     imageUrl: "https://images.unsplash.com/photo-1531028362699-7335dbd25515?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBhcnQlMjBnYWxsZXJ5fGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "art gallery",
     description: "Promoting and preserving South Asian visual and performing arts through exhibitions, workshops, and performances.",
+    fullDescription: "The South Asian Arts Society is dedicated to the promotion and preservation of the rich and diverse artistic heritage of South Asia. We host regular art exhibitions, film screenings, music concerts, and dance performances. Our mission is to provide a platform for emerging and established artists from the diaspora and to foster a greater appreciation for South Asian arts within the wider community.",
     membersCount: "2,500+ Members",
+    founded: "2010",
+    contactEmail: "info@saasny.org",
+    website: "www.saasny.org",
+    phone: "555-321-7654",
+    address: "456 Art Ave, New York, NY 10001",
+    tags: ["Arts", "Culture", "NYC", "Gallery", "Performance"],
     isVerified: false,
   },
   {
@@ -58,14 +72,16 @@ const featuredCommunities = [
     imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3dvcmtpbmclMjBzcGFjZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "modern office",
     description: "A professional network fostering innovation and collaboration among Indian entrepreneurs in the Midwest.",
+    fullDescription: "Entrepreneurs of India (EOI) is a vibrant community of founders, innovators, and business leaders. We organize networking events, mentorship programs, and workshops to support the entrepreneurial journey. Our goal is to create a collaborative ecosystem where members can share ideas, build partnerships, and access resources to grow their businesses.",
     membersCount: "1,200+ Members",
+    founded: "2015",
+    contactEmail: "connect@eoichicago.com",
+    website: "www.eoichicago.com",
+    phone: "555-987-1234",
+    address: "789 Commerce St, Chicago, IL 60607",
+    tags: ["Business", "Networking", "Startups", "Entrepreneurship"],
     isVerified: false,
   },
-];
-
-
-export const communities = [
-  ...featuredCommunities,
   {
     id: "4",
     name: "Hindu Temple & Cultural Center",
@@ -74,7 +90,14 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1587143621495-2a298aa35624?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "hindu temple",
     description: "A spiritual and cultural anchor for the Hindu community in Houston, offering religious services and educational programs.",
+    fullDescription: "The Hindu Temple & Cultural Center of Houston is a place of worship and a hub for cultural activities. We offer daily prayer services, religious classes for all ages, and celebrate all major Hindu festivals with grand ceremonies. Our mission is to provide a spiritual home for the Hindu community and to promote the values of Sanatana Dharma.",
     membersCount: "8,000+ Members",
+    founded: "1985",
+    contactEmail: "info@houstontemple.org",
+    website: "www.houstontemple.org",
+    phone: "555-111-2222",
+    address: "123 Temple Dr, Houston, TX 77001",
+    tags: ["Religious", "Hinduism", "Temple", "Spiritual", "Houston"],
     isVerified: true,
   },
   {
@@ -85,7 +108,14 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1617812000789-a5909f24b1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxTaWtoJTIwZ3VydGR3YXJhJTIwZXh0ZXJpb3J8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "charity event",
     description: "A non-profit organization dedicated to philanthropic work and promoting Sikh culture and heritage.",
+    fullDescription: "The Sikh Foundation is committed to the principles of 'Seva' (selfless service). We run various community service programs, including food drives, educational scholarships, and disaster relief efforts. We also work to promote awareness and understanding of the Sikh faith and culture through educational initiatives and interfaith dialogue.",
     membersCount: "3,000+ Members",
+    founded: "2001",
+    contactEmail: "seva@sikhfoundationca.org",
+    website: "www.sikhfoundationca.org",
+    phone: "555-333-4444",
+    address: "456 Gurdwara Rd, Fremont, CA 94538",
+    tags: ["Charity", "Sikhism", "Seva", "Community Service", "Non-Profit"],
     isVerified: false,
   },
   {
@@ -96,7 +126,14 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMG9uJTIwYSUyMHVuaXZlcnNpdHklMjBjYW1wdXN8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "university campus",
     description: "Supporting Indian students in Boston, organizing social events, and celebrating Indian festivals on campus.",
+    fullDescription: "The Indian Students Association (ISA) at Boston University is a home away from home for students from India. We organize a variety of events throughout the year, including Diwali and Holi celebrations, movie nights, and social mixers. Our goal is to help new students adapt to life in Boston and to create a strong sense of community among Indian students.",
     membersCount: "800+ Members",
+    founded: "1995",
+    contactEmail: "isa@bu.edu",
+    website: "www.bu.edu/isa",
+    phone: "N/A",
+    address: "Boston University, Boston, MA 02215",
+    tags: ["Students", "University", "Social", "Boston", "Events"],
     isVerified: false,
   },
   {
@@ -107,10 +144,19 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1594904523995-18b0831c26ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwc3R1ZGlvfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "film studio",
     description: "A leading film production and distribution company, bringing Bollywood cinema to the world.",
+    fullDescription: "Yash Raj Films (YRF) is one of India's largest and most successful film production and distribution companies. Founded by the late Yash Chopra, a veteran of the Indian film industry, in 1970, YRF has grown to be a powerhouse in Indian cinema. The company has produced some of the most iconic and highest-grossing Hindi films of all time. YRF also operates a state-of-the-art studio complex in Mumbai, which includes shooting stages, sound-recording studios, and post-production facilities.",
     membersCount: "N/A",
+    founded: "1970",
+    contactEmail: "helpdesk@yashrajfilms.com",
+    website: "www.yashrajfilms.com",
+    phone: "+91-22-3061-3500",
+    address: "Veera Desai Road, Andheri West, Mumbai, Maharashtra 400053, India",
+    tags: ["Film", "Entertainment", "Bollywood", "Production", "Distribution"],
     isVerified: true,
   },
 ];
+
+const featuredCommunities = communities.slice(0, 3);
 
 
 export default function CommunitiesPage() {

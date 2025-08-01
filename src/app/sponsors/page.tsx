@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { HeartHandshake, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
-const sponsors = [
+export const sponsors = [
   {
     id: "1",
     name: "Saffron Restaurant Group",
@@ -60,6 +61,12 @@ const sponsors = [
 
 
 export default function SponsorsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const filteredSponsors = sponsors.filter(sponsor => 
+    sponsor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    sponsor.industry.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
@@ -77,16 +84,15 @@ export default function SponsorsPage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="relative md:col-span-2">
+               <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search for a sponsor by name or industry..."
                     className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button className="w-full">Search Sponsors</Button>
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -94,7 +100,7 @@ export default function SponsorsPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {sponsors.map((sponsor) => (
+          {filteredSponsors.length > 0 ? filteredSponsors.map((sponsor) => (
             <Card key={sponsor.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                <Link href={`/sponsors/${sponsor.id}`} className="block h-full flex flex-col">
                 <CardContent className="p-0 flex flex-col h-full">
@@ -120,7 +126,12 @@ export default function SponsorsPage() {
                 </CardContent>
               </Link>
             </Card>
-          ))}
+          )) : (
+             <div className="text-center py-12 border-2 border-dashed rounded-lg col-span-full">
+                <p className="text-muted-foreground">No sponsors found matching your criteria.</p>
+                <Button variant="link" onClick={() => setSearchQuery('')}>Clear search</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>

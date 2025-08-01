@@ -11,31 +11,15 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns';
 import { useState, useEffect } from 'react';
-
-// Mock data - in a real app, you'd fetch this based on the `params.id`
-const dealDetails = {
-    id: "1",
-    title: "20% Off Lunch Buffet",
-    business: "Taste of India Restaurant",
-    category: "Food",
-    imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBidWZmZXR8ZW58MHx8fHwxNzU0MDQyNjA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHint: "indian buffet",
-    description: "Enjoy a delicious and authentic Indian lunch buffet at a 20% discount. Our buffet features a wide variety of vegetarian and non-vegetarian dishes, including tandoori chicken, paneer makhani, biryani, and fresh naan bread. A perfect way to sample the best of Indian cuisine.",
-    terms: "Offer valid Monday to Friday, 11:30 AM to 2:30 PM. Not valid on holidays. Cannot be combined with other offers. Mention this deal to redeem.",
-    expires: "December 31, 2024",
-    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
-    businessWebsite: "www.tasteofindiala.com", 
-    businessLocation: "Los Angeles, CA",
-    businessId: "1", // Link to an organization profile if available
-};
-
+import { deals } from "../page";
 
 export default function DealDetailPage() {
   const params = useParams();
-  // You can use params.id to fetch the correct deal data from your backend
-  const deal = dealDetails;
+  const id = typeof params.id === 'string' ? params.id : '';
+  const deal = deals.find(d => d.id === id);
+
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
   const router = useRouter();
@@ -46,7 +30,7 @@ export default function DealDetailPage() {
     if (deal?.postedAt) {
       try {
         const date = new Date(deal.postedAt);
-        if (!isNaN(date.getTime())) {
+        if (isValid(date)) {
           setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
         } else {
             setPostedAt('a while ago');
@@ -57,6 +41,15 @@ export default function DealDetailPage() {
       }
     }
   }, [deal?.postedAt]);
+
+  const dealDetails = {
+    description: "Enjoy a delicious and authentic Indian lunch buffet at a 20% discount. Our buffet features a wide variety of vegetarian and non-vegetarian dishes, including tandoori chicken, paneer makhani, biryani, and fresh naan bread. A perfect way to sample the best of Indian cuisine.",
+    terms: "Offer valid Monday to Friday, 11:30 AM to 2:30 PM. Not valid on holidays. Cannot be combined with other offers. Mention this deal to redeem.",
+    expires: "December 31, 2024",
+    businessWebsite: "www.tasteofindiala.com", 
+    businessLocation: "Los Angeles, CA",
+    businessId: "1", // Link to an organization profile if available
+  };
 
 
    const handleShare = () => {
@@ -75,13 +68,13 @@ export default function DealDetailPage() {
   };
 
   const handleSaveToggle = () => {
-    if (!user) {
+    if (!user || !deal) {
         toast({
             title: "Please log in",
             description: "You need to be logged in to save deals.",
             variant: "destructive",
         });
-        router.push("/login");
+        if (!user) router.push("/login");
         return;
     }
 
@@ -99,6 +92,18 @@ export default function DealDetailPage() {
             description: `The "${deal.title}" deal has been saved to your profile.`,
         });
     }
+  }
+
+  if (!deal) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="font-headline text-3xl font-bold">Deal not found</h1>
+        <p className="mt-4 text-muted-foreground">The deal you are looking for does not exist.</p>
+        <Button asChild className="mt-6">
+          <Link href="/deals">Back to Deals</Link>
+        </Button>
+      </div>
+    );
   }
 
   const dealIsSaved = user ? isDealSaved(deal.id) : false;
@@ -132,9 +137,9 @@ export default function DealDetailPage() {
                     <span>Posted {postedAt}</span>
                 </div>
                 <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
-                    <p>{deal.description}</p>
+                    <p>{dealDetails.description}</p>
                     <h3 className="font-headline text-xl font-semibold">Terms & Conditions</h3>
-                    <p>{deal.terms}</p>
+                    <p>{dealDetails.terms}</p>
                 </div>
               </div>
               <div className="space-y-6">
@@ -158,7 +163,7 @@ export default function DealDetailPage() {
                         <div className="flex items-start gap-4">
                             <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
-                                <Link href={`/communities/${deal.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
+                                <Link href={`/communities/${dealDetails.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
                                 <p className="text-sm text-muted-foreground">Visit the business profile for more information.</p>
                             </div>
                         </div>
@@ -166,22 +171,22 @@ export default function DealDetailPage() {
                             <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Location</p>
-                                <p className="text-muted-foreground text-sm">{deal.businessLocation}</p>
+                                <p className="text-muted-foreground text-sm">{dealDetails.businessLocation}</p>
                             </div>
                         </div>
                          <div className="flex items-start gap-4">
                             <Calendar className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Expires</p>
-                                <p className="text-muted-foreground text-sm">{deal.expires}</p>
+                                <p className="text-muted-foreground text-sm">{dealDetails.expires}</p>
                             </div>
                         </div>
                          <div className="flex items-start gap-4">
                             <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Website</p>
-                                <a href={`https://${deal.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-                                    {deal.businessWebsite}
+                                <a href={`https://${dealDetails.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                    {dealDetails.businessWebsite}
                                 </a>
                             </div>
                         </div>

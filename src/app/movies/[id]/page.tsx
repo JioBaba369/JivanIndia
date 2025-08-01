@@ -8,23 +8,22 @@ import { Film, Star, Ticket, Clock, Users, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, isValid } from "date-fns";
 import { useState, useEffect } from 'react';
 import { useParams } from "next/navigation";
+import { movies } from "../page";
 
-// Mock data - in a real app, you'd fetch this based on the `params.id`
-const movieDetails = {
-    id: "1",
-    title: "Jawan",
-    genre: "Action/Thriller",
-    rating: 4.5,
+export default function MovieDetailPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : '';
+  const movie = movies.find(m => m.id === id);
+  const [postedAt, setPostedAt] = useState('');
+
+  const movieDetails = {
     duration: "2h 49m",
     releaseDate: "September 7, 2023",
-    postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
     backdropUrl: "https://images.unsplash.com/photo-1620188467123-64355428675a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXIlMjBjdXJ0YWlufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHintBackdrop: "movie theater curtain",
-    posterUrl: "https://images.unsplash.com/photo-1694029283196-861d8f3a39e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxib2xseXdvb2QlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHintPoster: "action movie poster",
     synopsis: "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in the society. He is accompanied by a core team of six women, and they are up against a deadly outlaw who has caused suffering to many.",
     cast: ["Shah Rukh Khan", "Nayanthara", "Vijay Sethupathi", "Deepika Padukone"],
     distributor: "Yash Raj Films",
@@ -47,20 +46,14 @@ const movieDetails = {
             showtimes: ["1:00 PM", "4:10 PM", "7:20 PM", "10:30 PM"]
         }
     ]
-};
-
-export default function MovieDetailPage() {
-  const params = useParams();
-  // You can use params.id to fetch the correct movie data from your backend
-  const movie = movieDetails;
-  const [postedAt, setPostedAt] = useState('');
+  };
 
   useEffect(() => {
     // Check if movie and postedAt are available to prevent invalid date errors
     if (movie?.postedAt) {
         try {
             const date = new Date(movie.postedAt);
-            if (!isNaN(date.getTime())) {
+            if (isValid(date)) {
                 setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
             } else {
                 setPostedAt('a while ago');
@@ -72,16 +65,27 @@ export default function MovieDetailPage() {
     }
   }, [movie?.postedAt]);
 
+  if (!movie) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="font-headline text-3xl font-bold">Movie not found</h1>
+        <p className="mt-4 text-muted-foreground">The movie you are looking for does not exist.</p>
+        <Button asChild className="mt-6">
+          <Link href="/movies">Back to Movies</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background">
       <div className="relative h-[40vh] md:h-[50vh] w-full">
         <Image
-          src={movie.backdropUrl}
+          src={movieDetails.backdropUrl}
           alt={`Backdrop for ${movie.title}`}
           fill
           className="object-cover"
-          data-ai-hint={movie.aiHintBackdrop}
+          data-ai-hint={movieDetails.aiHintBackdrop}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </div>
@@ -92,11 +96,11 @@ export default function MovieDetailPage() {
                 <Card className="overflow-hidden sticky top-24">
                     <div className="aspect-[2/3] w-full relative">
                         <Image
-                        src={movie.posterUrl}
+                        src={movie.imageUrl}
                         alt={`Poster for ${movie.title}`}
                         fill
                         className="object-cover"
-                        data-ai-hint={movie.aiHintPoster}
+                        data-ai-hint={movie.aiHint}
                         />
                     </div>
                 </Card>
@@ -115,7 +119,7 @@ export default function MovieDetailPage() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock className="h-5 w-5" />
-                            <span>{movie.duration}</span>
+                            <span>{movieDetails.duration}</span>
                         </div>
                     </div>
                 </div>
@@ -128,10 +132,10 @@ export default function MovieDetailPage() {
                                 <History className="h-4 w-4" />
                                 <span>Posted {postedAt}</span>
                             </div>
-                            <p className="text-muted-foreground leading-relaxed">{movie.synopsis}</p>
+                            <p className="text-muted-foreground leading-relaxed">{movieDetails.synopsis}</p>
                              <h3 className="font-headline text-lg font-semibold mt-6 mb-3">Starring</h3>
                              <div className="flex flex-wrap gap-2">
-                                {movie.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}
+                                {movieDetails.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}
                             </div>
                              <div className="mt-6">
                                <h3 className="font-headline text-lg font-semibold mb-3">
@@ -142,8 +146,8 @@ export default function MovieDetailPage() {
                                    <Users className="h-6 w-6 text-secondary-foreground" />
                                  </div>
                                  <div>
-                                   <p className="font-semibold">{movie.distributor}</p>
-                                   <Link href={`/communities/${movie.distributorId}`} className="text-sm text-primary hover:underline">
+                                   <p className="font-semibold">{movieDetails.distributor}</p>
+                                   <Link href={`/communities/${movieDetails.distributorId}`} className="text-sm text-primary hover:underline">
                                      View Distributor
                                    </Link>
                                  </div>
@@ -159,7 +163,7 @@ export default function MovieDetailPage() {
                             <div className="aspect-video w-full">
                                 <iframe
                                     className="w-full h-full rounded-lg"
-                                    src={movie.trailerUrl}
+                                    src={movieDetails.trailerUrl}
                                     title={`Trailer for ${movie.title}`}
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -172,7 +176,7 @@ export default function MovieDetailPage() {
                 <div className="mt-8">
                      <h2 className="font-headline text-2xl font-semibold mb-4">Showtimes & Theaters</h2>
                      <div className="space-y-4">
-                        {movie.theaters.map(theater => (
+                        {movieDetails.theaters.map(theater => (
                             <Card key={theater.name}>
                                 <CardContent className="p-4 sm:p-6">
                                     <div className="flex flex-col sm:flex-row justify-between sm:items-center">

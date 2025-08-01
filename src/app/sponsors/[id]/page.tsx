@@ -1,30 +1,25 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Globe, HeartHandshake, Share2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
-
-// Mock data - in a real app, you'd fetch this based on the `params.id`
-const sponsorDetails = {
-  id: "1",
-  name: "Saffron Restaurant Group",
-  industry: "Food & Beverage",
-  imageUrl: "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsb3V4dXJ5JTIwcmVzdGF1cmFudCUyMGludGVyaW9yfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
-  aiHint: "luxury restaurant interior",
-  description: "Saffron Restaurant Group is a premier collection of fine dining establishments dedicated to bringing authentic, high-quality Indian cuisine to discerning palates. With a focus on traditional recipes, the freshest ingredients, and impeccable service, we create unforgettable dining experiences that celebrate the rich culinary heritage of India. As proud sponsors of the community, we are committed to supporting cultural events and initiatives that bring people together.",
-  website: "www.saffronrestaurantgroup.com",
-};
-
+import { sponsors } from "../page";
 
 export default function SponsorDetailPage() {
   const params = useParams();
-  // You can use params.id to fetch the correct sponsor data from your backend
-  const sponsor = sponsorDetails;
+  const id = typeof params.id === 'string' ? params.id : '';
+  const sponsor = sponsors.find(s => s.id === id);
   const { toast } = useToast();
+
+  const sponsorDetails = {
+    description: "Saffron Restaurant Group is a premier collection of fine dining establishments dedicated to bringing authentic, high-quality Indian cuisine to discerning palates. With a focus on traditional recipes, the freshest ingredients, and impeccable service, we create unforgettable dining experiences that celebrate the rich culinary heritage of India. As proud sponsors of the community, we are committed to supporting cultural events and initiatives that bring people together.",
+  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -33,6 +28,18 @@ export default function SponsorDetailPage() {
       description: "Sponsor profile link copied to clipboard.",
     });
   };
+
+  if (!sponsor) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="font-headline text-3xl font-bold">Sponsor not found</h1>
+        <p className="mt-4 text-muted-foreground">The sponsor you are looking for does not exist.</p>
+        <Button asChild className="mt-6">
+          <Link href="/sponsors">Back to Sponsors</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background">
@@ -63,13 +70,13 @@ export default function SponsorDetailPage() {
                   About {sponsor.name}
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {sponsor.description}
+                  {sponsorDetails.description}
                 </p>
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                     <Button size="lg" className="w-full" asChild>
-                        <a href={`https://${sponsor.website}`} target="_blank" rel="noopener noreferrer">
+                        <a href={sponsor.website} target="_blank" rel="noopener noreferrer">
                             <Globe className="mr-2"/>
                             Visit Website
                         </a>
@@ -92,7 +99,7 @@ export default function SponsorDetailPage() {
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Website</h4>
-                        <a href={`https://${sponsor.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{sponsor.website}</a>
+                        <a href={sponsor.website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{sponsor.website.replace('https://','')}</a>
                       </div>
                     </div>
                   </CardContent>
