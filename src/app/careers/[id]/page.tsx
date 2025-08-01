@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
 import { ApplyForm } from "@/components/apply-form";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
@@ -48,7 +48,8 @@ const jobDetails = {
 };
 
 
-export default function JobDetailPage({ params }: { params: { id: string } }) {
+export default function JobDetailPage() {
+  const params = useParams();
   // You can use params.id to fetch the correct job data from your backend
   const job = jobDetails;
   const { toast } = useToast();
@@ -58,10 +59,19 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [postedAt, setPostedAt] = useState('');
 
   useEffect(() => {
+    // Check if job and postedAt are available to prevent invalid date errors
     if (job?.postedAt) {
-      setPostedAt(formatDistanceToNow(new Date(job.postedAt), { addSuffix: true }));
+        try {
+            const date = new Date(job.postedAt);
+            if (!isNaN(date.getTime())) {
+                setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+            }
+        } catch (error) {
+            console.error("Failed to parse date:", job.postedAt);
+        }
     }
   }, [job?.postedAt]);
+
 
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);

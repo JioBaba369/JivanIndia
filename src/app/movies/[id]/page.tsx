@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useEffect } from 'react';
+import { useParams } from "next/navigation";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const movieDetails = {
@@ -48,14 +49,23 @@ const movieDetails = {
     ]
 };
 
-export default function MovieDetailPage({ params }: { params: { id: string } }) {
+export default function MovieDetailPage() {
+  const params = useParams();
   // You can use params.id to fetch the correct movie data from your backend
   const movie = movieDetails;
   const [postedAt, setPostedAt] = useState('');
 
   useEffect(() => {
+    // Check if movie and postedAt are available to prevent invalid date errors
     if (movie?.postedAt) {
-      setPostedAt(formatDistanceToNow(new Date(movie.postedAt), { addSuffix: true }));
+        try {
+            const date = new Date(movie.postedAt);
+            if (!isNaN(date.getTime())) {
+                setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+            }
+        } catch (error) {
+            console.error("Failed to parse date:", movie.postedAt);
+        }
     }
   }, [movie?.postedAt]);
 

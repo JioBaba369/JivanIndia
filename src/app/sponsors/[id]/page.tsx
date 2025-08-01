@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Globe, HeartHandshake, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const sponsorDetails = {
@@ -19,7 +20,8 @@ const sponsorDetails = {
 };
 
 
-export default function SponsorDetailPage({ params }: { params: { id: string } }) {
+export default function SponsorDetailPage() {
+  const params = useParams();
   // You can use params.id to fetch the correct sponsor data from your backend
   const sponsor = sponsorDetails;
   const { toast } = useToast();

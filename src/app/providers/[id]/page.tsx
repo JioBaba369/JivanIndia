@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const providerDetails = {
@@ -33,7 +34,8 @@ const providerDetails = {
 };
 
 
-export default function ProviderDetailPage({ params }: { params: { id: string } }) {
+export default function ProviderDetailPage() {
+  const params = useParams();
   // You can use params.id to fetch the correct provider data from your backend
   const provider = providerDetails;
   const { toast } = useToast();
@@ -141,4 +143,3 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
     </div>
   );
 }
-

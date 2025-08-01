@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { formatDistanceToNow } from 'date-fns';
 import { useState, useEffect } from 'react';
 
@@ -32,7 +32,8 @@ const dealDetails = {
 };
 
 
-export default function DealDetailPage({ params }: { params: { id: string } }) {
+export default function DealDetailPage() {
+  const params = useParams();
   // You can use params.id to fetch the correct deal data from your backend
   const deal = dealDetails;
   const { toast } = useToast();
@@ -41,8 +42,16 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
   const [postedAt, setPostedAt] = useState('');
 
   useEffect(() => {
+    // Check if deal and postedAt are available to prevent invalid date errors
     if (deal?.postedAt) {
-      setPostedAt(formatDistanceToNow(new Date(deal.postedAt), { addSuffix: true }));
+      try {
+        const date = new Date(deal.postedAt);
+        if (!isNaN(date.getTime())) {
+          setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+        }
+      } catch (error) {
+        console.error("Failed to parse date:", deal.postedAt);
+      }
     }
   }, [deal?.postedAt]);
 
