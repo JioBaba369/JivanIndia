@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -17,9 +16,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
+import { useMemo, useState } from "react";
 
 export default function EventsPage() {
   const { events } = useEvents();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [category, setCategory] = useState('all');
+
+  const eventCategories = useMemo(() => {
+    const categories = new Set(events.map(event => event.category));
+    return ['all', ...Array.from(categories)];
+  }, [events]);
+
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      const matchesSearch =
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.organizer.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesLocation = 
+        event.location.toLowerCase().includes(locationQuery.toLowerCase()) ||
+        event.address.toLowerCase().includes(locationQuery.toLowerCase());
+
+      const matchesCategory = category === 'all' || event.category === category;
+
+      return matchesSearch && matchesLocation && matchesCategory;
+    });
+  }, [events, searchQuery, locationQuery, category]);
 
   return (
     <div className="flex flex-col">
@@ -44,27 +69,37 @@ export default function EventsPage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                <div className="relative md:col-span-2">
+               <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+                <div className="relative lg:col-span-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
-                    placeholder="Search for an event..."
-                    className="pl-10"
+                    placeholder="Search event, organizer..."
+                    className="pl-10 text-base"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Select>
-                  <SelectTrigger>
+                 <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Location"
+                    className="pl-10 text-base"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="text-base">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="festivals">Festivals</SelectItem>
-                    <SelectItem value="workshops">Workshops</SelectItem>
-                    <SelectItem value="food">Food</SelectItem>
-                    <SelectItem value="concerts">Concerts</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
+                    {eventCategories.map((cat, index) => (
+                      <SelectItem key={index} value={cat}>
+                        {cat === 'all' ? 'All Categories' : cat}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Button className="w-full">Find Events</Button>
               </div>
             </CardContent>
           </Card>
@@ -73,7 +108,7 @@ export default function EventsPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
+          {filteredEvents.length > 0 ? filteredEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
                 <CardContent className="p-0 flex flex-col h-full">
@@ -107,7 +142,16 @@ export default function EventsPage() {
                 </CardContent>
               </Link>
             </Card>
-          ))}
+          )) : (
+             <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
+                <p className="text-muted-foreground">No events found matching your criteria.</p>
+                <Button variant="link" onClick={() => {
+                    setSearchQuery('');
+                    setLocationQuery('');
+                    setCategory('all');
+                }}>Clear filters</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>
