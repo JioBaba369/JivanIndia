@@ -73,11 +73,11 @@ export default function NewEventPage() {
       submittedByUid: user.uid,
     };
 
-    addEvent(newEvent);
+    addEvent(newEvent, user.affiliation.orgId);
 
     toast({
       title: 'Event Submitted!',
-      description: `Your event "${title}" is now pending approval.`,
+      description: `Your event "${title}" has been submitted for review.`,
     });
 
     router.push('/events');

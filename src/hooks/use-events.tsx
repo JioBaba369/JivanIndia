@@ -2,6 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { communities } from '@/app/communities/page';
 
 export interface Event {
   id: string;
@@ -38,7 +39,7 @@ export interface Event {
 
 interface EventsContextType {
   events: Event[];
-  addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'status'>) => void;
+  addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => void;
   getEventById: (id: string) => Event | undefined;
 }
 
@@ -129,12 +130,15 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const addEvent = (event: Omit<Event, 'id' | 'createdAt' | 'status'>) => {
+  const addEvent = (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => {
+    const affiliatedCommunity = communities.find(c => c.id === affiliationId);
+    const status = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
+
     const newEvent: Event = {
       ...event,
       id: new Date().getTime().toString(),
       createdAt: new Date().toISOString(),
-      status: 'Pending',
+      status: status,
     };
     const newEvents = [...events, newEvent];
     setEvents(newEvents);
