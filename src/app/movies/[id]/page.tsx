@@ -19,35 +19,6 @@ export default function MovieDetailPage() {
   const movie = movies.find(m => m.id === id);
   const [postedAt, setPostedAt] = useState('');
 
-  const movieDetails = {
-    duration: "2h 49m",
-    releaseDate: "September 7, 2023",
-    backdropUrl: "https://images.unsplash.com/photo-1620188467123-64355428675a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXIlMjBjdXJ0YWlufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
-    aiHintBackdrop: "movie theater curtain",
-    synopsis: "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in the society. He is accompanied by a core team of six women, and they are up against a deadly outlaw who has caused suffering to many.",
-    cast: ["Shah Rukh Khan", "Nayanthara", "Vijay Sethupathi", "Deepika Padukone"],
-    distributor: "Yash Raj Films",
-    distributorId: "7",
-    trailerUrl: "https://www.youtube.com/embed/COv52Qyctws",
-    theaters: [
-        {
-            name: "AMC Bay Street 16",
-            location: "Emeryville, CA",
-            showtimes: ["1:30 PM", "4:45 PM", "8:00 PM", "10:15 PM"]
-        },
-        {
-            name: "Regal Jack London",
-            location: "Oakland, CA",
-            showtimes: ["2:00 PM", "5:15 PM", "8:30 PM"]
-        },
-        {
-            name: "Century San Francisco Centre 9",
-            location: "San Francisco, CA",
-            showtimes: ["1:00 PM", "4:10 PM", "7:20 PM", "10:30 PM"]
-        }
-    ]
-  };
-
   useEffect(() => {
     // Check if movie and postedAt are available to prevent invalid date errors
     if (movie?.postedAt) {
@@ -81,11 +52,11 @@ export default function MovieDetailPage() {
     <div className="bg-background">
       <div className="relative h-[40vh] md:h-[50vh] w-full">
         <Image
-          src={movieDetails.backdropUrl}
+          src={movie.details.backdropUrl}
           alt={`Backdrop for ${movie.title}`}
           fill
           className="object-cover"
-          data-ai-hint={movieDetails.aiHintBackdrop}
+          data-ai-hint={movie.details.aiHintBackdrop}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </div>
@@ -119,7 +90,7 @@ export default function MovieDetailPage() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock className="h-5 w-5" />
-                            <span>{movieDetails.duration}</span>
+                            <span>{movie.details.duration}</span>
                         </div>
                     </div>
                 </div>
@@ -132,10 +103,10 @@ export default function MovieDetailPage() {
                                 <History className="h-4 w-4" />
                                 <span>Posted {postedAt}</span>
                             </div>
-                            <p className="text-muted-foreground leading-relaxed">{movieDetails.synopsis}</p>
+                            <p className="text-muted-foreground leading-relaxed">{movie.details.synopsis}</p>
                              <h3 className="font-headline text-lg font-semibold mt-6 mb-3">Starring</h3>
                              <div className="flex flex-wrap gap-2">
-                                {movieDetails.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}
+                                {movie.details.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}
                             </div>
                              <div className="mt-6">
                                <h3 className="font-headline text-lg font-semibold mb-3">
@@ -146,8 +117,8 @@ export default function MovieDetailPage() {
                                    <Users className="h-6 w-6 text-secondary-foreground" />
                                  </div>
                                  <div>
-                                   <p className="font-semibold">{movieDetails.distributor}</p>
-                                   <Link href={`/communities/${movieDetails.distributorId}`} className="text-sm text-primary hover:underline">
+                                   <p className="font-semibold">{movie.details.distributor}</p>
+                                   <Link href={`/communities/${movie.details.distributorId}`} className="text-sm text-primary hover:underline">
                                      View Distributor
                                    </Link>
                                  </div>
@@ -163,7 +134,7 @@ export default function MovieDetailPage() {
                             <div className="aspect-video w-full">
                                 <iframe
                                     className="w-full h-full rounded-lg"
-                                    src={movieDetails.trailerUrl}
+                                    src={movie.details.trailerUrl}
                                     title={`Trailer for ${movie.title}`}
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -176,7 +147,7 @@ export default function MovieDetailPage() {
                 <div className="mt-8">
                      <h2 className="font-headline text-2xl font-semibold mb-4">Showtimes & Theaters</h2>
                      <div className="space-y-4">
-                        {movieDetails.theaters.map(theater => (
+                        {movie.details.theaters.map(theater => (
                             <Card key={theater.name}>
                                 <CardContent className="p-4 sm:p-6">
                                     <div className="flex flex-col sm:flex-row justify-between sm:items-center">

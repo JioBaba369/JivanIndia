@@ -42,16 +42,6 @@ export default function DealDetailPage() {
     }
   }, [deal?.postedAt]);
 
-  const dealDetails = {
-    description: "Enjoy a delicious and authentic Indian lunch buffet at a 20% discount. Our buffet features a wide variety of vegetarian and non-vegetarian dishes, including tandoori chicken, paneer makhani, biryani, and fresh naan bread. A perfect way to sample the best of Indian cuisine.",
-    terms: "Offer valid Monday to Friday, 11:30 AM to 2:30 PM. Not valid on holidays. Cannot be combined with other offers. Mention this deal to redeem.",
-    expires: "December 31, 2024",
-    businessWebsite: "www.tasteofindiala.com", 
-    businessLocation: "Los Angeles, CA",
-    businessId: "1", // Link to an organization profile if available
-  };
-
-
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({
@@ -137,9 +127,9 @@ export default function DealDetailPage() {
                     <span>Posted {postedAt}</span>
                 </div>
                 <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
-                    <p>{dealDetails.description}</p>
+                    <p>{deal.description}</p>
                     <h3 className="font-headline text-xl font-semibold">Terms & Conditions</h3>
-                    <p>{dealDetails.terms}</p>
+                    <p>{deal.terms}</p>
                 </div>
               </div>
               <div className="space-y-6">
@@ -163,7 +153,7 @@ export default function DealDetailPage() {
                         <div className="flex items-start gap-4">
                             <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
-                                <Link href={`/communities/${dealDetails.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
+                                <Link href={`/communities/${deal.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
                                 <p className="text-sm text-muted-foreground">Visit the business profile for more information.</p>
                             </div>
                         </div>
@@ -171,22 +161,22 @@ export default function DealDetailPage() {
                             <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Location</p>
-                                <p className="text-muted-foreground text-sm">{dealDetails.businessLocation}</p>
+                                <p className="text-muted-foreground text-sm">{deal.businessLocation}</p>
                             </div>
                         </div>
                          <div className="flex items-start gap-4">
                             <Calendar className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Expires</p>
-                                <p className="text-muted-foreground text-sm">{dealDetails.expires}</p>
+                                <p className="text-muted-foreground text-sm">{deal.expires}</p>
                             </div>
                         </div>
                          <div className="flex items-start gap-4">
                             <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Website</p>
-                                <a href={`https://${dealDetails.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-                                    {dealDetails.businessWebsite}
+                                <a href={`https://${deal.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                    {deal.businessWebsite}
                                 </a>
                             </div>
                         </div>
