@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -9,28 +10,16 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { useEvents } from "@/hooks/use-events";
 
 
-// Mock data - in a real app, you'd fetch this based on the `params.id`
-const eventDetails = {
-  id: "1",
-  title: "Diwali Festival of Lights",
-  category: "Festival",
-  date: "Saturday, November 4, 2024",
-  time: "7:00 PM - 11:00 PM PST",
-  location: "Grand Park, Downtown LA",
-  address: "200 N Grand Ave, Los Angeles, CA 90012",
-  imageUrl: "https://images.unsplash.com/photo-1605302977545-3a09913be1dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkaXdhbGklMjBjZWxlYnJhdGlvbiUyMG5pZ2h0fGVufDB8fHx8MTc1NDA0MjYwNHww&ixlib=rb-4.1.0&q=80&w=1080",
-  aiHint: "diwali celebration night",
-  description:
-    "Experience the magic of Diwali at the annual Festival of Lights. This family-friendly event will feature traditional music, dance performances, delicious Indian food from local vendors, and a spectacular fireworks display to conclude the evening. Come and celebrate the victory of light over darkness with the community.",
-  organizer: "India Cultural Center",
-};
+export default function EventDetailPage() {
+  const params = useParams();
+  const { getEventById } = useEvents();
+  const id = typeof params.id === 'string' ? params.id : '';
+  const event = getEventById(id);
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
-  // You can use params.id to fetch the correct event data from your backend
-  const event = eventDetails;
   const { toast } = useToast();
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
   const router = useRouter();
@@ -42,6 +31,18 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
       description: "Event link copied to clipboard.",
     });
   };
+
+  if (!event) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="font-headline text-3xl font-bold">Event not found</h1>
+        <p className="mt-4 text-muted-foreground">The event you are looking for does not exist.</p>
+        <Button asChild className="mt-6">
+          <Link href="/events">Back to Events</Link>
+        </Button>
+      </div>
+    );
+  }
 
   const handleSaveToggle = () => {
     if (!user) {

@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { PT_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -6,6 +7,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/use-auth";
+import { EventsProvider } from "@/hooks/use-events";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -39,12 +41,14 @@ export default function RootLayout({
         )}
       >
         <AuthProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
+          <EventsProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <Toaster />
+          </EventsProvider>
         </AuthProvider>
       </body>
     </html>

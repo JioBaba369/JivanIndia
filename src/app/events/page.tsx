@@ -1,5 +1,7 @@
 
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,66 +16,11 @@ import { Calendar, MapPin, Search, Ticket, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-
-export const events = [
-  {
-    id: 1,
-    title: "Diwali Festival of Lights",
-    category: "Festival",
-    date: "Sat, Nov 4, 7:00 PM",
-    location: "Grand Park, Downtown LA",
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "diwali festival",
-  },
-  {
-    id: 2,
-    title: "Bollywood Dance Workshop",
-    category: "Workshop",
-    date: "Sun, Nov 5, 2:00 PM",
-    location: "Mumbai Dance Studio",
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "bollywood dance",
-  },
-  {
-    id: 3,
-    title: "Indian Food Fair",
-    category: "Food",
-    date: "Sat, Nov 11, 12:00 PM",
-    location: "Exhibition Center",
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "indian food",
-  },
-   {
-    id: 4,
-    title: "Tech Conference 2024",
-    category: "Business",
-    date: "Fri, Nov 17, 9:00 AM",
-    location: "Convention Center",
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "tech conference"
-  },
-  {
-    id: 5,
-    title: "Classical Music Concert",
-    category: "Concert",
-    date: "Sun, Nov 19, 6:00 PM",
-    location: "Symphony Hall",
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "classical concert"
-  },
-  {
-    id: 6,
-    title: "Startup Pitch Night",
-    category: "Networking",
-    date: "Wed, Nov 22, 6:30 PM",
-    location: "City Hub",
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "startup pitch"
-  },
-];
-
+import { useEvents } from "@/hooks/use-events";
 
 export default function EventsPage() {
+  const { events } = useEvents();
+
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
@@ -84,9 +31,11 @@ export default function EventsPage() {
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
             Explore cultural, professional, and community events happening near you.
           </p>
-           <Button size="lg" className="mt-8">
-              <PlusCircle className="mr-2 h-5 w-5" />
-              Post an Event
+           <Button size="lg" className="mt-8" asChild>
+              <Link href="/events/new">
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Post an Event
+              </Link>
             </Button>
         </div>
       </section>
