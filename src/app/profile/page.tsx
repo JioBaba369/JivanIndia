@@ -84,7 +84,7 @@ export default function ProfilePage() {
     );
   }
 
-  const profileImageUrl = user.profileImageUrl || "https://placehold.co/100x100.png";
+  const profileImageUrl = user.profileImageUrl;
   const profileImageAiHint = "user avatar";
 
   return (

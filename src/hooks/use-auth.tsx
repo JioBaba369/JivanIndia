@@ -11,8 +11,6 @@ interface User {
   affiliation?: {
     orgId: string;
     orgName: string;
-    orgLogoUrl: string;
-    orgLogoAiHint: string;
   };
   phone?: string;
   currentLocation?: {
@@ -133,8 +131,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         affiliation: user.email ? { 
             orgId: '1', 
             orgName: 'India Cultural Center',
-            orgLogoUrl: 'https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080',
-            orgLogoAiHint: 'community center logo',
         } : undefined,
     };
     setUser(userToLogin);
