@@ -25,12 +25,14 @@ export default function EventsPage() {
   const [category, setCategory] = useState('all');
 
   const eventCategories = useMemo(() => {
-    const categories = new Set(events.map(event => event.category));
+    const categories = new Set(events.filter(e => e.status === 'Approved').map(event => event.category));
     return ['all', ...Array.from(categories)];
   }, [events]);
 
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
+      if (event.status !== 'Approved') return false;
+
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

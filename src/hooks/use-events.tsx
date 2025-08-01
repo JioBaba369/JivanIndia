@@ -20,6 +20,8 @@ export interface Event {
   postedAt: string; // ISO 8601 date string
   duration: string;
   tags?: string[];
+  status?: 'Pending' | 'Approved' | 'Archived';
+  ticketUrl?: string;
 }
 
 interface EventsContextType {
@@ -48,6 +50,8 @@ const initialEvents: Event[] = [
     postedAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
     duration: "4 hours",
     tags: ["diwali", "festival", "family-friendly", "los-angeles", "free-entry"],
+    status: "Approved",
+    ticketUrl: "https://www.eventbrite.com/e/diwali-festival-of-lights-tickets-123456789",
   },
   {
     id: "2",
@@ -65,6 +69,7 @@ const initialEvents: Event[] = [
     postedAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
     duration: "2 hours",
     tags: ["dance", "workshop", "bollywood", "artesia"],
+    status: "Approved",
   },
   {
     id: "3",
@@ -82,6 +87,7 @@ const initialEvents: Event[] = [
     postedAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
     duration: "8 hours",
     tags: ["food", "festival", "anaheim", "taste-of-india"],
+    status: "Approved",
   },
 ];
 

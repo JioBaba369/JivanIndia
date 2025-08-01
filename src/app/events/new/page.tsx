@@ -35,6 +35,7 @@ export default function NewEventPage() {
   const [organizer, setOrganizer] = useState(user?.affiliation?.orgName || '');
   const [duration, setDuration] = useState('');
   const [tags, setTags] = useState('');
+  const [ticketUrl, setTicketUrl] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,13 +61,15 @@ export default function NewEventPage() {
       aiHint: 'community event',
       duration,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      status: 'Pending',
+      ticketUrl,
     };
 
     addEvent(newEvent);
 
     toast({
-      title: 'Event Created!',
-      description: `The event "${title}" has been successfully created.`,
+      title: 'Event Submitted!',
+      description: `Your event "${title}" is now pending approval.`,
     });
 
     router.push('/events');
@@ -215,6 +218,18 @@ export default function NewEventPage() {
                 />
                 <p className="text-xs text-muted-foreground">Separate tags with a comma.</p>
             </div>
+
+             <div className="space-y-2">
+                <Label htmlFor="ticketUrl">Ticket URL (Optional)</Label>
+                <Input
+                    id="ticketUrl"
+                    placeholder="e.g., https://www.eventbrite.com/..."
+                    value={ticketUrl}
+                    onChange={(e) => setTicketUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Link to an external ticketing page.</p>
+            </div>
+
 
             <div className="flex justify-end gap-4 pt-4">
               <Button type="button" variant="outline" onClick={() => router.back()}>

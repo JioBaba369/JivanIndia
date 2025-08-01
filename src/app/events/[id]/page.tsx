@@ -89,6 +89,26 @@ export default function EventDetailPage() {
 
   const eventIsSaved = user ? isEventSaved(event.id) : false;
 
+  const TicketButton = () => {
+    if (event.ticketUrl) {
+      return (
+        <Button size="lg" className="w-full" asChild>
+          <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer">
+            <Ticket className="mr-2"/>
+            Get Tickets
+          </a>
+        </Button>
+      );
+    }
+    return (
+      <Button size="lg" className="w-full">
+        <Ticket className="mr-2"/>
+        Register
+      </Button>
+    );
+  };
+
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-12">
@@ -153,10 +173,7 @@ export default function EventDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full">
-                        <Ticket className="mr-2"/>
-                        Register / Get Tickets
-                    </Button>
+                    <TicketButton />
                     <Button size="lg" variant={eventIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
                         <Bookmark className="mr-2"/>
                         {eventIsSaved ? "Event Saved" : "Save Event"}
