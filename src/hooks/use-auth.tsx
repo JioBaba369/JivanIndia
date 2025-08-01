@@ -15,8 +15,15 @@ interface User {
     orgLogoAiHint: string;
   };
   phone?: string;
-  homeAddress?: string;
-  indianAddress?: string;
+  currentLocation?: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  originLocation?: {
+    indiaState: string;
+    indiaDistrict: string;
+  }
   languagesSpoken?: string[];
   interests?: string[];
 }

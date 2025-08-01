@@ -29,8 +29,14 @@ export default function EditProfilePage() {
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [phone, setPhone] = useState('');
-  const [homeAddress, setHomeAddress] = useState('');
-  const [indianAddress, setIndianAddress] = useState('');
+  
+  const [currentCountry, setCurrentCountry] = useState('');
+  const [currentState, setCurrentState] = useState('');
+  const [currentCity, setCurrentCity] = useState('');
+
+  const [originState, setOriginState] = useState('');
+  const [originDistrict, setOriginDistrict] = useState('');
+
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -44,11 +50,16 @@ export default function EditProfilePage() {
       setEmail(user.email);
       setBio(user.bio || '');
       setPhone(user.phone || '');
-      setHomeAddress(user.homeAddress || '');
-      setIndianAddress(user.indianAddress || '');
+      setCurrentCountry(user.currentLocation?.country || '');
+      setCurrentState(user.currentLocation?.state || '');
+      setCurrentCity(user.currentLocation?.city || '');
+      setOriginState(user.originLocation?.indiaState || '');
+      setOriginDistrict(user.originLocation?.indiaDistrict || '');
       setLanguages(user.languagesSpoken?.join(', ') || '');
       setInterests(user.interests?.join(', ') || '');
-      setProfileImageUrl(user.profileImageUrl || user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png");
+      if (user.profileImageUrl) {
+        setProfileImageUrl(user.profileImageUrl);
+      }
     } else {
         router.push('/login');
     }
@@ -79,9 +90,16 @@ export default function EditProfilePage() {
             email, 
             bio, 
             profileImageUrl: newImageUrl, 
-            phone, 
-            homeAddress, 
-            indianAddress,
+            phone,
+            currentLocation: {
+                country: currentCountry,
+                state: currentState,
+                city: currentCity
+            },
+            originLocation: {
+                indiaState: originState,
+                indiaDistrict: originDistrict,
+            },
             languagesSpoken,
             interests: userInterests
         });
@@ -177,7 +195,7 @@ export default function EditProfilePage() {
                     <Input 
                         id="phone" 
                         type="tel"
-                        placeholder="e.g., (123) 456-7890"
+                        placeholder="e.g., +1 123 456 7890"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                     />
@@ -192,6 +210,39 @@ export default function EditProfilePage() {
                         rows={3}
                     />
                 </div>
+
+                <div className="space-y-4">
+                    <h3 className="font-headline text-lg font-semibold border-b pb-2">Current Location</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                         <div className="grid gap-2">
+                            <Label htmlFor="current-country">Country</Label>
+                            <Input id="current-country" placeholder="e.g., USA" value={currentCountry} onChange={(e) => setCurrentCountry(e.target.value)} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="current-state">State / Province</Label>
+                            <Input id="current-state" placeholder="e.g., California" value={currentState} onChange={(e) => setCurrentState(e.target.value)} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="current-city">City</Label>
+                            <Input id="current-city" placeholder="e.g., San Francisco" value={currentCity} onChange={(e) => setCurrentCity(e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <h3 className="font-headline text-lg font-semibold border-b pb-2">Origin in India (Optional)</h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="grid gap-2">
+                            <Label htmlFor="origin-state">State</Label>
+                            <Input id="origin-state" placeholder="e.g., Kerala, Punjab" value={originState} onChange={(e) => setOriginState(e.target.value)} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="origin-district">District</Label>
+                            <Input id="origin-district" placeholder="e.g., Kollam, Ludhiana" value={originDistrict} onChange={(e) => setOriginDistrict(e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="grid gap-2">
@@ -215,28 +266,6 @@ export default function EditProfilePage() {
                         />
                         <p className="text-xs text-muted-foreground">Separate interests with a comma.</p>
                     </div>
-                </div>
-
-                <div className="grid gap-2">
-                    <Label htmlFor="homeAddress">Home Address</Label>
-                    <Textarea
-                        id="homeAddress"
-                        placeholder="Your address in your current country of residence."
-                        value={homeAddress}
-                        onChange={(e) => setHomeAddress(e.target.value)}
-                        rows={3}
-                    />
-                </div>
-
-                <div className="grid gap-2">
-                    <Label htmlFor="indianAddress">Indian Address (Optional)</Label>
-                    <Textarea
-                        id="indianAddress"
-                        placeholder="Your address in India, if applicable."
-                        value={indianAddress}
-                        onChange={(e) => setIndianAddress(e.target.value)}
-                        rows={3}
-                    />
                 </div>
                 
                 <div className="flex justify-end gap-4 pt-4">

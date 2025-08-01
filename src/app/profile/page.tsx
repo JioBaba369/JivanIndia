@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail, Languages, Heart } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail, Languages, Heart, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -84,8 +84,8 @@ export default function ProfilePage() {
     );
   }
 
-  const profileImageUrl = user.profileImageUrl || user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png";
-  const profileImageAiHint = user.affiliation?.orgLogoAiHint || "user avatar";
+  const profileImageUrl = user.profileImageUrl || "https://placehold.co/100x100.png";
+  const profileImageAiHint = "user avatar";
 
   return (
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
@@ -172,21 +172,21 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                             )}
-                            {user.homeAddress && (
+                             {user.currentLocation?.city && (
                                 <div className="flex items-start gap-4">
-                                    <Home className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                                     <div>
-                                        <p className="font-semibold text-sm">Home Address</p>
-                                        <p className="text-muted-foreground text-sm">{user.homeAddress}</p>
+                                        <p className="font-semibold text-sm">Current Location</p>
+                                        <p className="text-muted-foreground text-sm">{`${user.currentLocation.city}, ${user.currentLocation.state}, ${user.currentLocation.country}`}</p>
                                     </div>
                                 </div>
                             )}
-                            {user.indianAddress && (
+                            {user.originLocation?.indiaState && (
                                 <div className="flex items-start gap-4">
                                     <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                                     <div>
-                                        <p className="font-semibold text-sm">Indian Address</p>
-                                        <p className="text-muted-foreground text-sm">{user.indianAddress}</p>
+                                        <p className="font-semibold text-sm">Origin in India</p>
+                                        <p className="text-muted-foreground text-sm">{`${user.originLocation.indiaDistrict}, ${user.originLocation.indiaState}`}</p>
                                     </div>
                                 </div>
                             )}
