@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 
 interface User {
   uid: string;
@@ -44,6 +44,7 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (updatedData: Partial<User>) => void;
   isLoading: boolean;
+  getInitials: (name: string) => string;
   
   savedJobs: string[];
   saveJob: (jobId: string) => void;
@@ -118,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setJoinedCommunities(user?.joinedCommunities || []);
     setSavedDeals(user?.savedDeals || []);
     setIsLoading(false);
-  }, [user?.savedJobs, user?.savedEvents, user?.joinedCommunities, user?.savedDeals]);
+  }, [user]);
 
 
   const updateUser = (updatedData: Partial<User>) => {
@@ -160,6 +161,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSavedDeals([]);
     setIsLoading(false);
   };
+  
+  const getInitials = useCallback((name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }, []);
 
   const createSaveFunctions = (
     list: string[],
@@ -195,6 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout, 
     updateUser,
     isLoading, 
+    getInitials,
     savedJobs, saveJob, unsaveJob, isJobSaved,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,

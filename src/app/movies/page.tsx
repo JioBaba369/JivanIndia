@@ -57,7 +57,7 @@ export default function MoviesPage() {
       <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
-            <CardContent className="p-4">
+            <CardContent>
                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -102,7 +102,7 @@ export default function MoviesPage() {
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 </div>
-                <CardContent className="p-4">
+                <CardContent>
                   <h3 className="font-headline truncate text-lg font-bold group-hover:text-primary">{movie.title}</h3>
                   <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export default function MoviesPage() {
                       </div>
                   </div>
                     <Button variant="secondary" className="mt-4 w-full">
-                    Get Showtimes
+                    View Details
                   </Button>
                 </CardContent>
               </Link>

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -47,17 +47,8 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
     );
   };
 
-const getInitials = (name: string) => {
-    const names = name.split(' ');
-    if (names.length > 1) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-}
-
-
 const UserActions = ({ onAction }: { onAction?: () => void }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, getInitials } = useAuth();
 
   if (user) {
     return (

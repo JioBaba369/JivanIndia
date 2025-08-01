@@ -50,7 +50,7 @@ export default function HomePage() {
           </p>
           <div className="mt-10">
             <Card className="mx-auto max-w-4xl border-none bg-white/10 text-foreground backdrop-blur-md">
-                <CardContent className="p-4">
+                <CardContent>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto]">
                     <div className="relative">
                       <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -104,7 +104,7 @@ export default function HomePage() {
                       />
                       <Badge variant="secondary" className="absolute top-3 right-3">{event.eventType}</Badge>
                     </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
+                    <CardContent className="flex flex-grow flex-col">
                       <h3 className="font-headline flex-grow text-xl font-semibold group-hover:text-primary">{event.title}</h3>
                       <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                         <div className="flex items-center gap-2">
@@ -150,7 +150,7 @@ export default function HomePage() {
                       />
                        <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
                     </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
+                    <CardContent className="flex flex-grow flex-col">
                       <h3 className="font-headline mt-2 flex-grow text-xl font-semibold group-hover:text-primary">{deal.title}</h3>
                       <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                           <span className="text-sm">{deal.business}</span>
@@ -180,7 +180,7 @@ export default function HomePage() {
               {latestJobs.map((job) => (
                  <Card key={job.id} className="group transition-all hover:border-primary/50 hover:shadow-lg">
                    <Link href={`/careers/${job.id}`} className="block">
-                    <CardContent className="p-6">
+                    <CardContent>
                         <div className="flex items-center gap-4">
                              <div className="flex-shrink-0">
                                <Image
@@ -195,9 +195,8 @@ export default function HomePage() {
                                 <h3 className="font-headline text-lg font-bold transition-colors group-hover:text-primary">{job.title}</h3>
                                 <p className="text-muted-foreground">{job.company} - {job.location}</p>
                             </div>
-                            <Button variant="secondary">
-                                <Briefcase className="mr-2 h-4 w-4" />
-                                Apply
+                            <Button variant="secondary" asChild>
+                                <Link href={`/careers/${job.id}`}>View Details</Link>
                             </Button>
                         </div>
                     </CardContent>

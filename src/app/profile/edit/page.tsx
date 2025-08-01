@@ -19,10 +19,11 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 export default function EditProfilePage() {
   const { toast } = useToast();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, getInitials } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState('');
@@ -138,22 +139,28 @@ export default function EditProfilePage() {
   return (
     <div className="container mx-auto px-4 py-12">
         <Card className="max-w-3xl mx-auto">
-            <CardHeader className="p-6">
+            <CardHeader>
                 <CardTitle className="font-headline text-3xl">Update Your Profile</CardTitle>
                 <CardDescription>
                     Feel free to make any changes you need. Just hit "Save" when you're finished.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent>
              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="flex flex-col items-center gap-4">
-                    {profileImageUrl && <Image
-                        src={profileImageUrl}
-                        alt="Profile preview"
-                        width={96}
-                        height={96}
-                        className="rounded-full object-cover border-4 border-primary"
-                    />}
+                    <Avatar className="h-24 w-24 border-4 border-primary">
+                        {profileImageUrl ? (
+                            <Image
+                                src={profileImageUrl}
+                                alt="Profile preview"
+                                width={96}
+                                height={96}
+                                className="rounded-full object-cover"
+                            />
+                        ) : (
+                            <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
+                        )}
+                    </Avatar>
                     <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                         <Paperclip className="mr-2 h-4 w-4" />
                         Change Profile Picture

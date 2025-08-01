@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -43,7 +43,7 @@ export default function CommunitiesPage() {
     const communityCategories = useMemo(() => {
       const categories = new Set(communities.map(c => c.type));
       return ['all', ...Array.from(categories)];
-    }, []);
+    }, [communities]);
 
     const filteredCommunities = useMemo(() => {
         return communities.filter(community => {
@@ -124,7 +124,7 @@ export default function CommunitiesPage() {
                             priority
                             />
                         </div>
-                        <CardContent className="flex flex-grow flex-col p-6">
+                        <CardContent className="flex flex-grow flex-col">
                              <div className="flex items-center gap-2">
                                 <h3 className="font-headline text-xl font-bold">{org.name}</h3>
                                 {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
@@ -141,15 +141,15 @@ export default function CommunitiesPage() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="flex" />
-          <CarouselNext  className="flex" />
+          <CarouselPrevious className="hidden sm:flex" />
+          <CarouselNext  className="hidden sm:flex" />
         </Carousel>
       </section>
 
       <div className="sticky top-[65px] z-30 border-t bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
-            <CardContent className="p-4">
+            <CardContent>
                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -200,7 +200,7 @@ export default function CommunitiesPage() {
                         className="object-cover transition-transform group-hover:scale-105"
                     />
                     </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
+                    <CardContent className="flex flex-grow flex-col">
                     <p className="font-semibold text-primary">{org.type}</p>
                      <div className="mt-1 flex items-center gap-2">
                         <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
@@ -218,17 +218,17 @@ export default function CommunitiesPage() {
                             <span>{org.region}</span>
                         </div>
                     </div>
+                    <div className="mt-auto flex gap-2 pt-6">
+                        <Button asChild className="flex-1">
+                            <Link href={`/communities/${org.id}`}>View</Link>
+                        </Button>
+                        <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isCommunityJoined(org.id)}>
+                            <Bookmark className="mr-2 h-4 w-4" />
+                            {isCommunityJoined(org.id) ? "Joined" : "Join"}
+                        </Button>
+                    </div>
                     </CardContent>
                 </Link>
-                 <CardFooter className="mt-auto flex gap-2 p-6 pt-0">
-                    <Button asChild className="flex-1">
-                        <Link href={`/communities/${org.id}`}>View</Link>
-                    </Button>
-                    <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isCommunityJoined(org.id)}>
-                        <Bookmark className="mr-2 h-4 w-4" />
-                        {isCommunityJoined(org.id) ? "Joined" : "Join"}
-                    </Button>
-                 </CardFooter>
             </Card>
           )) : (
             <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-2 lg:col-span-3">
