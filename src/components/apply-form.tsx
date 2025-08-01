@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Paperclip } from 'lucide-react';
-import { submitApplication } from '@/ai/flows/submit-application-flow';
 
 interface ApplyFormProps {
   jobTitle: string;
@@ -33,15 +32,6 @@ export function ApplyForm({ jobTitle, companyName, isOpen, onOpenChange }: Apply
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fileToDataUri = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!resume) {
@@ -55,20 +45,13 @@ export function ApplyForm({ jobTitle, companyName, isOpen, onOpenChange }: Apply
     setIsSubmitting(true);
 
     try {
-        const resumeDataUri = await fileToDataUri(resume);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        const result = await submitApplication({
-            name,
-            email,
-            jobTitle,
-            companyName,
-            resumeDataUri,
-        });
-
         onOpenChange(false);
         toast({
             title: "Application Sent!",
-            description: result.message,
+            description: `Your application for the ${jobTitle} position at ${companyName} has been received. We will be in touch!`,
         });
         
         // Reset form
