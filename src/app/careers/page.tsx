@@ -164,7 +164,6 @@ export default function CareersPage() {
         <div className="space-y-6">
           {jobs.map((job) => (
             <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
-               <Link href={`/careers/${job.id}`} className="block">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <div className="flex-shrink-0">
@@ -178,7 +177,9 @@ export default function CareersPage() {
                             />
                         </div>
                         <div className="flex-grow">
-                            <h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3>
+                            <Link href={`/careers/${job.id}`} className="group">
+                                <h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3>
+                            </Link>
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
                                <div className="flex items-center gap-2">
                                  <Building className="h-4 w-4" />
@@ -204,7 +205,6 @@ export default function CareersPage() {
                         </div>
                     </div>
                 </CardContent>
-              </Link>
             </Card>
           ))}
         </div>
