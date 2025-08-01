@@ -1,0 +1,114 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { HeartHandshake, Search } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+const sponsors = [
+  {
+    name: "Saffron Restaurant Group",
+    industry: "Food & Beverage",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "luxury restaurant"
+  },
+  {
+    name: "Desi Grocers Inc.",
+    industry: "Retail",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "grocery store"
+  },
+  {
+    name: "InnovateTech Solutions",
+    industry: "Technology",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "tech company"
+  },
+  {
+    name: "Sahara Real Estate",
+    industry: "Real Estate",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "modern house"
+  },
+  {
+    name: "Air India",
+    industry: "Travel & Tourism",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "airplane wing"
+  },
+  {
+    name: "Bollywood Cinemas",
+    industry: "Entertainment",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "movie theater"
+  },
+];
+
+
+export default function SponsorsPage() {
+  return (
+    <div className="flex flex-col">
+      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+            Our Valued Sponsors
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+            The businesses and individuals powering our community.
+          </p>
+        </div>
+      </section>
+
+      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md">
+        <div className="container mx-auto px-4">
+          <Card>
+            <CardContent className="p-4">
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="relative md:col-span-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for a sponsor by name or industry..."
+                    className="pl-10"
+                  />
+                </div>
+                <Button className="w-full">Search Sponsors</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      
+      <section className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {sponsors.map((sponsor, index) => (
+            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+               <Link href="#" className="block">
+                <CardContent className="p-0">
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={sponsor.imageUrl}
+                      alt={sponsor.name}
+                      layout="fill"
+                      objectFit="cover"
+                      data-ai-hint={sponsor.aiHint}
+                    />
+                  </div>
+                  <div className="p-6 text-center">
+                    <h3 className="font-headline text-xl font-bold">{sponsor.name}</h3>
+                    <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground">
+                       <HeartHandshake className="h-4 w-4" />
+                       <span>{sponsor.industry}</span>
+                    </div>
+                     <Button variant="outline" className="mt-6 w-full">
+                      Visit Website
+                    </Button>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

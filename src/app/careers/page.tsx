@@ -1,0 +1,166 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Briefcase, MapPin, Search, Building } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+const jobs = [
+  {
+    title: "Software Engineer",
+    company: "InnovateTech Solutions",
+    location: "San Francisco, CA",
+    type: "Full-time",
+    imageUrl: "https://placehold.co/100x100.png",
+    aiHint: "tech company logo"
+  },
+  {
+    title: "Marketing Manager",
+    company: "Desi Grocers Inc.",
+    location: "New York, NY",
+    type: "Full-time",
+    imageUrl: "https://placehold.co/100x100.png",
+    aiHint: "retail logo"
+  },
+  {
+    title: "Restaurant Chef",
+    company: "Saffron Restaurant Group",
+    location: "Chicago, IL",
+    type: "Part-time",
+    imageUrl: "https://placehold.co/100x100.png",
+    aiHint: "restaurant logo"
+  },
+  {
+    title: "Real Estate Agent",
+    company: "Sahara Real Estate",
+    location: "Houston, TX",
+    type: "Contract",
+    imageUrl: "https://placehold.co/100x100.png",
+    aiHint: "real estate logo"
+  },
+  {
+    title: "Accountant",
+    company: "Rohan Gupta, CPA",
+    location: "San Jose, CA",
+    type: "Full-time",
+    imageUrl: "https://placehold.co/100x100.png",
+    aiHint: "finance logo"
+  },
+  {
+    title: "Graphic Designer",
+    company: "Aisha's Design Studio",
+    location: "Remote",
+    type: "Freelance",
+    imageUrl: "https://placehold.co/100x100.png",
+    aiHint: "design agency logo"
+  },
+];
+
+
+export default function CareersPage() {
+  return (
+    <div className="flex flex-col">
+      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+            Find Your Next Opportunity
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+            Explore career openings within our vibrant community businesses.
+          </p>
+        </div>
+      </section>
+
+      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md">
+        <div className="container mx-auto px-4">
+          <Card>
+            <CardContent className="p-4">
+               <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+                <div className="relative lg:col-span-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Job title, keyword, or company"
+                    className="pl-10"
+                  />
+                </div>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Location or 'Remote'"
+                    className="pl-10"
+                  />
+                </div>
+                 <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Job Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="freelance">Freelance</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button className="w-full">Find Jobs</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      
+      <section className="container mx-auto px-4 py-12">
+        <div className="space-y-6">
+          {jobs.map((job, index) => (
+            <Card key={index} className="transition-all hover:shadow-lg hover:border-primary">
+               <Link href="#" className="block">
+                <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row gap-6">
+                        <div className="flex-shrink-0">
+                           <Image
+                            src={job.imageUrl}
+                            alt={`${job.company} logo`}
+                            width={80}
+                            height={80}
+                            className="rounded-lg object-cover"
+                            data-ai-hint={job.aiHint}
+                            />
+                        </div>
+                        <div className="flex-grow">
+                            <h3 className="font-headline text-xl font-bold">{job.title}</h3>
+                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
+                               <div className="flex items-center gap-2">
+                                 <Building className="h-4 w-4" />
+                                 <span>{job.company}</span>
+                               </div>
+                               <div className="flex items-center gap-2">
+                                 <MapPin className="h-4 w-4" />
+                                 <span>{job.location}</span>
+                               </div>
+                                <div className="flex items-center gap-2">
+                                 <Briefcase className="h-4 w-4" />
+                                 <span>{job.type}</span>
+                               </div>
+                            </div>
+                        </div>
+                        <div className="flex sm:flex-col items-center sm:justify-center gap-2 sm:ml-auto">
+                            <Button>Apply Now</Button>
+                            <Button variant="secondary">Save</Button>
+                        </div>
+                    </div>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

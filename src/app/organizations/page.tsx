@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -8,72 +8,66 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket } from "lucide-react";
+import { Building2, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const events = [
+const organizations = [
   {
-    title: "Diwali Festival of Lights",
-    category: "Festival",
-    date: "Sat, Nov 4, 7:00 PM",
-    location: "Grand Park, Downtown LA",
+    name: "India Cultural Center",
+    category: "Community Center",
+    location: "San Francisco, CA",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "diwali festival"
+    aiHint: "community center"
   },
   {
-    title: "Bollywood Dance Workshop",
-    category: "Workshop",
-    date: "Sun, Nov 5, 2:00 PM",
-    location: "Mumbai Dance Studio",
+    name: "South Asian Arts Society",
+    category: "Arts & Culture",
+    location: "New York, NY",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "bollywood dance"
+    aiHint: "art gallery"
   },
   {
-    title: "Indian Food Fair",
-    category: "Food",
-    date: "Sat, Nov 11, 12:00 PM",
-    location: "Exhibition Center",
+    name: "Entrepreneurs of India",
+    category: "Business Network",
+    location: "Chicago, IL",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "indian food"
+    aiHint: "modern office"
   },
   {
-    title: "Classical Music Concert",
-    category: "Concert",
-    date: "Fri, Nov 17, 8:00 PM",
-    location: "Royal Albert Hall",
+    name: "Hindu Temple & Cultural Center",
+    category: "Religious",
+    location: "Houston, TX",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "classical music"
+    aiHint: "hindu temple"
   },
   {
-    title: "Startup India Conference",
-    category: "Business",
-    date: "Wed, Nov 22, 9:00 AM",
-    location: "Tech Convention Center",
+    name: "Sikh Foundation",
+    category: "Charity",
+    location: "Fremont, CA",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "business conference"
+    aiHint: "charity event"
   },
   {
-    title: "Holi Color Festival",
-    category: "Festival",
-    date: "Sat, Mar 23, 11:00 AM",
-    location: "City Beach",
+    name: "Indian Students Association",
+    category: "Student Group",
+    location: "Boston, MA",
     imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "holi festival"
+    aiHint: "university campus"
   },
 ];
 
-export default function HomePage() {
+
+export default function OrganizationsPage() {
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
           <h1 className="font-headline text-4xl font-bold md:text-6xl">
-            Discover What's On
+            Community Organizations
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            The heart of the Indian community, all in one place. Explore
-            events, connect with organizations, and find what you need.
+            Find and connect with cultural, business, and community groups.
           </p>
         </div>
       </section>
@@ -82,11 +76,11 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
-                    placeholder="Search for an event, organization, or provider..."
+                    placeholder="Search by name or keyword..."
                     className="pl-10"
                   />
                 </div>
@@ -95,11 +89,10 @@ export default function HomePage() {
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="festivals">Festivals</SelectItem>
-                    <SelectItem value="workshops">Workshops</SelectItem>
-                    <SelectItem value="food">Food</SelectItem>
-                    <SelectItem value="concerts">Concerts</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
+                    <SelectItem value="community">Community Center</SelectItem>
+                    <SelectItem value="arts">Arts & Culture</SelectItem>
+                    <SelectItem value="business">Business Network</SelectItem>
+                    <SelectItem value="religious">Religious</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button className="w-full">Search</Button>
@@ -110,39 +103,34 @@ export default function HomePage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        <h2 className="font-headline text-3xl font-bold mb-8">
-          Upcoming Events
-        </h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {events.map((event, index) => (
+          {organizations.map((org, index) => (
             <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-              <Link href="#" className="block">
+               <Link href="#" className="block">
                 <CardContent className="p-0">
                   <div className="relative h-48 w-full">
                     <Image
-                      src={event.imageUrl}
-                      alt={event.title}
+                      src={org.imageUrl}
+                      alt={org.name}
                       layout="fill"
                       objectFit="cover"
-                      data-ai-hint={event.aiHint}
+                      data-ai-hint={org.aiHint}
                     />
-                     <div className="absolute top-2 right-2 bg-background/80 text-foreground px-3 py-1 rounded-full text-sm font-semibold">{event.category}</div>
                   </div>
                   <div className="p-6">
-                    <h3 className="font-headline text-xl font-bold">{event.title}</h3>
+                    <h3 className="font-headline text-xl font-bold">{org.name}</h3>
                     <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                        <div className="flex items-center gap-2">
-                         <Calendar className="h-4 w-4" />
-                         <span>{event.date}</span>
+                         <Building2 className="h-4 w-4" />
+                         <span>{org.category}</span>
                        </div>
                        <div className="flex items-center gap-2">
                          <MapPin className="h-4 w-4" />
-                         <span>{event.location}</span>
+                         <span>{org.location}</span>
                        </div>
                     </div>
-                    <Button variant="outline" className="mt-6 w-full">
-                      <Ticket className="mr-2 h-4 w-4" />
-                      Get Tickets
+                     <Button variant="secondary" className="mt-6 w-full">
+                      Learn More
                     </Button>
                   </div>
                 </CardContent>
