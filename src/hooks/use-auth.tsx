@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 
 interface User {
   uid: string;
@@ -75,6 +75,9 @@ const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch
     }
     try {
       const storedValue = window.localStorage.getItem(key);
+      if (storedValue === null && defaultValue === null) {
+          return defaultValue;
+      }
       return storedValue ? JSON.parse(storedValue) : defaultValue;
     } catch (error) {
       console.warn(`Error reading localStorage key "${key}":`, error);
@@ -110,19 +113,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [savedDeals, setSavedDeals] = useState<string[]>([]);
 
   useEffect(() => {
-    if (user) {
-        setSavedJobs(user.savedJobs || []);
-        setSavedEvents(user.savedEvents || []);
-        setJoinedCommunities(user.joinedCommunities || []);
-        setSavedDeals(user.savedDeals || []);
-    } else {
-        setSavedJobs([]);
-        setSavedEvents([]);
-        setJoinedCommunities([]);
-        setSavedDeals([]);
-    }
+    setSavedJobs(user?.savedJobs || []);
+    setSavedEvents(user?.savedEvents || []);
+    setJoinedCommunities(user?.joinedCommunities || []);
+    setSavedDeals(user?.savedDeals || []);
     setIsLoading(false);
-  }, [user]);
+  }, [user?.savedJobs, user?.savedEvents, user?.joinedCommunities, user?.savedDeals]);
+
 
   const updateUser = (updatedData: Partial<User>) => {
     if (user) {
@@ -161,13 +158,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSavedEvents([]);
     setJoinedCommunities([]);
     setSavedDeals([]);
+    setIsLoading(false);
   };
 
   const createSaveFunctions = (
+    list: string[],
     listType: 'savedJobs' | 'savedEvents' | 'joinedCommunities' | 'savedDeals'
   ) => {
-    const list = user?.[listType] || [];
-    
     const saveItem = (itemId: string) => {
       if (user && !list.includes(itemId)) {
         const newList = [...list, itemId];
@@ -187,10 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { saveItem, unsaveItem, isItemSaved };
   };
   
-  const { saveItem: saveJob, unsaveItem: unsaveJob, isItemSaved: isJobSaved } = createSaveFunctions('savedJobs');
-  const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions('savedEvents');
-  const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined } = createSaveFunctions('joinedCommunities');
-  const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions('savedDeals');
+  const { saveItem: saveJob, unsaveItem: unsaveJob, isItemSaved: isJobSaved } = createSaveFunctions(savedJobs, 'savedJobs');
+  const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions(savedEvents, 'savedEvents');
+  const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined } = createSaveFunctions(joinedCommunities, 'joinedCommunities');
+  const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions(savedDeals, 'savedDeals');
 
   const value = { 
     user, 

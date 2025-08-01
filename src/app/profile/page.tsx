@@ -77,7 +77,7 @@ export default function ProfilePage() {
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
                 <CardDescription>You must be logged in to view your profile.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
                 <Button asChild className="mt-2">
                     <Link href="/login">Login</Link>
                 </Button>
@@ -103,7 +103,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
             <div className="space-y-8 md:col-span-1 lg:col-span-1">
                 <Card>
-                    <CardHeader className="items-center text-center">
+                    <CardHeader className="items-center text-center p-6">
                         <Avatar className="h-24 w-24 border-4 border-primary">
                            {profileImageUrl ? <Image
                             src={profileImageUrl}
@@ -120,7 +120,7 @@ export default function ProfilePage() {
                             <Link href="/profile/edit">Edit Profile</Link>
                          </Button>
                     </CardHeader>
-                    {user.affiliation && <CardContent>
+                    {user.affiliation && <CardContent className="px-6 pb-6">
                         <Card className="bg-muted">
                             <CardHeader className="p-4">
                                 <CardTitle className="font-headline flex items-center justify-center gap-2 text-lg">
@@ -139,10 +139,10 @@ export default function ProfilePage() {
                 </Card>
                 
                  <Card>
-                    <CardHeader>
+                    <CardHeader className="p-6">
                         <CardTitle className="font-headline text-xl">Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 p-6 pt-0">
                         {(user.languagesSpoken && user.languagesSpoken.length > 0) && (
                             <div className="space-y-2">
                                 <h4 className="flex items-center gap-2 text-sm font-semibold"><Languages className="h-4 w-4"/> Languages</h4>

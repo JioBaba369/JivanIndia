@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, FormEvent, useEffect, useRef } from 'react';
@@ -61,7 +60,7 @@ export default function EditProfilePage() {
       if (user.profileImageUrl) {
         setProfileImageUrl(user.profileImageUrl);
       }
-    } else {
+    } else if (!user) { // Added check to prevent router push on initial load
         router.push('/login');
     }
   }, [user, router]);
@@ -283,5 +282,3 @@ export default function EditProfilePage() {
     </div>
   );
 }
-
-    
