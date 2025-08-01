@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { MouseEvent } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
 
 export const jobs = [
   {
@@ -90,6 +91,21 @@ export default function CareersPage() {
   const { user, saveJob, isJobSaved } = useAuth();
   const router = useRouter();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [jobType, setJobType] = useState('all');
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(job => {
+      const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            job.company.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesLocation = job.location.toLowerCase().includes(locationQuery.toLowerCase());
+      const matchesType = jobType === 'all' || job.type === jobType;
+      
+      return matchesSearch && matchesLocation && matchesType;
+    });
+  }, [searchQuery, locationQuery, jobType]);
+
 
   const handleSave = (e: MouseEvent<HTMLButtonElement>, jobTitle: string, jobId: string) => {
     e.preventDefault();
@@ -136,12 +152,14 @@ export default function CareersPage() {
         <div className="container mx-auto px-4">
           <Card className="shadow-md">
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+               <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
                 <div className="relative lg:col-span-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Job title, keyword, or company"
                     className="pl-10 text-base"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <div className="relative">
@@ -149,9 +167,11 @@ export default function CareersPage() {
                   <Input
                     placeholder="Location or 'Remote'"
                     className="pl-10 text-base"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
                   />
                 </div>
-                 <Select>
+                 <Select value={jobType} onValueChange={setJobType}>
                   <SelectTrigger className="text-base">
                     <div className="flex items-center gap-2">
                      <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -159,14 +179,14 @@ export default function CareersPage() {
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="full-time">Full-time</SelectItem>
-                    <SelectItem value="part-time">Part-time</SelectItem>
-                    <SelectItem value="contract">Contract</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
-                    <SelectItem value="internship">Internship</SelectItem>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Full-time">Full-time</SelectItem>
+                    <SelectItem value="Part-time">Part-time</SelectItem>
+                    <SelectItem value="Contract">Contract</SelectItem>
+                    <SelectItem value="Freelance">Freelance</SelectItem>
+                    <SelectItem value="Internship">Internship</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button size="lg" className="w-full">Find Jobs</Button>
               </div>
             </CardContent>
           </Card>
@@ -175,7 +195,7 @@ export default function CareersPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="space-y-6">
-          {jobs.map((job) => (
+          {filteredJobs.length > 0 ? filteredJobs.map((job) => (
              <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
@@ -219,7 +239,16 @@ export default function CareersPage() {
                     </div>
                 </CardContent>
             </Card>
-          ))}
+          )) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                <p className="text-muted-foreground">No jobs found matching your criteria.</p>
+                <Button variant="link" onClick={() => {
+                    setSearchQuery('');
+                    setLocationQuery('');
+                    setJobType('all');
+                }}>Clear filters</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>
