@@ -16,7 +16,8 @@ export const sponsors = [
     industry: "Food & Beverage",
     imageUrl: "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsb3V4dXJ5JTIwcmVzdGF1cmFudCUyMGludGVyaW9yfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "luxury restaurant",
-    website: "https://www.saffronrestaurantgroup.com"
+    website: "https://www.saffronrestaurantgroup.com",
+    description: "Saffron Restaurant Group is a premier collection of fine dining establishments dedicated to bringing authentic, high-quality Indian cuisine to discerning palates. With a focus on traditional recipes, the freshest ingredients, and impeccable service, we create unforgettable dining experiences that celebrate the rich culinary heritage of India. As proud sponsors of the community, we are committed to supporting cultural events and initiatives that bring people together.",
   },
   {
     id: "2",
@@ -24,7 +25,8 @@ export const sponsors = [
     industry: "Retail",
     imageUrl: "https://images.unsplash.com/photo-1588963523910-a19ffd1451a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBncm9jZXJ5JTIwc3RvcmV8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "grocery store",
-    website: "#"
+    website: "https://www.desigrocers.com",
+    description: "Your one-stop shop for authentic Indian groceries, spices, and fresh produce. We are committed to providing our community with high-quality products and a taste of home. We proudly sponsor local events and cultural festivals.",
   },
   {
     id: "3",
@@ -32,7 +34,8 @@ export const sponsors = [
     industry: "Technology",
     imageUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZWNoJTIwY29tcGFueSUyMG9mZmljZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "tech company",
-    website: "#"
+    website: "https://www.innovatetech.com",
+    description: "InnovateTech Solutions is a leading provider of cloud-based software and IT services. We believe in the power of technology to connect communities and are proud to sponsor initiatives that foster innovation and collaboration.",
   },
   {
     id: "4",
@@ -40,7 +43,8 @@ export const sponsors = [
     industry: "Real Estate",
     imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBob3VzZSUyMGV4dGVyaW9yfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "modern house",
-    website: "#"
+    website: "https://www.sahararealestate.com",
+    description: "Helping families find their dream homes. Sahara Real Estate is committed to building strong communities, one home at a time. We are honored to support local cultural and family-oriented events.",
   },
   {
     id: "5",
@@ -48,7 +52,8 @@ export const sponsors = [
     industry: "Travel & Tourism",
     imageUrl: "https://images.unsplash.com/photo-1540348882199-a8c62b158223?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiaWclMjBhaXJwbGFuZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "airplane wing",
-    website: "#"
+    website: "https://www.airindia.com",
+    description: "Connecting India to the world. Air India is proud to be a major sponsor of cultural exchange programs and community events that celebrate our rich heritage globally.",
   },
   {
     id: "6",
@@ -56,7 +61,8 @@ export const sponsors = [
     industry: "Entertainment",
     imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "movie theater",
-    website: "#"
+    website: "https://www.bollywoodcinemas.com",
+    description: "Bringing the magic of Bollywood to the big screen. Bollywood Cinemas is a key supporter of film festivals and entertainment events that showcase the best of Indian cinema.",
   },
 ];
 

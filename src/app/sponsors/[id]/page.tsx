@@ -17,10 +17,6 @@ export default function SponsorDetailPage() {
   const sponsor = sponsors.find(s => s.id === id);
   const { toast } = useToast();
 
-  const sponsorDetails = {
-    description: "Saffron Restaurant Group is a premier collection of fine dining establishments dedicated to bringing authentic, high-quality Indian cuisine to discerning palates. With a focus on traditional recipes, the freshest ingredients, and impeccable service, we create unforgettable dining experiences that celebrate the rich culinary heritage of India. As proud sponsors of the community, we are committed to supporting cultural events and initiatives that bring people together.",
-  };
-
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({
@@ -70,7 +66,7 @@ export default function SponsorDetailPage() {
                   About {sponsor.name}
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {sponsorDetails.description}
+                  {sponsor.description}
                 </p>
               </div>
               <div className="space-y-6">

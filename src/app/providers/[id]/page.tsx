@@ -18,21 +18,6 @@ export default function ProviderDetailPage() {
   const provider = providers.find(p => p.id === id);
   const { toast } = useToast();
 
-  const providerDetails = {
-    description: "Dr. Anjali Sharma is a board-certified cardiologist with over 15 years of experience in treating a wide range of cardiovascular conditions. She is dedicated to providing compassionate, patient-centered care and is a leading expert in preventative cardiology and women's heart health. Dr. Sharma is affiliated with Cedars-Sinai Medical Center and is a fellow of the American College of Cardiology.",
-    services: ["Preventative Cardiology", "Echocardiography", "Stress Testing", "Heart Failure Management", "Arrhythmia Treatment"],
-    reviews: {
-        rating: 4.9,
-        count: 124,
-    },
-    contact: {
-      address: "123 Health St, Suite 400, Beverly Hills, CA 90210",
-      phone: "555-987-6543",
-      email: "contact@drsharmacardiology.com",
-      website: "www.drsharmacardiology.com",
-    },
-  };
-
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({
@@ -52,6 +37,8 @@ export default function ProviderDetailPage() {
       </div>
     );
   }
+
+  const { details } = provider;
 
   return (
     <div className="bg-background">
@@ -75,8 +62,8 @@ export default function ProviderDetailPage() {
               </h1>
                <div className="mt-2 flex items-center gap-2 text-yellow-400">
                 <Star className="h-5 w-5 fill-current" />
-                <span className="font-bold text-white">{providerDetails.reviews.rating}</span>
-                <span className="text-sm text-gray-300">({providerDetails.reviews.count} reviews)</span>
+                <span className="font-bold text-white">{details.reviews.rating}</span>
+                <span className="text-sm text-gray-300">({details.reviews.count} reviews)</span>
               </div>
             </div>
           </div>
@@ -87,7 +74,7 @@ export default function ProviderDetailPage() {
                   About {provider.name}
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {providerDetails.description}
+                  {details.description}
                 </p>
                 
                  <div className="mt-8">
@@ -95,7 +82,7 @@ export default function ProviderDetailPage() {
                      Services Offered
                    </h3>
                    <div className="flex flex-wrap gap-2">
-                    {providerDetails.services.map(service => (
+                    {details.services.map(service => (
                         <Badge key={service} variant="secondary">{service}</Badge>
                     ))}
                    </div>
@@ -104,7 +91,7 @@ export default function ProviderDetailPage() {
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                     <Button size="lg" className="w-full" asChild>
-                        <a href={`mailto:${providerDetails.contact.email}`}>Contact Provider</a>
+                        <a href={`mailto:${details.contact.email}`}>Contact Provider</a>
                     </Button>
                     <Button size="lg" variant="secondary" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
@@ -117,25 +104,25 @@ export default function ProviderDetailPage() {
                      <div className="flex items-start gap-4">
                       <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm">{providerDetails.contact.address}</p>
+                         <p className="text-muted-foreground text-sm">{details.contact.address}</p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
                       <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm">{providerDetails.contact.phone}</p>
+                         <p className="text-muted-foreground text-sm">{details.contact.phone}</p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
                       <Mail className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`mailto:${providerDetails.contact.email}`}>{providerDetails.contact.email}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`mailto:${details.contact.email}`}>{details.contact.email}</a></p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://${providerDetails.contact.website}`} target="_blank" rel="noopener noreferrer">{providerDetails.contact.website}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://${details.contact.website}`} target="_blank" rel="noopener noreferrer">{details.contact.website}</a></p>
                       </div>
                     </div>
                   </CardContent>
