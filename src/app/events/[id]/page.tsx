@@ -4,7 +4,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,14 @@ export default function EventDetailPage() {
 
   useEffect(() => {
     if (event?.postedAt) {
-      setPostedAt(formatDistanceToNow(new Date(event.postedAt), { addSuffix: true }));
+      try {
+        const date = new Date(event.postedAt);
+        if (!isNaN(date.getTime())) {
+          setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+        }
+      } catch (error) {
+        console.error("Failed to parse date:", event.postedAt, error);
+      }
     }
   }, [event?.postedAt]);
   
@@ -117,6 +124,16 @@ export default function EventDetailPage() {
                 <p className="text-muted-foreground leading-relaxed">
                   {event.description}
                 </p>
+
+                {event.tags && event.tags.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {event.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-8">
                    <h3 className="font-headline text-xl font-semibold mb-4">
                      Organized by

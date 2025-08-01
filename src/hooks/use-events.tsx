@@ -19,6 +19,7 @@ export interface Event {
   organizerId: string;
   postedAt: string; // ISO 8601 date string
   duration: string;
+  tags?: string[];
 }
 
 interface EventsContextType {
@@ -46,6 +47,7 @@ const initialEvents: Event[] = [
     organizerId: "1",
     postedAt: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
     duration: "4 hours",
+    tags: ["diwali", "festival", "family-friendly", "los-angeles", "free-entry"],
   },
   {
     id: "2",
@@ -62,6 +64,7 @@ const initialEvents: Event[] = [
     organizerId: "2", // Assuming an org with this ID exists
     postedAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
     duration: "2 hours",
+    tags: ["dance", "workshop", "bollywood", "artesia"],
   },
   {
     id: "3",
@@ -78,6 +81,7 @@ const initialEvents: Event[] = [
     organizerId: "3", // Assuming an org with this ID exists
     postedAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
     duration: "8 hours",
+    tags: ["food", "festival", "anaheim", "taste-of-india"],
   },
 ];
 

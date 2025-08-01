@@ -34,6 +34,7 @@ export default function NewEventPage() {
   const [description, setDescription] = useState('');
   const [organizer, setOrganizer] = useState(user?.affiliation?.orgName || '');
   const [duration, setDuration] = useState('');
+  const [tags, setTags] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +59,7 @@ export default function NewEventPage() {
       imageUrl: 'https://placehold.co/600x400.png',
       aiHint: 'community event',
       duration,
+      tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
     };
 
     addEvent(newEvent);
@@ -201,6 +203,17 @@ export default function NewEventPage() {
                 required
                 rows={5}
               />
+            </div>
+            
+            <div className="space-y-2">
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                    id="tags"
+                    placeholder="e.g., family-friendly, diwali, free-entry"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Separate tags with a comma.</p>
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
