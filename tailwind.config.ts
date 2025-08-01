@@ -22,9 +22,13 @@ const config = {
         body: ['var(--font-pt-sans)', 'sans-serif'],
         headline: ['var(--font-space-grotesk)', 'sans-serif'],
       },
+      textShadow: {
+        DEFAULT: '0 2px 4px rgba(0,0,0,0.5)',
+        lg: '0 4px 8px rgba(0,0,0,0.5)',
+      },
       colors: {
         border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
+        input: "hsl((var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -85,7 +89,22 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+      require('tailwindcss-animate'),
+      function({ addUtilities, theme, e }: { addUtilities: any, theme: any, e: any }) {
+        const newUtilities = {
+          '.text-shadow': {
+            textShadow: theme('textShadow.DEFAULT'),
+          },
+          '.text-shadow-lg': {
+            textShadow: theme('textShadow.lg'),
+          },
+        }
+        addUtilities(newUtilities, ['responsive', 'hover'])
+      }
+    ],
 } satisfies Config
 
 export default config;
+
+    
