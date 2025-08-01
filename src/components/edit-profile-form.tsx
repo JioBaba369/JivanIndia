@@ -35,6 +35,8 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
   const [phone, setPhone] = useState('');
   const [homeAddress, setHomeAddress] = useState('');
   const [indianAddress, setIndianAddress] = useState('');
+  const [languages, setLanguages] = useState('');
+  const [interests, setInterests] = useState('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +50,8 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
       setPhone(user.phone || '');
       setHomeAddress(user.homeAddress || '');
       setIndianAddress(user.indianAddress || '');
+      setLanguages(user.languagesSpoken?.join(', ') || '');
+      setInterests(user.interests?.join(', ') || '');
       setProfileImageUrl(user.profileImageUrl || user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png");
     }
   }, [user, isOpen]);
@@ -69,7 +73,20 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
         
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        updateUser({ name, email, bio, profileImageUrl: newImageUrl, phone, homeAddress, indianAddress });
+        const languagesSpoken = languages.split(',').map(s => s.trim()).filter(Boolean);
+        const userInterests = interests.split(',').map(s => s.trim()).filter(Boolean);
+
+        updateUser({ 
+            name, 
+            email, 
+            bio, 
+            profileImageUrl: newImageUrl, 
+            phone, 
+            homeAddress, 
+            indianAddress,
+            languagesSpoken,
+            interests: userInterests
+        });
 
         onOpenChange(false);
         toast({
@@ -168,6 +185,28 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                 />
+            </div>
+
+             <div className="grid gap-2">
+                <Label htmlFor="languages">Languages Spoken</Label>
+                <Input 
+                    id="languages" 
+                    placeholder="e.g., Hindi, English, Gujarati"
+                    value={languages}
+                    onChange={(e) => setLanguages(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Separate languages with a comma.</p>
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="interests">Interests</Label>
+                <Input 
+                    id="interests" 
+                    placeholder="e.g., Volunteering, Music, Sports"
+                    value={interests}
+                    onChange={(e) => setInterests(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Separate interests with a comma.</p>
             </div>
 
             <div className="grid gap-2">

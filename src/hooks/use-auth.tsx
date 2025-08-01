@@ -17,6 +17,8 @@ interface User {
   phone?: string;
   homeAddress?: string;
   indianAddress?: string;
+  languagesSpoken?: string[];
+  interests?: string[];
 }
 
 interface AuthContextType {

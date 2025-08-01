@@ -6,11 +6,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail, Languages, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 // Mock data from other pages
 import { jobs as allJobs } from '../careers/page';
@@ -104,6 +105,7 @@ export default function ProfilePage() {
                            />
                         </div>
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
+                        <CardDescription>{user.email}</CardDescription>
                         {user.bio && <p className="text-sm text-muted-foreground pt-2 italic">"{user.bio}"</p>}
                     </CardHeader>
                     <CardContent className="text-center">
@@ -131,43 +133,62 @@ export default function ProfilePage() {
                 
                  <Card>
                     <CardHeader>
-                        <CardTitle className="font-headline text-xl">Contact Information</CardTitle>
+                        <CardTitle className="font-headline text-xl">Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-start gap-4">
-                            <Mail className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                            <div>
-                                <p className="font-semibold">Email</p>
-                                <p className="text-muted-foreground text-sm">{user.email}</p>
+                    <CardContent className="space-y-6">
+                        {(user.languagesSpoken && user.languagesSpoken.length > 0) && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold flex items-center gap-2 text-sm"><Languages className="h-4 w-4"/> Languages</h4>
+                                <div className="flex flex-wrap gap-1">
+                                    {user.languagesSpoken.map(lang => <Badge key={lang} variant="secondary">{lang}</Badge>)}
+                                </div>
                             </div>
+                        )}
+                         {(user.interests && user.interests.length > 0) && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold flex items-center gap-2 text-sm"><Heart className="h-4 w-4"/> Interests</h4>
+                                 <div className="flex flex-wrap gap-1">
+                                    {user.interests.map(interest => <Badge key={interest} variant="secondary">{interest}</Badge>)}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                             <div className="flex items-start gap-4">
+                                <Mail className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold text-sm">Email</p>
+                                    <p className="text-muted-foreground text-sm">{user.email}</p>
+                                </div>
+                            </div>
+                            {user.phone && (
+                                <div className="flex items-start gap-4">
+                                    <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <div>
+                                        <p className="font-semibold text-sm">Phone</p>
+                                        <p className="text-muted-foreground text-sm">{user.phone}</p>
+                                    </div>
+                                </div>
+                            )}
+                            {user.homeAddress && (
+                                <div className="flex items-start gap-4">
+                                    <Home className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <div>
+                                        <p className="font-semibold text-sm">Home Address</p>
+                                        <p className="text-muted-foreground text-sm">{user.homeAddress}</p>
+                                    </div>
+                                </div>
+                            )}
+                            {user.indianAddress && (
+                                <div className="flex items-start gap-4">
+                                    <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <div>
+                                        <p className="font-semibold text-sm">Indian Address</p>
+                                        <p className="text-muted-foreground text-sm">{user.indianAddress}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        {user.phone && (
-                            <div className="flex items-start gap-4">
-                                <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                                <div>
-                                    <p className="font-semibold">Phone</p>
-                                    <p className="text-muted-foreground text-sm">{user.phone}</p>
-                                </div>
-                            </div>
-                        )}
-                        {user.homeAddress && (
-                            <div className="flex items-start gap-4">
-                                <Home className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                                <div>
-                                    <p className="font-semibold">Home Address</p>
-                                    <p className="text-muted-foreground text-sm">{user.homeAddress}</p>
-                                </div>
-                            </div>
-                        )}
-                        {user.indianAddress && (
-                            <div className="flex items-start gap-4">
-                                <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                                <div>
-                                    <p className="font-semibold">Indian Address</p>
-                                    <p className="text-muted-foreground text-sm">{user.indianAddress}</p>
-                                </div>
-                            </div>
-                        )}
                     </CardContent>
                 </Card>
 
