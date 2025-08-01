@@ -1,3 +1,4 @@
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2 } from "lucide-reac
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const organizationDetails = {
@@ -56,6 +58,14 @@ const relatedEvents = [
 export default function OrganizationDetailPage({ params }: { params: { id: string } }) {
   // You can use params.id to fetch the correct organization data from your backend
   const org = organizationDetails;
+  const { toast } = useToast();
+
+  const handleJoin = () => {
+    toast({
+      title: "Successfully Joined!",
+      description: `You are now a member of ${org.name}.`,
+    });
+  };
 
   return (
     <div className="bg-background">
@@ -114,7 +124,7 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full">
+                    <Button size="lg" className="w-full" onClick={handleJoin}>
                         <Users className="mr-2"/>
                         Join Now
                     </Button>
@@ -165,7 +175,7 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
                      <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://${org.contact.website}`} target="_blank" rel="noopener noreferrer">{org.contact.website}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://www.${org.contact.website}`} target="_blank" rel="noopener noreferrer">{org.contact.website}</a></p>
                       </div>
                     </div>
                   </CardContent>
