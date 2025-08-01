@@ -3,13 +3,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2 } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useAuth } from "@/hooks/use-auth";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 // A real implementation would fetch the specific org data based on the ID
@@ -83,21 +83,13 @@ const relatedEvents = [
 
 export default function OrganizationDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  // Fetch the correct organization data. Fallback to a default if not found.
   const org = allOrganizationsData[id] || allOrganizationsData["1"];
   
   const { toast } = useToast();
-  const [isJoined, setIsJoined] = useState(false);
-
-  const handleJoin = () => {
-    setIsJoined(true);
-    toast({
-      title: "Successfully Joined!",
-      description: `You are now a member of ${org.name}.`,
-    });
-  };
-
+  const { user, saveOrg, unsaveOrg, isOrgSaved } = useAuth();
+  
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({
@@ -105,6 +97,35 @@ export default function OrganizationDetailPage() {
       description: "Organization profile link copied to clipboard.",
     });
   };
+
+  const handleSaveToggle = () => {
+    if (!user) {
+        toast({
+            title: "Please log in",
+            description: "You need to be logged in to save organizations.",
+            variant: "destructive",
+        });
+        router.push("/login");
+        return;
+    }
+
+    const currentlySaved = isOrgSaved(org.id);
+    if (currentlySaved) {
+        unsaveOrg(org.id);
+        toast({
+            title: "Organization Unsaved",
+            description: `${org.name} has been removed from your saved list.`,
+        });
+    } else {
+        saveOrg(org.id);
+        toast({
+            title: "Organization Saved!",
+            description: `${org.name} has been saved to your profile.`,
+        });
+    }
+  }
+
+  const orgIsSaved = user ? isOrgSaved(org.id) : false;
 
   return (
     <div className="bg-background">
@@ -163,11 +184,11 @@ export default function OrganizationDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full" onClick={handleJoin} disabled={isJoined}>
-                        <Users className="mr-2"/>
-                        {isJoined ? "Joined" : "Join Now"}
+                    <Button size="lg" variant={orgIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
+                        <Bookmark className="mr-2"/>
+                        {orgIsSaved ? "Organization Saved" : "Save Organization"}
                     </Button>
-                    <Button size="lg" variant="secondary" className="w-full" onClick={handleShare}>
+                    <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
                         Share Profile
                     </Button>

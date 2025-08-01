@@ -73,7 +73,7 @@ export default function Header() {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/profile">Saved Jobs</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/profile">My Profile</Link></DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
@@ -111,7 +111,7 @@ export default function Header() {
                 <div className="mt-8 flex flex-col space-y-2">
                    {user ? (
                      <>
-                        <Button variant="outline" asChild><Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>Saved Jobs</Link></Button>
+                        <Button variant="outline" asChild><Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link></Button>
                         <Button variant="ghost" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>Logout</Button>
                      </>
                   ) : (

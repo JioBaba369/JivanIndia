@@ -1,14 +1,20 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Plus, Users } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const eventDetails = {
-  id: 1,
+  id: "1",
   title: "Diwali Festival of Lights",
   category: "Festival",
   date: "Saturday, November 4, 2024",
@@ -25,6 +31,47 @@ const eventDetails = {
 export default function EventDetailPage({ params }: { params: { id: string } }) {
   // You can use params.id to fetch the correct event data from your backend
   const event = eventDetails;
+  const { toast } = useToast();
+  const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
+  const router = useRouter();
+  
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied!",
+      description: "Event link copied to clipboard.",
+    });
+  };
+
+  const handleSaveToggle = () => {
+    if (!user) {
+        toast({
+            title: "Please log in",
+            description: "You need to be logged in to save events.",
+            variant: "destructive",
+        });
+        router.push("/login");
+        return;
+    }
+
+    const currentlySaved = isEventSaved(event.id);
+    if (currentlySaved) {
+        unsaveEvent(event.id);
+        toast({
+            title: "Event Unsaved",
+            description: `"${event.title}" has been removed from your saved events.`,
+        });
+    } else {
+        saveEvent(event.id);
+        toast({
+            title: "Event Saved!",
+            description: `"${event.title}" has been saved to your profile.`,
+        });
+    }
+  }
+
+  const eventIsSaved = user ? isEventSaved(event.id) : false;
+
 
   return (
     <div className="bg-background">
@@ -80,7 +127,11 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                         <Ticket className="mr-2"/>
                         Register / Get Tickets
                     </Button>
-                    <Button size="lg" variant="secondary" className="w-full">
+                    <Button size="lg" variant={eventIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
+                        <Bookmark className="mr-2"/>
+                        {eventIsSaved ? "Event Saved" : "Save Event"}
+                    </Button>
+                    <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
                         Share Event
                     </Button>

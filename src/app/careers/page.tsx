@@ -18,8 +18,9 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import type { MouseEvent } from 'react';
 import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 
-const jobs = [
+export const jobs = [
   {
     id: "1",
     title: "Software Engineer",
@@ -80,27 +81,32 @@ const jobs = [
 export default function CareersPage() {
   const { toast } = useToast();
   const { user, saveJob, isJobSaved } = useAuth();
+  const router = useRouter();
 
 
   const handleSave = (e: MouseEvent<HTMLButtonElement>, jobTitle: string, jobId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (user && !isJobSaved(jobId)) {
+    if (!user) {
+         toast({
+            title: "Please log in",
+            description: "You must be logged in to save jobs.",
+            variant: "destructive"
+        });
+        router.push("/login");
+        return;
+    }
+    
+    if (!isJobSaved(jobId)) {
         saveJob(jobId);
         toast({
           title: "Job Saved!",
           description: `The ${jobTitle} position has been saved to your profile.`,
         });
-    } else if (user) {
+    } else {
         toast({
             title: "Already Saved",
             description: "This job is already in your saved list.",
-        });
-    } else {
-         toast({
-            title: "Please log in",
-            description: "You must be logged in to save jobs.",
-            variant: "destructive"
         });
     }
   };

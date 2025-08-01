@@ -4,10 +4,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe, MapPin } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const dealDetails = {
@@ -30,6 +32,9 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
   // You can use params.id to fetch the correct deal data from your backend
   const deal = dealDetails;
   const { toast } = useToast();
+  const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
+  const router = useRouter();
+
 
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -45,6 +50,35 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
         description: "Show this confirmation at the business to get your discount.",
     });
   };
+
+  const handleSaveToggle = () => {
+    if (!user) {
+        toast({
+            title: "Please log in",
+            description: "You need to be logged in to save deals.",
+            variant: "destructive",
+        });
+        router.push("/login");
+        return;
+    }
+
+    const currentlySaved = isDealSaved(deal.id);
+    if (currentlySaved) {
+        unsaveDeal(deal.id);
+        toast({
+            title: "Deal Unsaved",
+            description: `The "${deal.title}" deal has been removed from your saved list.`,
+        });
+    } else {
+        saveDeal(deal.id);
+        toast({
+            title: "Deal Saved!",
+            description: `The "${deal.title}" deal has been saved to your profile.`,
+        });
+    }
+  }
+
+  const dealIsSaved = user ? isDealSaved(deal.id) : false;
 
   return (
     <div className="bg-background">
@@ -82,7 +116,11 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
                         <Tag className="mr-2"/>
                         Redeem Deal Now
                     </Button>
-                    <Button size="lg" variant="secondary" className="w-full" onClick={handleShare}>
+                    <Button size="lg" variant={dealIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
+                        <Bookmark className="mr-2"/>
+                        {dealIsSaved ? "Deal Saved" : "Save Deal"}
+                    </Button>
+                    <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
                         Share Deal
                     </Button>

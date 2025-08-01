@@ -1,4 +1,5 @@
 
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Search, Users } from "lucide-react";
+import { Building2, MapPin, Search, Users, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,6 +21,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import type { MouseEvent } from 'react';
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const featuredOrganizations = [
    {
@@ -55,7 +60,7 @@ const featuredOrganizations = [
 ];
 
 
-const organizations = [
+export const organizations = [
   ...featuredOrganizations,
   {
     id: "4",
@@ -101,6 +106,38 @@ const organizations = [
 
 
 export default function OrganizationsPage() {
+    const { toast } = useToast();
+    const { user, saveOrg, isOrgSaved } = useAuth();
+    const router = useRouter();
+
+    const handleSave = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+         if (!user) {
+            toast({
+                title: "Please log in",
+                description: "You must be logged in to save organizations.",
+                variant: "destructive"
+            });
+            router.push('/login');
+            return;
+        }
+
+        if (!isOrgSaved(orgId)) {
+            saveOrg(orgId);
+            toast({
+            title: "Organization Saved!",
+            description: `${orgName} has been saved to your profile.`,
+            });
+        } else {
+             toast({
+                title: "Already Saved",
+                description: "This organization is already in your saved list.",
+            });
+        }
+    };
+
+
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background pt-20 pb-12 text-center">
@@ -228,8 +265,9 @@ export default function OrganizationsPage() {
                     <Button asChild className="flex-1">
                         <Link href={`/organizations/${org.id}`}>View</Link>
                     </Button>
-                    <Button variant="secondary" className="flex-1">
-                        Join Now
+                    <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isOrgSaved(org.id)}>
+                        <Bookmark className="mr-2" />
+                        {isOrgSaved(org.id) ? "Saved" : "Save"}
                     </Button>
                  </CardFooter>
             </Card>
