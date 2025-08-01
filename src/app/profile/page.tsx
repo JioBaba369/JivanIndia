@@ -80,8 +80,8 @@ export default function ProfilePage() {
     );
   }
 
-  const profileImageUrl = user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png";
-  const profileImageAlt = user.affiliation ? `${user.affiliation.orgName} logo` : user.name;
+  const profileImageUrl = user.profileImageUrl || user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png";
+  const profileImageAlt = user.name;
   const profileImageAiHint = user.affiliation?.orgLogoAiHint || "user avatar";
 
   return (
@@ -106,11 +106,12 @@ export default function ProfilePage() {
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="text-center">
+                        {user.bio && <p className="text-sm text-muted-foreground italic mb-4">"{user.bio}"</p>}
                         {user.affiliation && (
                             <Card className="bg-muted">
                                 <CardHeader>
-                                    <CardTitle className="font-headline text-lg flex items-center gap-2">
+                                    <CardTitle className="font-headline text-lg flex items-center justify-center gap-2">
                                         <BadgeCheck className="text-primary" />
                                         Affiliation
                                     </CardTitle>

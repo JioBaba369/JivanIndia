@@ -6,6 +6,8 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 interface User {
   name: string;
   email: string;
+  profileImageUrl?: string;
+  bio?: string;
   affiliation?: {
     orgId: string;
     orgName: string;
@@ -188,5 +190,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    
