@@ -17,7 +17,6 @@ import { Badge } from '@/components/ui/badge';
 import { jobs as allJobs } from '../careers/page';
 import { organizations as allOrgs } from '../organizations/page';
 import { deals as allDeals } from '../deals/page';
-import { EditProfileForm } from '@/components/edit-profile-form';
 
 
 export default function ProfilePage() {
@@ -29,8 +28,6 @@ export default function ProfilePage() {
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
-  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-
 
   const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
@@ -72,22 +69,25 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="font-headline text-3xl font-bold">Access Denied</h1>
-        <p className="mt-4 text-muted-foreground">Please log in to view your profile.</p>
-        <Button asChild className="mt-6">
-          <Link href="/login">Login</Link>
-        </Button>
+        <Card className="max-w-md mx-auto">
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
+                <CardDescription>You must be logged in to view your profile.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="mt-2">
+                    <Link href="/login">Login</Link>
+                </Button>
+            </CardContent>
+        </Card>
       </div>
     );
   }
 
   const profileImageUrl = user.profileImageUrl || user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png";
-  const profileImageAlt = user.name;
   const profileImageAiHint = user.affiliation?.orgLogoAiHint || "user avatar";
 
   return (
-    <>
-    <EditProfileForm isOpen={isEditFormOpen} onOpenChange={setIsEditFormOpen} />
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -97,7 +97,7 @@ export default function ProfilePage() {
                         <div className="relative h-24 w-24">
                            <Image
                             src={profileImageUrl}
-                            alt={profileImageAlt}
+                            alt={user.name}
                             width={96}
                             height={96}
                             className="rounded-full object-cover border-4 border-primary"
@@ -127,7 +127,9 @@ export default function ProfilePage() {
                         )}
                     </CardContent>
                     <CardFooter>
-                         <Button variant="outline" className="w-full" onClick={() => setIsEditFormOpen(true)}>Edit Profile</Button>
+                         <Button variant="outline" className="w-full" asChild>
+                            <Link href="/profile/edit">Edit Profile</Link>
+                         </Button>
                     </CardFooter>
                 </Card>
                 
@@ -327,6 +329,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-    </>
   );
 }
