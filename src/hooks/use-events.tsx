@@ -53,6 +53,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
+    // Ensure this runs only on the client
     if (typeof window === 'undefined') {
         setEvents(initialEvents);
         return;

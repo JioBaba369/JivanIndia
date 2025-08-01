@@ -114,12 +114,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [savedDeals, setSavedDeals] = useState<string[]>([]);
 
   useEffect(() => {
-    setSavedJobs(user?.savedJobs || []);
-    setSavedEvents(user?.savedEvents || []);
-    setJoinedCommunities(user?.joinedCommunities || []);
-    setSavedDeals(user?.savedDeals || []);
     setIsLoading(false);
-  }, [user]);
+  }, []);
+
+  useEffect(() => {
+    setSavedJobs(user?.savedJobs || []);
+  }, [user?.savedJobs]);
+
+  useEffect(() => {
+    setSavedEvents(user?.savedEvents || []);
+  }, [user?.savedEvents]);
+
+  useEffect(() => {
+    setJoinedCommunities(user?.joinedCommunities || []);
+  }, [user?.joinedCommunities]);
+  
+  useEffect(() => {
+    setSavedDeals(user?.savedDeals || []);
+  }, [user?.savedDeals]);
 
 
   const updateUser = (updatedData: Partial<User>) => {
@@ -163,6 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   
   const getInitials = useCallback((name: string) => {
+    if (!name) return '';
     const names = name.split(' ');
     if (names.length > 1) {
         return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
