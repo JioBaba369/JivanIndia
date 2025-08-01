@@ -6,9 +6,18 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sprout } from "lucide-react";
+import { Menu, Sprout, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { href: "/", label: "What's On" },
@@ -23,6 +32,7 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const NavLink = ({ href, label }: { href: string; label: string }) => {
     const isActive = pathname === href;
@@ -52,12 +62,33 @@ export default function Header() {
           ))}
         </nav>
         <div className="hidden items-center space-x-2 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/signup">Sign Up</Link>
-          </Button>
+          {user ? (
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
         <div className="md:hidden">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -69,7 +100,7 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right">
               <div className="p-4">
-                <Link href="/" className="mb-8 flex items-center gap-2">
+                <Link href="/" className="mb-8 flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                   <Logo />
                 </Link>
                 <nav className="flex flex-col space-y-6">
@@ -78,12 +109,18 @@ export default function Header() {
                   ))}
                 </nav>
                 <div className="mt-8 flex flex-col space-y-2">
-                  <Button variant="outline" asChild>
-                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
-                  </Button>
+                   {user ? (
+                     <Button variant="outline" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>Logout</Button>
+                  ) : (
+                    <>
+                      <Button variant="outline" asChild>
+                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+                      </Button>
+                      <Button asChild>
+                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>
