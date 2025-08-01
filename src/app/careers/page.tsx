@@ -146,7 +146,7 @@ export default function CareersPage() {
         <div className="space-y-6">
           {jobs.map((job, index) => (
             <Card key={index} className="transition-all hover:shadow-lg hover:border-primary">
-               <Link href="#" className="block">
+               <Link href="/careers" className="block">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <div className="flex-shrink-0">
