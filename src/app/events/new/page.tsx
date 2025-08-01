@@ -32,11 +32,19 @@ export default function NewEventPage() {
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
-  const [organizer, setOrganizer] = useState('');
+  const [organizer, setOrganizer] = useState(user?.affiliation?.orgName || '');
   const [duration, setDuration] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.affiliation) {
+      toast({
+        title: 'Affiliation Required',
+        description: 'You must be affiliated with an organization to create an event.',
+        variant: 'destructive',
+      });
+      return;
+    }
     const newEvent: Omit<Event, 'id' | 'postedAt'> = {
       title,
       category,
@@ -45,7 +53,8 @@ export default function NewEventPage() {
       location,
       address,
       description,
-      organizer,
+      organizer: user.affiliation.orgName,
+      organizerId: user.affiliation.orgId,
       imageUrl: 'https://placehold.co/600x400.png',
       aiHint: 'community event',
       duration,
@@ -165,10 +174,9 @@ export default function NewEventPage() {
                 <Label htmlFor="organizer">Organizer</Label>
                 <Input
                     id="organizer"
-                    placeholder="e.g., India Cultural Center"
                     value={organizer}
-                    onChange={(e) => setOrganizer(e.target.value)}
-                    required
+                    disabled
+                    readOnly
                 />
             </div>
             

@@ -127,7 +127,7 @@ export default function EventDetailPage() {
                      </div>
                      <div>
                        <p className="font-semibold">{event.organizer}</p>
-                       <Link href="/organizations" className="text-sm text-primary hover:underline">
+                       <Link href={`/organizations/${event.organizerId}`} className="text-sm text-primary hover:underline">
                          View Organization
                        </Link>
                      </div>
