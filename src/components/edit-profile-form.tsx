@@ -118,7 +118,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                     className="rounded-full object-cover"
                 />
                 <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                    <Paperclip className="mr-2" />
+                    <Paperclip className="mr-2 h-4 w-4" />
                     Change Profile Picture
                 </Button>
                 <Input 
@@ -171,7 +171,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="homeAddress">Address</Label>
+                <Label htmlFor="homeAddress">Home Address</Label>
                 <Textarea
                     id="homeAddress"
                     placeholder="Your address in your current country of residence."
