@@ -8,6 +8,7 @@ import Link from "next/link";
 
 const sponsors = [
   {
+    id: "1",
     name: "Saffron Restaurant Group",
     industry: "Food & Beverage",
     imageUrl: "https://placehold.co/600x400.png",
@@ -15,6 +16,7 @@ const sponsors = [
     website: "#"
   },
   {
+    id: "2",
     name: "Desi Grocers Inc.",
     industry: "Retail",
     imageUrl: "https://placehold.co/600x400.png",
@@ -22,6 +24,7 @@ const sponsors = [
     website: "#"
   },
   {
+    id: "3",
     name: "InnovateTech Solutions",
     industry: "Technology",
     imageUrl: "https://placehold.co/600x400.png",
@@ -29,6 +32,7 @@ const sponsors = [
     website: "#"
   },
   {
+    id: "4",
     name: "Sahara Real Estate",
     industry: "Real Estate",
     imageUrl: "https://placehold.co/600x400.png",
@@ -36,6 +40,7 @@ const sponsors = [
     website: "#"
   },
   {
+    id: "5",
     name: "Air India",
     industry: "Travel & Tourism",
     imageUrl: "https://placehold.co/600x400.png",
@@ -43,6 +48,7 @@ const sponsors = [
     website: "#"
   },
   {
+    id: "6",
     name: "Bollywood Cinemas",
     industry: "Entertainment",
     imageUrl: "https://placehold.co/600x400.png",
@@ -87,31 +93,31 @@ export default function SponsorsPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {sponsors.map((sponsor, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-              <CardContent className="p-0 flex flex-col h-full">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={sponsor.imageUrl}
-                    alt={sponsor.name}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                    data-ai-hint={sponsor.aiHint}
-                  />
-                </div>
-                <div className="p-6 text-center flex flex-col flex-grow">
-                  <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
-                  <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
-                      <HeartHandshake className="h-4 w-4" />
-                      <span>{sponsor.industry}</span>
+          {sponsors.map((sponsor) => (
+            <Card key={sponsor.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
+               <Link href={`/sponsors/${sponsor.id}`} className="block h-full">
+                <CardContent className="p-0 flex flex-col h-full">
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={sponsor.imageUrl}
+                      alt={sponsor.name}
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      data-ai-hint={sponsor.aiHint}
+                    />
                   </div>
-                  <Button variant="secondary" className="mt-6 w-full" asChild>
-                    <a href={sponsor.website} target="_blank" rel="noopener noreferrer">
-                      Visit Website
-                    </a>
-                  </Button>
-                </div>
-              </CardContent>
+                  <div className="p-6 text-center flex flex-col flex-grow">
+                    <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
+                    <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
+                        <HeartHandshake className="h-4 w-4" />
+                        <span>{sponsor.industry}</span>
+                    </div>
+                    <Button variant="secondary" className="mt-6 w-full">
+                      View Profile
+                    </Button>
+                  </div>
+                </CardContent>
+              </Link>
             </Card>
           ))}
         </div>
