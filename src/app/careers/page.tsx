@@ -111,37 +111,41 @@ export default function CareersPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md">
+      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
         <div className="container mx-auto px-4">
-          <Card>
+          <Card className="shadow-md">
             <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
                 <div className="relative lg:col-span-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Job title, keyword, or company"
-                    className="pl-10"
+                    className="pl-10 text-base"
                   />
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Location or 'Remote'"
-                    className="pl-10"
+                    className="pl-10 text-base"
                   />
                 </div>
                  <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Job Type" />
+                  <SelectTrigger className="text-base">
+                    <div className="flex items-center gap-2">
+                     <Briefcase className="h-4 w-4 text-muted-foreground" />
+                     <SelectValue placeholder="Job Type" />
+                    </div>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="full-time">Full-time</SelectItem>
                     <SelectItem value="part-time">Part-time</SelectItem>
                     <SelectItem value="contract">Contract</SelectItem>
                     <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className="w-full">Find Jobs</Button>
+                <Button size="lg" className="w-full">Find Jobs</Button>
               </div>
             </CardContent>
           </Card>
@@ -151,7 +155,7 @@ export default function CareersPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="space-y-6">
           {jobs.map((job) => (
-            <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary">
+            <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
                <Link href={`/careers/${job.id}`} className="block">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
@@ -161,12 +165,12 @@ export default function CareersPage() {
                             alt={`${job.company} logo`}
                             width={80}
                             height={80}
-                            className="rounded-lg object-cover"
+                            className="rounded-lg object-cover border bg-background"
                             data-ai-hint={job.aiHint}
                             />
                         </div>
                         <div className="flex-grow">
-                            <h3 className="font-headline text-xl font-bold">{job.title}</h3>
+                            <h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3>
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
                                <div className="flex items-center gap-2">
                                  <Building className="h-4 w-4" />
@@ -182,7 +186,7 @@ export default function CareersPage() {
                                </div>
                             </div>
                         </div>
-                        <div className="flex sm:flex-col items-center sm:justify-center gap-2 sm:ml-auto">
+                        <div className="flex sm:flex-col items-center sm:justify-center gap-2 sm:ml-auto pt-4 sm:pt-0">
                             <Button onClick={(e) => handleApply(e, job.title)}>Apply Now</Button>
                             <Button variant="secondary" onClick={(e) => handleSave(e, job.title)}>Save</Button>
                         </div>
