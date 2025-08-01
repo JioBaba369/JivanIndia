@@ -70,6 +70,14 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
     });
   };
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied!",
+      description: "Organization profile link copied to clipboard.",
+    });
+  };
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-12">
@@ -131,7 +139,7 @@ export default function OrganizationDetailPage({ params }: { params: { id: strin
                         <Users className="mr-2"/>
                         {isJoined ? "Joined" : "Join Now"}
                     </Button>
-                    <Button size="lg" variant="secondary" className="w-full">
+                    <Button size="lg" variant="secondary" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
                         Share Profile
                     </Button>
