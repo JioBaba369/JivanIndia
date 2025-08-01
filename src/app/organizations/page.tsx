@@ -30,7 +30,7 @@ const featuredOrganizations = [
    {
     id: "1",
     name: "India Cultural Center",
-    category: "Community Center",
+    type: "Community Center",
     location: "San Francisco, CA",
     imageUrl: "https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "community center",
@@ -40,7 +40,7 @@ const featuredOrganizations = [
    {
     id: "2",
     name: "South Asian Arts Society",
-    category: "Arts & Culture",
+    type: "Arts & Culture",
     location: "New York, NY",
     imageUrl: "https://images.unsplash.com/photo-1531028362699-7335dbd25515?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBhcnQlMjBnYWxsZXJ5fGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "art gallery",
@@ -50,7 +50,7 @@ const featuredOrganizations = [
   {
     id: "3",
     name: "Entrepreneurs of India",
-    category: "Business Network",
+    type: "Business Network",
     location: "Chicago, IL",
     imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3dvcmtpbmclMjBzcGFjZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "modern office",
@@ -65,7 +65,7 @@ export const organizations = [
   {
     id: "4",
     name: "Hindu Temple & Cultural Center",
-    category: "Religious",
+    type: "Religious",
     location: "Houston, TX",
     imageUrl: "https://images.unsplash.com/photo-1587143621495-2a298aa35624?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "hindu temple",
@@ -75,7 +75,7 @@ export const organizations = [
   {
     id: "5",
     name: "Sikh Foundation",
-    category: "Charity",
+    type: "Charity",
     location: "Fremont, CA",
     imageUrl: "https://images.unsplash.com/photo-1617812000789-a5909f24b1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxTaWtoJTIwZ3VydGR3YXJhJTIwZXh0ZXJpb3J8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "charity event",
@@ -85,7 +85,7 @@ export const organizations = [
   {
     id: "6",
     name: "Indian Students Association",
-    category: "Student Group",
+    type: "Student Group",
     location: "Boston, MA",
     imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMG9uJTIwYSUyMHVuaXZlcnNpdHklMjBjYW1wdXN8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "university campus",
@@ -95,7 +95,7 @@ export const organizations = [
   {
     id: "7",
     name: "Yash Raj Films",
-    category: "Film Distributor",
+    type: "Film Distributor",
     location: "Mumbai, IN",
     imageUrl: "https://images.unsplash.com/photo-1594904523995-18b0831c26ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwc3R1ZGlvfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "film studio",
@@ -177,7 +177,7 @@ export default function OrganizationsPage() {
                         </div>
                         <div className="p-6 flex flex-col flex-grow">
                             <h3 className="font-headline text-xl font-bold">{org.name}</h3>
-                            <p className="text-sm text-primary font-semibold">{org.category}</p>
+                            <p className="text-sm text-primary font-semibold">{org.type}</p>
                             <p className="mt-2 text-sm text-muted-foreground flex-grow">{org.description}</p>
                              <div className="mt-4 flex items-center gap-2 text-muted-foreground text-sm">
                                 <MapPin className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default function OrganizationsPage() {
                         />
                         </div>
                         <div className="p-6 flex flex-col flex-grow">
-                        <p className="text-sm font-semibold text-primary">{org.category}</p>
+                        <p className="text-sm font-semibold text-primary">{org.type}</p>
                         <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">{org.name}</h3>
                         <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
                         
