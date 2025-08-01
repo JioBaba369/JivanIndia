@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +15,8 @@ import {
 import { Briefcase, MapPin, Search, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
+import type { MouseEvent } from 'react';
 
 const jobs = [
   {
@@ -67,6 +71,27 @@ const jobs = [
 
 
 export default function CareersPage() {
+  const { toast } = useToast();
+
+  const handleApply = (e: MouseEvent<HTMLButtonElement>, jobTitle: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast({
+      title: "Application Sent!",
+      description: `Your application for ${jobTitle} has been submitted.`,
+    });
+  };
+
+  const handleSave = (e: MouseEvent<HTMLButtonElement>, jobTitle: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast({
+      title: "Job Saved!",
+      description: `The ${jobTitle} position has been saved to your profile.`,
+    });
+  };
+
+
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
@@ -152,8 +177,8 @@ export default function CareersPage() {
                             </div>
                         </div>
                         <div className="flex sm:flex-col items-center sm:justify-center gap-2 sm:ml-auto">
-                            <Button>Apply Now</Button>
-                            <Button variant="secondary">Save</Button>
+                            <Button onClick={(e) => handleApply(e, job.title)}>Apply Now</Button>
+                            <Button variant="secondary" onClick={(e) => handleSave(e, job.title)}>Save</Button>
                         </div>
                     </div>
                 </CardContent>
