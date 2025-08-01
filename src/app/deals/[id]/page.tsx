@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const dealDetails = {
@@ -37,7 +38,13 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
   const router = useRouter();
-  const postedAt = formatDistanceToNow(new Date(deal.postedAt), { addSuffix: true });
+  const [postedAt, setPostedAt] = useState('');
+
+  useEffect(() => {
+    if (deal?.postedAt) {
+      setPostedAt(formatDistanceToNow(new Date(deal.postedAt), { addSuffix: true }));
+    }
+  }, [deal?.postedAt]);
 
 
    const handleShare = () => {

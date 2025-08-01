@@ -9,7 +9,7 @@ import { Briefcase, MapPin, Building, Share2, Bookmark, History } from "lucide-r
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ApplyForm } from "@/components/apply-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
@@ -55,7 +55,13 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [isApplyFormOpen, setIsApplyFormOpen] = useState(false);
   const { user, saveJob, unsaveJob, isJobSaved } = useAuth();
   const router = useRouter();
-  const postedAt = formatDistanceToNow(new Date(job.postedAt), { addSuffix: true });
+  const [postedAt, setPostedAt] = useState('');
+
+  useEffect(() => {
+    if (job?.postedAt) {
+      setPostedAt(formatDistanceToNow(new Date(job.postedAt), { addSuffix: true }));
+    }
+  }, [job?.postedAt]);
 
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);

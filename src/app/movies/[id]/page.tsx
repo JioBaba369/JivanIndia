@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { useState, useEffect } from 'react';
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const movieDetails = {
@@ -50,7 +51,14 @@ const movieDetails = {
 export default function MovieDetailPage({ params }: { params: { id: string } }) {
   // You can use params.id to fetch the correct movie data from your backend
   const movie = movieDetails;
-  const postedAt = formatDistanceToNow(new Date(movie.postedAt), { addSuffix: true });
+  const [postedAt, setPostedAt] = useState('');
+
+  useEffect(() => {
+    if (movie?.postedAt) {
+      setPostedAt(formatDistanceToNow(new Date(movie.postedAt), { addSuffix: true }));
+    }
+  }, [movie?.postedAt]);
+
 
   return (
     <div className="bg-background">

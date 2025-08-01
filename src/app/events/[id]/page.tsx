@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { formatDistanceToNow } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 
 export default function EventDetailPage() {
@@ -24,6 +25,13 @@ export default function EventDetailPage() {
   const { toast } = useToast();
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
   const router = useRouter();
+  const [postedAt, setPostedAt] = useState('');
+
+  useEffect(() => {
+    if (event?.postedAt) {
+      setPostedAt(formatDistanceToNow(new Date(event.postedAt), { addSuffix: true }));
+    }
+  }, [event?.postedAt]);
   
   if (!event) {
     return (
@@ -73,8 +81,6 @@ export default function EventDetailPage() {
   }
 
   const eventIsSaved = user ? isEventSaved(event.id) : false;
-  const postedAt = formatDistanceToNow(new Date(event.postedAt), { addSuffix: true });
-
 
   return (
     <div className="bg-background">
