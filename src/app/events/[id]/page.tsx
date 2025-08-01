@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
-import { format, formatDistanceToNow, intervalToDuration } from 'date-fns';
+import { format, formatDistanceToNow, intervalToDuration, isValid } from 'date-fns';
 import { useState, useEffect } from 'react';
 
 
@@ -32,7 +32,7 @@ export default function EventDetailPage() {
     if (event?.createdAt) {
       try {
         const date = new Date(event.createdAt);
-        if (!isNaN(date.getTime())) {
+        if (isValid(date)) {
           setCreatedAt(formatDistanceToNow(date, { addSuffix: true }));
         } else {
             setCreatedAt('a while ago');
@@ -44,16 +44,19 @@ export default function EventDetailPage() {
     }
     if (event?.startDateTime && event?.endDateTime) {
        try {
-            const d = intervalToDuration({
-                start: new Date(event.startDateTime),
-                end: new Date(event.endDateTime)
-            });
-            const formattedDuration = [
-                d.days ? `${d.days}d` : '',
-                d.hours ? `${d.hours}h` : '',
-                d.minutes ? `${d.minutes}m` : ''
-            ].filter(Boolean).join(' ');
-            setDuration(formattedDuration);
+            const startDate = new Date(event.startDateTime);
+            const endDate = new Date(event.endDateTime);
+            if(isValid(startDate) && isValid(endDate)) {
+                const d = intervalToDuration({ start: startDate, end: endDate });
+                const formattedDuration = [
+                    d.days ? `${d.days}d` : '',
+                    d.hours ? `${d.hours}h` : '',
+                    d.minutes ? `${d.minutes}m` : ''
+                ].filter(Boolean).join(' ');
+                setDuration(formattedDuration);
+            } else {
+                 setDuration("N/A");
+            }
        } catch(e) {
             console.error("Failed to calculate duration", e);
             setDuration("N/A");
@@ -128,6 +131,9 @@ export default function EventDetailPage() {
       </Button>
     );
   };
+
+  const eventStartDate = event.startDateTime && isValid(new Date(event.startDateTime)) ? new Date(event.startDateTime) : null;
+  const eventEndDate = event.endDateTime && isValid(new Date(event.endDateTime)) ? new Date(event.endDateTime) : null;
 
 
   return (
@@ -210,8 +216,8 @@ export default function EventDetailPage() {
                       <Calendar className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Date and time</h4>
-                        <p className="text-muted-foreground text-sm">{format(new Date(event.startDateTime), 'eeee, LLLL d, yyyy')}</p>
-                        <p className="text-muted-foreground text-sm">{format(new Date(event.startDateTime), 'p')} - {format(new Date(event.endDateTime), 'p')}</p>
+                        {eventStartDate && <p className="text-muted-foreground text-sm">{format(eventStartDate, 'eeee, LLLL d, yyyy')}</p>}
+                        {eventStartDate && eventEndDate && <p className="text-muted-foreground text-sm">{format(eventStartDate, 'p')} - {format(eventEndDate, 'p')}</p>}
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
