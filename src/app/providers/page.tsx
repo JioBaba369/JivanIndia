@@ -15,6 +15,7 @@ import Link from "next/link";
 
 const providers = [
   {
+    id: "1",
     name: "Dr. Anjali Sharma",
     category: "Healthcare",
     specialty: "Cardiologist",
@@ -23,6 +24,7 @@ const providers = [
     aiHint: "doctor portrait"
   },
   {
+    id: "2",
     name: "Rajesh Kumar & Associates",
     category: "Legal Services",
     specialty: "Immigration Law",
@@ -31,6 +33,7 @@ const providers = [
     aiHint: "law office"
   },
   {
+    id: "3",
     name: "Priya's Kitchen",
     category: "Catering",
     specialty: "North Indian Cuisine",
@@ -39,6 +42,7 @@ const providers = [
     aiHint: "catering food"
   },
   {
+    id: "4",
     name: "Vikram Singh Photography",
     category: "Event Services",
     specialty: "Wedding Photography",
@@ -47,6 +51,7 @@ const providers = [
     aiHint: "photographer camera"
   },
   {
+    id: "5",
     name: "Aisha's Design Studio",
     category: "Creative Services",
     specialty: "Graphic Design",
@@ -55,6 +60,7 @@ const providers = [
     aiHint: "design studio"
   },
   {
+    id: "6",
     name: "Rohan Gupta, CPA",
     category: "Financial Services",
     specialty: "Tax & Accounting",
@@ -100,6 +106,8 @@ export default function ProvidersPage() {
                     <SelectItem value="legal">Legal Services</SelectItem>
                     <SelectItem value="catering">Catering</SelectItem>
                     <SelectItem value="event">Event Services</SelectItem>
+                    <SelectItem value="financial">Financial Services</SelectItem>
+                    <SelectItem value="creative">Creative Services</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button className="w-full">Search</Button>
@@ -111,9 +119,9 @@ export default function ProvidersPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {providers.map((provider, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-               <Link href="#" className="block h-full">
+          {providers.map((provider) => (
+            <Card key={provider.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
+               <Link href={`/providers/${provider.id}`} className="block h-full">
                 <CardContent className="p-0 flex flex-col h-full">
                   <div className="relative h-48 w-full">
                     <Image
