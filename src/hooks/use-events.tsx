@@ -102,6 +102,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       ...event,
       id: new Date().getTime().toString(),
       postedAt: new Date().toISOString(),
+      duration: event.duration, // Ensure duration is carried over
     };
     const newEvents = [...events, newEvent];
     setEvents(newEvents);

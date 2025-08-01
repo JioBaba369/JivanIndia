@@ -25,14 +25,6 @@ export default function EventDetailPage() {
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
   const router = useRouter();
   
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast({
-      title: "Link Copied!",
-      description: "Event link copied to clipboard.",
-    });
-  };
-
   if (!event) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -44,6 +36,14 @@ export default function EventDetailPage() {
       </div>
     );
   }
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied!",
+      description: "Event link copied to clipboard.",
+    });
+  };
 
   const handleSaveToggle = () => {
     if (!user) {
