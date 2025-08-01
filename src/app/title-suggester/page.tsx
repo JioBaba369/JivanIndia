@@ -5,22 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Wand2 } from "lucide-react";
-
-// Mock AI function - in a real app, this would call a Genkit flow
-const getTitleSuggestions = async (description: string): Promise<string[]> => {
-  console.log("Getting title suggestions for:", description);
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Mocked suggestions
-  return [
-    "Diwali Gala: A Festival of Lights & Culture",
-    "Illuminate the Night: Grand Diwali Celebration",
-    "Experience the Magic of Diwali: A Community Festival",
-    "A Night of Sparkle: The Annual Diwali Mela",
-    "From Tradition to Celebration: The Ultimate Diwali Experience"
-  ];
-};
+import { getTitleSuggestions } from '@/ai/flows/title-suggester-flow';
 
 
 export default function TitleSuggesterPage() {
@@ -38,8 +23,8 @@ export default function TitleSuggesterPage() {
     setError(null);
     setSuggestions([]);
     try {
-      const result = await getTitleSuggestions(description);
-      setSuggestions(result);
+      const result = await getTitleSuggestions({description});
+      setSuggestions(result.suggestions);
     } catch (err) {
       setError("Sorry, we couldn't generate titles right now. Please try again later.");
       console.error(err);
