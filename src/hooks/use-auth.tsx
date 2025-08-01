@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface User {
+  uid: string;
   name: string;
   email: string;
   profileImageUrl?: string;
@@ -24,11 +25,20 @@ interface User {
   }
   languagesSpoken?: string[];
   interests?: string[];
+  
+  // New fields from schema
+  registeredEvents?: string[];
+  joinedCommunities?: string[];
+  notificationPreferences?: {
+    eventsNearby: boolean;
+    reminders: boolean;
+  };
+  calendarSyncEnabled?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
+  login: (user: Omit<User, 'uid'>) => void;
   logout: () => void;
   updateUser: (updatedUser: Partial<User>) => void;
   isLoading: boolean;
@@ -45,11 +55,11 @@ interface AuthContextType {
   unsaveEvent: (eventId: string) => void;
   isEventSaved: (eventId: string) => boolean;
 
-  // Organization saving
-  savedOrgs: string[];
-  saveOrg: (orgId: string) => void;
-  unsaveOrg: (orgId: string) => void;
-  isOrgSaved: (orgId: string) => boolean;
+  // Organization/Community saving
+  joinedCommunities: string[];
+  joinCommunity: (orgId: string) => void;
+  leaveCommunity: (orgId: string) => void;
+  isCommunityJoined: (orgId: string) => boolean;
 
   // Deal saving
   savedDeals: string[];
@@ -64,13 +74,14 @@ const createSaveFunctions = <T extends string>(
   user: User | null,
   savedItems: T[],
   setSavedItems: React.Dispatch<React.SetStateAction<T[]>>,
-  storageKey: string
+  storageKey: string,
+  updateUserInState: (items: T[]) => void,
 ) => {
   const saveItem = (itemId: T) => {
     if (user && !savedItems.includes(itemId)) {
       const newSavedItems = [...savedItems, itemId];
       setSavedItems(newSavedItems);
-      localStorage.setItem(`savedItems_${user.email}_${storageKey}`, JSON.stringify(newSavedItems));
+      updateUserInState(newSavedItems);
     }
   };
 
@@ -78,7 +89,7 @@ const createSaveFunctions = <T extends string>(
     if (user) {
       const newSavedItems = savedItems.filter(id => id !== itemId);
       setSavedItems(newSavedItems);
-      localStorage.setItem(`savedItems_${user.email}_${storageKey}`, JSON.stringify(newSavedItems));
+       updateUserInState(newSavedItems);
     }
   };
 
@@ -96,27 +107,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const [savedJobs, setSavedJobs] = useState<string[]>([]);
   const [savedEvents, setSavedEvents] = useState<string[]>([]);
-  const [savedOrgs, setSavedOrgs] = useState<string[]>([]);
+  const [joinedCommunities, setJoinedCommunities] = useState<string[]>([]);
   const [savedDeals, setSavedDeals] = useState<string[]>([]);
+
+  const updateUserAndLocalStorage = (newUserData: Partial<User>) => {
+      if (user) {
+          const newUser = { ...user, ...newUserData };
+          setUser(newUser);
+          localStorage.setItem('user', JSON.stringify(newUser));
+      }
+  }
 
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
+        const parsedUser: User = JSON.parse(storedUser);
         setUser(parsedUser);
-        
-        const storedSavedJobs = localStorage.getItem(`savedItems_${parsedUser.email}_jobs`);
-        if (storedSavedJobs) setSavedJobs(JSON.parse(storedSavedJobs));
-
-        const storedSavedEvents = localStorage.getItem(`savedItems_${parsedUser.email}_events`);
-        if (storedSavedEvents) setSavedEvents(JSON.parse(storedSavedEvents));
-
-        const storedSavedOrgs = localStorage.getItem(`savedItems_${parsedUser.email}_orgs`);
-        if (storedSavedOrgs) setSavedOrgs(JSON.parse(storedSavedOrgs));
-
-        const storedSavedDeals = localStorage.getItem(`savedItems_${parsedUser.email}_deals`);
-        if (storedSavedDeals) setSavedDeals(JSON.parse(storedSavedDeals));
+        setSavedJobs(parsedUser.registeredEvents || []); // Using registeredEvents to store saved jobs for now
+        setSavedEvents(parsedUser.registeredEvents || []);
+        setJoinedCommunities(parsedUser.joinedCommunities || []);
+        setSavedDeals(JSON.parse(localStorage.getItem(`savedItems_${parsedUser.email}_deals`) || '[]'));
       }
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
@@ -124,29 +135,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = (user: User) => {
-    // For demo purposes, add an affiliation to the default user
-    const userToLogin = {
-        ...user,
-        affiliation: user.email ? { 
+  const login = (loginData: Omit<User, 'uid'>) => {
+    const userToLogin: User = {
+        ...loginData,
+        uid: `user-${new Date().getTime()}`, // simple unique id for demo
+        affiliation: loginData.email ? { 
             orgId: '1', 
             orgName: 'India Cultural Center',
         } : undefined,
+        joinedCommunities: [],
+        registeredEvents: [],
+        notificationPreferences: { eventsNearby: true, reminders: true },
+        calendarSyncEnabled: false,
     };
     setUser(userToLogin);
     localStorage.setItem('user', JSON.stringify(userToLogin));
-
-    const storedSavedJobs = localStorage.getItem(`savedItems_${user.email}_jobs`);
-    setSavedJobs(storedSavedJobs ? JSON.parse(storedSavedJobs) : []);
-
-    const storedSavedEvents = localStorage.getItem(`savedItems_${user.email}_events`);
-    setSavedEvents(storedSavedEvents ? JSON.parse(storedSavedEvents) : []);
-    
-    const storedSavedOrgs = localStorage.getItem(`savedItems_${user.email}_orgs`);
-    setSavedOrgs(storedSavedOrgs ? JSON.parse(storedSavedOrgs) : []);
-
-    const storedSavedDeals = localStorage.getItem(`savedItems_${user.email}_deals`);
-    setSavedDeals(storedSavedDeals ? JSON.parse(storedSavedDeals) : []);
+    setJoinedCommunities(userToLogin.joinedCommunities || []);
+    // Initialize other saved items if needed
   };
 
   const logout = () => {
@@ -154,33 +159,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('user');
     setSavedJobs([]);
     setSavedEvents([]);
-    setSavedOrgs([]);
+    setJoinedCommunities([]);
     setSavedDeals([]);
   };
-
-  const updateUser = (updatedUser: Partial<User>) => {
-    if (user) {
-      const newUser = { ...user, ...updatedUser };
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-    }
-  };
   
-  const { saveItem: saveJob, unsaveItem: unsaveJob, isItemSaved: isJobSaved } = createSaveFunctions(user, savedJobs, setSavedJobs, 'jobs');
-  const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions(user, savedEvents, setSavedEvents, 'events');
-  const { saveItem: saveOrg, unsaveItem: unsaveOrg, isItemSaved: isOrgSaved } = createSaveFunctions(user, savedOrgs, setSavedOrgs, 'orgs');
-  const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions(user, savedDeals, setSavedDeals, 'deals');
+  const { saveItem: saveJob, unsaveItem: unsaveJob, isItemSaved: isJobSaved } = createSaveFunctions(user, savedJobs, setSavedJobs, 'jobs', () => {});
+  const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions(user, savedEvents, setSavedEvents, 'events', (items) => updateUserAndLocalStorage({ registeredEvents: items }));
+  const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined } = createSaveFunctions(user, joinedCommunities, setJoinedCommunities, 'orgs', (items) => updateUserAndLocalStorage({ joinedCommunities: items }));
+  const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions(user, savedDeals, setSavedDeals, 'deals', () => {});
 
 
   const value = { 
     user, 
     login, 
     logout, 
-    updateUser,
+    updateUser: updateUserAndLocalStorage,
     isLoading, 
     savedJobs, saveJob, unsaveJob, isJobSaved,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
-    savedOrgs, saveOrg, unsaveOrg, isOrgSaved,
+    joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved
   };
 

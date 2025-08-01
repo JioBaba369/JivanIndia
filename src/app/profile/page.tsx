@@ -23,7 +23,7 @@ export default function ProfilePage() {
   const { user, 
     savedJobs, unsaveJob, 
     savedEvents, unsaveEvent,
-    savedOrgs, unsaveOrg,
+    joinedCommunities, leaveCommunity,
     savedDeals, unsaveDeal,
   } = useAuth();
   const { toast } = useToast();
@@ -31,7 +31,7 @@ export default function ProfilePage() {
 
   const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
-  const userSavedOrgs = allOrgs.filter(org => savedOrgs.includes(org.id));
+  const userJoinedCommunities = allOrgs.filter(org => (user?.joinedCommunities || []).includes(org.id));
   const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
 
   const handleUnsave = (type: string, id: string, title: string) => {
@@ -48,7 +48,7 @@ export default function ProfilePage() {
             typeName = 'Event';
             break;
         case 'organization':
-            unsaveFunction = unsaveOrg;
+            unsaveFunction = leaveCommunity;
             typeName = 'Organization';
             break;
         case 'deal':
@@ -61,8 +61,8 @@ export default function ProfilePage() {
     
     unsaveFunction(id);
     toast({
-        title: `${typeName} Unsaved`,
-        description: `The item "${title}" has been removed from your saved list.`,
+        title: `${typeName} Removed`,
+        description: `The item "${title}" has been removed from your list.`,
     });
   }
 
@@ -200,7 +200,7 @@ export default function ProfilePage() {
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
                     <TabsTrigger value="jobs">Jobs ({userSavedJobs.length})</TabsTrigger>
                     <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
-                    <TabsTrigger value="organizations">Orgs ({userSavedOrgs.length})</TabsTrigger>
+                    <TabsTrigger value="organizations">Communities ({userJoinedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
                 </TabsList>
                 
@@ -266,9 +266,9 @@ export default function ProfilePage() {
                 </TabsContent>
 
                 <TabsContent value="organizations" className="mt-6">
-                    {userSavedOrgs.length > 0 ? (
+                    {userJoinedCommunities.length > 0 ? (
                         <div className="space-y-4">
-                            {userSavedOrgs.map((org) => (
+                            {userJoinedCommunities.map((org) => (
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={org.aiHint} />
@@ -289,8 +289,8 @@ export default function ProfilePage() {
                         </div>
                     ) : (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                            <p className="text-muted-foreground">You haven't saved any organizations yet.</p>
-                            <Button asChild className="mt-4"><Link href="/organizations">Find Organizations</Link></Button>
+                            <p className="text-muted-foreground">You haven't joined any communities yet.</p>
+                            <Button asChild className="mt-4"><Link href="/organizations">Find Communities</Link></Button>
                         </div>
                     )}
                 </TabsContent>

@@ -42,7 +42,7 @@ const featuredOrganizations = [
     name: "South Asian Arts Society",
     category: "Arts & Culture",
     location: "New York, NY",
-    imageUrl: "https://images.unsplash.com/photo-1531028362699-7335dbd25515?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBhcnQlMjBnYWxsZXJ5fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
+    imageUrl: "https://images.unsplash.com/photo-1531028362699-7335dbd25515?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBhcnQlMjBnYWxsZXJ5fGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "art gallery",
     description: "Promoting and preserving South Asian visual and performing arts through exhibitions, workshops, and performances.",
     members: "2,500+ Members"
@@ -107,7 +107,7 @@ export const organizations = [
 
 export default function OrganizationsPage() {
     const { toast } = useToast();
-    const { user, saveOrg, isOrgSaved } = useAuth();
+    const { user, joinCommunity, isCommunityJoined } = useAuth();
     const router = useRouter();
 
     const handleSave = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {
@@ -116,23 +116,23 @@ export default function OrganizationsPage() {
          if (!user) {
             toast({
                 title: "Please log in",
-                description: "You must be logged in to save organizations.",
+                description: "You must be logged in to join communities.",
                 variant: "destructive"
             });
             router.push('/login');
             return;
         }
 
-        if (!isOrgSaved(orgId)) {
-            saveOrg(orgId);
+        if (!isCommunityJoined(orgId)) {
+            joinCommunity(orgId);
             toast({
-            title: "Organization Saved!",
-            description: `${orgName} has been saved to your profile.`,
+            title: "Community Joined!",
+            description: `You have joined ${orgName}.`,
             });
         } else {
              toast({
-                title: "Already Saved",
-                description: "This organization is already in your saved list.",
+                title: "Already Joined",
+                description: "You are already a member of this community.",
             });
         }
     };
@@ -265,9 +265,9 @@ export default function OrganizationsPage() {
                     <Button asChild className="flex-1">
                         <Link href={`/organizations/${org.id}`}>View</Link>
                     </Button>
-                    <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isOrgSaved(org.id)}>
+                    <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isCommunityJoined(org.id)}>
                         <Bookmark className="mr-2" />
-                        {isOrgSaved(org.id) ? "Saved" : "Save"}
+                        {isCommunityJoined(org.id) ? "Joined" : "Join"}
                     </Button>
                  </CardFooter>
             </Card>

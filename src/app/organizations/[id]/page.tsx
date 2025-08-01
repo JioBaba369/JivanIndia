@@ -88,7 +88,7 @@ export default function OrganizationDetailPage() {
   const org = allOrganizationsData[id] || allOrganizationsData["1"];
   
   const { toast } = useToast();
-  const { user, saveOrg, unsaveOrg, isOrgSaved } = useAuth();
+  const { user, joinCommunity, leaveCommunity, isCommunityJoined } = useAuth();
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -98,34 +98,34 @@ export default function OrganizationDetailPage() {
     });
   };
 
-  const handleSaveToggle = () => {
+  const handleJoinToggle = () => {
     if (!user) {
         toast({
             title: "Please log in",
-            description: "You need to be logged in to save organizations.",
+            description: "You need to be logged in to join communities.",
             variant: "destructive",
         });
         router.push("/login");
         return;
     }
 
-    const currentlySaved = isOrgSaved(org.id);
-    if (currentlySaved) {
-        unsaveOrg(org.id);
+    const currentlyJoined = isCommunityJoined(org.id);
+    if (currentlyJoined) {
+        leaveCommunity(org.id);
         toast({
-            title: "Organization Unsaved",
-            description: `${org.name} has been removed from your saved list.`,
+            title: "Community Left",
+            description: `You have left ${org.name}.`,
         });
     } else {
-        saveOrg(org.id);
+        joinCommunity(org.id);
         toast({
-            title: "Organization Saved!",
-            description: `${org.name} has been saved to your profile.`,
+            title: "Community Joined!",
+            description: `You have successfully joined ${org.name}.`,
         });
     }
   }
 
-  const orgIsSaved = user ? isOrgSaved(org.id) : false;
+  const orgIsJoined = user ? isCommunityJoined(org.id) : false;
 
   return (
     <div className="bg-background">
@@ -184,9 +184,9 @@ export default function OrganizationDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" variant={orgIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
+                    <Button size="lg" variant={orgIsJoined ? "default" : "secondary"} className="w-full" onClick={handleJoinToggle}>
                         <Bookmark className="mr-2"/>
-                        {orgIsSaved ? "Organization Saved" : "Save Organization"}
+                        {orgIsJoined ? "Joined" : "Join Community"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2"/>
