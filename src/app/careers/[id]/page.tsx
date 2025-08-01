@@ -8,6 +8,8 @@ import { Briefcase, MapPin, Building, Share2, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from 'react';
+import { ApplyForm } from "@/components/apply-form";
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 const jobDetails = {
@@ -45,6 +47,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   // You can use params.id to fetch the correct job data from your backend
   const job = jobDetails;
   const { toast } = useToast();
+  const [isApplyFormOpen, setIsApplyFormOpen] = useState(false);
 
    const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -61,14 +64,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
     });
   }
 
-  const handleApply = () => {
-     toast({
-      title: "Application Sent!",
-      description: `Your application for ${job.title} has been submitted.`,
-    });
-  }
-
   return (
+    <>
+    <ApplyForm
+      isOpen={isApplyFormOpen}
+      onOpenChange={setIsApplyFormOpen}
+      jobTitle={job.title}
+      companyName={job.company}
+    />
     <div className="bg-background">
        <div className="relative h-48 md:h-64 w-full">
             <Image
@@ -139,7 +142,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full" onClick={handleApply}>
+                    <Button size="lg" className="w-full" onClick={() => setIsApplyFormOpen(true)}>
                         Apply Now
                     </Button>
                     <Button size="lg" variant="secondary" className="w-full" onClick={handleSave}>
@@ -176,5 +179,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         </Card>
       </div>
     </div>
+    </>
   );
 }
