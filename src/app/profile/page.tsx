@@ -34,11 +34,11 @@ export default function ProfilePage() {
 
   const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
-  const userJoinedCommunities = allCommunities.filter(org => (user?.joinedCommunities || []).includes(org.id));
+  const userJoinedCommunities = allCommunities.filter(org => joinedCommunities.includes(org.id));
   const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
   const userOrganizedEvents = user ? allEvents.filter(event => event.submittedByUid === user.uid) : [];
 
-  const handleUnsave = (type: string, id: string, title: string) => {
+  const handleUnsave = (type: 'job' | 'event' | 'community' | 'deal', id: string, title: string) => {
     let unsaveFunction;
     let typeName = '';
 
@@ -51,7 +51,7 @@ export default function ProfilePage() {
             unsaveFunction = unsaveEvent;
             typeName = 'Event';
             break;
-        case 'organization':
+        case 'community':
             unsaveFunction = leaveCommunity;
             typeName = 'Community';
             break;
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/communities/${org.id}`}>View</Link></Button>
-                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('organization', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('community', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
                                         </div>
                                     </CardContent>
                                 </Card>
