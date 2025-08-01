@@ -102,9 +102,9 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
             <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogTitle>Update Your Profile</DialogTitle>
             <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
+                Feel free to make any changes you need. Just hit "Save" when you're finished.
             </DialogDescription>
             </DialogHeader>
             <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto px-2">
@@ -119,7 +119,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                 />
                 <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                     <Paperclip className="mr-2" />
-                    Change Picture
+                    Change Profile Picture
                 </Button>
                 <Input 
                     id="profile-picture" 
@@ -132,7 +132,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
             </div>
             
             <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Full Name</Label>
                 <Input 
                     id="name" 
                     value={name} 
@@ -141,7 +141,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                 />
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <Input 
                     id="email" 
                     type="email" 
@@ -161,17 +161,17 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                 />
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="bio">Your Bio</Label>
+                <Label htmlFor="bio">A Little About You</Label>
                 <Textarea
                     id="bio"
-                    placeholder="Tell us a little about yourself..."
+                    placeholder="This is a good place to put your bio..."
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                 />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="homeAddress">Home Address</Label>
+                <Label htmlFor="homeAddress">Address</Label>
                 <Textarea
                     id="homeAddress"
                     placeholder="Your address in your current country of residence."
@@ -200,7 +200,7 @@ export function EditProfileForm({ isOpen, onOpenChange }: EditProfileFormProps) 
                 </Button>
             </DialogClose>
             <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save changes"}
+                {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save"}
             </Button>
             </DialogFooter>
         </form>
