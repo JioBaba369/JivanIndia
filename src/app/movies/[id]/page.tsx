@@ -62,9 +62,12 @@ export default function MovieDetailPage() {
             const date = new Date(movie.postedAt);
             if (!isNaN(date.getTime())) {
                 setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+            } else {
+                setPostedAt('a while ago');
             }
         } catch (error) {
             console.error("Failed to parse date:", movie.postedAt);
+            setPostedAt('a while ago');
         }
     }
   }, [movie?.postedAt]);

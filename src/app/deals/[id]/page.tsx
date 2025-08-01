@@ -48,9 +48,12 @@ export default function DealDetailPage() {
         const date = new Date(deal.postedAt);
         if (!isNaN(date.getTime())) {
           setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+        } else {
+            setPostedAt('a while ago');
         }
       } catch (error) {
         console.error("Failed to parse date:", deal.postedAt);
+        setPostedAt('a while ago');
       }
     }
   }, [deal?.postedAt]);

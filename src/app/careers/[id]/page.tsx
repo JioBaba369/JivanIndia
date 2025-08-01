@@ -65,9 +65,12 @@ export default function JobDetailPage() {
             const date = new Date(job.postedAt);
             if (!isNaN(date.getTime())) {
                 setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+            } else {
+                setPostedAt('a while ago');
             }
         } catch (error) {
             console.error("Failed to parse date:", job.postedAt);
+            setPostedAt('a while ago');
         }
     }
   }, [job?.postedAt]);

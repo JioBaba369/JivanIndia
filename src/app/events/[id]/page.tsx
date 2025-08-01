@@ -34,9 +34,12 @@ export default function EventDetailPage() {
         const date = new Date(event.createdAt);
         if (!isNaN(date.getTime())) {
           setCreatedAt(formatDistanceToNow(date, { addSuffix: true }));
+        } else {
+            setCreatedAt('a while ago');
         }
       } catch (error) {
         console.error("Failed to parse date:", event.createdAt, error);
+        setCreatedAt('a while ago');
       }
     }
     if (event?.startDateTime && event?.endDateTime) {
