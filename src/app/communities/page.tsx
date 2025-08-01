@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Search, Users, Bookmark } from "lucide-react";
+import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -25,6 +25,7 @@ import { type MouseEvent, useState, useMemo } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 
 const featuredCommunities = [
    {
@@ -35,7 +36,8 @@ const featuredCommunities = [
     imageUrl: "https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "community center",
     description: "The heart of the Bay Area's Indian community, offering cultural events, classes, and support services.",
-    membersCount: "5,000+ Members"
+    membersCount: "5,000+ Members",
+    isVerified: true,
   },
    {
     id: "2",
@@ -45,7 +47,8 @@ const featuredCommunities = [
     imageUrl: "https://images.unsplash.com/photo-1531028362699-7335dbd25515?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBhcnQlMjBnYWxsZXJ5fGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "art gallery",
     description: "Promoting and preserving South Asian visual and performing arts through exhibitions, workshops, and performances.",
-    membersCount: "2,500+ Members"
+    membersCount: "2,500+ Members",
+    isVerified: false,
   },
   {
     id: "3",
@@ -55,7 +58,8 @@ const featuredCommunities = [
     imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3dvcmtpbmclMjBzcGFjZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "modern office",
     description: "A professional network fostering innovation and collaboration among Indian entrepreneurs in the Midwest.",
-    membersCount: "1,200+ Members"
+    membersCount: "1,200+ Members",
+    isVerified: false,
   },
 ];
 
@@ -70,7 +74,8 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1587143621495-2a298aa35624?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "hindu temple",
     description: "A spiritual and cultural anchor for the Hindu community in Houston, offering religious services and educational programs.",
-    membersCount: "8,000+ Members"
+    membersCount: "8,000+ Members",
+    isVerified: true,
   },
   {
     id: "5",
@@ -80,7 +85,8 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1617812000789-a5909f24b1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxTaWtoJTIwZ3VydGR3YXJhJTIwZXh0ZXJpb3J8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "charity event",
     description: "A non-profit organization dedicated to philanthropic work and promoting Sikh culture and heritage.",
-    membersCount: "3,000+ Members"
+    membersCount: "3,000+ Members",
+    isVerified: false,
   },
   {
     id: "6",
@@ -90,7 +96,8 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMG9uJTIwYSUyMHVuaXZlcnNpdHklMjBjYW1wdXN8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "university campus",
     description: "Supporting Indian students in Boston, organizing social events, and celebrating Indian festivals on campus.",
-    membersCount: "800+ Members"
+    membersCount: "800+ Members",
+    isVerified: false,
   },
   {
     id: "7",
@@ -100,7 +107,8 @@ export const communities = [
     imageUrl: "https://images.unsplash.com/photo-1594904523995-18b0831c26ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwc3R1ZGlvfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "film studio",
     description: "A leading film production and distribution company, bringing Bollywood cinema to the world.",
-    membersCount: "N/A"
+    membersCount: "N/A",
+    isVerified: true,
   },
 ];
 
@@ -200,7 +208,10 @@ export default function CommunitiesPage() {
                             />
                         </div>
                         <div className="p-6 flex flex-col flex-grow">
-                            <h3 className="font-headline text-xl font-bold">{org.name}</h3>
+                             <div className="flex items-center gap-2">
+                                <h3 className="font-headline text-xl font-bold">{org.name}</h3>
+                                {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
+                            </div>
                             <p className="text-sm text-primary font-semibold">{org.type}</p>
                             <p className="mt-2 text-sm text-muted-foreground flex-grow">{org.description}</p>
                              <div className="mt-4 flex items-center gap-2 text-muted-foreground text-sm">
@@ -277,7 +288,10 @@ export default function CommunitiesPage() {
                         </div>
                         <div className="p-6 flex flex-col flex-grow">
                         <p className="text-sm font-semibold text-primary">{org.type}</p>
-                        <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">{org.name}</h3>
+                         <div className="flex items-center gap-2 mt-1">
+                            <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
+                            {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
+                        </div>
                         <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
                         
                         <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
@@ -318,5 +332,3 @@ export default function CommunitiesPage() {
     </div>
   );
 }
-
-    

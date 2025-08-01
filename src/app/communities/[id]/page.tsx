@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,8 @@ const allCommunitiesData: { [key: string]: any } = {
     website: "www.sfindiacc.org",
     phone: "555-123-4567",
     address: "123 Cultural Way, Fremont, CA 94539",
-    tags: ["Culture", "Community", "Events", "Education", "Non-Profit"]
+    tags: ["Culture", "Community", "Events", "Education", "Non-Profit"],
+    isVerified: true,
   },
   "7": {
     id: "7",
@@ -44,7 +45,8 @@ const allCommunitiesData: { [key: string]: any } = {
     website: "www.yashrajfilms.com",
     phone: "+91-22-3061-3500",
     address: "Veera Desai Road, Andheri West, Mumbai, Maharashtra 400053, India",
-    tags: ["Film", "Entertainment", "Bollywood", "Production", "Distribution"]
+    tags: ["Film", "Entertainment", "Bollywood", "Production", "Distribution"],
+    isVerified: true,
   },
   // Add other communities here...
 };
@@ -137,9 +139,12 @@ export default function CommunityDetailPage() {
               <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
                 {community.type}
               </span>
-              <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
-                {community.name}
-              </h1>
+              <div className="flex items-center gap-2 mt-2">
+                <h1 className="font-headline text-3xl md:text-5xl font-bold text-white">
+                  {community.name}
+                </h1>
+                {community.isVerified && <BadgeCheck className="h-7 w-7 text-white fill-primary" />}
+              </div>
             </div>
           </div>
           <CardContent className="p-6 md:p-8">
