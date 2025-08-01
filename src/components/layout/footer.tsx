@@ -29,7 +29,6 @@ export default function Footer() {
               <ul className="mt-4 space-y-2">
                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
                 <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
-                <li><Link href="/tools/event-title-suggester" className="text-muted-foreground hover:text-primary">Event Title Tool</Link></li>
                 <li><Link href="#" className="text-muted-foreground hover:text-primary">Help Center</Link></li>
               </ul>
             </div>

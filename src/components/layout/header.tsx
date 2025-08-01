@@ -18,7 +18,6 @@ const navLinks = [
   { href: "/movies", label: "Movies" },
   { href: "/deals", label: "Deals" },
   { href: "/careers", label: "Careers" },
-  { href: "/tools/event-title-suggester", label: "Event Tool"},
 ];
 
 export default function Header() {
