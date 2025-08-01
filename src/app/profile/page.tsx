@@ -76,6 +76,10 @@ export default function ProfilePage() {
     );
   }
 
+  const profileImageUrl = user.affiliation?.orgLogoUrl || "https://placehold.co/100x100.png";
+  const profileImageAlt = user.affiliation ? `${user.affiliation.orgName} logo` : user.name;
+  const profileImageAiHint = user.affiliation?.orgLogoAiHint || "user avatar";
+
   return (
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
       <div className="container mx-auto px-4 py-12">
@@ -85,12 +89,12 @@ export default function ProfilePage() {
                     <CardHeader className="items-center text-center">
                         <div className="relative h-24 w-24">
                            <Image
-                            src="https://placehold.co/100x100.png"
-                            alt={user.name}
+                            src={profileImageUrl}
+                            alt={profileImageAlt}
                             width={96}
                             height={96}
                             className="rounded-full object-cover border-4 border-primary"
-                            data-ai-hint="user avatar"
+                            data-ai-hint={profileImageAiHint}
                            />
                         </div>
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
@@ -255,3 +259,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

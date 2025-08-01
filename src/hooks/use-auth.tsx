@@ -9,6 +9,8 @@ interface User {
   affiliation?: {
     orgId: string;
     orgName: string;
+    orgLogoUrl: string;
+    orgLogoAiHint: string;
   };
 }
 
@@ -113,7 +115,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // For demo purposes, add an affiliation to the default user
     const userToLogin = {
         ...user,
-        affiliation: user.email ? { orgId: '1', orgName: 'India Cultural Center' } : undefined,
+        affiliation: user.email ? { 
+            orgId: '1', 
+            orgName: 'India Cultural Center',
+            orgLogoUrl: 'https://placehold.co/100x100.png',
+            orgLogoAiHint: 'community center logo',
+        } : undefined,
     };
     setUser(userToLogin);
     localStorage.setItem('user', JSON.stringify(userToLogin));
@@ -171,3 +178,5 @@ export function useAuth() {
   }
   return context;
 }
+
+    
