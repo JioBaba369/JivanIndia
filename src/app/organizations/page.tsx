@@ -86,6 +86,16 @@ const organizations = [
     description: "Supporting Indian students in Boston, organizing social events, and celebrating Indian festivals on campus.",
     members: "800+ Members"
   },
+  {
+    id: "7",
+    name: "Yash Raj Films",
+    category: "Film Distributor",
+    location: "Mumbai, IN",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "film studio",
+    description: "A leading film production and distribution company, bringing Bollywood cinema to the world.",
+    members: "N/A"
+  },
 ];
 
 
@@ -170,6 +180,7 @@ export default function OrganizationsPage() {
                     <SelectItem value="religious">Religious</SelectItem>
                      <SelectItem value="charity">Charity</SelectItem>
                     <SelectItem value="student">Student Group</SelectItem>
+                    <SelectItem value="film">Film Distributor</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button className="w-full">Search</Button>

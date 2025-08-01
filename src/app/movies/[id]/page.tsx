@@ -21,6 +21,7 @@ const movieDetails = {
     synopsis: "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in the society. He is accompanied by a core team of six women, and they are up against a deadly outlaw who has caused suffering to many.",
     cast: ["Shah Rukh Khan", "Nayanthara", "Vijay Sethupathi", "Deepika Padukone"],
     distributor: "Yash Raj Films",
+    distributorId: "7",
     trailerUrl: "https://www.youtube.com/embed/COv52Qyctws",
     theaters: [
         {
@@ -111,7 +112,7 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
                                  </div>
                                  <div>
                                    <p className="font-semibold">{movie.distributor}</p>
-                                   <Link href="/organizations" className="text-sm text-primary hover:underline">
+                                   <Link href={`/organizations/${movie.distributorId}`} className="text-sm text-primary hover:underline">
                                      View Distributor
                                    </Link>
                                  </div>
