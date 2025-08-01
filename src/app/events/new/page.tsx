@@ -92,9 +92,9 @@ export default function NewEventPage() {
     <div className="container mx-auto px-4 py-12">
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Create a New Event</CardTitle>
+          <CardTitle className="font-headline text-3xl">Share Your Event</CardTitle>
           <CardDescription>
-            Fill out the form below to post a new event to the community calendar.
+            Fill out the form below to post your event on the JivanIndia.co community calendar.
           </CardDescription>
         </CardHeader>
         <CardContent>
