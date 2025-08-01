@@ -22,7 +22,7 @@ const movieDetails = {
     postedAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
     backdropUrl: "https://images.unsplash.com/photo-1620188467123-64355428675a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXIlMjBjdXJ0YWlufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHintBackdrop: "movie theater curtain",
-    posterUrl: "https://placehold.co/600x900.png",
+    posterUrl: "https://images.unsplash.com/photo-1694029283196-861d8f3a39e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxib2xseXdvb2QlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHintPoster: "action movie poster",
     synopsis: "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in the society. He is accompanied by a core team of six women, and they are up against a deadly outlaw who has caused suffering to many.",
     cast: ["Shah Rukh Khan", "Nayanthara", "Vijay Sethupathi", "Deepika Padukone"],

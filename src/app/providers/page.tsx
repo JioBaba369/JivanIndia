@@ -21,7 +21,7 @@ const providers = [
     category: "Healthcare",
     specialty: "Cardiologist",
     location: "Los Angeles, CA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx GRsaW5pdGllfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "doctor portrait"
   },
   {
@@ -30,7 +30,7 @@ const providers = [
     category: "Legal Services",
     specialty: "Immigration Law",
     location: "New York, NY",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1505664194779-8beace72944f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsYXclMjBvZmZpY2V8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "law office"
   },
   {
@@ -39,7 +39,7 @@ const providers = [
     category: "Catering",
     specialty: "North Indian Cuisine",
     location: "Dallas, TX",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBjYXRlcmluZ3xlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "catering food"
   },
   {
@@ -48,7 +48,7 @@ const providers = [
     category: "Event Services",
     specialty: "Wedding Photography",
     location: "Miami, FL",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1519225421980-715cb0295b73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjB3ZWRkaW5nJTIwcGhvdG9ncmFwaGVyfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "photographer camera"
   },
   {
@@ -57,7 +57,7 @@ const providers = [
     category: "Creative Services",
     specialty: "Graphic Design",
     location: "Seattle, WA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1569396116180-210c182bedb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNpZ24lMjBzdHVkaW98ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "design studio"
   },
   {
@@ -66,7 +66,7 @@ const providers = [
     category: "Financial Services",
     specialty: "Tax & Accounting",
     location: "San Jose, CA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhY2NvdW50YW50JTIwb2ZmaWNlfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "accountant office"
   },
 ];

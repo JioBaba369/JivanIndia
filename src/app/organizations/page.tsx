@@ -32,7 +32,7 @@ const featuredOrganizations = [
     name: "India Cultural Center",
     category: "Community Center",
     location: "San Francisco, CA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "community center",
     description: "The heart of the Bay Area's Indian community, offering cultural events, classes, and support services.",
     members: "5,000+ Members"
@@ -42,7 +42,7 @@ const featuredOrganizations = [
     name: "South Asian Arts Society",
     category: "Arts & Culture",
     location: "New York, NY",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1531028362699-7335dbd25515?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBhcnQlMjBnYWxsZXJ5fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "art gallery",
     description: "Promoting and preserving South Asian visual and performing arts through exhibitions, workshops, and performances.",
     members: "2,500+ Members"
@@ -52,7 +52,7 @@ const featuredOrganizations = [
     name: "Entrepreneurs of India",
     category: "Business Network",
     location: "Chicago, IL",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3dvcmtpbmclMjBzcGFjZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "modern office",
     description: "A professional network fostering innovation and collaboration among Indian entrepreneurs in the Midwest.",
     members: "1,200+ Members"
@@ -67,7 +67,7 @@ export const organizations = [
     name: "Hindu Temple & Cultural Center",
     category: "Religious",
     location: "Houston, TX",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1587143621495-2a298aa35624?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "hindu temple",
     description: "A spiritual and cultural anchor for the Hindu community in Houston, offering religious services and educational programs.",
     members: "8,000+ Members"
@@ -77,7 +77,7 @@ export const organizations = [
     name: "Sikh Foundation",
     category: "Charity",
     location: "Fremont, CA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1617812000789-a5909f24b1f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxTaWtoJTIwZ3VydGR3YXJhJTIwZXh0ZXJpb3J8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "charity event",
     description: "A non-profit organization dedicated to philanthropic work and promoting Sikh culture and heritage.",
     members: "3,000+ Members"
@@ -87,7 +87,7 @@ export const organizations = [
     name: "Indian Students Association",
     category: "Student Group",
     location: "Boston, MA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMG9uJTIwYSUyMHVuaXZlcnNpdHklMjBjYW1wdXN8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "university campus",
     description: "Supporting Indian students in Boston, organizing social events, and celebrating Indian festivals on campus.",
     members: "800+ Members"
@@ -97,7 +97,7 @@ export const organizations = [
     name: "Yash Raj Films",
     category: "Film Distributor",
     location: "Mumbai, IN",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1594904523995-18b0831c26ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwc3R1ZGlvfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "film studio",
     description: "A leading film production and distribution company, bringing Bollywood cinema to the world.",
     members: "N/A"

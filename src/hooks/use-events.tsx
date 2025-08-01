@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -38,7 +39,7 @@ const initialEvents: Event[] = [
     time: "7:00 PM - 11:00 PM PST",
     location: "Grand Park, Downtown LA",
     address: "200 N Grand Ave, Los Angeles, CA 90012",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1600813633279-997f77a83777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaXdhbGklMjBmZXN0aXZhbHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "diwali festival",
     description: "Experience the magic of Diwali at the annual Festival of Lights. This family-friendly event will feature traditional music, dance performances, delicious Indian food from local vendors, and a spectacular fireworks display to conclude the evening. Come and celebrate the victory of light over darkness with the community.",
     organizer: "India Cultural Center",
@@ -54,7 +55,7 @@ const initialEvents: Event[] = [
     time: "2:00 PM - 4:00 PM PST",
     location: "Mumbai Dance Studio",
     address: "456 Dance Blvd, Artesia, CA 90701",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1511210100424-03d3623f0010?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxib2xseXdvb2QlMjBkYW5jZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "bollywood dance",
      description: "Learn the latest Bollywood moves in this energetic and fun workshop, open to all skill levels. Get ready to dance your heart out to popular tracks.",
     organizer: "Mumbai Dance Studio",
@@ -70,7 +71,7 @@ const initialEvents: Event[] = [
     time: "12:00 PM - 8:00 PM PST",
     location: "Exhibition Center",
     address: "789 Food St, Anaheim, CA 92802",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1589301760014-d929f39791e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "indian food",
     description: "A gastronomic journey through India! Sample a wide variety of regional dishes from dozens of local restaurants and home chefs.",
     organizer: "Community Events Co.",

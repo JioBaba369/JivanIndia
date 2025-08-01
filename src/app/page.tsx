@@ -25,7 +25,7 @@ const events = [
     category: "Festival",
     date: "Sat, Nov 4, 7:00 PM",
     location: "Grand Park, Downtown LA",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1600813633279-997f77a83777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaXdhbGklMjBmZXN0aXZhbHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "diwali festival",
   },
   {
@@ -34,7 +34,7 @@ const events = [
     category: "Workshop",
     date: "Sun, Nov 5, 2:00 PM",
     location: "Mumbai Dance Studio",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1511210100424-03d3623f0010?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxib2xseXdvb2QlMjBkYW5jZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "bollywood dance",
   },
   {
@@ -43,7 +43,7 @@ const events = [
     category: "Food",
     date: "Sat, Nov 11, 12:00 PM",
     location: "Exhibition Center",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1589301760014-d929f39791e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "indian food",
   },
 ];
@@ -54,7 +54,7 @@ const deals = [
     title: "20% Off Lunch Buffet",
     business: "Taste of India Restaurant",
     category: "Food",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBidWZmZXR8ZW58MHx8fHwxNzU0MDQyNjA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "indian buffet"
   },
   {
@@ -62,7 +62,7 @@ const deals = [
     title: "Buy One Get One Free Saree",
     business: "Bollywood Styles Boutique",
     category: "Shopping",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1617196020993-9417f77b8a7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzYXJlZSUyMHNob3B8ZW58MHx8fHwxNzU0MDQyNjA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "saree shop"
   },
   {
@@ -70,7 +70,7 @@ const deals = [
     title: "$50 Off International Flights",
     business: "Fly High Travel Agency",
     category: "Travel",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1549922572-80b6245f7895?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmbGlnaHQlMjB0byUyMEluZGliaWVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "travel agency"
   },
 ];

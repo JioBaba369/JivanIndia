@@ -178,7 +178,7 @@ export default function EventDetailPage() {
                 </Card>
                  <div className="relative h-48 w-full rounded-lg overflow-hidden">
                     <Image
-                      src="https://images.unsplash.com/photo-1730317195705-8a265a59ed1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjaXR5JTIwbWFwfGVufDB8fHx8MTc1NDA0MjYwNHww&ixlib=rb-4.1.0&q=80&w=1080"
+                      src="https://images.unsplash.com/photo-1593343882210-5321b18c6742?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHJlZXQlMjBtYXAlMjBvZiUyMGElMjBjaXR5fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
                       alt="Map"
                       fill
                       className="object-cover"

@@ -39,7 +39,7 @@ const allOrganizationsData: { [key: string]: any } = {
     name: "Yash Raj Films",
     category: "Film Distributor",
     location: "Mumbai, IN",
-    imageUrl: "https://placehold.co/1200x400.png",
+    imageUrl: "https://images.unsplash.com/photo-1594904523995-18b0831c26ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwc3R1ZGlvfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "film studio",
     description: "A leading film production and distribution company, bringing Bollywood cinema to the world.",
     longDescription: "Yash Raj Films (YRF) is one of India's largest and most successful film production and distribution companies. Founded by the late Yash Chopra, a veteran of the Indian film industry, in 1970, YRF has grown to be a powerhouse in Indian cinema. The company has produced some of the most iconic and highest-grossing Hindi films of all time. YRF also operates a state-of-the-art studio complex in Mumbai, which includes shooting stages, sound-recording studios, and post-production facilities.",
@@ -62,21 +62,21 @@ const relatedEvents = [
         id: 1,
         title: "Annual Diwali Gala",
         date: "Nov 4, 2024",
-        imageUrl: "https://placehold.co/600x400.png",
+        imageUrl: "https://images.unsplash.com/photo-1600813633279-997f77a83777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaXdhbGklMjBmZXN0aXZhbHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
         aiHint: "diwali gala"
     },
     {
         id: 2,
         title: "Holi Celebration in the Park",
         date: "Mar 23, 2025",
-        imageUrl: "https://placehold.co/600x400.png",
+        imageUrl: "https://images.unsplash.com/photo-1518826767222-2262145719a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxob2xpJTIwZmVzdGl2YWx8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
         aiHint: "holi celebration"
     },
     {
         id: 3,
         title: "Summer Indian Food Festival",
         date: "Jul 15, 2024",
-        imageUrl: "https://placehold.co/600x400.png",
+        imageUrl: "https://images.unsplash.com/photo-1589301760014-d929f39791e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
         aiHint: "indian food festival"
     }
 ]
