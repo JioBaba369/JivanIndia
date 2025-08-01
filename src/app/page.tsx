@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -204,7 +205,7 @@ export default function HomePage() {
                                 <h3 className="font-headline text-lg font-bold group-hover:text-primary transition-colors">{job.title}</h3>
                                 <p className="text-muted-foreground">{job.company} - {job.location}</p>
                             </div>
-                            <Button variant="outline">
+                            <Button variant="secondary">
                                 <Briefcase className="mr-2 h-4 w-4" />
                                 Apply
                             </Button>
@@ -229,3 +230,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    

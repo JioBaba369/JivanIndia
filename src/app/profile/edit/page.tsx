@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, FormEvent, useEffect, useRef } from 'react';
@@ -138,13 +139,13 @@ export default function EditProfilePage() {
   return (
     <div className="container mx-auto px-4 py-12">
         <Card className="max-w-3xl mx-auto">
-            <CardHeader>
+            <CardHeader className="p-6">
                 <CardTitle className="font-headline text-3xl">Update Your Profile</CardTitle>
                 <CardDescription>
                     Feel free to make any changes you need. Just hit "Save" when you're finished.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 pt-0">
              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="flex flex-col items-center gap-4">
                     {profileImageUrl && <Image
@@ -282,3 +283,5 @@ export default function EditProfilePage() {
     </div>
   );
 }
+
+    

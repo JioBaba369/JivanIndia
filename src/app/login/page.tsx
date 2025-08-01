@@ -1,4 +1,5 @@
 
+
 'use client';
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +25,6 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd validate credentials here
     login({ name: "Demo User", email });
     router.push('/');
   };
@@ -33,13 +33,13 @@ export default function LoginPage() {
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <form onSubmit={handleSubmit}>
-          <CardHeader>
+          <CardHeader className="p-6">
             <CardTitle className="font-headline text-2xl">Login</CardTitle>
             <CardDescription>
               Enter your email below to login to your account.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
+          <CardContent className="p-6 pt-0 grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input 
@@ -67,7 +67,7 @@ export default function LoginPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col">
+          <CardFooter className="p-6 pt-0 flex flex-col">
             <Button type="submit" className="w-full">Sign in</Button>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
@@ -81,3 +81,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

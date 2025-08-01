@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -48,19 +49,22 @@ const EventsContext = createContext<EventsContextType | undefined>(undefined);
 const initialEvents: Event[] = [];
 
 
-const STORAGE_KEY = 'jivanindia_events';
+const STORAGE_KEY = 'jivanindia-events';
 
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+        return;
+    }
     try {
-      const storedEvents = localStorage.getItem(STORAGE_KEY);
+      const storedEvents = window.localStorage.getItem(STORAGE_KEY);
       if (storedEvents) {
         setEvents(JSON.parse(storedEvents));
       } else {
         setEvents(initialEvents);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialEvents));
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialEvents));
       }
     } catch (error) {
       console.error("Failed to access localStorage", error);
@@ -80,8 +84,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     };
     const newEvents = [...events, newEvent];
     setEvents(newEvents);
+    
+    if (typeof window === 'undefined') {
+        return;
+    }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newEvents));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newEvents));
     } catch (error) {
       console.error("Failed to save events to localStorage", error);
     }
@@ -111,3 +119,5 @@ export function useEvents() {
   }
   return context;
 }
+
+    

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -74,7 +75,7 @@ const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch
       return defaultValue;
     }
     try {
-      const storedValue = localStorage.getItem(key);
+      const storedValue = window.localStorage.getItem(key);
       return storedValue ? JSON.parse(storedValue) : defaultValue;
     } catch (error) {
       console.warn(`Error reading localStorage key "${key}":`, error);
@@ -86,9 +87,9 @@ const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch
     if (typeof window !== 'undefined') {
       try {
         if (state === null || state === undefined) {
-          localStorage.removeItem(key);
+          window.localStorage.removeItem(key);
         } else {
-          localStorage.setItem(key, JSON.stringify(state));
+          window.localStorage.setItem(key, JSON.stringify(state));
         }
       } catch (error) {
          console.warn(`Error setting localStorage key "${key}":`, error);
@@ -101,7 +102,7 @@ const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = usePersistedState<User | null>('user', null);
+  const [user, setUser] = usePersistedState<User | null>('jivanindia-user', null);
   const [isLoading, setIsLoading] = useState(true);
   
   const [savedJobs, setSavedJobs] = useState<string[]>([]);
@@ -131,17 +132,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = (loginData: Pick<User, 'name' | 'email'>) => {
-    const affiliation = loginData.email.includes('saffron') 
-      ? { orgId: '1', orgName: 'Saffron Restaurant Group' }
-      : loginData.email.includes('yashraj')
-      ? { orgId: '7', orgName: 'Yash Raj Films' }
-      : { orgId: '1', orgName: 'India Cultural Center' };
-
+    let affiliation;
+    if (loginData.email === 'admin@saffron.com') {
+      affiliation = { orgId: '1', orgName: 'Saffron Restaurant Group' };
+    } else if (loginData.email === 'admin@yashraj.com') {
+      affiliation = { orgId: '7', orgName: 'Yash Raj Films' };
+    } else {
+      affiliation = { orgId: '2', orgName: 'India Cultural Center' };
+    }
+    
     const userToLogin: User = {
         ...loginData,
         uid: `user-${new Date().getTime()}`,
         affiliation,
-        profileImageUrl: 'https://placehold.co/96x96.png',
+        profileImageUrl: '',
         savedJobs: [],
         savedEvents: [],
         joinedCommunities: [],
@@ -154,10 +158,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    setSavedJobs([]);
-    setSavedEvents([]);
-    setJoinedCommunities([]);
-    setSavedDeals([]);
   };
 
   const createSaveFunctions = (
@@ -215,3 +215,5 @@ export function useAuth() {
   }
   return context;
 }
+
+    

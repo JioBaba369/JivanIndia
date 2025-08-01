@@ -8,9 +8,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
           <div className="md:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo />
-            </Link>
+            <Logo as={Link} href="/" />
             <p className="mt-4 text-muted-foreground">
               The heart of the Indian community, all in one place.
             </p>
@@ -31,15 +29,13 @@ export default function Footer() {
               <ul className="mt-4 space-y-2">
                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
                 <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Help Center</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-headline font-semibold">Legal</h4>
               <ul className="mt-4 space-y-2">
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Disclaimer</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-primary">Privacy</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-primary">Terms</Link></li>
               </ul>
             </div>
           </div>
@@ -51,3 +47,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+    

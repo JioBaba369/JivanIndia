@@ -3,10 +3,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sprout, User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -29,17 +29,13 @@ const navLinks = [
   { href: "/careers", label: "Careers" },
 ];
 
-export default function Header() {
-  const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
-
-  const NavLink = ({ href, label }: { href: string; label: string }) => {
+const NavLink = ({ href, label, onClick }: { href: string; label: string, onClick?: () => void }) => {
+    const pathname = usePathname();
     const isActive = pathname === href;
     return (
       <Link
         href={href}
-        onClick={() => setIsMobileMenuOpen(false)}
+        onClick={onClick}
         className={cn(
           "transition-colors hover:text-primary",
           isActive ? "text-primary font-semibold" : "text-muted-foreground"
@@ -50,45 +46,56 @@ export default function Header() {
     );
   };
 
+const UserActions = ({ onAction }: { onAction?: () => void }) => {
+  const { user, logout } = useAuth();
+
+  if (user) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="icon" className="rounded-full">
+            <User className="h-5 w-5" />
+            <span className="sr-only">Toggle user menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild onClick={onAction}><Link href="/profile">My Profile</Link></DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => { logout(); if(onAction) onAction(); }}>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  return (
+    <>
+      <Button variant="ghost" asChild>
+        <Link href="/login" onClick={onAction}>Login</Link>
+      </Button>
+      <Button asChild>
+        <Link href="/signup" onClick={onAction}>Sign Up</Link>
+      </Button>
+    </>
+  );
+};
+
+
+export default function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <Logo />
-        </Link>
+        <Logo as={Link} href="/" />
         <nav className="hidden items-center space-x-6 md:flex">
           {navLinks.map((link) => (
             <NavLink key={link.href} {...link} />
           ))}
         </nav>
         <div className="hidden items-center space-x-2 md:flex">
-          {user ? (
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/profile">My Profile</Link></DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/signup">Sign Up</Link>
-              </Button>
-            </>
-          )}
+          <UserActions />
         </div>
         <div className="md:hidden">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -100,30 +107,14 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right">
               <div className="p-4">
-                <Link href="/" className="mb-8 flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Logo />
-                </Link>
-                <nav className="flex flex-col space-y-6">
+                <Logo as={Link} href="/" onClick={() => setIsMobileMenuOpen(false)} />
+                <nav className="mt-8 flex flex-col space-y-6">
                   {navLinks.map((link) => (
-                    <NavLink key={link.href} {...link} />
+                    <NavLink key={link.href} {...link} onClick={() => setIsMobileMenuOpen(false)}/>
                   ))}
                 </nav>
-                <div className="mt-8 flex flex-col space-y-2">
-                   {user ? (
-                     <>
-                        <Button variant="outline" asChild><Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link></Button>
-                        <Button variant="ghost" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>Logout</Button>
-                     </>
-                  ) : (
-                    <>
-                      <Button variant="outline" asChild>
-                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-                      </Button>
-                      <Button asChild>
-                        <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
-                      </Button>
-                    </>
-                  )}
+                <div className="mt-8 flex flex-col space-y-2 border-t pt-6">
+                   <UserActions onAction={() => setIsMobileMenuOpen(false)} />
                 </div>
               </div>
             </SheetContent>
@@ -133,3 +124,5 @@ export default function Header() {
     </header>
   );
 }
+
+    

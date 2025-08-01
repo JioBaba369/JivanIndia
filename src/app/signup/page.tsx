@@ -1,4 +1,5 @@
 
+
 'use client';
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,6 @@ export default function SignupPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd create a new user here
     login({ name, email });
     router.push('/');
   };
@@ -35,13 +35,13 @@ export default function SignupPage() {
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <form onSubmit={handleSubmit}>
-          <CardHeader>
+          <CardHeader className="p-6">
             <CardTitle className="font-headline text-2xl">Sign Up</CardTitle>
             <CardDescription>
               Create an account to join the community.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
+          <CardContent className="p-6 pt-0 grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="full-name">Full Name</Label>
               <Input 
@@ -74,7 +74,7 @@ export default function SignupPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col">
+          <CardFooter className="p-6 pt-0 flex flex-col">
             <Button type="submit" className="w-full">Create account</Button>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
@@ -88,3 +88,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+    

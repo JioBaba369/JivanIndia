@@ -7,13 +7,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail, Languages, Heart, Globe, User, Edit } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Flag, Mail, Languages, Heart, Globe, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
-import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 
 // Mock data from other pages
@@ -74,11 +74,11 @@ export default function ProfilePage() {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <Card className="max-w-md mx-auto">
-            <CardHeader>
+            <CardHeader className="p-6">
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
                 <CardDescription>You must be logged in to view your profile.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 pt-0">
                 <Button asChild className="mt-2">
                     <Link href="/login">Login</Link>
                 </Button>
@@ -91,28 +91,36 @@ export default function ProfilePage() {
   const profileImageUrl = user.profileImageUrl;
   const profileImageAiHint = "user avatar";
 
+  const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
   return (
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
             <div className="md:col-span-1 lg:col-span-1 space-y-8">
                 <Card>
-                    <CardHeader className="items-center text-center">
-                        <div className="relative h-24 w-24">
-                           {profileImageUrl && <Image
+                    <CardHeader className="p-6 items-center text-center">
+                        <Avatar className="h-24 w-24 border-4 border-primary">
+                           {profileImageUrl ? <Image
                             src={profileImageUrl}
                             alt={user.name}
                             width={96}
                             height={96}
-                            className="rounded-full object-cover border-4 border-primary"
+                            className="rounded-full object-cover"
                             data-ai-hint={profileImageAiHint}
-                           />}
-                        </div>
+                           /> : <AvatarFallback className="text-3xl font-headline">{getInitials(user.name)}</AvatarFallback>}
+                        </Avatar>
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>
                         {user.bio && <p className="text-sm text-muted-foreground pt-2 italic">"{user.bio}"</p>}
                     </CardHeader>
-                    <CardContent className="text-center">
+                    <CardContent className="px-6 pb-6 text-center">
                         {user.affiliation && (
                             <Card className="bg-muted">
                                 <CardHeader className="p-4">
@@ -130,18 +138,18 @@ export default function ProfilePage() {
                             </Card>
                         )}
                     </CardContent>
-                    <CardFooter>
-                         <Button variant="outline" className="w-full" asChild>
+                    <CardFooter className="px-6 pb-6">
+                         <Button variant="secondary" className="w-full" asChild>
                             <Link href="/profile/edit">Edit Profile</Link>
                          </Button>
                     </CardFooter>
                 </Card>
                 
                  <Card>
-                    <CardHeader>
+                    <CardHeader className="p-6">
                         <CardTitle className="font-headline text-xl">Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="p-6 pt-0 space-y-6">
                         {(user.languagesSpoken && user.languagesSpoken.length > 0) && (
                             <div className="space-y-2">
                                 <h4 className="font-semibold flex items-center gap-2 text-sm"><Languages className="h-4 w-4"/> Languages</h4>
@@ -217,7 +225,7 @@ export default function ProfilePage() {
                             <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                 <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg object-cover border bg-background" data-ai-hint={job.aiHint} />
                                 <div className="flex-grow">
-                                    <Link href={`/careers/${job.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3></Link>
+                                    <Link href={`/careers/${job.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{job.title}</CardTitle></Link>
                                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
                                         <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{job.company}</span></div>
                                         <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{job.location}</span></div>
@@ -253,7 +261,7 @@ export default function ProfilePage() {
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
+                                            <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{event.title}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
                                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
@@ -283,7 +291,7 @@ export default function ProfilePage() {
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={org.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/communities/${org.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{org.name}</h3></Link>
+                                            <Link href={`/communities/${org.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{org.name}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
                                                 <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.type}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
@@ -313,7 +321,7 @@ export default function ProfilePage() {
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={deal.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/deals/${deal.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{deal.title}</h3></Link>
+                                            <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{deal.title}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
                                                 <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{deal.category}</span></div>
                                                 <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
@@ -349,7 +357,7 @@ export default function ProfilePage() {
                                         <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
                                         <div className="flex-grow">
                                             <div className="flex justify-between items-start">
-                                                <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
+                                                <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{event.title}</CardTitle></Link>
                                                 <Badge variant={event.status === 'Approved' ? 'default' : event.status === 'Pending' ? 'secondary' : 'destructive'}>{event.status}</Badge>
                                             </div>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
@@ -379,3 +387,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
