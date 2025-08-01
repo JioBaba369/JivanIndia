@@ -64,6 +64,7 @@ const initialEvents: Event[] = [
     tags: ["diwali", "festival", "family-friendly", "los-angeles", "free-entry"],
     status: "Approved",
     ticketLink: "https://www.eventbrite.com/e/diwali-festival-of-lights-tickets-123456789",
+    submittedByUid: "user-12345" // Mock UID
   },
   {
     id: "2",
@@ -83,6 +84,7 @@ const initialEvents: Event[] = [
     createdAt: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
     tags: ["dance", "workshop", "bollywood", "artesia"],
     status: "Approved",
+    submittedByUid: "user-67890" // Mock UID
   },
   {
     id: "3",
@@ -102,6 +104,7 @@ const initialEvents: Event[] = [
     createdAt: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
     tags: ["food", "festival", "anaheim", "taste-of-india"],
     status: "Approved",
+    submittedByUid: "user-12345" // Mock UID
   },
 ];
 

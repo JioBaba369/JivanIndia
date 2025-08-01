@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail, Languages, Heart, Globe } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail, Languages, Heart, Globe, User, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
   const userJoinedCommunities = allCommunities.filter(org => (user?.joinedCommunities || []).includes(org.id));
   const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
+  const userOrganizedEvents = user ? allEvents.filter(event => event.submittedByUid === user.uid) : [];
 
   const handleUnsave = (type: string, id: string, title: string) => {
     let unsaveFunction;
@@ -200,11 +201,12 @@ export default function ProfilePage() {
             </div>
             <div className="md:col-span-2 lg:col-span-3">
                 <Tabs defaultValue="jobs" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                     <TabsTrigger value="jobs">Jobs ({userSavedJobs.length})</TabsTrigger>
                     <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
                     <TabsTrigger value="organizations">Communities ({userJoinedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
+                    <TabsTrigger value="my-events">My Events ({userOrganizedEvents.length})</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="jobs" className="mt-6">
@@ -324,6 +326,39 @@ export default function ProfilePage() {
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
                             <p className="text-muted-foreground">You haven't saved any deals yet.</p>
                             <Button asChild className="mt-4"><Link href="/deals">Find Deals</Link></Button>
+                        </div>
+                    )}
+                </TabsContent>
+
+                 <TabsContent value="my-events" className="mt-6">
+                    {userOrganizedEvents.length > 0 ? (
+                        <div className="space-y-4">
+                            {userOrganizedEvents.map((event) => (
+                                <Card key={event.id} className="transition-all hover:shadow-sm">
+                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
+                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
+                                        <div className="flex-grow">
+                                            <div className="flex justify-between items-start">
+                                                <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
+                                                <Badge variant={event.status === 'Approved' ? 'default' : event.status === 'Pending' ? 'secondary' : 'destructive'}>{event.status}</Badge>
+                                            </div>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span></div>
+                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                            <Button variant="outline" size="icon" asChild><Link href="#"><Edit className="h-4 w-4" /></Link></Button>
+                                            <Button variant="destructive" size="icon"><Trash2 className="h-4 w-4" /><span className="sr-only">Delete</span></Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                            <p className="text-muted-foreground">You haven't created any events yet.</p>
+                            <Button asChild className="mt-4"><Link href="/events/new">Create an Event</Link></Button>
                         </div>
                     )}
                 </TabsContent>

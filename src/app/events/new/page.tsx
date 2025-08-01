@@ -46,6 +46,14 @@ export default function NewEventPage() {
       });
       return;
     }
+    if (!user) {
+        toast({
+            title: 'Authentication Error',
+            description: 'You must be logged in to create an event.',
+            variant: 'destructive',
+        });
+        return;
+    }
     const newEvent: Omit<Event, 'id' | 'createdAt' | 'status'> = {
       title,
       eventType,
@@ -62,6 +70,7 @@ export default function NewEventPage() {
       aiHint: 'community event',
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       ticketLink,
+      submittedByUid: user.uid,
     };
 
     addEvent(newEvent);
