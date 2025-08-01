@@ -13,6 +13,7 @@ import { useEvents } from '@/hooks/use-events';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 // Mock data from other pages
@@ -77,7 +78,7 @@ export default function ProfilePage() {
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
                 <CardDescription>You must be logged in to view your profile.</CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent>
                 <Button asChild className="mt-2">
                     <Link href="/login">Login</Link>
                 </Button>
@@ -99,6 +100,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-[calc(100vh-128px)] bg-muted/40">
+      <TooltipProvider>
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
             <div className="space-y-8 md:col-span-1 lg:col-span-1">
@@ -226,8 +228,15 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
-                                    <Button variant="outline" size="sm" asChild><Link href={`/careers/${job.id}`}>View</Link></Button>
-                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('job', job.id, job.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                    <Button variant="outline" size="sm" asChild><Link href={`/careers/${job.id}`}>View Details</Link></Button>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('job', job.id, job.title)}><Trash2 className="h-4 w-4" /></Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Unsave</p>
+                                        </TooltipContent>
+                                    </Tooltip>
                                 </div>
                             </CardContent>
                         </Card>
@@ -262,7 +271,14 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/events/${event.id}`}>View</Link></Button>
-                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('event', String(event.id), event.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('event', String(event.id), event.title)}><Trash2 className="h-4 w-4" /></Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Unsave</p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -292,7 +308,14 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/communities/${org.id}`}>View</Link></Button>
-                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('community', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('community', org.id, org.name)}><Trash2 className="h-4 w-4" /></Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Leave</p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -322,7 +345,14 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/deals/${deal.id}`}>View</Link></Button>
-                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('deal', deal.id, deal.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('deal', deal.id, deal.title)}><Trash2 className="h-4 w-4" /></Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Unsave</p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -373,6 +403,7 @@ export default function ProfilePage() {
             </div>
         </div>
       </div>
+      </TooltipProvider>
     </div>
   );
 }
