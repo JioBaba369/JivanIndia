@@ -195,7 +195,7 @@ export default function OrganizationsPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {organizations.map((org) => (
             <Card key={org.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
-                <Link href={`/organizations/${org.id}`} className="block h-full flex flex-col">
+                <Link href={`/organizations/${org.id}`} className="block h-full flex flex-col flex-grow">
                     <CardContent className="p-0 flex flex-col flex-grow">
                         <div className="relative h-48 w-full">
                         <Image
@@ -223,15 +223,15 @@ export default function OrganizationsPage() {
                         </div>
                         </div>
                     </CardContent>
-                     <CardFooter className="p-6 pt-0 mt-auto flex gap-2">
-                        <Button asChild className="flex-1">
-                            <Link href={`/organizations/${org.id}`}>View</Link>
-                        </Button>
-                        <Button variant="secondary" asChild className="flex-1">
-                            <Link href="#">Join Now</Link>
-                        </Button>
-                     </CardFooter>
                 </Link>
+                 <CardFooter className="p-6 pt-0 mt-auto flex gap-2">
+                    <Button asChild className="flex-1">
+                        <Link href={`/organizations/${org.id}`}>View</Link>
+                    </Button>
+                    <Button variant="secondary" className="flex-1">
+                        Join Now
+                    </Button>
+                 </CardFooter>
             </Card>
           ))}
         </div>
