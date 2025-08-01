@@ -129,13 +129,13 @@ export default function EditProfilePage() {
             <CardContent>
              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="flex flex-col items-center gap-4">
-                    <Image
+                    {profileImageUrl && <Image
                         src={profileImageUrl}
                         alt="Profile preview"
                         width={96}
                         height={96}
                         className="rounded-full object-cover border-4 border-primary"
-                    />
+                    />}
                     <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                         <Paperclip className="mr-2 h-4 w-4" />
                         Change Profile Picture

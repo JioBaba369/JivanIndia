@@ -95,14 +95,14 @@ export default function ProfilePage() {
                 <Card>
                     <CardHeader className="items-center text-center">
                         <div className="relative h-24 w-24">
-                           <Image
+                           {profileImageUrl && <Image
                             src={profileImageUrl}
                             alt={user.name}
                             width={96}
                             height={96}
                             className="rounded-full object-cover border-4 border-primary"
                             data-ai-hint={profileImageAiHint}
-                           />
+                           />}
                         </div>
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>
