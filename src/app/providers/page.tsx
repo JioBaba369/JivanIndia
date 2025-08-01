@@ -1,4 +1,5 @@
 
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import {
 import { MapPin, Search, UserCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useMemo } from "react";
 
 const providers = [
   {
@@ -57,7 +59,7 @@ const providers = [
     category: "Creative Services",
     specialty: "Graphic Design",
     location: "Seattle, WA",
-    imageUrl: "https://images.unsplash.com/photo-1569396116180-210c182bedb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNpZ24lMjBzdHVkaW98ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    imageUrl: "https://images.unsplash.com/photo-1569396116180-210c182bedb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNpZ24lMjBzdHVkaW98ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib-rb-4.1.0&q=80&w=1080",
     aiHint: "design studio"
   },
   {
@@ -66,13 +68,33 @@ const providers = [
     category: "Financial Services",
     specialty: "Tax & Accounting",
     location: "San Jose, CA",
-    imageUrl: "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhY2NvdW50YW50JTIwb2ZmaWNlfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    imageUrl: "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhY2NvdW50YW50JTIwb2ZmaWNlfGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib-rb-4.1.0&q=80&w=1080",
     aiHint: "accountant office"
   },
 ];
 
 
 export default function ProvidersPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [category, setCategory] = useState('all');
+
+  const providerCategories = useMemo(() => {
+    const categories = new Set(providers.map(p => p.category));
+    return ['all', ...Array.from(categories)];
+  }, []);
+
+  const filteredProviders = useMemo(() => {
+    return providers.filter(provider => {
+      const matchesSearch =
+        provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.location.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = category === 'all' || provider.category === category;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, category]);
+
+
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
@@ -90,28 +112,28 @@ export default function ProvidersPage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search by name, service, or location..."
                     className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Select>
+                <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Services" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="healthcare">Healthcare</SelectItem>
-                    <SelectItem value="legal">Legal Services</SelectItem>
-                    <SelectItem value="catering">Catering</SelectItem>
-                    <SelectItem value="event">Event Services</SelectItem>
-                    <SelectItem value="financial">Financial Services</SelectItem>
-                    <SelectItem value="creative">Creative Services</SelectItem>
+                    {providerCategories.map((cat, index) => (
+                      <SelectItem key={index} value={cat}>
+                        {cat === 'all' ? 'All Categories' : cat}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Button className="w-full">Search</Button>
               </div>
             </CardContent>
           </Card>
@@ -120,7 +142,7 @@ export default function ProvidersPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {providers.map((provider) => (
+          {filteredProviders.length > 0 ? filteredProviders.map((provider) => (
             <Card key={provider.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                <Link href={`/providers/${provider.id}`} className="block h-full flex flex-col">
                 <CardContent className="p-0 flex flex-col h-full">
@@ -156,7 +178,12 @@ export default function ProvidersPage() {
                 </CardContent>
               </Link>
             </Card>
-          ))}
+          )) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-3">
+                <p className="text-muted-foreground">No providers found matching your criteria.</p>
+                <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear filters</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>

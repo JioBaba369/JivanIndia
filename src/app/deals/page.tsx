@@ -1,4 +1,5 @@
 
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Search, Tag, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useMemo } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const deals = [
   {
@@ -67,6 +70,24 @@ export const deals = [
 
 
 export default function DealsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [category, setCategory] = useState('all');
+
+  const dealCategories = useMemo(() => {
+    const categories = new Set(deals.map(d => d.category));
+    return ['all', ...Array.from(categories)];
+  }, []);
+
+  const filteredDeals = useMemo(() => {
+    return deals.filter(deal => {
+      const matchesSearch =
+        deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.business.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = category === 'all' || deal.category === category;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, category]);
+
   return (
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
@@ -94,9 +115,22 @@ export default function DealsPage() {
                   <Input
                     placeholder="Search for a deal or business..."
                     className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button className="w-full">Find Deals</Button>
+                 <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                     {dealCategories.map((cat, index) => (
+                      <SelectItem key={index} value={cat}>
+                        {cat === 'all' ? 'All Categories' : cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
@@ -105,7 +139,7 @@ export default function DealsPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {deals.map((deal) => (
+          {filteredDeals.length > 0 ? filteredDeals.map((deal) => (
             <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col group">
                <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
                 <CardContent className="p-0 h-full flex flex-col">
@@ -133,7 +167,12 @@ export default function DealsPage() {
                 </CardContent>
               </Link>
             </Card>
-          ))}
+          )) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-3">
+                <p className="text-muted-foreground">No deals found matching your criteria.</p>
+                <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear filters</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>

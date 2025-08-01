@@ -1,4 +1,5 @@
 
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import {
 import { Film, MapPin, Search, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useMemo } from "react";
 
 const movies = [
   {
@@ -83,7 +85,7 @@ const movies = [
     title: "Gully Boy",
     genre: "Musical/Drama",
     rating: 4.4,
-    imageUrl: "https://images.unsplash.com/photo-1589993386698-3331f5000574?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaXAlMjBob3AlMjBjb25jZXJ0fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
+    imageUrl: "https://images.unsplash.com/photo-1589993386698-3331f5000574?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaXAlMjBob3AlMjBjb25jZXJ0fGVufDB8fHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     aiHint: "hip hop movie poster",
     postedAt: new Date(new Date().setDate(new Date().getDate() - 40)).toISOString(),
   },
@@ -91,6 +93,17 @@ const movies = [
 
 
 export default function MoviesPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [location, setLocation] = useState('all');
+
+  const filteredMovies = useMemo(() => {
+    return movies.filter(movie => {
+      const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+      // Location filter is not applied as there's no location data in the mock
+      return matchesSearch;
+    });
+  }, [searchQuery, location]);
+
   return (
     <div className="flex flex-col">
       <section className="relative bg-background text-white py-20">
@@ -118,15 +131,17 @@ export default function MoviesPage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search for a movie..."
                     className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Select>
+                <Select value={location} onValueChange={setLocation}>
                   <SelectTrigger>
                     <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -134,13 +149,13 @@ export default function MoviesPage() {
                     </div>
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
                     <SelectItem value="sf">San Francisco, CA</SelectItem>
                     <SelectItem value="ny">New York, NY</SelectItem>
                     <SelectItem value="la">Los Angeles, CA</SelectItem>
                     <SelectItem value="tx">Houston, TX</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className="w-full">Find Movies</Button>
               </div>
             </CardContent>
           </Card>
@@ -149,7 +164,7 @@ export default function MoviesPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {movies.map((movie) => (
+          {filteredMovies.length > 0 ? filteredMovies.map((movie) => (
             <Card key={movie.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group border">
                <Link href={`/movies/${movie.id}`} className="block">
                 <CardContent className="p-0">
@@ -181,7 +196,12 @@ export default function MoviesPage() {
                 </CardContent>
               </Link>
             </Card>
-          ))}
+          )) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg col-span-full">
+                <p className="text-muted-foreground">No movies found matching your criteria.</p>
+                <Button variant="link" onClick={() => { setSearchQuery(''); setLocation('all'); }}>Clear filters</Button>
+            </div>
+          )}
         </div>
       </section>
     </div>
