@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Paperclip } from 'lucide-react';
+import { submitApplication } from '@/ai/flows/submit-application-flow';
 
 interface ApplyFormProps {
   jobTitle: string;
@@ -32,26 +33,61 @@ export function ApplyForm({ jobTitle, companyName, isOpen, onOpenChange }: Apply
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!resume) {
+        toast({
+            title: "Resume Required",
+            description: "Please upload your resume to apply.",
+            variant: "destructive",
+        });
+        return;
+    }
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+        const resumeDataUri = await fileToDataUri(resume);
+        
+        const result = await submitApplication({
+            name,
+            email,
+            jobTitle,
+            companyName,
+            resumeDataUri,
+        });
 
-    setIsSubmitting(false);
-    onOpenChange(false);
-    toast({
-      title: "Application Sent!",
-      description: `Your application for the ${jobTitle} position at ${companyName} has been submitted.`,
-    });
-    
-    // Reset form
-    setName('');
-    setEmail('');
-    setResume(null);
-    if(fileInputRef.current) {
-        fileInputRef.current.value = "";
+        onOpenChange(false);
+        toast({
+            title: "Application Sent!",
+            description: result.message,
+        });
+        
+        // Reset form
+        setName('');
+        setEmail('');
+        setResume(null);
+        if(fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+
+    } catch (error) {
+        console.error("Submission failed", error);
+        toast({
+            title: "Submission Failed",
+            description: "There was an error submitting your application. Please try again.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
