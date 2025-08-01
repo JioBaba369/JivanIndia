@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,7 +65,7 @@ export default function DealsPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Community Deals
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -77,7 +78,7 @@ export default function DealsPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md">
+      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
@@ -100,7 +101,7 @@ export default function DealsPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {deals.map((deal) => (
             <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col group">
-               <Link href={`/deals/${deal.id}`} className="block h-full">
+               <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
                 <CardContent className="p-0 h-full flex flex-col">
                    <div className="relative h-48 w-full">
                     <Image

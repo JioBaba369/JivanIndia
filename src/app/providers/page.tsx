@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -76,7 +77,7 @@ export default function ProvidersPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Service Providers
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -85,7 +86,7 @@ export default function ProvidersPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md">
+      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
@@ -121,7 +122,7 @@ export default function ProvidersPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {providers.map((provider) => (
             <Card key={provider.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-               <Link href={`/providers/${provider.id}`} className="block h-full">
+               <Link href={`/providers/${provider.id}`} className="block h-full flex flex-col">
                 <CardContent className="p-0 flex flex-col h-full">
                   <div className="relative h-48 w-full">
                     <Image
@@ -131,17 +132,20 @@ export default function ProvidersPage() {
                       className="object-cover transition-transform group-hover:scale-105"
                       data-ai-hint={provider.aiHint}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                     <div className="absolute bottom-0 left-0 p-4">
+                       <h3 className="font-headline text-xl font-bold text-white text-shadow">{provider.name}</h3>
+                       <p className="font-semibold text-primary-foreground/90 text-sm text-shadow">{provider.specialty}</p>
+                     </div>
                   </div>
                   <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="font-headline text-xl font-bold group-hover:text-primary">{provider.name}</h3>
-                    <p className="font-semibold text-primary">{provider.specialty}</p>
-                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground flex-grow">
+                    <div className="flex flex-col space-y-2 text-muted-foreground flex-grow">
                        <div className="flex items-center gap-2">
-                         <UserCheck className="h-4 w-4" />
+                         <UserCheck className="h-4 w-4 text-primary" />
                          <span>{provider.category}</span>
                        </div>
                        <div className="flex items-center gap-2">
-                         <MapPin className="h-4 w-4" />
+                         <MapPin className="h-4 w-4 text-primary" />
                          <span>{provider.location}</span>
                        </div>
                     </div>

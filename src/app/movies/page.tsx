@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -86,7 +87,7 @@ export default function MoviesPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Movies In Theaters
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -95,7 +96,7 @@ export default function MoviesPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md">
+      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
@@ -131,7 +132,7 @@ export default function MoviesPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {movies.map((movie) => (
-            <Card key={movie.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group">
+            <Card key={movie.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group border">
                <Link href={`/movies/${movie.id}`} className="block">
                 <CardContent className="p-0">
                   <div className="relative aspect-[2/3] w-full">
@@ -151,7 +152,7 @@ export default function MoviesPage() {
                          <span>{movie.genre}</span>
                        </div>
                        <div className="flex items-center gap-2">
-                         <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                         <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                          <span>{movie.rating} / 5.0</span>
                        </div>
                     </div>

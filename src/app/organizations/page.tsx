@@ -1,6 +1,7 @@
 
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -104,7 +105,7 @@ export default function OrganizationsPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background pt-20 pb-12 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Community Organizations
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -126,8 +127,8 @@ export default function OrganizationsPage() {
             {featuredOrganizations.map((org) => (
               <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
                  <Card className="overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
-                    <Link href={`/organizations/${org.id}`} className="block h-full">
-                        <CardContent className="p-0 flex flex-col h-full">
+                    <Link href={`/organizations/${org.id}`} className="block h-full flex flex-col">
+                        <CardContent className="p-0 flex flex-col flex-grow">
                         <div className="relative h-48 w-full">
                             <Image
                             src={org.imageUrl}
@@ -194,43 +195,43 @@ export default function OrganizationsPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {organizations.map((org) => (
             <Card key={org.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
-                <CardContent className="p-0 flex flex-col h-full">
-                   <Link href={`/organizations/${org.id}`} className="block h-full flex flex-col">
-                      <div className="relative h-48 w-full">
+                <Link href={`/organizations/${org.id}`} className="block h-full flex flex-col">
+                    <CardContent className="p-0 flex flex-col flex-grow">
+                        <div className="relative h-48 w-full">
                         <Image
-                          src={org.imageUrl}
-                          alt={org.name}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                          data-ai-hint={org.aiHint}
+                            src={org.imageUrl}
+                            alt={org.name}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                            data-ai-hint={org.aiHint}
                         />
-                      </div>
-                      <div className="p-6 flex flex-col flex-grow">
+                        </div>
+                        <div className="p-6 flex flex-col flex-grow">
                         <p className="text-sm font-semibold text-primary">{org.category}</p>
                         <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">{org.name}</h3>
                         <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
                         
                         <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
-                           <div className="flex items-center gap-2">
-                             <Users className="h-4 w-4" />
-                             <span>{org.members}</span>
-                           </div>
-                           <div className="flex items-center gap-2">
-                             <MapPin className="h-4 w-4" />
-                             <span>{org.location}</span>
-                           </div>
+                            <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4" />
+                                <span>{org.members}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4" />
+                                <span>{org.location}</span>
+                            </div>
                         </div>
-                      </div>
-                    </Link>
-                     <div className="p-6 pt-0 mt-auto flex gap-2">
+                        </div>
+                    </CardContent>
+                     <CardFooter className="p-6 pt-0 mt-auto flex gap-2">
                         <Button asChild className="flex-1">
                             <Link href={`/organizations/${org.id}`}>View</Link>
                         </Button>
                         <Button variant="secondary" asChild className="flex-1">
                             <Link href="#">Join Now</Link>
                         </Button>
-                     </div>
-                </CardContent>
+                     </CardFooter>
+                </Link>
             </Card>
           ))}
         </div>

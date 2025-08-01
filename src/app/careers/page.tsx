@@ -17,6 +17,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import type { MouseEvent } from 'react';
+import { useAuth } from "@/hooks/use-auth";
 
 const jobs = [
   {
@@ -78,23 +79,30 @@ const jobs = [
 
 export default function CareersPage() {
   const { toast } = useToast();
+  const { user, saveJob, isJobSaved } = useAuth();
 
-  const handleApply = (e: MouseEvent<HTMLButtonElement>, jobTitle: string) => {
+
+  const handleSave = (e: MouseEvent<HTMLButtonElement>, jobTitle: string, jobId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    toast({
-      title: "Application Sent!",
-      description: `Your application for ${jobTitle} has been submitted.`,
-    });
-  };
-
-  const handleSave = (e: MouseEvent<HTMLButtonElement>, jobTitle: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toast({
-      title: "Job Saved!",
-      description: `The ${jobTitle} position has been saved to your profile.`,
-    });
+    if (user && !isJobSaved(jobId)) {
+        saveJob(jobId);
+        toast({
+          title: "Job Saved!",
+          description: `The ${jobTitle} position has been saved to your profile.`,
+        });
+    } else if (user) {
+        toast({
+            title: "Already Saved",
+            description: "This job is already in your saved list.",
+        });
+    } else {
+         toast({
+            title: "Please log in",
+            description: "You must be logged in to save jobs.",
+            variant: "destructive"
+        });
+    }
   };
 
 
@@ -102,7 +110,7 @@ export default function CareersPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Find Your Next Opportunity
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -187,8 +195,12 @@ export default function CareersPage() {
                             </div>
                         </div>
                         <div className="flex sm:flex-col items-center sm:justify-center gap-2 sm:ml-auto pt-4 sm:pt-0">
-                            <Button onClick={(e) => handleApply(e, job.title)}>Apply Now</Button>
-                            <Button variant="secondary" onClick={(e) => handleSave(e, job.title)}>Save</Button>
+                             <Button asChild>
+                                <Link href={`/careers/${job.id}`}>View Job</Link>
+                             </Button>
+                             <Button variant="secondary" onClick={(e) => handleSave(e, job.title, job.id)} disabled={isJobSaved(job.id)}>
+                                {isJobSaved(job.id) ? "Saved" : "Save"}
+                             </Button>
                         </div>
                     </div>
                 </CardContent>

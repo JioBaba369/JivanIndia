@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Briefcase, Tag } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, Briefcase, Tag, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const events = [
   {
@@ -48,6 +50,7 @@ const events = [
 
 const deals = [
     {
+    id: "1",
     title: "20% Off Lunch Buffet",
     business: "Taste of India Restaurant",
     category: "Food",
@@ -55,6 +58,7 @@ const deals = [
     aiHint: "indian buffet"
   },
   {
+    id: "2",
     title: "Buy One Get One Free Saree",
     business: "Bollywood Styles Boutique",
     category: "Shopping",
@@ -62,6 +66,7 @@ const deals = [
     aiHint: "saree shop"
   },
   {
+    id: "3",
     title: "$50 Off International Flights",
     business: "Fly High Travel Agency",
     category: "Travel",
@@ -72,6 +77,7 @@ const deals = [
 
 const jobs = [
    {
+    id: "1",
     title: "Software Engineer",
     company: "InnovateTech Solutions",
     location: "San Francisco, CA",
@@ -80,6 +86,7 @@ const jobs = [
     aiHint: "tech company logo"
   },
   {
+    id: "2",
     title: "Marketing Manager",
     company: "Desi Grocers Inc.",
     location: "New York, NY",
@@ -88,6 +95,7 @@ const jobs = [
     aiHint: "retail logo"
   },
   {
+    id: "3",
     title: "Restaurant Chef",
     company: "Saffron Restaurant Group",
     location: "Chicago, IL",
@@ -142,7 +150,10 @@ export default function HomePage() {
                         <SelectItem value="business">Business</SelectItem>
                     </SelectContent>
                     </Select>
-                    <Button className="w-full">Search</Button>
+                     <Button className="w-full">
+                        <Sparkles className="mr-2"/>
+                        AI Search
+                    </Button>
                 </div>
                 </CardContent>
             </Card>
@@ -150,10 +161,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 py-16">
         <Tabs defaultValue="events" className="w-full">
-          <div className="flex justify-center mb-8">
-            <TabsList>
+          <div className="flex justify-center mb-10">
+            <TabsList className="grid grid-cols-3 w-full max-w-lg">
               <TabsTrigger value="events">Upcoming Events</TabsTrigger>
               <TabsTrigger value="deals">Community Deals</TabsTrigger>
               <TabsTrigger value="careers">Job Openings</TabsTrigger>
@@ -164,7 +175,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {events.map((event) => (
                 <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-                  <Link href={`/events/${event.id}`} className="block h-full">
+                  <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
                     <CardContent className="p-0 flex flex-col h-full">
                       <div className="relative h-48 w-full">
                         <Image
@@ -174,11 +185,11 @@ export default function HomePage() {
                           className="object-cover transition-transform group-hover:scale-105"
                           data-ai-hint={event.aiHint}
                         />
-                        <div className="absolute top-2 right-2 bg-background/80 text-foreground px-3 py-1 rounded-full text-sm font-semibold">{event.category}</div>
+                        <Badge className="absolute top-2 right-2">{event.category}</Badge>
                       </div>
                       <div className="p-6 flex flex-col flex-grow">
-                        <h3 className="font-headline text-xl font-bold group-hover:text-primary">{event.title}</h3>
-                        <div className="mt-4 flex flex-col space-y-2 text-muted-foreground flex-grow">
+                        <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
+                        <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
                             <span>{event.date}</span>
@@ -207,20 +218,21 @@ export default function HomePage() {
 
           <TabsContent value="deals">
              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {deals.map((deal, index) => (
-                <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-                  <Link href={`/deals/${index + 1}`} className="block h-full">
+              {deals.map((deal) => (
+                <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
+                  <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
                      <CardContent className="p-0 h-full flex flex-col">
                        <div className="relative h-48 w-full">
                         <Image
                           src={deal.imageUrl}
                           alt={deal.title}
                           fill
-                          className="object-cover"
+                          className="object-cover transition-transform group-hover:scale-105"
                           data-ai-hint={deal.aiHint}
                         />
                       </div>
                       <div className="p-6 flex-grow flex flex-col">
+                         <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
                         <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
                         <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                            <span className="text-sm">{deal.business}</span>
@@ -244,10 +256,10 @@ export default function HomePage() {
           
           <TabsContent value="careers">
              <div className="space-y-6">
-              {jobs.map((job, index) => (
-                 <Card key={index} className="transition-all hover:shadow-lg hover:border-primary">
-                   <Link href={`/careers/${index + 1}`} className="block">
-                    <CardContent className="p-4">
+              {jobs.map((job) => (
+                 <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
+                   <Link href={`/careers/${job.id}`} className="block">
+                    <CardContent className="p-6">
                         <div className="flex items-center gap-4">
                              <div className="flex-shrink-0">
                                <Image
@@ -260,8 +272,8 @@ export default function HomePage() {
                                 />
                             </div>
                              <div className="flex-grow">
-                                <h3 className="font-headline text-lg font-bold">{job.title}</h3>
-                                <p className="text-muted-foreground text-sm">{job.company} - {job.location}</p>
+                                <h3 className="font-headline text-lg font-bold group-hover:text-primary transition-colors">{job.title}</h3>
+                                <p className="text-muted-foreground">{job.company} - {job.location}</p>
                             </div>
                             <Button variant="outline">
                                 <Briefcase className="mr-2 h-4 w-4" />
