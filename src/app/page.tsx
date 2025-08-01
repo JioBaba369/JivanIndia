@@ -29,7 +29,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative bg-background text-white">
+      <section className="relative bg-background py-24 text-white">
         <div className="absolute inset-0">
             <Image 
                 src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
@@ -38,42 +38,42 @@ export default function HomePage() {
                 className="object-cover"
                 priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
-        <div className="container relative mx-auto px-4 py-24 text-center">
-          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
+        <div className="container relative mx-auto px-4 text-center">
+          <h1 className="font-headline text-5xl font-bold text-shadow-lg md:text-7xl">
             Discover What's On
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-shadow">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-shadow">
             The heart of the Indian community, all in one place. Explore
             events, connect with organizations, and find what you need.
           </p>
-          <div className="mt-8">
-            <Card className="mx-auto max-w-4xl text-foreground">
+          <div className="mt-10">
+            <Card className="mx-auto max-w-4xl border-none bg-white/10 text-foreground backdrop-blur-md">
                 <CardContent className="p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="relative md:col-span-2">
-                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder="Search for events, communities, deals..."
-                        className="pl-10"
-                    />
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto]">
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                          placeholder="Search for events, communities, deals..."
+                          className="h-12 rounded-lg border-none bg-white/10 pl-12 text-base text-white placeholder:text-gray-300 focus:ring-2 focus:ring-primary"
+                      />
                     </div>
                     <Select>
-                    <SelectTrigger>
-                        <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="events">Events</SelectItem>
-                        <SelectItem value="communities">Communities</SelectItem>
-                        <SelectItem value="deals">Deals</SelectItem>
-                        <SelectItem value="careers">Careers</SelectItem>
-                    </SelectContent>
+                      <SelectTrigger className="h-12 rounded-lg border-none bg-white/10 text-base focus:ring-2 focus:ring-primary">
+                          <SelectValue placeholder="All Categories" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="events">Events</SelectItem>
+                          <SelectItem value="communities">Communities</SelectItem>
+                          <SelectItem value="deals">Deals</SelectItem>
+                          <SelectItem value="careers">Careers</SelectItem>
+                      </SelectContent>
                     </Select>
-                     <Button className="w-full">
+                    <Button size="lg" className="h-12 w-full text-base">
                         Search
                     </Button>
-                </div>
+                  </div>
                 </CardContent>
             </Card>
           </div>
@@ -93,7 +93,7 @@ export default function HomePage() {
           <TabsContent value="events">
              {latestEvents.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {latestEvents.map((event) => (
-                <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                   <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                     <div className="relative h-48 w-full">
                       <Image
@@ -102,10 +102,10 @@ export default function HomePage() {
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                       />
-                      <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
+                      <Badge variant="secondary" className="absolute top-3 right-3">{event.eventType}</Badge>
                     </div>
                     <CardContent className="flex flex-grow flex-col p-6">
-                      <h3 className="font-headline flex-grow text-xl font-bold group-hover:text-primary">{event.title}</h3>
+                      <h3 className="font-headline flex-grow text-xl font-semibold group-hover:text-primary">{event.title}</h3>
                       <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
@@ -139,7 +139,7 @@ export default function HomePage() {
           <TabsContent value="deals">
              {latestDeals.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {latestDeals.map((deal) => (
-                <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                   <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                     <div className="relative h-48 w-full">
                       <Image
@@ -148,10 +148,10 @@ export default function HomePage() {
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                       />
+                       <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
                     </div>
                     <CardContent className="flex flex-grow flex-col p-6">
-                        <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                      <h3 className="font-headline mt-2 flex-grow text-xl font-bold group-hover:text-primary">{deal.title}</h3>
+                      <h3 className="font-headline mt-2 flex-grow text-xl font-semibold group-hover:text-primary">{deal.title}</h3>
                       <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                           <span className="text-sm">{deal.business}</span>
                       </div>

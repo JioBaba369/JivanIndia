@@ -1,6 +1,8 @@
 
 import Link from "next/link";
 import Logo from "../logo";
+import { Github, Twitter } from "lucide-react";
+import { Button } from "../ui/button";
 
 export default function Footer() {
   return (
@@ -12,6 +14,14 @@ export default function Footer() {
             <p className="mt-4 text-muted-foreground">
               The heart of the Indian community, all in one place.
             </p>
+            <div className="mt-4 flex space-x-2">
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="#"><Twitter /></Link>
+              </Button>
+               <Button variant="ghost" size="icon" asChild>
+                <Link href="#"><Github /></Link>
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-3">
             <div>

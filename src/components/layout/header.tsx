@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const navLinks = [
   { href: "/", label: "What's On" },
@@ -46,6 +47,15 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
     );
   };
 
+const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
+
 const UserActions = ({ onAction }: { onAction?: () => void }) => {
   const { user, logout } = useAuth();
 
@@ -53,9 +63,11 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="icon" className="rounded-full">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Toggle user menu</span>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar className="h-8 w-8">
+              {user.profileImageUrl && <AvatarImage src={user.profileImageUrl} alt={user.name} />}
+              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

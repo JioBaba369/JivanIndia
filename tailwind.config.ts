@@ -19,12 +19,12 @@ const config = {
     },
     extend: {
       fontFamily: {
-        body: ['var(--font-pt-sans)', 'sans-serif'],
-        headline: ['var(--font-space-grotesk)', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        headline: ['var(--font-lexend)', 'sans-serif'],
       },
       textShadow: {
-        DEFAULT: '0 2px 4px rgba(0,0,0,0.5)',
-        lg: '0 4px 8px rgba(0,0,0,0.5)',
+        DEFAULT: '0 1px 3px rgba(0,0,0,0.5)',
+        lg: '0 2px 5px rgba(0,0,0,0.5)',
       },
       colors: {
         border: "hsl(var(--border))",
@@ -106,5 +106,3 @@ const config = {
 } satisfies Config
 
 export default config;
-
-    
