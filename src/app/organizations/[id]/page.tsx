@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useParams } from 'next/navigation';
 
 // Mock data - in a real app, you'd fetch this based on the `params.id`
 // A real implementation would fetch the specific org data based on the ID
@@ -80,9 +81,11 @@ const relatedEvents = [
     }
 ]
 
-export default function OrganizationDetailPage({ params }: { params: { id: string } }) {
+export default function OrganizationDetailPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : '';
   // Fetch the correct organization data. Fallback to a default if not found.
-  const org = allOrganizationsData[params.id] || allOrganizationsData["1"];
+  const org = allOrganizationsData[id] || allOrganizationsData["1"];
   
   const { toast } = useToast();
   const [isJoined, setIsJoined] = useState(false);
