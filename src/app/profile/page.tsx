@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -12,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+
 
 // Mock data from other pages
 import { jobs as allJobs } from '../careers/page';
@@ -245,8 +248,8 @@ export default function ProfilePage() {
                                         <div className="flex-grow">
                                             <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{event.date}</span></div>
-                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location}</span></div>
+                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span></div>
+                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">

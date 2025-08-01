@@ -17,6 +17,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { useMemo, useState } from "react";
+import { format } from 'date-fns';
 
 export default function EventsPage() {
   const { events } = useEvents();
@@ -25,7 +26,7 @@ export default function EventsPage() {
   const [category, setCategory] = useState('all');
 
   const eventCategories = useMemo(() => {
-    const categories = new Set(events.filter(e => e.status === 'Approved').map(event => event.category));
+    const categories = new Set(events.filter(e => e.status === 'Approved').map(event => event.eventType));
     return ['all', ...Array.from(categories)];
   }, [events]);
 
@@ -36,13 +37,13 @@ export default function EventsPage() {
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.organizer.toLowerCase().includes(searchQuery.toLowerCase());
+        event.organizerName.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesLocation = 
-        event.location.toLowerCase().includes(locationQuery.toLowerCase()) ||
-        event.address.toLowerCase().includes(locationQuery.toLowerCase());
+        event.location.venueName.toLowerCase().includes(locationQuery.toLowerCase()) ||
+        event.location.address.toLowerCase().includes(locationQuery.toLowerCase());
 
-      const matchesCategory = category === 'all' || event.category === category;
+      const matchesCategory = category === 'all' || event.eventType === category;
 
       return matchesSearch && matchesLocation && matchesCategory;
     });
@@ -122,18 +123,18 @@ export default function EventsPage() {
                       className="object-cover transition-transform group-hover:scale-105"
                       data-ai-hint={event.aiHint}
                     />
-                     <Badge className="absolute top-2 right-2">{event.category}</Badge>
+                     <Badge className="absolute top-2 right-2">{event.eventType}</Badge>
                   </div>
                   <div className="p-6 flex flex-col flex-grow">
                     <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
                     <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                        <div className="flex items-center gap-2">
                          <Calendar className="h-4 w-4" />
-                         <span>{event.date}</span>
+                         <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
                        </div>
                        <div className="flex items-center gap-2">
                          <MapPin className="h-4 w-4" />
-                         <span>{event.location}</span>
+                         <span>{event.location.venueName}</span>
                        </div>
                     </div>
                      <Button variant="outline" className="mt-6 w-full">

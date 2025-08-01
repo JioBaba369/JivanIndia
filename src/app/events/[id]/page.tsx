@@ -4,7 +4,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Tag } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, intervalToDuration } from 'date-fns';
 import { useState, useEffect } from 'react';
 
 
@@ -25,20 +25,38 @@ export default function EventDetailPage() {
   const { toast } = useToast();
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
   const router = useRouter();
-  const [postedAt, setPostedAt] = useState('');
+  const [createdAt, setCreatedAt] = useState('');
+  const [duration, setDuration] = useState('');
 
   useEffect(() => {
-    if (event?.postedAt) {
+    if (event?.createdAt) {
       try {
-        const date = new Date(event.postedAt);
+        const date = new Date(event.createdAt);
         if (!isNaN(date.getTime())) {
-          setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
+          setCreatedAt(formatDistanceToNow(date, { addSuffix: true }));
         }
       } catch (error) {
-        console.error("Failed to parse date:", event.postedAt, error);
+        console.error("Failed to parse date:", event.createdAt, error);
       }
     }
-  }, [event?.postedAt]);
+    if (event?.startDateTime && event?.endDateTime) {
+       try {
+            const d = intervalToDuration({
+                start: new Date(event.startDateTime),
+                end: new Date(event.endDateTime)
+            });
+            const formattedDuration = [
+                d.days ? `${d.days}d` : '',
+                d.hours ? `${d.hours}h` : '',
+                d.minutes ? `${d.minutes}m` : ''
+            ].filter(Boolean).join(' ');
+            setDuration(formattedDuration);
+       } catch(e) {
+            console.error("Failed to calculate duration", e);
+            setDuration("N/A");
+       }
+    }
+  }, [event]);
   
   if (!event) {
     return (
@@ -90,10 +108,10 @@ export default function EventDetailPage() {
   const eventIsSaved = user ? isEventSaved(event.id) : false;
 
   const TicketButton = () => {
-    if (event.ticketUrl) {
+    if (event.ticketLink) {
       return (
         <Button size="lg" className="w-full" asChild>
-          <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer">
+          <a href={event.ticketLink} target="_blank" rel="noopener noreferrer">
             <Ticket className="mr-2"/>
             Get Tickets
           </a>
@@ -124,7 +142,7 @@ export default function EventDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
               <Badge>
-                {event.category}
+                {event.eventType}
               </Badge>
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
                 {event.title}
@@ -139,7 +157,7 @@ export default function EventDetailPage() {
                 </h2>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                     <History className="h-4 w-4" />
-                    <span>Posted {postedAt}</span>
+                    <span>Posted {createdAt}</span>
                 </div>
                 <p className="text-muted-foreground leading-relaxed">
                   {event.description}
@@ -163,7 +181,7 @@ export default function EventDetailPage() {
                        <Users className="h-6 w-6 text-secondary-foreground" />
                      </div>
                      <div>
-                       <p className="font-semibold">{event.organizer}</p>
+                       <p className="font-semibold">{event.organizerName}</p>
                        <Link href={`/organizations/${event.organizerId}`} className="text-sm text-primary hover:underline">
                          View Organization
                        </Link>
@@ -189,23 +207,23 @@ export default function EventDetailPage() {
                       <Calendar className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Date and time</h4>
-                        <p className="text-muted-foreground text-sm">{event.date}</p>
-                        <p className="text-muted-foreground text-sm">{event.time}</p>
+                        <p className="text-muted-foreground text-sm">{format(new Date(event.startDateTime), 'eeee, LLLL d, yyyy')}</p>
+                        <p className="text-muted-foreground text-sm">{format(new Date(event.startDateTime), 'p')} - {format(new Date(event.endDateTime), 'p')}</p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
                       <Clock className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Duration</h4>
-                        <p className="text-muted-foreground text-sm">{event.duration}</p>
+                        <p className="text-muted-foreground text-sm">{duration}</p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
                       <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                         <h4 className="font-semibold">Location</h4>
-                        <p className="text-muted-foreground text-sm">{event.location}</p>
-                         <p className="text-muted-foreground text-sm">{event.address}</p>
+                        <p className="text-muted-foreground text-sm">{event.location.venueName}</p>
+                         <p className="text-muted-foreground text-sm">{event.location.address}</p>
                       </div>
                     </div>
                   </CardContent>

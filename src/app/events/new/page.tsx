@@ -26,16 +26,15 @@ export default function NewEventPage() {
   const { user } = useAuth();
 
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
+  const [eventType, setEventType] = useState<'Cultural' | 'Religious' | 'Professional' | 'Sports' | 'Festival' | 'Workshop' | 'Food' | 'Other'>('Other');
+  const [startDateTime, setStartDateTime] = useState('');
+  const [endDateTime, setEndDateTime] = useState('');
+  const [venueName, setVenueName] = useState('');
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
-  const [organizer, setOrganizer] = useState(user?.affiliation?.orgName || '');
-  const [duration, setDuration] = useState('');
+  const [organizerName, setOrganizerName] = useState(user?.affiliation?.orgName || '');
   const [tags, setTags] = useState('');
-  const [ticketUrl, setTicketUrl] = useState('');
+  const [ticketLink, setTicketLink] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,22 +46,22 @@ export default function NewEventPage() {
       });
       return;
     }
-    const newEvent: Omit<Event, 'id' | 'postedAt'> = {
+    const newEvent: Omit<Event, 'id' | 'createdAt' | 'status'> = {
       title,
-      category,
-      date,
-      time,
-      location,
-      address,
+      eventType,
+      startDateTime,
+      endDateTime,
+      location: {
+        venueName,
+        address,
+      },
       description,
-      organizer: user.affiliation.orgName,
+      organizerName: user.affiliation.orgName,
       organizerId: user.affiliation.orgId,
       imageUrl: 'https://placehold.co/600x400.png',
       aiHint: 'community event',
-      duration,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      status: 'Pending',
-      ticketUrl,
+      ticketLink,
     };
 
     addEvent(newEvent);
@@ -116,63 +115,58 @@ export default function NewEventPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  placeholder="e.g., Festival, Workshop"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                <Label htmlFor="eventType">Category</Label>
+                <select
+                  id="eventType"
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value as any)}
                   required
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                >
+                    <option>Cultural</option>
+                    <option>Religious</option>
+                    <option>Professional</option>
+                    <option>Sports</option>
+                    <option>Festival</option>
+                    <option>Workshop</option>
+                    <option>Food</option>
+                    <option>Other</option>
+                </select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
+                <Label htmlFor="startDateTime">Start Date & Time</Label>
                 <Input
-                  id="date"
-                  type="text"
-                  placeholder="e.g., Saturday, November 4, 2024"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  id="startDateTime"
+                  type="datetime-local"
+                  value={startDateTime}
+                  onChange={(e) => setStartDateTime(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="time">Time</Label>
+                <Label htmlFor="endDateTime">End Date & Time</Label>
                 <Input
-                  id="time"
-                  type="text"
-                  placeholder="e.g., 7:00 PM - 11:00 PM PST"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
+                  id="endDateTime"
+                  type="datetime-local"
+                  value={endDateTime}
+                  onChange={(e) => setEndDateTime(e.target.value)}
                   required
                 />
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <div className="space-y-2">
-                    <Label htmlFor="duration">Duration</Label>
-                    <Input
-                        id="duration"
-                        placeholder="e.g., 4 hours"
-                        value={duration}
-                        onChange={(e) => setDuration(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="location">Location Name</Label>
-                    <Input
-                    id="location"
-                    placeholder="e.g., Grand Park, Downtown LA"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    required
-                    />
-                </div>
+            <div className="space-y-2">
+                <Label htmlFor="venueName">Location Name</Label>
+                <Input
+                id="venueName"
+                placeholder="e.g., Grand Park, Downtown LA"
+                value={venueName}
+                onChange={(e) => setVenueName(e.target.value)}
+                required
+                />
             </div>
 
              <div className="space-y-2">
@@ -187,10 +181,10 @@ export default function NewEventPage() {
             </div>
             
             <div className="space-y-2">
-                <Label htmlFor="organizer">Organizer</Label>
+                <Label htmlFor="organizerName">Organizer</Label>
                 <Input
-                    id="organizer"
-                    value={organizer}
+                    id="organizerName"
+                    value={organizerName}
                     disabled
                     readOnly
                 />
@@ -220,12 +214,12 @@ export default function NewEventPage() {
             </div>
 
              <div className="space-y-2">
-                <Label htmlFor="ticketUrl">Ticket URL (Optional)</Label>
+                <Label htmlFor="ticketLink">Ticket URL (Optional)</Label>
                 <Input
-                    id="ticketUrl"
+                    id="ticketLink"
                     placeholder="e.g., https://www.eventbrite.com/..."
-                    value={ticketUrl}
-                    onChange={(e) => setTicketUrl(e.target.value)}
+                    value={ticketLink}
+                    onChange={(e) => setTicketLink(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">Link to an external ticketing page.</p>
             </div>
