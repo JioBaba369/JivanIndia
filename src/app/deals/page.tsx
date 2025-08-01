@@ -9,6 +9,7 @@ import Link from "next/link";
 
 const deals = [
   {
+    id: "1",
     title: "20% Off Lunch Buffet",
     business: "Taste of India Restaurant",
     category: "Food",
@@ -16,6 +17,7 @@ const deals = [
     aiHint: "indian buffet"
   },
   {
+    id: "2",
     title: "Buy One Get One Free Saree",
     business: "Bollywood Styles Boutique",
     category: "Shopping",
@@ -23,6 +25,7 @@ const deals = [
     aiHint: "saree shop"
   },
   {
+    id: "3",
     title: "$50 Off International Flights",
     business: "Fly High Travel Agency",
     category: "Travel",
@@ -30,6 +33,7 @@ const deals = [
     aiHint: "travel agency"
   },
   {
+    id: "4",
     title: "First Month Free - Yoga Classes",
     business: "Peaceful Warrior Yoga",
     category: "Health & Wellness",
@@ -37,6 +41,7 @@ const deals = [
     aiHint: "yoga class"
   },
   {
+    id: "5",
     title: "15% Off All Spices",
     business: "Mumbai Spice Market",
     category: "Groceries",
@@ -44,6 +49,7 @@ const deals = [
     aiHint: "spice market"
   },
   {
+    id: "6",
     title: "Family Photo Session for $199",
     business: "Moments Captured Studio",
     category: "Services",
@@ -92,29 +98,29 @@ export default function DealsPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {deals.map((deal, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col">
-               <Link href="#" className="block h-full">
+          {deals.map((deal) => (
+            <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col group">
+               <Link href={`/deals/${deal.id}`} className="block h-full">
                 <CardContent className="p-0 h-full flex flex-col">
                    <div className="relative h-48 w-full">
                     <Image
                       src={deal.imageUrl}
                       alt={deal.title}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform group-hover:scale-105"
                       data-ai-hint={deal.aiHint}
                     />
                   </div>
                   <div className="p-6 flex-grow flex flex-col">
                     <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                    <h3 className="font-headline text-xl font-bold mt-2 flex-grow">{deal.title}</h3>
+                    <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
                     <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                        <Building className="h-4 w-4" />
                        <span>{deal.business}</span>
                     </div>
-                     <Button className="mt-6 w-full">
+                     <Button variant="outline" className="mt-6 w-full">
                         <Tag className="mr-2 h-4 w-4" />
-                        Redeem Deal
+                        View Deal
                      </Button>
                   </div>
                 </CardContent>
