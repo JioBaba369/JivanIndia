@@ -14,7 +14,7 @@ const eventDetails = {
   time: "7:00 PM - 11:00 PM PST",
   location: "Grand Park, Downtown LA",
   address: "200 N Grand Ave, Los Angeles, CA 90012",
-  imageUrl: "https://placehold.co/1200x600.png",
+  imageUrl: "https://images.unsplash.com/photo-1605302977545-3a09913be1dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkaXdhbGklMjBjZWxlYnJhdGlvbiUyMG5pZ2h0fGVufDB8fHx8MTc1NDA0MjYwNHww&ixlib=rb-4.1.0&q=80&w=1080",
   aiHint: "diwali celebration night",
   description:
     "Experience the magic of Diwali at the annual Festival of Lights. This family-friendly event will feature traditional music, dance performances, delicious Indian food from local vendors, and a spectacular fireworks display to conclude the evening. Come and celebrate the victory of light over darkness with the community.",
@@ -106,7 +106,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 </Card>
                  <div className="relative h-48 w-full rounded-lg overflow-hidden">
                     <Image
-                      src="https://placehold.co/400x300.png"
+                      src="https://images.unsplash.com/photo-1730317195705-8a265a59ed1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjaXR5JTIwbWFwfGVufDB8fHx8MTc1NDA0MjYwNHww&ixlib=rb-4.1.0&q=80&w=1080"
                       alt="Map"
                       fill
                       className="object-cover"
