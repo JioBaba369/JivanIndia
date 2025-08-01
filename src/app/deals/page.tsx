@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -99,8 +100,8 @@ export default function DealsPage() {
                     <Image
                       src={deal.imageUrl}
                       alt={deal.title}
-                      layout="fill"
-                      objectFit="cover"
+                      fill
+                      className="object-cover"
                       data-ai-hint={deal.aiHint}
                     />
                   </div>

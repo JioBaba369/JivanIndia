@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,43 +18,57 @@ const movies = [
     title: "Jawan",
     genre: "Action/Thriller",
     rating: 4.5,
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "action movie"
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "action movie poster"
   },
   {
     title: "Pathaan",
     genre: "Action/Spy",
     rating: 4.2,
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "spy movie"
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "spy movie poster"
   },
   {
     title: "RRR",
     genre: "Action/Drama",
     rating: 4.8,
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "historical drama"
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "historical drama poster"
   },
   {
     title: "Brahmāstra: Part One – Shiva",
     genre: "Fantasy/Action",
     rating: 4.0,
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "fantasy movie"
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "fantasy movie poster"
   },
   {
     title: "3 Idiots",
     genre: "Comedy/Drama",
     rating: 4.9,
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "college friends"
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "college comedy poster"
   },
   {
     title: "Dangal",
     genre: "Biographical/Sports",
     rating: 4.7,
-    imageUrl: "https://placehold.co/600x400.png",
-    aiHint: "wrestling match"
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "wrestling movie poster"
+  },
+   {
+    title: "My Name is Khan",
+    genre: "Drama/Romance",
+    rating: 4.6,
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "dramatic movie poster"
+  },
+   {
+    title: "Gully Boy",
+    genre: "Musical/Drama",
+    rating: 4.4,
+    imageUrl: "https://placehold.co/600x900.png",
+    aiHint: "hip hop movie poster"
   },
 ];
 
@@ -87,7 +102,7 @@ export default function MoviesPage() {
                 <Select>
                   <SelectTrigger>
                     <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
                         <SelectValue placeholder="Select Location" />
                     </div>
                   </SelectTrigger>
@@ -106,22 +121,22 @@ export default function MoviesPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {movies.map((movie, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group">
                <Link href="#" className="block">
                 <CardContent className="p-0">
-                  <div className="relative h-64 w-full">
+                  <div className="relative aspect-[2/3] w-full">
                     <Image
                       src={movie.imageUrl}
                       alt={movie.title}
-                      layout="fill"
-                      objectFit="cover"
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
                       data-ai-hint={movie.aiHint}
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-headline text-lg font-bold truncate">{movie.title}</h3>
+                    <h3 className="font-headline text-lg font-bold truncate group-hover:text-primary">{movie.title}</h3>
                     <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
                        <div className="flex items-center gap-2">
                          <Film className="h-4 w-4" />

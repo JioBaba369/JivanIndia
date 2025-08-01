@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import Logo from "../logo";
 
@@ -18,6 +19,7 @@ export default function Footer() {
             <div>
               <h4 className="font-headline font-semibold">Explore</h4>
               <ul className="mt-4 space-y-2">
+                <li><Link href="/" className="text-muted-foreground hover:text-primary">What's On</Link></li>
                 <li><Link href="/organizations" className="text-muted-foreground hover:text-primary">Organizations</Link></li>
                 <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
                 <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>

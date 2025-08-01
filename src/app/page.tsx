@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -115,22 +116,22 @@ export default function HomePage() {
         </h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {events.map((event, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-              <Link href="#" className="block">
-                <CardContent className="p-0">
+            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
+              <Link href="#" className="block h-full">
+                <CardContent className="p-0 flex flex-col h-full">
                   <div className="relative h-48 w-full">
                     <Image
                       src={event.imageUrl}
                       alt={event.title}
-                      layout="fill"
-                      objectFit="cover"
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
                       data-ai-hint={event.aiHint}
                     />
                      <div className="absolute top-2 right-2 bg-background/80 text-foreground px-3 py-1 rounded-full text-sm font-semibold">{event.category}</div>
                   </div>
-                  <div className="p-6">
-                    <h3 className="font-headline text-xl font-bold">{event.title}</h3>
-                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="font-headline text-xl font-bold group-hover:text-primary">{event.title}</h3>
+                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground flex-grow">
                        <div className="flex items-center gap-2">
                          <Calendar className="h-4 w-4" />
                          <span>{event.date}</span>
