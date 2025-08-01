@@ -25,7 +25,6 @@ import { type MouseEvent, useState, useMemo } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 
 export const communities: any[] = [];
 
@@ -116,7 +115,6 @@ export default function CommunitiesPage() {
               <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
                  <Card className="overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
                     <Link href={`/communities/${org.id}`} className="block h-full flex flex-col">
-                        <CardContent className="p-0 flex flex-col flex-grow">
                         <div className="relative h-48 w-full">
                             <Image
                             src={org.imageUrl}
@@ -126,7 +124,7 @@ export default function CommunitiesPage() {
                             data-ai-hint={org.aiHint}
                             />
                         </div>
-                        <div className="p-6 flex flex-col flex-grow">
+                        <CardContent className="p-6 flex flex-col flex-grow">
                              <div className="flex items-center gap-2">
                                 <h3 className="font-headline text-xl font-bold">{org.name}</h3>
                                 {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
@@ -137,7 +135,6 @@ export default function CommunitiesPage() {
                                 <MapPin className="h-4 w-4" />
                                 <span>{org.region}</span>
                             </div>
-                        </div>
                         </CardContent>
                     </Link>
                 </Card>
@@ -195,35 +192,33 @@ export default function CommunitiesPage() {
           {filteredCommunities.length > 0 ? filteredCommunities.map((org) => (
             <Card key={org.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
                 <Link href={`/communities/${org.id}`} className="block h-full flex flex-col flex-grow">
-                    <CardContent className="p-0 flex flex-col flex-grow">
-                        <div className="relative h-48 w-full">
-                        <Image
-                            src={org.imageUrl}
-                            alt={org.name}
-                            fill
-                            className="object-cover transition-transform group-hover:scale-105"
-                            data-ai-hint={org.aiHint}
-                        />
+                    <div className="relative h-48 w-full">
+                    <Image
+                        src={org.imageUrl}
+                        alt={org.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        data-ai-hint={org.aiHint}
+                    />
+                    </div>
+                    <CardContent className="p-6 flex flex-col flex-grow">
+                    <p className="text-sm font-semibold text-primary">{org.type}</p>
+                     <div className="flex items-center gap-2 mt-1">
+                        <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
+                        {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
+                    
+                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
+                        <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            <span>{org.membersCount}</span>
                         </div>
-                        <div className="p-6 flex flex-col flex-grow">
-                        <p className="text-sm font-semibold text-primary">{org.type}</p>
-                         <div className="flex items-center gap-2 mt-1">
-                            <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
-                            {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
+                        <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            <span>{org.region}</span>
                         </div>
-                        <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
-                        
-                        <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
-                            <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4" />
-                                <span>{org.membersCount}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4" />
-                                <span>{org.region}</span>
-                            </div>
-                        </div>
-                        </div>
+                    </div>
                     </CardContent>
                 </Link>
                  <CardFooter className="p-6 pt-0 mt-auto flex gap-2">
@@ -231,19 +226,19 @@ export default function CommunitiesPage() {
                         <Link href={`/communities/${org.id}`}>View</Link>
                     </Button>
                     <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isCommunityJoined(org.id)}>
-                        <Bookmark className="mr-2" />
+                        <Bookmark className="mr-2 h-4 w-4" />
                         {isCommunityJoined(org.id) ? "Joined" : "Join"}
                     </Button>
                  </CardFooter>
             </Card>
           )) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
-                <p className="text-muted-foreground">No communities found matching your criteria.</p>
+                <p className="text-muted-foreground">No communities found that match your criteria.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');
                     setCategory('all');
-                }}>Clear filters</Button>
+                }}>Clear Filters</Button>
             </div>
           )}
         </div>

@@ -55,32 +55,30 @@ export default function SponsorsPage() {
           {filteredSponsors.length > 0 ? filteredSponsors.map((sponsor) => (
             <Card key={sponsor.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                <Link href={`/sponsors/${sponsor.id}`} className="block h-full flex flex-col">
-                <CardContent className="p-0 flex flex-col h-full">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={sponsor.imageUrl}
-                      alt={sponsor.name}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={sponsor.aiHint}
-                    />
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={sponsor.imageUrl}
+                    alt={sponsor.name}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    data-ai-hint={sponsor.aiHint}
+                  />
+                </div>
+                <CardContent className="p-6 text-center flex flex-col flex-grow">
+                  <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
+                  <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
+                      <HeartHandshake className="h-4 w-4" />
+                      <span>{sponsor.industry}</span>
                   </div>
-                  <div className="p-6 text-center flex flex-col flex-grow">
-                    <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
-                    <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
-                        <HeartHandshake className="h-4 w-4" />
-                        <span>{sponsor.industry}</span>
-                    </div>
-                    <Button variant="secondary" className="mt-6 w-full">
-                      View Profile
-                    </Button>
-                  </div>
+                  <Button variant="secondary" className="mt-6 w-full">
+                    View Profile
+                  </Button>
                 </CardContent>
               </Link>
             </Card>
           )) : (
              <div className="text-center py-12 border-2 border-dashed rounded-lg col-span-full">
-                <p className="text-muted-foreground">No sponsors found matching your criteria.</p>
+                <p className="text-muted-foreground">No sponsors found that match your criteria.</p>
                 <Button variant="link" onClick={() => setSearchQuery('')}>Clear search</Button>
             </div>
           )}

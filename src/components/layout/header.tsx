@@ -70,14 +70,14 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
   }
 
   return (
-    <>
+    <div className="flex items-center space-x-2">
       <Button variant="ghost" asChild>
         <Link href="/login" onClick={onAction}>Login</Link>
       </Button>
       <Button asChild>
         <Link href="/signup" onClick={onAction}>Sign Up</Link>
       </Button>
-    </>
+    </div>
   );
 };
 
@@ -124,5 +124,3 @@ export default function Header() {
     </header>
   );
 }
-
-    

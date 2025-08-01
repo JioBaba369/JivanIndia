@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -67,8 +66,8 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="font-headline text-3xl font-bold">Event not found</h1>
-        <p className="mt-4 text-muted-foreground">The event you are looking for does not exist.</p>
+        <h1 className="font-headline text-3xl font-bold">Event Not Found</h1>
+        <p className="mt-4 text-muted-foreground">The event you are looking for does not exist or may have been removed.</p>
         <Button asChild className="mt-6">
           <Link href="/events">Back to Events</Link>
         </Button>
@@ -91,7 +90,7 @@ export default function EventDetailPage() {
             description: "You need to be logged in to save events.",
             variant: "destructive",
         });
-        router.push("/login");
+        if (!user) router.push("/login");
         return;
     }
 
@@ -118,7 +117,7 @@ export default function EventDetailPage() {
       return (
         <Button size="lg" className="w-full" asChild>
           <a href={event.ticketLink} target="_blank" rel="noopener noreferrer">
-            <Ticket className="mr-2"/>
+            <Ticket className="mr-2 h-4 w-4"/>
             Get Tickets
           </a>
         </Button>
@@ -126,7 +125,7 @@ export default function EventDetailPage() {
     }
     return (
       <Button size="lg" className="w-full">
-        <Ticket className="mr-2"/>
+        <Ticket className="mr-2 h-4 w-4"/>
         Register
       </Button>
     );
@@ -150,7 +149,7 @@ export default function EventDetailPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <Badge>
+              <Badge variant="secondary">
                 {event.eventType}
               </Badge>
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
@@ -173,15 +172,15 @@ export default function EventDetailPage() {
                 </p>
 
                 {event.tags && event.tags.length > 0 && (
-                  <div className="mt-8">
+                  <section className="mt-8">
                     <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">Tags</h3>
                     <div className="flex flex-wrap gap-2">
                         {event.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                     </div>
-                  </div>
+                  </section>
                 )}
 
-                <div className="mt-8">
+                <section className="mt-8">
                    <h3 className="font-headline text-xl font-semibold mb-4">
                      Organized by
                    </h3>
@@ -196,17 +195,17 @@ export default function EventDetailPage() {
                        </Link>
                      </div>
                    </div>
-                </div>
+                </section>
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                     <TicketButton />
                     <Button size="lg" variant={eventIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
-                        <Bookmark className="mr-2"/>
+                        <Bookmark className="mr-2 h-4 w-4"/>
                         {eventIsSaved ? "Event Saved" : "Save Event"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2"/>
+                        <Share2 className="mr-2 h-4 w-4"/>
                         Share Event
                     </Button>
                 </div>

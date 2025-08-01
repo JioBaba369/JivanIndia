@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -28,8 +27,8 @@ export default function SponsorDetailPage() {
   if (!sponsor) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="font-headline text-3xl font-bold">Sponsor not found</h1>
-        <p className="mt-4 text-muted-foreground">The sponsor you are looking for does not exist.</p>
+        <h1 className="font-headline text-3xl font-bold">Sponsor Not Found</h1>
+        <p className="mt-4 text-muted-foreground">The sponsor you are looking for does not exist or may have been removed.</p>
         <Button asChild className="mt-6">
           <Link href="/sponsors">Back to Sponsors</Link>
         </Button>
@@ -73,12 +72,12 @@ export default function SponsorDetailPage() {
                 <div className="flex flex-col gap-4">
                     <Button size="lg" className="w-full" asChild>
                         <a href={sponsor.website} target="_blank" rel="noopener noreferrer">
-                            <Globe className="mr-2"/>
+                            <Globe className="mr-2 h-4 w-4"/>
                             Visit Website
                         </a>
                     </Button>
                     <Button size="lg" variant="secondary" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2"/>
+                        <Share2 className="mr-2 h-4 w-4"/>
                         Share Profile
                     </Button>
                 </div>

@@ -90,43 +90,41 @@ export default function ProvidersPage() {
           {filteredProviders.length > 0 ? filteredProviders.map((provider) => (
             <Card key={provider.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                <Link href={`/providers/${provider.id}`} className="block h-full flex flex-col">
-                <CardContent className="p-0 flex flex-col h-full">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={provider.imageUrl}
-                      alt={provider.name}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={provider.aiHint}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                     <div className="absolute bottom-0 left-0 p-4">
-                       <h3 className="font-headline text-xl font-bold text-white text-shadow">{provider.name}</h3>
-                       <p className="font-semibold text-primary-foreground/90 text-sm text-shadow">{provider.specialty}</p>
-                     </div>
-                  </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex flex-col space-y-2 text-muted-foreground flex-grow">
-                       <div className="flex items-center gap-2">
-                         <UserCheck className="h-4 w-4 text-primary" />
-                         <span>{provider.category}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <MapPin className="h-4 w-4 text-primary" />
-                         <span>{provider.location}</span>
-                       </div>
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={provider.imageUrl}
+                    alt={provider.name}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    data-ai-hint={provider.aiHint}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-4">
+                      <h3 className="font-headline text-xl font-bold text-white text-shadow">{provider.name}</h3>
+                      <p className="font-semibold text-primary-foreground/90 text-sm text-shadow">{provider.specialty}</p>
                     </div>
-                     <Button variant="secondary" className="mt-6 w-full">
-                      View Profile
-                    </Button>
+                </div>
+                <CardContent className="p-6 flex flex-col flex-grow">
+                  <div className="flex flex-col space-y-2 text-muted-foreground flex-grow">
+                      <div className="flex items-center gap-2">
+                        <UserCheck className="h-4 w-4 text-primary" />
+                        <span>{provider.category}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span>{provider.location}</span>
+                      </div>
                   </div>
+                    <Button variant="secondary" className="mt-6 w-full">
+                    View Profile
+                  </Button>
                 </CardContent>
               </Link>
             </Card>
           )) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-3">
-                <p className="text-muted-foreground">No providers found matching your criteria.</p>
-                <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear filters</Button>
+                <p className="text-muted-foreground">No providers found that match your criteria.</p>
+                <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
           )}
         </div>

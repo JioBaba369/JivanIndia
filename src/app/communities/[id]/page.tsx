@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -64,8 +63,8 @@ export default function CommunityDetailPage() {
   if (!community) {
     return (
         <div className="container mx-auto px-4 py-12 text-center">
-            <h1 className="font-headline text-3xl font-bold">Community not found</h1>
-            <p className="mt-4 text-muted-foreground">The community you are looking for does not exist.</p>
+            <h1 className="font-headline text-3xl font-bold">Community Not Found</h1>
+            <p className="mt-4 text-muted-foreground">The community you are looking for does not exist or may have been removed.</p>
             <Button asChild className="mt-6">
                 <Link href="/communities">Back to Communities</Link>
             </Button>
@@ -89,9 +88,9 @@ export default function CommunityDetailPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
+              <Badge variant="secondary">
                 {community.type}
-              </span>
+              </Badge>
               <div className="flex items-center gap-2 mt-2">
                 <h1 className="font-headline text-3xl md:text-5xl font-bold text-white">
                   {community.name}
@@ -136,11 +135,11 @@ export default function CommunityDetailPage() {
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                     <Button size="lg" variant={orgIsJoined ? "default" : "secondary"} className="w-full" onClick={handleJoinToggle}>
-                        <Bookmark className="mr-2"/>
+                        <Bookmark className="mr-2 h-4 w-4"/>
                         {orgIsJoined ? "Joined" : "Join Community"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2"/>
+                        <Share2 className="mr-2 h-4 w-4"/>
                         Share Profile
                     </Button>
                 </div>

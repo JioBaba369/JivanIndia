@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Flag, Mail, Languages, Heart, Globe, Edit } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Users, BadgeCheck, Phone, Flag, Mail, Languages, Heart, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -74,11 +73,11 @@ export default function ProfilePage() {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <Card className="max-w-md mx-auto">
-            <CardHeader className="p-6">
+            <CardHeader>
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
                 <CardDescription>You must be logged in to view your profile.</CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent>
                 <Button asChild className="mt-2">
                     <Link href="/login">Login</Link>
                 </Button>
@@ -105,7 +104,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
             <div className="md:col-span-1 lg:col-span-1 space-y-8">
                 <Card>
-                    <CardHeader className="p-6 items-center text-center">
+                    <CardHeader className="items-center text-center">
                         <Avatar className="h-24 w-24 border-4 border-primary">
                            {profileImageUrl ? <Image
                             src={profileImageUrl}
@@ -119,17 +118,20 @@ export default function ProfilePage() {
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>
                         {user.bio && <p className="text-sm text-muted-foreground pt-2 italic">"{user.bio}"</p>}
+                         <Button variant="secondary" className="w-full mt-4" asChild>
+                            <Link href="/profile/edit">Edit Profile</Link>
+                         </Button>
                     </CardHeader>
-                    <CardContent className="px-6 pb-6 text-center">
+                    <CardContent>
                         {user.affiliation && (
                             <Card className="bg-muted">
                                 <CardHeader className="p-4">
                                     <CardTitle className="font-headline text-lg flex items-center justify-center gap-2">
-                                        <BadgeCheck className="text-primary" />
+                                        <BadgeCheck className="text-primary h-5 w-5" />
                                         Affiliation
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-4 pt-0">
+                                <CardContent className="p-4 pt-0 text-center">
                                     <p className="text-sm">You are affiliated with:</p>
                                     <Button variant="link" asChild className="p-0 h-auto font-semibold text-base">
                                         <Link href={`/communities/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
@@ -138,18 +140,13 @@ export default function ProfilePage() {
                             </Card>
                         )}
                     </CardContent>
-                    <CardFooter className="px-6 pb-6">
-                         <Button variant="secondary" className="w-full" asChild>
-                            <Link href="/profile/edit">Edit Profile</Link>
-                         </Button>
-                    </CardFooter>
                 </Card>
                 
                  <Card>
-                    <CardHeader className="p-6">
+                    <CardHeader>
                         <CardTitle className="font-headline text-xl">Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6 pt-0 space-y-6">
+                    <CardContent className="space-y-6">
                         {(user.languagesSpoken && user.languagesSpoken.length > 0) && (
                             <div className="space-y-2">
                                 <h4 className="font-semibold flex items-center gap-2 text-sm"><Languages className="h-4 w-4"/> Languages</h4>
@@ -365,10 +362,6 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                                            <Button variant="outline" size="icon" asChild><Link href="#"><Edit className="h-4 w-4" /></Link></Button>
-                                            <Button variant="destructive" size="icon"><Trash2 className="h-4 w-4" /><span className="sr-only">Delete</span></Button>
-                                        </div>
                                     </CardContent>
                                 </Card>
                             )})}
@@ -387,5 +380,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

@@ -1,5 +1,4 @@
 
-
 'use client';
 import { Button } from "@/components/ui/button";
 import {
@@ -33,46 +32,48 @@ export default function LoginPage() {
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <form onSubmit={handleSubmit}>
-          <CardHeader className="p-6">
+          <CardHeader>
             <CardTitle className="font-headline text-2xl">Login</CardTitle>
             <CardDescription>
               Enter your email below to login to your account.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6 pt-0 grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link href="#" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
-                </Link>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="m@example.com" 
+                  required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link href="#" className="ml-auto inline-block text-sm underline">
+                    Forgot your password?
+                  </Link>
+                </div>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
             </div>
           </CardContent>
-          <CardFooter className="p-6 pt-0 flex flex-col">
-            <Button type="submit" className="w-full">Sign in</Button>
+          <CardFooter className="flex-col">
+            <Button type="submit" className="w-full">Sign In</Button>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
               <Link href="/signup" className="underline">
-                Sign up
+                Sign Up
               </Link>
             </div>
           </CardFooter>
@@ -81,5 +82,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    

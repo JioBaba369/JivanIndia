@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -73,7 +72,7 @@ export default function HomePage() {
                     </SelectContent>
                     </Select>
                      <Button className="w-full">
-                        <Sparkles className="mr-2"/>
+                        <Sparkles className="mr-2 h-4 w-4"/>
                         AI Search
                     </Button>
                 </div>
@@ -98,34 +97,32 @@ export default function HomePage() {
               {latestEvents.map((event) => (
                 <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                   <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
-                    <CardContent className="p-0 flex flex-col h-full">
-                      <div className="relative h-48 w-full">
-                        <Image
-                          src={event.imageUrl}
-                          alt={event.title}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                          data-ai-hint={event.aiHint}
-                        />
-                        <Badge className="absolute top-2 right-2">{event.eventType}</Badge>
-                      </div>
-                      <div className="p-6 flex flex-col flex-grow">
-                        <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
-                        <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{event.location.venueName}</span>
-                          </div>
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={event.imageUrl}
+                        alt={event.title}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        data-ai-hint={event.aiHint}
+                      />
+                      <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
+                    </div>
+                    <CardContent className="p-6 flex flex-col flex-grow">
+                      <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
+                      <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
                         </div>
-                        <Button variant="outline" className="mt-6 w-full">
-                          <Ticket className="mr-2 h-4 w-4" />
-                          View Event
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          <span>{event.location.venueName}</span>
+                        </div>
                       </div>
+                      <Button variant="outline" className="mt-6 w-full">
+                        <Ticket className="mr-2 h-4 w-4" />
+                        View Event
+                      </Button>
                     </CardContent>
                   </Link>
                 </Card>
@@ -147,27 +144,25 @@ export default function HomePage() {
               {latestDeals.map((deal) => (
                 <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                   <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
-                     <CardContent className="p-0 h-full flex flex-col">
-                       <div className="relative h-48 w-full">
-                        <Image
-                          src={deal.imageUrl}
-                          alt={deal.title}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                          data-ai-hint={deal.aiHint}
-                        />
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={deal.imageUrl}
+                        alt={deal.title}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        data-ai-hint={deal.aiHint}
+                      />
+                    </div>
+                    <CardContent className="p-6 flex-grow flex flex-col">
+                        <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
+                      <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
+                      <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+                          <span className="text-sm">{deal.business}</span>
                       </div>
-                      <div className="p-6 flex-grow flex flex-col">
-                         <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                        <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
-                        <div className="mt-4 flex items-center gap-2 text-muted-foreground">
-                           <span className="text-sm">{deal.business}</span>
-                        </div>
-                         <Button variant="outline" className="mt-6 w-full">
-                            <Tag className="mr-2 h-4 w-4" />
-                            View Deal
-                         </Button>
-                      </div>
+                        <Button variant="outline" className="mt-6 w-full">
+                          <Tag className="mr-2 h-4 w-4" />
+                          View Deal
+                        </Button>
                     </CardContent>
                   </Link>
                 </Card>
@@ -230,5 +225,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    

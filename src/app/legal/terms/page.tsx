@@ -7,9 +7,9 @@ export default function TermsOfServicePage() {
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Terms of Service</CardTitle>
-          <CardDescription>Last updated: {new Date().toLocaleDateString()}</CardDescription>
+          <CardDescription>Last updated: July 29, 2024</CardDescription>
         </CardHeader>
-        <CardContent className="prose prose-sm max-w-none text-muted-foreground space-y-4">
+        <CardContent className="space-y-4 text-muted-foreground">
           <p>
             Please read these Terms of Service carefully before using the JivanIndia.co website operated by us.
           </p>

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -56,6 +55,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') {
+        setEvents(initialEvents);
         return;
     }
     try {
@@ -119,5 +119,3 @@ export function useEvents() {
   }
   return context;
 }
-
-    

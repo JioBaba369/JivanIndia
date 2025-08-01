@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
 import { ApplyForm } from "@/components/apply-form";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { jobs } from '../page'; // Import jobs data
 
@@ -82,8 +82,8 @@ export default function JobDetailPage() {
   if (!job) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="font-headline text-3xl font-bold">Job not found</h1>
-        <p className="mt-4 text-muted-foreground">The job you are looking for does not exist.</p>
+        <h1 className="font-headline text-3xl font-bold">Job Not Found</h1>
+        <p className="mt-4 text-muted-foreground">The job you are looking for does not exist or may have been removed.</p>
         <Button asChild className="mt-6">
           <Link href="/careers">Back to Careers</Link>
         </Button>
@@ -127,12 +127,12 @@ export default function JobDetailPage() {
                   />
                 </div>
                 <div className="flex-grow pt-4">
-                  <Badge>{job.type}</Badge>
+                  <Badge variant="secondary">{job.type}</Badge>
                   <h1 className="font-headline text-3xl md:text-4xl font-bold mt-2">{job.title}</h1>
                   <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Building className="h-4 w-4" />
-                      <Link href="/communities" className="hover:text-primary">{job.company}</Link>
+                      <span className="hover:text-primary">{job.company}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
@@ -148,13 +148,13 @@ export default function JobDetailPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
                 <div className="lg:col-span-2">
-                  <div>
+                  <section>
                     <h2 className="font-headline text-2xl font-semibold mb-4 border-b pb-2">Job Description</h2>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                       <History className="h-4 w-4" />
                       <span>Posted {postedAt}</span>
                     </div>
-                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
+                    <div className="space-y-4 text-muted-foreground">
                       <p>{job.details.companyDescription}</p>
                       <h3 className="font-headline text-xl font-semibold">Responsibilities</h3>
                       <ul className="list-disc pl-5 space-y-1">
@@ -165,13 +165,13 @@ export default function JobDetailPage() {
                         {job.details.qualifications.map((item, i) => <li key={i}>{item}</li>)}
                       </ul>
                     </div>
-                  </div>
-                  <div className="mt-8">
+                  </section>
+                  <section className="mt-8">
                     <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {job.details.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                     </div>
-                  </div>
+                  </section>
                 </div>
                 <div className="space-y-6">
                   <div className="flex flex-col gap-4">
@@ -179,11 +179,11 @@ export default function JobDetailPage() {
                       Apply Now
                     </Button>
                     <Button size="lg" variant={jobIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
-                      <Bookmark className="mr-2" />
+                      <Bookmark className="mr-2 h-4 w-4" />
                       {jobIsSaved ? "Job Saved" : "Save Job"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
-                      <Share2 className="mr-2" />
+                      <Share2 className="mr-2 h-4 w-4" />
                       Share Job
                     </Button>
                   </div>
@@ -194,7 +194,7 @@ export default function JobDetailPage() {
                         <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                         <div>
                           <p className="font-semibold">Company</p>
-                          <Link href="/communities" className="text-sm text-primary hover:underline">{job.company}</Link>
+                          <span className="text-sm text-primary hover:underline">{job.company}</span>
                         </div>
                       </div>
                       <div className="flex items-start gap-4">

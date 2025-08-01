@@ -7,9 +7,9 @@ export default function PrivacyPolicyPage() {
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Privacy Policy</CardTitle>
-          <CardDescription>Last updated: {new Date().toLocaleDateString()}</CardDescription>
+          <CardDescription>Last updated: July 29, 2024</CardDescription>
         </CardHeader>
-        <CardContent className="prose prose-sm max-w-none text-muted-foreground space-y-4">
+        <CardContent className="space-y-4 text-muted-foreground">
           <p>
             Welcome to JivanIndia.co. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about our policy, or our practices with regards to your personal information, please contact us.
           </p>

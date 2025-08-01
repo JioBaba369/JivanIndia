@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -87,8 +86,8 @@ export default function DealDetailPage() {
   if (!deal) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="font-headline text-3xl font-bold">Deal not found</h1>
-        <p className="mt-4 text-muted-foreground">The deal you are looking for does not exist.</p>
+        <h1 className="font-headline text-3xl font-bold">Deal Not Found</h1>
+        <p className="mt-4 text-muted-foreground">The deal you are looking for does not exist or may have been removed.</p>
         <Button asChild className="mt-6">
           <Link href="/deals">Back to Deals</Link>
         </Button>
@@ -112,7 +111,7 @@ export default function DealDetailPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <Badge>{deal.category}</Badge>
+              <Badge variant="secondary">{deal.category}</Badge>
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
                 {deal.title}
               </h1>
@@ -126,7 +125,7 @@ export default function DealDetailPage() {
                     <History className="h-4 w-4" />
                     <span>Posted {postedAt}</span>
                 </div>
-                <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
+                <div className="space-y-4 text-muted-foreground">
                     <p>{deal.description}</p>
                     <h3 className="font-headline text-xl font-semibold">Terms & Conditions</h3>
                     <p>{deal.terms}</p>
@@ -135,15 +134,15 @@ export default function DealDetailPage() {
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                     <Button size="lg" className="w-full" onClick={handleRedeem}>
-                        <Tag className="mr-2"/>
+                        <Tag className="mr-2 h-4 w-4"/>
                         Redeem Deal Now
                     </Button>
                     <Button size="lg" variant={dealIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
-                        <Bookmark className="mr-2"/>
+                        <Bookmark className="mr-2 h-4 w-4"/>
                         {dealIsSaved ? "Deal Saved" : "Save Deal"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2"/>
+                        <Share2 className="mr-2 h-4 w-4"/>
                         Share Deal
                     </Button>
                 </div>

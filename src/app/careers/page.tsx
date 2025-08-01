@@ -168,7 +168,7 @@ export default function CareersPage() {
                         </div>
                         <div className="flex items-center gap-2 sm:ml-auto pt-4 sm:pt-0">
                              <Button variant="secondary" onClick={(e) => handleSave(e, job.title, job.id)} disabled={isJobSaved(job.id)}>
-                                <Bookmark className="mr-2"/>
+                                <Bookmark className="mr-2 h-4 w-4"/>
                                 {isJobSaved(job.id) ? "Saved" : "Save"}
                              </Button>
                         </div>
@@ -177,12 +177,12 @@ export default function CareersPage() {
             </Card>
           )) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                <p className="text-muted-foreground">No jobs found matching your criteria.</p>
+                <p className="text-muted-foreground">No jobs found that match your criteria.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');
                     setJobType('all');
-                }}>Clear filters</Button>
+                }}>Clear Filters</Button>
             </div>
           )}
         </div>

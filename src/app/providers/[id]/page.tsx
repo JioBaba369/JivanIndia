@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -29,8 +28,8 @@ export default function ProviderDetailPage() {
   if (!provider) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="font-headline text-3xl font-bold">Provider not found</h1>
-        <p className="mt-4 text-muted-foreground">The provider you are looking for does not exist.</p>
+        <h1 className="font-headline text-3xl font-bold">Provider Not Found</h1>
+        <p className="mt-4 text-muted-foreground">The provider you are looking for does not exist or may have been removed.</p>
         <Button asChild className="mt-6">
           <Link href="/providers">Back to Providers</Link>
         </Button>
@@ -54,9 +53,9 @@ export default function ProviderDetailPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
+              <Badge variant="secondary">
                 {provider.category}
-              </span>
+              </Badge>
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
                 {provider.name}
               </h1>
@@ -94,7 +93,7 @@ export default function ProviderDetailPage() {
                         <a href={`mailto:${details.contact.email}`}>Contact Provider</a>
                     </Button>
                     <Button size="lg" variant="secondary" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2"/>
+                        <Share2 className="mr-2 h-4 w-4"/>
                         Share Profile
                     </Button>
                 </div>

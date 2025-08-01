@@ -114,45 +114,43 @@ export default function EventsPage() {
           {filteredEvents.length > 0 ? filteredEvents.map((event) => (
             <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
-                <CardContent className="p-0 flex flex-col h-full">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={event.imageUrl}
-                      alt={event.title}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={event.aiHint}
-                    />
-                     <Badge className="absolute top-2 right-2">{event.eventType}</Badge>
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={event.imageUrl}
+                    alt={event.title}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    data-ai-hint={event.aiHint}
+                  />
+                    <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
+                </div>
+                <CardContent className="p-6 flex flex-col flex-grow">
+                  <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
+                  <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        <span>{event.location.venueName}</span>
+                      </div>
                   </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
-                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
-                       <div className="flex items-center gap-2">
-                         <Calendar className="h-4 w-4" />
-                         <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <MapPin className="h-4 w-4" />
-                         <span>{event.location.venueName}</span>
-                       </div>
-                    </div>
-                     <Button variant="outline" className="mt-6 w-full">
-                        <Ticket className="mr-2 h-4 w-4" />
-                        View Event
-                     </Button>
-                  </div>
+                    <Button variant="outline" className="mt-6 w-full">
+                      <Ticket className="mr-2 h-4 w-4" />
+                      View Event
+                    </Button>
                 </CardContent>
               </Link>
             </Card>
           )) : (
              <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
-                <p className="text-muted-foreground">No events found matching your criteria.</p>
+                <p className="text-muted-foreground">No events found that match your criteria.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');
                     setCategory('all');
-                }}>Clear filters</Button>
+                }}>Clear Filters</Button>
             </div>
           )}
         </div>

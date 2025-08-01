@@ -94,39 +94,37 @@ export default function MoviesPage() {
           {filteredMovies.length > 0 ? filteredMovies.map((movie) => (
             <Card key={movie.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group border">
                <Link href={`/movies/${movie.id}`} className="block">
-                <CardContent className="p-0">
-                  <div className="relative aspect-[2/3] w-full">
-                    <Image
-                      src={movie.imageUrl}
-                      alt={movie.title}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={movie.aiHint}
-                    />
+                <div className="relative aspect-[2/3] w-full">
+                  <Image
+                    src={movie.imageUrl}
+                    alt={movie.title}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    data-ai-hint={movie.aiHint}
+                  />
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-headline text-lg font-bold truncate group-hover:text-primary">{movie.title}</h3>
+                  <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Film className="h-4 w-4" />
+                        <span>{movie.genre}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                        <span>{movie.rating} / 5.0</span>
+                      </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-headline text-lg font-bold truncate group-hover:text-primary">{movie.title}</h3>
-                    <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
-                       <div className="flex items-center gap-2">
-                         <Film className="h-4 w-4" />
-                         <span>{movie.genre}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                         <span>{movie.rating} / 5.0</span>
-                       </div>
-                    </div>
-                     <Button variant="secondary" className="mt-4 w-full">
-                      Get Showtimes
-                    </Button>
-                  </div>
+                    <Button variant="secondary" className="mt-4 w-full">
+                    Get Showtimes
+                  </Button>
                 </CardContent>
               </Link>
             </Card>
           )) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg col-span-full">
-                <p className="text-muted-foreground">No movies found matching your criteria.</p>
-                <Button variant="link" onClick={() => { setSearchQuery(''); setLocation('all'); }}>Clear filters</Button>
+                <p className="text-muted-foreground">No movies found that match your criteria.</p>
+                <Button variant="link" onClick={() => { setSearchQuery(''); setLocation('all'); }}>Clear Filters</Button>
             </div>
           )}
         </div>

@@ -87,35 +87,33 @@ export default function DealsPage() {
           {filteredDeals.length > 0 ? filteredDeals.map((deal) => (
             <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col group">
                <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
-                <CardContent className="p-0 h-full flex flex-col">
-                   <div className="relative h-48 w-full">
-                    <Image
-                      src={deal.imageUrl}
-                      alt={deal.title}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={deal.aiHint}
-                    />
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={deal.imageUrl}
+                    alt={deal.title}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    data-ai-hint={deal.aiHint}
+                  />
+                </div>
+                <CardContent className="p-6 flex-grow flex flex-col">
+                  <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
+                  <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
+                  <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+                      <Building className="h-4 w-4" />
+                      <span>{deal.business}</span>
                   </div>
-                  <div className="p-6 flex-grow flex flex-col">
-                    <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                    <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
-                    <div className="mt-4 flex items-center gap-2 text-muted-foreground">
-                       <Building className="h-4 w-4" />
-                       <span>{deal.business}</span>
-                    </div>
-                     <Button variant="outline" className="mt-6 w-full">
-                        <Tag className="mr-2 h-4 w-4" />
-                        View Deal
-                     </Button>
-                  </div>
+                    <Button variant="outline" className="mt-6 w-full">
+                      <Tag className="mr-2 h-4 w-4" />
+                      View Deal
+                    </Button>
                 </CardContent>
               </Link>
             </Card>
           )) : (
             <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-3">
-                <p className="text-muted-foreground">No deals found matching your criteria.</p>
-                <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear filters</Button>
+                <p className="text-muted-foreground">No deals found that match your criteria.</p>
+                <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
           )}
         </div>
