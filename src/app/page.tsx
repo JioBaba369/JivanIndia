@@ -15,6 +15,7 @@ import Link from "next/link";
 
 const events = [
   {
+    id: 1,
     title: "Diwali Festival of Lights",
     category: "Festival",
     date: "Sat, Nov 4, 7:00 PM",
@@ -23,6 +24,7 @@ const events = [
     aiHint: "diwali festival"
   },
   {
+    id: 2,
     title: "Bollywood Dance Workshop",
     category: "Workshop",
     date: "Sun, Nov 5, 2:00 PM",
@@ -31,6 +33,7 @@ const events = [
     aiHint: "bollywood dance"
   },
   {
+    id: 3,
     title: "Indian Food Fair",
     category: "Food",
     date: "Sat, Nov 11, 12:00 PM",
@@ -39,6 +42,7 @@ const events = [
     aiHint: "indian food"
   },
   {
+    id: 4,
     title: "Classical Music Concert",
     category: "Concert",
     date: "Fri, Nov 17, 8:00 PM",
@@ -47,6 +51,7 @@ const events = [
     aiHint: "classical music"
   },
   {
+    id: 5,
     title: "Startup India Conference",
     category: "Business",
     date: "Wed, Nov 22, 9:00 AM",
@@ -55,6 +60,7 @@ const events = [
     aiHint: "business conference"
   },
   {
+    id: 6,
     title: "Holi Color Festival",
     category: "Festival",
     date: "Sat, Mar 23, 11:00 AM",
@@ -115,9 +121,9 @@ export default function HomePage() {
           Upcoming Events
         </h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {events.map((event, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-              <Link href="#" className="block h-full">
+          {events.map((event) => (
+            <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
+              <Link href={`/events/${event.id}`} className="block h-full">
                 <CardContent className="p-0 flex flex-col h-full">
                   <div className="relative h-48 w-full">
                     <Image
@@ -143,7 +149,7 @@ export default function HomePage() {
                     </div>
                     <Button variant="outline" className="mt-6 w-full">
                       <Ticket className="mr-2 h-4 w-4" />
-                      Get Tickets
+                      View Event
                     </Button>
                   </div>
                 </CardContent>
