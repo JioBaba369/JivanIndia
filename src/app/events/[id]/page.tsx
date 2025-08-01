@@ -145,7 +145,6 @@ export default function EventDetailPage() {
               alt={event.title}
               fill
               className="object-cover"
-              data-ai-hint={event.aiHint}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
@@ -242,7 +241,6 @@ export default function EventDetailPage() {
                       alt="Map"
                       fill
                       className="object-cover"
-                      data-ai-hint="city map"
                     />
                  </div>
               </div>

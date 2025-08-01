@@ -61,7 +61,6 @@ export default function SponsorsPage() {
                     alt={sponsor.name}
                     fill
                     className="object-cover transition-transform group-hover:scale-105"
-                    data-ai-hint={sponsor.aiHint}
                   />
                 </div>
                 <CardContent className="flex flex-grow flex-col p-6 text-center">

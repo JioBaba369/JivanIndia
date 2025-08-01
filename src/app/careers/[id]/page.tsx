@@ -108,7 +108,6 @@ export default function JobDetailPage() {
             alt={`${job.company} office`}
             fill
             className="object-cover"
-            data-ai-hint={job.details.aiHint}
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -124,7 +123,6 @@ export default function JobDetailPage() {
                     width={120}
                     height={120}
                     className="rounded-lg border-4 border-background bg-background object-cover shadow-md"
-                    data-ai-hint={job.aiHint}
                   />
                 </div>
                 <div className="flex-grow pt-4">

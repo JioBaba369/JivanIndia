@@ -216,7 +216,7 @@ export default function ProfilePage() {
                         {userSavedJobs.map((job) => (
                         <Card key={job.id} className="transition-all hover:shadow-sm">
                             <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg border bg-background object-cover" data-ai-hint={job.aiHint} />
+                                <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg border bg-background object-cover"/>
                                 <div className="flex-grow">
                                     <Link href={`/careers/${job.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{job.title}</CardTitle></Link>
                                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={event.aiHint} />
+                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" />
                                         <div className="flex-grow">
                                             <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                             {userJoinedCommunities.map((org) => (
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={org.aiHint} />
+                                        <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" />
                                         <div className="flex-grow">
                                             <Link href={`/communities/${org.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -312,7 +312,7 @@ export default function ProfilePage() {
                             {userSavedDeals.map((deal) => (
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={deal.aiHint} />
+                                        <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" />
                                         <div className="flex-grow">
                                             <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{deal.title}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={event.aiHint} />
+                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" />
                                         <div className="flex-grow">
                                             <div className="flex items-start justify-between">
                                                 <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>

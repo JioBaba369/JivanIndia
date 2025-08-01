@@ -120,7 +120,6 @@ export default function EventsPage() {
                     alt={event.title}
                     fill
                     className="object-cover transition-transform group-hover:scale-105"
-                    data-ai-hint={event.aiHint}
                   />
                     <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
                 </div>

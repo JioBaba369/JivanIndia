@@ -67,7 +67,6 @@ export default function NewEventPage() {
       organizerName: user.affiliation.orgName,
       organizerId: user.affiliation.orgId,
       imageUrl: 'https://placehold.co/600x400.png',
-      aiHint: 'community event',
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       ticketLink,
       submittedByUid: user.uid,

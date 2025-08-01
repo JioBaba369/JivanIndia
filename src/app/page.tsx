@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Briefcase, Tag, Sparkles } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, Briefcase, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,7 +36,6 @@ export default function HomePage() {
                 alt="Indian festival crowd"
                 fill
                 className="object-cover"
-                data-ai-hint="Indian festival crowd"
                 priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
@@ -52,7 +51,7 @@ export default function HomePage() {
           <div className="mt-8">
             <Card className="mx-auto max-w-4xl text-foreground">
                 <CardContent className="p-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div className="relative md:col-span-2">
                     <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -72,8 +71,7 @@ export default function HomePage() {
                     </SelectContent>
                     </Select>
                      <Button className="w-full">
-                        <Sparkles className="mr-2 h-4 w-4"/>
-                        AI Search
+                        Search
                     </Button>
                 </div>
                 </CardContent>
@@ -103,7 +101,6 @@ export default function HomePage() {
                         alt={event.title}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
-                        data-ai-hint={event.aiHint}
                       />
                       <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
                     </div>
@@ -150,7 +147,6 @@ export default function HomePage() {
                         alt={deal.title}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
-                        data-ai-hint={deal.aiHint}
                       />
                     </div>
                     <CardContent className="flex flex-grow flex-col p-6">
@@ -193,7 +189,6 @@ export default function HomePage() {
                                 width={60}
                                 height={60}
                                 className="rounded-lg object-cover"
-                                data-ai-hint={job.aiHint}
                                 />
                             </div>
                              <div className="flex-grow">

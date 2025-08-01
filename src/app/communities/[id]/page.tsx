@@ -84,7 +84,6 @@ export default function CommunityDetailPage() {
               alt={community.name}
               fill
               className="object-cover"
-              data-ai-hint={community.aiHint}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
@@ -120,7 +119,7 @@ export default function CommunityDetailPage() {
                             <Link href={`/events/${event.id}`} key={event.id} className="group">
                                 <Card className="overflow-hidden h-full">
                                     <div className="relative h-32 w-full">
-                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={event.aiHint}/>
+                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105"/>
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>

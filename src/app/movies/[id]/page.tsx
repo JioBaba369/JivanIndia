@@ -55,7 +55,6 @@ export default function MovieDetailPage() {
           alt={`Backdrop for ${movie.title}`}
           fill
           className="object-cover"
-          data-ai-hint={movie.details.aiHintBackdrop}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </div>
@@ -70,7 +69,6 @@ export default function MovieDetailPage() {
                         alt={`Poster for ${movie.title}`}
                         fill
                         className="object-cover"
-                        data-ai-hint={movie.aiHint}
                         />
                     </div>
                 </Card>

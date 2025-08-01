@@ -93,7 +93,6 @@ export default function DealsPage() {
                     alt={deal.title}
                     fill
                     className="object-cover transition-transform group-hover:scale-105"
-                    data-ai-hint={deal.aiHint}
                   />
                 </div>
                 <CardContent className="flex flex-grow flex-col p-6">

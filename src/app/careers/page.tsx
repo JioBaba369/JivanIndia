@@ -144,7 +144,6 @@ export default function CareersPage() {
                             width={80}
                             height={80}
                             className="rounded-lg border bg-background object-cover"
-                            data-ai-hint={job.aiHint}
                             />
                         </div>
                         <div className="flex-grow">

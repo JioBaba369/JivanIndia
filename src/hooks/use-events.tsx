@@ -26,7 +26,6 @@ export interface Event {
   ticketLink?: string;
   price?: number;
   imageUrl: string;
-  aiHint: string;
   organizerId: string;
   organizerName: string;
   status: 'Pending' | 'Approved' | 'Archived';

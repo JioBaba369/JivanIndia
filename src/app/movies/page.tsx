@@ -40,7 +40,6 @@ export default function MoviesPage() {
                 alt="Movie posters collage"
                 fill
                 className="object-cover"
-                data-ai-hint="movie posters collage"
                 priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
@@ -101,7 +100,6 @@ export default function MoviesPage() {
                     alt={movie.title}
                     fill
                     className="object-cover transition-transform group-hover:scale-105"
-                    data-ai-hint={movie.aiHint}
                   />
                 </div>
                 <CardContent className="p-4">
