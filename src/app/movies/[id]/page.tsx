@@ -111,7 +111,7 @@ export default function MovieDetailPage({ params }: { params: { id: string } }) 
                                  </div>
                                  <div>
                                    <p className="font-semibold">{movie.distributor}</p>
-                                   <Link href="#" className="text-sm text-primary hover:underline">
+                                   <Link href="/organizations" className="text-sm text-primary hover:underline">
                                      View Distributor
                                    </Link>
                                  </div>
