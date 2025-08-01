@@ -15,6 +15,7 @@ import Link from "next/link";
 
 const movies = [
   {
+    id: "1",
     title: "Jawan",
     genre: "Action/Thriller",
     rating: 4.5,
@@ -22,6 +23,7 @@ const movies = [
     aiHint: "action movie poster"
   },
   {
+    id: "2",
     title: "Pathaan",
     genre: "Action/Spy",
     rating: 4.2,
@@ -29,6 +31,7 @@ const movies = [
     aiHint: "spy movie poster"
   },
   {
+    id: "3",
     title: "RRR",
     genre: "Action/Drama",
     rating: 4.8,
@@ -36,6 +39,7 @@ const movies = [
     aiHint: "historical drama poster"
   },
   {
+    id: "4",
     title: "Brahmāstra: Part One – Shiva",
     genre: "Fantasy/Action",
     rating: 4.0,
@@ -43,6 +47,7 @@ const movies = [
     aiHint: "fantasy movie poster"
   },
   {
+    id: "5",
     title: "3 Idiots",
     genre: "Comedy/Drama",
     rating: 4.9,
@@ -50,6 +55,7 @@ const movies = [
     aiHint: "college comedy poster"
   },
   {
+    id: "6",
     title: "Dangal",
     genre: "Biographical/Sports",
     rating: 4.7,
@@ -57,6 +63,7 @@ const movies = [
     aiHint: "wrestling movie poster"
   },
    {
+    id: "7",
     title: "My Name is Khan",
     genre: "Drama/Romance",
     rating: 4.6,
@@ -64,6 +71,7 @@ const movies = [
     aiHint: "dramatic movie poster"
   },
    {
+    id: "8",
     title: "Gully Boy",
     genre: "Musical/Drama",
     rating: 4.4,
@@ -122,9 +130,9 @@ export default function MoviesPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {movies.map((movie, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group">
-               <Link href="#" className="block">
+          {movies.map((movie) => (
+            <Card key={movie.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group">
+               <Link href={`/movies/${movie.id}`} className="block">
                 <CardContent className="p-0">
                   <div className="relative aspect-[2/3] w-full">
                     <Image
