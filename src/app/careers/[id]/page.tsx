@@ -18,7 +18,7 @@ const jobDetails = {
     type: "Full-time",
     experience: "Mid-Senior Level",
     salary: "$120,000 - $160,000",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "https://placehold.co/1200x400.png",
     aiHint: "modern office space",
     companyLogoUrl: "https://placehold.co/100x100.png",
     aiHintLogo: "tech company logo",
@@ -80,27 +80,27 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         </div>
-      <div className="container mx-auto px-4 py-12 -mt-24">
-        <Card className="overflow-hidden">
+      <div className="container mx-auto px-4 py-12 -mt-24 md:-mt-32">
+        <Card className="overflow-hidden shadow-lg">
           <CardContent className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row gap-6 items-start">
-                 <div className="flex-shrink-0">
+                 <div className="flex-shrink-0 -mt-16 sm:-mt-24">
                     <Image
                     src={job.companyLogoUrl}
                     alt={`${job.company} logo`}
-                    width={80}
-                    height={80}
-                    className="rounded-lg object-cover border-2 border-background shadow-md"
+                    width={120}
+                    height={120}
+                    className="rounded-lg object-cover border-4 border-background shadow-md bg-background"
                     data-ai-hint={job.aiHintLogo}
                     />
                 </div>
-                <div className="flex-grow">
+                <div className="flex-grow pt-4">
                     <Badge>{job.type}</Badge>
                     <h1 className="font-headline text-3xl md:text-4xl font-bold mt-2">{job.title}</h1>
                     <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <Building className="h-4 w-4" />
-                            <span>{job.company}</span>
+                            <Link href="/organizations" className="hover:text-primary">{job.company}</Link>
                         </div>
                         <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
@@ -117,7 +117,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
               <div className="lg:col-span-2">
                 <div>
-                    <h2 className="font-headline text-2xl font-semibold mb-4">Job Description</h2>
+                    <h2 className="font-headline text-2xl font-semibold mb-4 border-b pb-2">Job Description</h2>
                     <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
                         <p>{job.companyDescription}</p>
                         <h3 className="font-headline text-xl font-semibold">Responsibilities</h3>
@@ -131,7 +131,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </div>
                 </div>
                  <div className="mt-8">
-                    <h3 className="font-headline text-xl font-semibold mb-4">Skills</h3>
+                    <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">Skills</h3>
                      <div className="flex flex-wrap gap-2">
                         {job.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                     </div>
