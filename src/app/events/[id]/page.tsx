@@ -27,7 +27,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto px-4 py-8 md:py-16">
+      <div className="container mx-auto px-4 py-12">
         <Card className="overflow-hidden">
           <div className="relative h-64 md:h-96 w-full">
             <Image
