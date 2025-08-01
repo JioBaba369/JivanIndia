@@ -93,7 +93,7 @@ export default function HomePage() {
           </div>
 
           <TabsContent value="events">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+             {latestEvents.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {latestEvents.map((event) => (
                 <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                   <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
@@ -129,7 +129,11 @@ export default function HomePage() {
                   </Link>
                 </Card>
               ))}
-            </div>
+            </div> : (
+                 <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                    <p className="text-muted-foreground">No upcoming events right now. Check back soon!</p>
+                </div>
+            )}
              <div className="text-center mt-12">
                 <Button asChild>
                     <Link href="/events">View All Events</Link>
@@ -138,7 +142,7 @@ export default function HomePage() {
           </TabsContent>
 
           <TabsContent value="deals">
-             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+             {latestDeals.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {latestDeals.map((deal) => (
                 <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
                   <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
@@ -167,7 +171,11 @@ export default function HomePage() {
                   </Link>
                 </Card>
               ))}
-            </div>
+            </div> : (
+                <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                    <p className="text-muted-foreground">No active deals right now. Check back soon!</p>
+                </div>
+            )}
              <div className="text-center mt-12">
                 <Button asChild>
                     <Link href="/deals">View All Deals</Link>
@@ -176,7 +184,7 @@ export default function HomePage() {
           </TabsContent>
           
           <TabsContent value="careers">
-             <div className="space-y-6">
+             {latestJobs.length > 0 ? <div className="space-y-6">
               {latestJobs.map((job) => (
                  <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
                    <Link href={`/careers/${job.id}`} className="block">
@@ -205,7 +213,11 @@ export default function HomePage() {
                   </Link>
                 </Card>
               ))}
-            </div>
+            </div> : (
+                 <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                    <p className="text-muted-foreground">No job openings right now. Check back soon!</p>
+                </div>
+            )}
              <div className="text-center mt-12">
                 <Button asChild>
                     <Link href="/careers">View All Careers</Link>
