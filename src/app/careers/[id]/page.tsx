@@ -1,0 +1,180 @@
+
+'use client';
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Briefcase, MapPin, Building, Share2, Bookmark } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
+
+// Mock data - in a real app, you'd fetch this based on the `params.id`
+const jobDetails = {
+    id: "1",
+    title: "Software Engineer",
+    company: "InnovateTech Solutions",
+    location: "San Francisco, CA",
+    type: "Full-time",
+    experience: "Mid-Senior Level",
+    salary: "$120,000 - $160,000",
+    imageUrl: "https://placehold.co/600x400.png",
+    aiHint: "modern office space",
+    companyLogoUrl: "https://placehold.co/100x100.png",
+    aiHintLogo: "tech company logo",
+    companyDescription: "InnovateTech Solutions is a leading provider of cloud-based software that helps businesses of all sizes streamline their operations and drive growth. We are a passionate team of innovators dedicated to building products that make a difference.",
+    responsibilities: [
+        "Design, develop, and maintain high-quality, scalable web applications using React and Node.js.",
+        "Collaborate with cross-functional teams to define, design, and ship new features.",
+        "Write clean, maintainable, and efficient code.",
+        "Troubleshoot and debug applications to optimize performance.",
+        "Participate in code reviews to maintain code quality standards."
+    ],
+    qualifications: [
+        "Bachelor's degree in Computer Science or related field.",
+        "3+ years of experience in software development.",
+        "Proficiency in JavaScript, React, and Node.js.",
+        "Experience with cloud platforms like AWS or Google Cloud.",
+        "Strong problem-solving skills and attention to detail."
+    ],
+    tags: ["React", "Node.js", "JavaScript", "Full-stack", "AWS"]
+};
+
+
+export default function JobDetailPage({ params }: { params: { id: string } }) {
+  // You can use params.id to fetch the correct job data from your backend
+  const job = jobDetails;
+  const { toast } = useToast();
+
+   const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied!",
+      description: "Job posting link copied to clipboard.",
+    });
+  };
+
+  const handleSave = () => {
+     toast({
+      title: "Job Saved!",
+      description: `The ${job.title} position has been saved to your profile.`,
+    });
+  }
+
+  const handleApply = () => {
+     toast({
+      title: "Application Sent!",
+      description: `Your application for ${job.title} has been submitted.`,
+    });
+  }
+
+  return (
+    <div className="bg-background">
+       <div className="relative h-48 md:h-64 w-full">
+            <Image
+              src={job.imageUrl}
+              alt={`${job.company} office`}
+              fill
+              className="object-cover"
+              data-ai-hint={job.aiHint}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        </div>
+      <div className="container mx-auto px-4 py-12 -mt-24">
+        <Card className="overflow-hidden">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row gap-6 items-start">
+                 <div className="flex-shrink-0">
+                    <Image
+                    src={job.companyLogoUrl}
+                    alt={`${job.company} logo`}
+                    width={80}
+                    height={80}
+                    className="rounded-lg object-cover border-2 border-background shadow-md"
+                    data-ai-hint={job.aiHintLogo}
+                    />
+                </div>
+                <div className="flex-grow">
+                    <Badge>{job.type}</Badge>
+                    <h1 className="font-headline text-3xl md:text-4xl font-bold mt-2">{job.title}</h1>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                            <Building className="h-4 w-4" />
+                            <span>{job.company}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            <span>{job.location}</span>
+                        </div>
+                         <div className="flex items-center gap-2">
+                            <Briefcase className="h-4 w-4" />
+                            <span>{job.experience}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+              <div className="lg:col-span-2">
+                <div>
+                    <h2 className="font-headline text-2xl font-semibold mb-4">Job Description</h2>
+                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
+                        <p>{job.companyDescription}</p>
+                        <h3 className="font-headline text-xl font-semibold">Responsibilities</h3>
+                        <ul className="list-disc pl-5 space-y-1">
+                            {job.responsibilities.map((item, i) => <li key={i}>{item}</li>)}
+                        </ul>
+                        <h3 className="font-headline text-xl font-semibold">Qualifications</h3>
+                         <ul className="list-disc pl-5 space-y-1">
+                            {job.qualifications.map((item, i) => <li key={i}>{item}</li>)}
+                        </ul>
+                    </div>
+                </div>
+                 <div className="mt-8">
+                    <h3 className="font-headline text-xl font-semibold mb-4">Skills</h3>
+                     <div className="flex flex-wrap gap-2">
+                        {job.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                    </div>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="flex flex-col gap-4">
+                    <Button size="lg" className="w-full" onClick={handleApply}>
+                        Apply Now
+                    </Button>
+                    <Button size="lg" variant="secondary" className="w-full" onClick={handleSave}>
+                        <Bookmark className="mr-2"/>
+                        Save Job
+                    </Button>
+                    <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
+                        <Share2 className="mr-2"/>
+                        Share Job
+                    </Button>
+                </div>
+                 <Card>
+                    <CardContent className="p-4 space-y-4">
+                        <h4 className="font-semibold font-headline mb-2">About {job.company}</h4>
+                        <div className="flex items-start gap-4">
+                        <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                        <div>
+                            <p className="font-semibold">Company</p>
+                            <Link href="/organizations" className="text-sm text-primary hover:underline">{job.company}</Link>
+                        </div>
+                        </div>
+                         <div className="flex items-start gap-4">
+                        <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                        <div>
+                            <p className="font-semibold">Location</p>
+                            <p className="text-muted-foreground text-sm">{job.location}</p>
+                        </div>
+                        </div>
+                    </CardContent>
+                 </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

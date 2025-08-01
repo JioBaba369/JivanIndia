@@ -20,6 +20,7 @@ import type { MouseEvent } from 'react';
 
 const jobs = [
   {
+    id: "1",
     title: "Software Engineer",
     company: "InnovateTech Solutions",
     location: "San Francisco, CA",
@@ -28,6 +29,7 @@ const jobs = [
     aiHint: "tech company logo"
   },
   {
+    id: "2",
     title: "Marketing Manager",
     company: "Desi Grocers Inc.",
     location: "New York, NY",
@@ -36,6 +38,7 @@ const jobs = [
     aiHint: "retail logo"
   },
   {
+    id: "3",
     title: "Restaurant Chef",
     company: "Saffron Restaurant Group",
     location: "Chicago, IL",
@@ -44,6 +47,7 @@ const jobs = [
     aiHint: "restaurant logo"
   },
   {
+    id: "4",
     title: "Real Estate Agent",
     company: "Sahara Real Estate",
     location: "Houston, TX",
@@ -52,6 +56,7 @@ const jobs = [
     aiHint: "real estate logo"
   },
   {
+    id: "5",
     title: "Accountant",
     company: "Rohan Gupta, CPA",
     location: "San Jose, CA",
@@ -60,6 +65,7 @@ const jobs = [
     aiHint: "finance logo"
   },
   {
+    id: "6",
     title: "Graphic Designer",
     company: "Aisha's Design Studio",
     location: "Remote",
@@ -144,9 +150,9 @@ export default function CareersPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="space-y-6">
-          {jobs.map((job, index) => (
-            <Card key={index} className="transition-all hover:shadow-lg hover:border-primary">
-               <Link href="/careers" className="block">
+          {jobs.map((job) => (
+            <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary">
+               <Link href={`/careers/${job.id}`} className="block">
                 <CardContent className="p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <div className="flex-shrink-0">
