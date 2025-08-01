@@ -149,7 +149,7 @@ export default function JobDetailPage() {
                     <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <Building className="h-4 w-4" />
-                            <Link href="/organizations" className="hover:text-primary">{job.company}</Link>
+                            <Link href="/communities" className="hover:text-primary">{job.company}</Link>
                         </div>
                         <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
@@ -211,7 +211,7 @@ export default function JobDetailPage() {
                         <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                         <div>
                             <p className="font-semibold">Company</p>
-                            <Link href="/organizations" className="text-sm text-primary hover:underline">{job.company}</Link>
+                            <Link href="/communities" className="text-sm text-primary hover:underline">{job.company}</Link>
                         </div>
                         </div>
                          <div className="flex items-start gap-4">

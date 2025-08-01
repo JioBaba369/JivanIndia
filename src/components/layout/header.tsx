@@ -21,7 +21,7 @@ import {
 
 const navLinks = [
   { href: "/", label: "What's On" },
-  { href: "/organizations", label: "Organizations" },
+  { href: "/communities", label: "Communities" },
   { href: "/providers", label: "Providers" },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/movies", label: "Movies" },

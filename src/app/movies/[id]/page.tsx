@@ -140,7 +140,7 @@ export default function MovieDetailPage() {
                                  </div>
                                  <div>
                                    <p className="font-semibold">{movie.distributor}</p>
-                                   <Link href={`/organizations/${movie.distributorId}`} className="text-sm text-primary hover:underline">
+                                   <Link href={`/communities/${movie.distributorId}`} className="text-sm text-primary hover:underline">
                                      View Distributor
                                    </Link>
                                  </div>

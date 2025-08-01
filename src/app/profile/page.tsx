@@ -18,7 +18,7 @@ import { format } from 'date-fns';
 
 // Mock data from other pages
 import { jobs as allJobs } from '../careers/page';
-import { organizations as allOrgs } from '../organizations/page';
+import { communities as allCommunities } from '../communities/page';
 import { deals as allDeals } from '../deals/page';
 
 
@@ -34,7 +34,7 @@ export default function ProfilePage() {
 
   const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
-  const userJoinedCommunities = allOrgs.filter(org => (user?.joinedCommunities || []).includes(org.id));
+  const userJoinedCommunities = allCommunities.filter(org => (user?.joinedCommunities || []).includes(org.id));
   const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
 
   const handleUnsave = (type: string, id: string, title: string) => {
@@ -52,7 +52,7 @@ export default function ProfilePage() {
             break;
         case 'organization':
             unsaveFunction = leaveCommunity;
-            typeName = 'Organization';
+            typeName = 'Community';
             break;
         case 'deal':
             unsaveFunction = unsaveDeal;
@@ -123,7 +123,7 @@ export default function ProfilePage() {
                                 <CardContent className="p-4 pt-0">
                                     <p className="text-sm">You are affiliated with:</p>
                                     <Button variant="link" asChild className="p-0 h-auto font-semibold text-base">
-                                        <Link href={`/organizations/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
+                                        <Link href={`/communities/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -276,14 +276,14 @@ export default function ProfilePage() {
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={org.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/organizations/${org.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{org.name}</h3></Link>
+                                            <Link href={`/communities/${org.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{org.name}</h3></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                                <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.category}</span></div>
-                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.location}</span></div>
+                                                <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.type}</span></div>
+                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild><Link href={`/organizations/${org.id}`}>View</Link></Button>
+                                            <Button variant="outline" size="sm" asChild><Link href={`/communities/${org.id}`}>View</Link></Button>
                                             <Button variant="destructive" size="icon" onClick={() => handleUnsave('organization', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
                                         </div>
                                     </CardContent>
@@ -293,7 +293,7 @@ export default function ProfilePage() {
                     ) : (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
                             <p className="text-muted-foreground">You haven't joined any communities yet.</p>
-                            <Button asChild className="mt-4"><Link href="/organizations">Find Communities</Link></Button>
+                            <Button asChild className="mt-4"><Link href="/communities">Find Communities</Link></Button>
                         </div>
                     )}
                 </TabsContent>
