@@ -6,6 +6,10 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 interface User {
   name: string;
   email: string;
+  affiliation?: {
+    orgId: string;
+    orgName: string;
+  };
 }
 
 interface AuthContextType {
@@ -106,8 +110,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = (user: User) => {
-    setUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
+    // For demo purposes, add an affiliation to the default user
+    const userToLogin = {
+        ...user,
+        affiliation: user.email ? { orgId: '1', orgName: 'India Cultural Center' } : undefined,
+    };
+    setUser(userToLogin);
+    localStorage.setItem('user', JSON.stringify(userToLogin));
 
     const storedSavedJobs = localStorage.getItem(`savedItems_${user.email}_jobs`);
     setSavedJobs(storedSavedJobs ? JSON.parse(storedSavedJobs) : []);

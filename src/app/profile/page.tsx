@@ -2,11 +2,11 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -79,143 +79,178 @@ export default function ProfilePage() {
   return (
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
       <div className="container mx-auto px-4 py-12">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline text-3xl">My Profile</CardTitle>
-            <CardDescription>Welcome back, {user.name}! Here are your saved items.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="jobs" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-                <TabsTrigger value="jobs">Saved Jobs ({userSavedJobs.length})</TabsTrigger>
-                <TabsTrigger value="events">Saved Events ({userSavedEvents.length})</TabsTrigger>
-                <TabsTrigger value="organizations">Saved Orgs ({userSavedOrgs.length})</TabsTrigger>
-                <TabsTrigger value="deals">Saved Deals ({userSavedDeals.length})</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="jobs" className="mt-6">
-                {userSavedJobs.length > 0 ? (
-                  <div className="space-y-4">
-                    {userSavedJobs.map((job) => (
-                      <Card key={job.id} className="transition-all hover:shadow-sm">
-                          <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                              <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg object-cover border bg-background" data-ai-hint={job.aiHint} />
-                              <div className="flex-grow">
-                                  <Link href={`/careers/${job.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3></Link>
-                                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                     <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{job.company}</span></div>
-                                     <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{job.location}</span></div>
-                                     <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{job.type}</span></div>
-                                  </div>
-                              </div>
-                              <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                                  <Button variant="outline" size="sm" asChild><Link href={`/careers/${job.id}`}>View</Link></Button>
-                                  <Button variant="destructive" size="icon" onClick={() => handleUnsave('job', job.id, job.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
-                              </div>
-                          </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                    <p className="text-muted-foreground">You haven't saved any jobs yet.</p>
-                    <Button asChild className="mt-4"><Link href="/careers">Find Jobs</Link></Button>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="events" className="mt-6">
-                {userSavedEvents.length > 0 ? (
-                    <div className="space-y-4">
-                        {userSavedEvents.map((event) => (
-                             <Card key={event.id} className="transition-all hover:shadow-sm">
-                                <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                    <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
-                                    <div className="flex-grow">
-                                        <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
-                                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                            <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{event.date}</span></div>
-                                            <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location}</span></div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                                        <Button variant="outline" size="sm" asChild><Link href={`/events/${event.id}`}>View</Link></Button>
-                                        <Button variant="destructive" size="icon" onClick={() => handleUnsave('event', String(event.id), event.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
-                                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-1">
+                <Card>
+                    <CardHeader className="items-center text-center">
+                        <div className="relative h-24 w-24">
+                           <Image
+                            src="https://placehold.co/100x100.png"
+                            alt={user.name}
+                            width={96}
+                            height={96}
+                            className="rounded-full object-cover border-4 border-primary"
+                            data-ai-hint="user avatar"
+                           />
+                        </div>
+                        <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
+                        <CardDescription>{user.email}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {user.affiliation && (
+                            <Card className="bg-muted">
+                                <CardHeader>
+                                    <CardTitle className="font-headline text-lg flex items-center gap-2">
+                                        <BadgeCheck className="text-primary" />
+                                        Affiliation
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm">You are affiliated with:</p>
+                                    <Button variant="link" asChild className="p-0 h-auto font-semibold text-base">
+                                        <Link href={`/organizations/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
+                                    </Button>
                                 </CardContent>
                             </Card>
+                        )}
+                    </CardContent>
+                    <CardFooter>
+                         <Button variant="outline" className="w-full">Edit Profile</Button>
+                    </CardFooter>
+                </Card>
+            </div>
+            <div className="md:col-span-2">
+                <Tabs defaultValue="jobs" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+                    <TabsTrigger value="jobs">Jobs ({userSavedJobs.length})</TabsTrigger>
+                    <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
+                    <TabsTrigger value="organizations">Orgs ({userSavedOrgs.length})</TabsTrigger>
+                    <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="jobs" className="mt-6">
+                    {userSavedJobs.length > 0 ? (
+                    <div className="space-y-4">
+                        {userSavedJobs.map((job) => (
+                        <Card key={job.id} className="transition-all hover:shadow-sm">
+                            <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
+                                <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg object-cover border bg-background" data-ai-hint={job.aiHint} />
+                                <div className="flex-grow">
+                                    <Link href={`/careers/${job.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3></Link>
+                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                        <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{job.company}</span></div>
+                                        <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{job.location}</span></div>
+                                        <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{job.type}</span></div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                    <Button variant="outline" size="sm" asChild><Link href={`/careers/${job.id}`}>View</Link></Button>
+                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('job', job.id, job.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                </div>
+                            </CardContent>
+                        </Card>
                         ))}
                     </div>
-                ) : (
+                    ) : (
                     <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-muted-foreground">You haven't saved any events yet.</p>
-                        <Button asChild className="mt-4"><Link href="/events">Find Events</Link></Button>
+                        <p className="text-muted-foreground">You haven't saved any jobs yet.</p>
+                        <Button asChild className="mt-4"><Link href="/careers">Find Jobs</Link></Button>
                     </div>
-                )}
-              </TabsContent>
+                    )}
+                </TabsContent>
 
-              <TabsContent value="organizations" className="mt-6">
-                 {userSavedOrgs.length > 0 ? (
-                    <div className="space-y-4">
-                        {userSavedOrgs.map((org) => (
-                            <Card key={org.id} className="transition-all hover:shadow-sm">
-                                <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                    <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={org.aiHint} />
-                                    <div className="flex-grow">
-                                        <Link href={`/organizations/${org.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{org.name}</h3></Link>
-                                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                            <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.category}</span></div>
-                                            <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.location}</span></div>
+                <TabsContent value="events" className="mt-6">
+                    {userSavedEvents.length > 0 ? (
+                        <div className="space-y-4">
+                            {userSavedEvents.map((event) => (
+                                <Card key={event.id} className="transition-all hover:shadow-sm">
+                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
+                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
+                                        <div className="flex-grow">
+                                            <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{event.date}</span></div>
+                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location}</span></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                     <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                                        <Button variant="outline" size="sm" asChild><Link href={`/organizations/${org.id}`}>View</Link></Button>
-                                        <Button variant="destructive" size="icon" onClick={() => handleUnsave('organization', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                 ) : (
-                    <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-muted-foreground">You haven't saved any organizations yet.</p>
-                        <Button asChild className="mt-4"><Link href="/organizations">Find Organizations</Link></Button>
-                    </div>
-                 )}
-              </TabsContent>
+                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                            <Button variant="outline" size="sm" asChild><Link href={`/events/${event.id}`}>View</Link></Button>
+                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('event', String(event.id), event.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                            <p className="text-muted-foreground">You haven't saved any events yet.</p>
+                            <Button asChild className="mt-4"><Link href="/events">Find Events</Link></Button>
+                        </div>
+                    )}
+                </TabsContent>
 
-              <TabsContent value="deals" className="mt-6">
-                {userSavedDeals.length > 0 ? (
-                    <div className="space-y-4">
-                        {userSavedDeals.map((deal) => (
-                            <Card key={deal.id} className="transition-all hover:shadow-sm">
-                                <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                    <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={deal.aiHint} />
-                                    <div className="flex-grow">
-                                        <Link href={`/deals/${deal.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{deal.title}</h3></Link>
-                                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                            <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{deal.category}</span></div>
-                                            <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
+                <TabsContent value="organizations" className="mt-6">
+                    {userSavedOrgs.length > 0 ? (
+                        <div className="space-y-4">
+                            {userSavedOrgs.map((org) => (
+                                <Card key={org.id} className="transition-all hover:shadow-sm">
+                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
+                                        <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={org.aiHint} />
+                                        <div className="flex-grow">
+                                            <Link href={`/organizations/${org.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{org.name}</h3></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                                <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.category}</span></div>
+                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.location}</span></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                                        <Button variant="outline" size="sm" asChild><Link href={`/deals/${deal.id}`}>View</Link></Button>
-                                        <Button variant="destructive" size="icon" onClick={() => handleUnsave('deal', deal.id, deal.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                ) : (
-                     <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-muted-foreground">You haven't saved any deals yet.</p>
-                        <Button asChild className="mt-4"><Link href="/deals">Find Deals</Link></Button>
-                    </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                            <Button variant="outline" size="sm" asChild><Link href={`/organizations/${org.id}`}>View</Link></Button>
+                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('organization', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                            <p className="text-muted-foreground">You haven't saved any organizations yet.</p>
+                            <Button asChild className="mt-4"><Link href="/organizations">Find Organizations</Link></Button>
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="deals" className="mt-6">
+                    {userSavedDeals.length > 0 ? (
+                        <div className="space-y-4">
+                            {userSavedDeals.map((deal) => (
+                                <Card key={deal.id} className="transition-all hover:shadow-sm">
+                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
+                                        <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={deal.aiHint} />
+                                        <div className="flex-grow">
+                                            <Link href={`/deals/${deal.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{deal.title}</h3></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                                <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{deal.category}</span></div>
+                                                <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                            <Button variant="outline" size="sm" asChild><Link href={`/deals/${deal.id}`}>View</Link></Button>
+                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('deal', deal.id, deal.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                            <p className="text-muted-foreground">You haven't saved any deals yet.</p>
+                            <Button asChild className="mt-4"><Link href="/deals">Find Deals</Link></Button>
+                        </div>
+                    )}
+                </TabsContent>
+                </Tabs>
+            </div>
+        </div>
       </div>
     </div>
   );
