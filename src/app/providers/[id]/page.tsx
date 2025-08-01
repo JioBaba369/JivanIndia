@@ -128,7 +128,7 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
                      <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://${provider.contact.website}`} target="_blank" rel="noopener noreferrer">{provider.contact.website}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://www.${provider.contact.website}`} target="_blank" rel="noopener noreferrer">{provider.contact.website}</a></p>
                       </div>
                     </div>
                   </CardContent>

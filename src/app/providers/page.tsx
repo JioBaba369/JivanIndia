@@ -16,7 +16,7 @@ import Link from "next/link";
 const providers = [
   {
     id: "1",
-    name: "Dr. Anjali Sharma",
+    name: "Dr. Anjali Sharma, MD",
     category: "Healthcare",
     specialty: "Cardiologist",
     location: "Los Angeles, CA",
