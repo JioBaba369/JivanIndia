@@ -22,6 +22,7 @@ import {
 
 const featuredOrganizations = [
    {
+    id: "1",
     name: "India Cultural Center",
     category: "Community Center",
     location: "San Francisco, CA",
@@ -31,6 +32,7 @@ const featuredOrganizations = [
     members: "5,000+ Members"
   },
    {
+    id: "2",
     name: "South Asian Arts Society",
     category: "Arts & Culture",
     location: "New York, NY",
@@ -40,6 +42,7 @@ const featuredOrganizations = [
     members: "2,500+ Members"
   },
   {
+    id: "3",
     name: "Entrepreneurs of India",
     category: "Business Network",
     location: "Chicago, IL",
@@ -54,6 +57,7 @@ const featuredOrganizations = [
 const organizations = [
   ...featuredOrganizations,
   {
+    id: "4",
     name: "Hindu Temple & Cultural Center",
     category: "Religious",
     location: "Houston, TX",
@@ -63,6 +67,7 @@ const organizations = [
     members: "8,000+ Members"
   },
   {
+    id: "5",
     name: "Sikh Foundation",
     category: "Charity",
     location: "Fremont, CA",
@@ -72,6 +77,7 @@ const organizations = [
     members: "3,000+ Members"
   },
   {
+    id: "6",
     name: "Indian Students Association",
     category: "Student Group",
     location: "Boston, MA",
@@ -107,10 +113,10 @@ export default function OrganizationsPage() {
           className="w-full"
         >
           <CarouselContent>
-            {featuredOrganizations.map((org, index) => (
-              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+            {featuredOrganizations.map((org) => (
+              <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
                  <Card className="overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
-                    <Link href="#" className="block h-full">
+                    <Link href={`/organizations/${org.id}`} className="block h-full">
                         <CardContent className="p-0 flex flex-col h-full">
                         <div className="relative h-48 w-full">
                             <Image
@@ -175,42 +181,44 @@ export default function OrganizationsPage() {
       
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {organizations.map((org, index) => (
-            <Card key={index} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
+          {organizations.map((org) => (
+            <Card key={org.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
                 <CardContent className="p-0 flex flex-col h-full">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={org.imageUrl}
-                      alt={org.name}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      data-ai-hint={org.aiHint}
-                    />
-                  </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <p className="text-sm font-semibold text-primary">{org.category}</p>
-                    <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">{org.name}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
-                    
-                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
-                       <div className="flex items-center gap-2">
-                         <Users className="h-4 w-4" />
-                         <span>{org.members}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <MapPin className="h-4 w-4" />
-                         <span>{org.location}</span>
-                       </div>
-                    </div>
-                     <div className="mt-6 flex gap-2">
+                   <Link href={`/organizations/${org.id}`} className="block h-full flex flex-col">
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={org.imageUrl}
+                          alt={org.name}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                          data-ai-hint={org.aiHint}
+                        />
+                      </div>
+                      <div className="p-6 flex flex-col flex-grow">
+                        <p className="text-sm font-semibold text-primary">{org.category}</p>
+                        <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">{org.name}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
+                        
+                        <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
+                           <div className="flex items-center gap-2">
+                             <Users className="h-4 w-4" />
+                             <span>{org.members}</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                             <MapPin className="h-4 w-4" />
+                             <span>{org.location}</span>
+                           </div>
+                        </div>
+                      </div>
+                    </Link>
+                     <div className="p-6 pt-0 mt-auto flex gap-2">
                         <Button asChild className="flex-1">
-                            <Link href="#">View</Link>
+                            <Link href={`/organizations/${org.id}`}>View</Link>
                         </Button>
                         <Button variant="secondary" asChild className="flex-1">
                             <Link href="#">Join Now</Link>
                         </Button>
                      </div>
-                  </div>
                 </CardContent>
             </Card>
           ))}
