@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, BadgeCheck, Phone, Home, Flag, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -104,19 +104,18 @@ export default function ProfilePage() {
                            />
                         </div>
                         <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
-                        <CardDescription>{user.email}</CardDescription>
+                        {user.bio && <p className="text-sm text-muted-foreground pt-2 italic">"{user.bio}"</p>}
                     </CardHeader>
                     <CardContent className="text-center">
-                        {user.bio && <p className="text-sm text-muted-foreground italic mb-4">"{user.bio}"</p>}
                         {user.affiliation && (
                             <Card className="bg-muted">
-                                <CardHeader>
+                                <CardHeader className="p-4">
                                     <CardTitle className="font-headline text-lg flex items-center justify-center gap-2">
                                         <BadgeCheck className="text-primary" />
                                         Affiliation
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="p-4 pt-0">
                                     <p className="text-sm">You are affiliated with:</p>
                                     <Button variant="link" asChild className="p-0 h-auto font-semibold text-base">
                                         <Link href={`/organizations/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
@@ -130,42 +129,47 @@ export default function ProfilePage() {
                     </CardFooter>
                 </Card>
                 
-                 {(user.phone || user.homeAddress || user.indianAddress) && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-xl">Contact Information</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {user.phone && (
-                                <div className="flex items-start gap-4">
-                                    <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                                    <div>
-                                        <p className="font-semibold">Phone</p>
-                                        <p className="text-muted-foreground text-sm">{user.phone}</p>
-                                    </div>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-xl">Contact Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-start gap-4">
+                            <Mail className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                            <div>
+                                <p className="font-semibold">Email</p>
+                                <p className="text-muted-foreground text-sm">{user.email}</p>
+                            </div>
+                        </div>
+                        {user.phone && (
+                            <div className="flex items-start gap-4">
+                                <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold">Phone</p>
+                                    <p className="text-muted-foreground text-sm">{user.phone}</p>
                                 </div>
-                            )}
-                            {user.homeAddress && (
-                                <div className="flex items-start gap-4">
-                                    <Home className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                                    <div>
-                                        <p className="font-semibold">Home Address</p>
-                                        <p className="text-muted-foreground text-sm">{user.homeAddress}</p>
-                                    </div>
+                            </div>
+                        )}
+                        {user.homeAddress && (
+                            <div className="flex items-start gap-4">
+                                <Home className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold">Home Address</p>
+                                    <p className="text-muted-foreground text-sm">{user.homeAddress}</p>
                                 </div>
-                            )}
-                            {user.indianAddress && (
-                                <div className="flex items-start gap-4">
-                                    <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                                    <div>
-                                        <p className="font-semibold">Indian Address</p>
-                                        <p className="text-muted-foreground text-sm">{user.indianAddress}</p>
-                                    </div>
+                            </div>
+                        )}
+                        {user.indianAddress && (
+                            <div className="flex items-start gap-4">
+                                <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold">Indian Address</p>
+                                    <p className="text-muted-foreground text-sm">{user.indianAddress}</p>
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
             </div>
             <div className="md:col-span-2 lg:col-span-3">
