@@ -44,22 +44,22 @@ export default function ProvidersPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Service Providers
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find trusted professionals and services within the community.
           </p>
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
+      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="relative md:col-span-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Search by name, service, or location..."
                     className="pl-10"
@@ -88,8 +88,8 @@ export default function ProvidersPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredProviders.length > 0 ? filteredProviders.map((provider) => (
-            <Card key={provider.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-               <Link href={`/providers/${provider.id}`} className="block h-full flex flex-col">
+            <Card key={provider.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+               <Link href={`/providers/${provider.id}`} className="flex h-full flex-col">
                 <div className="relative h-48 w-full">
                   <Image
                     src={provider.imageUrl}
@@ -101,11 +101,11 @@ export default function ProvidersPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-4">
                       <h3 className="font-headline text-xl font-bold text-white text-shadow">{provider.name}</h3>
-                      <p className="font-semibold text-primary-foreground/90 text-sm text-shadow">{provider.specialty}</p>
+                      <p className="text-sm font-semibold text-primary-foreground/90 text-shadow">{provider.specialty}</p>
                     </div>
                 </div>
-                <CardContent className="p-6 flex flex-col flex-grow">
-                  <div className="flex flex-col space-y-2 text-muted-foreground flex-grow">
+                <CardContent className="flex flex-grow flex-col p-6">
+                  <div className="flex flex-grow flex-col space-y-2 text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <UserCheck className="h-4 w-4 text-primary" />
                         <span>{provider.category}</span>
@@ -122,8 +122,8 @@ export default function ProvidersPage() {
               </Link>
             </Card>
           )) : (
-            <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-3">
-                <p className="text-muted-foreground">No providers found that match your criteria.</p>
+            <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-3">
+                <p className="text-muted-foreground">No providers found. Please check back later!</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
           )}

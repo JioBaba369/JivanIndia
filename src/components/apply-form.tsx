@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,16 +133,14 @@ export function ApplyForm({ jobTitle, companyName, isOpen, onOpenChange }: Apply
                         accept=".pdf,.doc,.docx"
                         required
                     />
-                    {resume && <span className="ml-4 text-sm text-muted-foreground truncate">{resume.name}</span>}
+                    {resume && <span className="ml-4 truncate text-sm text-muted-foreground">{resume.name}</span>}
                 </div>
             </div>
             </div>
             <DialogFooter>
-            <DialogClose asChild>
-                <Button type="button" variant="secondary" disabled={isSubmitting}>
+                <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                     Cancel
                 </Button>
-            </DialogClose>
             <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</> : "Submit Application"}
             </Button>

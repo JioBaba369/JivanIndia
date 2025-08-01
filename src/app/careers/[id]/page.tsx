@@ -102,33 +102,34 @@ export default function JobDetailPage() {
         companyName={job.company}
       />
       <div className="bg-background">
-        <div className="relative h-48 md:h-64 w-full">
+        <div className="relative h-48 w-full md:h-64">
           <Image
             src={job.details.imageUrl}
             alt={`${job.company} office`}
             fill
             className="object-cover"
             data-ai-hint={job.details.aiHint}
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         </div>
-        <div className="container mx-auto px-4 py-12 -mt-24 md:-mt-32">
+        <div className="container mx-auto -mt-24 px-4 py-12 md:-mt-32">
           <Card className="overflow-hidden shadow-lg">
             <CardContent className="p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row gap-6 items-start">
-                <div className="flex-shrink-0 -mt-16 sm:-mt-24">
+              <div className="flex flex-col items-start gap-6 sm:flex-row">
+                <div className="-mt-16 flex-shrink-0 sm:-mt-24">
                   <Image
                     src={job.imageUrl}
                     alt={`${job.company} logo`}
                     width={120}
                     height={120}
-                    className="rounded-lg object-cover border-4 border-background shadow-md bg-background"
+                    className="rounded-lg border-4 border-background bg-background object-cover shadow-md"
                     data-ai-hint={job.aiHint}
                   />
                 </div>
                 <div className="flex-grow pt-4">
                   <Badge variant="secondary">{job.type}</Badge>
-                  <h1 className="font-headline text-3xl md:text-4xl font-bold mt-2">{job.title}</h1>
+                  <h1 className="font-headline mt-2 text-3xl font-bold md:text-4xl">{job.title}</h1>
                   <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Building className="h-4 w-4" />
@@ -146,28 +147,28 @@ export default function JobDetailPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+              <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <div className="lg:col-span-2">
                   <section>
-                    <h2 className="font-headline text-2xl font-semibold mb-4 border-b pb-2">Job Description</h2>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <h2 className="font-headline mb-4 border-b pb-2 text-2xl font-semibold">Job Description</h2>
+                    <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
                       <History className="h-4 w-4" />
                       <span>Posted {postedAt}</span>
                     </div>
                     <div className="space-y-4 text-muted-foreground">
                       <p>{job.details.companyDescription}</p>
                       <h3 className="font-headline text-xl font-semibold">Responsibilities</h3>
-                      <ul className="list-disc pl-5 space-y-1">
+                      <ul className="list-disc space-y-1 pl-5">
                         {job.details.responsibilities.map((item, i) => <li key={i}>{item}</li>)}
                       </ul>
                       <h3 className="font-headline text-xl font-semibold">Qualifications</h3>
-                      <ul className="list-disc pl-5 space-y-1">
+                      <ul className="list-disc space-y-1 pl-5">
                         {job.details.qualifications.map((item, i) => <li key={i}>{item}</li>)}
                       </ul>
                     </div>
                   </section>
                   <section className="mt-8">
-                    <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">Skills</h3>
+                    <h3 className="font-headline mb-4 border-b pb-2 text-xl font-semibold">Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {job.details.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                     </div>
@@ -188,20 +189,20 @@ export default function JobDetailPage() {
                     </Button>
                   </div>
                   <Card>
-                    <CardContent className="p-4 space-y-4">
-                      <h4 className="font-semibold font-headline mb-2">About {job.company}</h4>
+                    <CardContent className="space-y-4 p-4">
+                      <h4 className="font-headline mb-2 font-semibold">About {job.company}</h4>
                       <div className="flex items-start gap-4">
-                        <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                        <Building className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                         <div>
                           <p className="font-semibold">Company</p>
                           <span className="text-sm text-primary hover:underline">{job.company}</span>
                         </div>
                       </div>
                       <div className="flex items-start gap-4">
-                        <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                        <MapPin className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                         <div>
                           <p className="font-semibold">Location</p>
-                          <p className="text-muted-foreground text-sm">{job.location}</p>
+                          <p className="text-sm text-muted-foreground">{job.location}</p>
                         </div>
                       </div>
                     </CardContent>

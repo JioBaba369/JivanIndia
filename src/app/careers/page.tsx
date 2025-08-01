@@ -77,22 +77,22 @@ export default function CareersPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Find Your Next Opportunity
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Explore career openings within our vibrant community businesses.
           </p>
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
+      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card className="shadow-md">
             <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
                 <div className="relative lg:col-span-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Job title, keyword, or company"
                     className="pl-10 text-base"
@@ -101,7 +101,7 @@ export default function CareersPage() {
                   />
                 </div>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Location or 'Remote'"
                     className="pl-10 text-base"
@@ -134,22 +134,22 @@ export default function CareersPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="space-y-6">
           {filteredJobs.length > 0 ? filteredJobs.map((job) => (
-             <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
+             <Card key={job.id} className="group transition-all hover:border-primary/50 hover:shadow-lg">
                 <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row gap-6 items-center">
+                    <div className="flex flex-col items-center gap-6 sm:flex-row">
                         <div className="flex-shrink-0">
                            <Image
                             src={job.imageUrl}
                             alt={`${job.company} logo`}
                             width={80}
                             height={80}
-                            className="rounded-lg object-cover border bg-background"
+                            className="rounded-lg border bg-background object-cover"
                             data-ai-hint={job.aiHint}
                             />
                         </div>
                         <div className="flex-grow">
                             <Link href={`/careers/${job.id}`} className="group">
-                                <h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{job.title}</h3>
+                                <h3 className="font-headline text-xl font-bold transition-colors group-hover:text-primary">{job.title}</h3>
                             </Link>
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
                                <div className="flex items-center gap-2">
@@ -166,7 +166,7 @@ export default function CareersPage() {
                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 sm:ml-auto pt-4 sm:pt-0">
+                        <div className="flex items-center gap-2 pt-4 sm:ml-auto sm:pt-0">
                              <Button variant="secondary" onClick={(e) => handleSave(e, job.title, job.id)} disabled={isJobSaved(job.id)}>
                                 <Bookmark className="mr-2 h-4 w-4"/>
                                 {isJobSaved(job.id) ? "Saved" : "Save"}
@@ -176,7 +176,7 @@ export default function CareersPage() {
                 </CardContent>
             </Card>
           )) : (
-            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+            <div className="rounded-lg border-2 border-dashed py-12 text-center">
                 <p className="text-muted-foreground">No jobs found that match your criteria.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');

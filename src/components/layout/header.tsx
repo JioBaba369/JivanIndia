@@ -38,7 +38,7 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
         onClick={onClick}
         className={cn(
           "transition-colors hover:text-primary",
-          isActive ? "text-primary font-semibold" : "text-muted-foreground"
+          isActive ? "font-semibold text-primary" : "text-muted-foreground"
         )}
       >
         {label}

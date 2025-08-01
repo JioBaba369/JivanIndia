@@ -72,7 +72,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="max-w-md mx-auto">
+        <Card className="mx-auto max-w-md">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
                 <CardDescription>You must be logged in to view your profile.</CardDescription>
@@ -88,7 +88,6 @@ export default function ProfilePage() {
   }
 
   const profileImageUrl = user.profileImageUrl;
-  const profileImageAiHint = "user avatar";
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -99,10 +98,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
+    <div className="min-h-[calc(100vh-128px)] bg-muted/40">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            <div className="md:col-span-1 lg:col-span-1 space-y-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
+            <div className="space-y-8 md:col-span-1 lg:col-span-1">
                 <Card>
                     <CardHeader className="items-center text-center">
                         <Avatar className="h-24 w-24 border-4 border-primary">
@@ -112,34 +111,31 @@ export default function ProfilePage() {
                             width={96}
                             height={96}
                             className="rounded-full object-cover"
-                            data-ai-hint={profileImageAiHint}
-                           /> : <AvatarFallback className="text-3xl font-headline">{getInitials(user.name)}</AvatarFallback>}
+                           /> : <AvatarFallback className="font-headline text-3xl">{getInitials(user.name)}</AvatarFallback>}
                         </Avatar>
-                        <CardTitle className="font-headline text-2xl pt-2">{user.name}</CardTitle>
+                        <CardTitle className="font-headline pt-2 text-2xl">{user.name}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>
-                        {user.bio && <p className="text-sm text-muted-foreground pt-2 italic">"{user.bio}"</p>}
-                         <Button variant="secondary" className="w-full mt-4" asChild>
+                        {user.bio && <p className="pt-2 text-sm italic text-muted-foreground">"{user.bio}"</p>}
+                         <Button variant="secondary" className="mt-4 w-full" asChild>
                             <Link href="/profile/edit">Edit Profile</Link>
                          </Button>
                     </CardHeader>
-                    <CardContent>
-                        {user.affiliation && (
-                            <Card className="bg-muted">
-                                <CardHeader className="p-4">
-                                    <CardTitle className="font-headline text-lg flex items-center justify-center gap-2">
-                                        <BadgeCheck className="text-primary h-5 w-5" />
-                                        Affiliation
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4 pt-0 text-center">
-                                    <p className="text-sm">You are affiliated with:</p>
-                                    <Button variant="link" asChild className="p-0 h-auto font-semibold text-base">
-                                        <Link href={`/communities/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </CardContent>
+                    {user.affiliation && <CardContent>
+                        <Card className="bg-muted">
+                            <CardHeader className="p-4">
+                                <CardTitle className="font-headline flex items-center justify-center gap-2 text-lg">
+                                    <BadgeCheck className="h-5 w-5 text-primary" />
+                                    Affiliation
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4 pt-0 text-center">
+                                <p className="text-sm">You are affiliated with:</p>
+                                <Button variant="link" asChild className="h-auto p-0 font-semibold text-base">
+                                    <Link href={`/communities/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </CardContent>}
                 </Card>
                 
                  <Card>
@@ -149,7 +145,7 @@ export default function ProfilePage() {
                     <CardContent className="space-y-6">
                         {(user.languagesSpoken && user.languagesSpoken.length > 0) && (
                             <div className="space-y-2">
-                                <h4 className="font-semibold flex items-center gap-2 text-sm"><Languages className="h-4 w-4"/> Languages</h4>
+                                <h4 className="flex items-center gap-2 text-sm font-semibold"><Languages className="h-4 w-4"/> Languages</h4>
                                 <div className="flex flex-wrap gap-1">
                                     {user.languagesSpoken.map(lang => <Badge key={lang} variant="secondary">{lang}</Badge>)}
                                 </div>
@@ -157,7 +153,7 @@ export default function ProfilePage() {
                         )}
                          {(user.interests && user.interests.length > 0) && (
                             <div className="space-y-2">
-                                <h4 className="font-semibold flex items-center gap-2 text-sm"><Heart className="h-4 w-4"/> Interests</h4>
+                                <h4 className="flex items-center gap-2 text-sm font-semibold"><Heart className="h-4 w-4"/> Interests</h4>
                                  <div className="flex flex-wrap gap-1">
                                     {user.interests.map(interest => <Badge key={interest} variant="secondary">{interest}</Badge>)}
                                 </div>
@@ -166,36 +162,36 @@ export default function ProfilePage() {
 
                         <div className="space-y-4">
                              <div className="flex items-start gap-4">
-                                <Mail className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                <Mail className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                                 <div>
-                                    <p className="font-semibold text-sm">Email</p>
-                                    <p className="text-muted-foreground text-sm">{user.email}</p>
+                                    <p className="text-sm font-semibold">Email</p>
+                                    <p className="text-sm text-muted-foreground">{user.email}</p>
                                 </div>
                             </div>
                             {user.phone && (
                                 <div className="flex items-start gap-4">
-                                    <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <Phone className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                                     <div>
-                                        <p className="font-semibold text-sm">Phone</p>
-                                        <p className="text-muted-foreground text-sm">{user.phone}</p>
+                                        <p className="text-sm font-semibold">Phone</p>
+                                        <p className="text-sm text-muted-foreground">{user.phone}</p>
                                     </div>
                                 </div>
                             )}
                              {user.currentLocation?.city && (
                                 <div className="flex items-start gap-4">
-                                    <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <Globe className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                                     <div>
-                                        <p className="font-semibold text-sm">Current Location</p>
-                                        <p className="text-muted-foreground text-sm">{`${user.currentLocation.city}, ${user.currentLocation.state}, ${user.currentLocation.country}`}</p>
+                                        <p className="text-sm font-semibold">Current Location</p>
+                                        <p className="text-sm text-muted-foreground">{`${user.currentLocation.city}, ${user.currentLocation.state}, ${user.currentLocation.country}`}</p>
                                     </div>
                                 </div>
                             )}
                             {user.originLocation?.indiaState && (
                                 <div className="flex items-start gap-4">
-                                    <Flag className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                    <Flag className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                                     <div>
-                                        <p className="font-semibold text-sm">Origin in India</p>
-                                        <p className="text-muted-foreground text-sm">{`${user.originLocation.indiaDistrict}, ${user.originLocation.indiaState}`}</p>
+                                        <p className="text-sm font-semibold">Origin in India</p>
+                                        <p className="text-sm text-muted-foreground">{`${user.originLocation.indiaDistrict}, ${user.originLocation.indiaState}`}</p>
                                     </div>
                                 </div>
                             )}
@@ -219,17 +215,17 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                         {userSavedJobs.map((job) => (
                         <Card key={job.id} className="transition-all hover:shadow-sm">
-                            <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg object-cover border bg-background" data-ai-hint={job.aiHint} />
+                            <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg border bg-background object-cover" data-ai-hint={job.aiHint} />
                                 <div className="flex-grow">
-                                    <Link href={`/careers/${job.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{job.title}</CardTitle></Link>
-                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                    <Link href={`/careers/${job.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{job.title}</CardTitle></Link>
+                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                                         <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{job.company}</span></div>
                                         <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{job.location}</span></div>
                                         <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{job.type}</span></div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                     <Button variant="outline" size="sm" asChild><Link href={`/careers/${job.id}`}>View</Link></Button>
                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('job', job.id, job.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
                                 </div>
@@ -238,7 +234,7 @@ export default function ProfilePage() {
                         ))}
                     </div>
                     ) : (
-                    <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
                         <p className="text-muted-foreground">You haven't saved any jobs yet.</p>
                         <Button asChild className="mt-4"><Link href="/careers">Find Jobs</Link></Button>
                     </div>
@@ -255,16 +251,16 @@ export default function ProfilePage() {
 
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
+                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={event.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{event.title}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                            <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                        <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/events/${event.id}`}>View</Link></Button>
                                             <Button variant="destructive" size="icon" onClick={() => handleUnsave('event', String(event.id), event.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
                                         </div>
@@ -273,7 +269,7 @@ export default function ProfilePage() {
                             )})}
                         </div>
                     ) : (
-                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
                             <p className="text-muted-foreground">You haven't saved any events yet.</p>
                             <Button asChild className="mt-4"><Link href="/events">Find Events</Link></Button>
                         </div>
@@ -285,16 +281,16 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userJoinedCommunities.map((org) => (
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                        <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={org.aiHint} />
+                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                        <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={org.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/communities/${org.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{org.name}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                            <Link href={`/communities/${org.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.type}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                        <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/communities/${org.id}`}>View</Link></Button>
                                             <Button variant="destructive" size="icon" onClick={() => handleUnsave('community', org.id, org.name)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
                                         </div>
@@ -303,7 +299,7 @@ export default function ProfilePage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
                             <p className="text-muted-foreground">You haven't joined any communities yet.</p>
                             <Button asChild className="mt-4"><Link href="/communities">Find Communities</Link></Button>
                         </div>
@@ -315,16 +311,16 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedDeals.map((deal) => (
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                        <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={deal.aiHint} />
+                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                        <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={deal.aiHint} />
                                         <div className="flex-grow">
-                                            <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{deal.title}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                            <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{deal.title}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{deal.category}</span></div>
                                                 <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
+                                        <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild><Link href={`/deals/${deal.id}`}>View</Link></Button>
                                             <Button variant="destructive" size="icon" onClick={() => handleUnsave('deal', deal.id, deal.title)}><Trash2 className="h-4 w-4" /><span className="sr-only">Unsave</span></Button>
                                         </div>
@@ -333,7 +329,7 @@ export default function ProfilePage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
                             <p className="text-muted-foreground">You haven't saved any deals yet.</p>
                             <Button asChild className="mt-4"><Link href="/deals">Find Deals</Link></Button>
                         </div>
@@ -350,14 +346,14 @@ export default function ProfilePage() {
 
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
-                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
+                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                        <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" data-ai-hint={event.aiHint} />
                                         <div className="flex-grow">
-                                            <div className="flex justify-between items-start">
-                                                <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{event.title}</CardTitle></Link>
+                                            <div className="flex items-start justify-between">
+                                                <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
                                                 <Badge variant={event.status === 'Approved' ? 'default' : event.status === 'Pending' ? 'secondary' : 'destructive'}>{event.status}</Badge>
                                             </div>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
@@ -367,7 +363,7 @@ export default function ProfilePage() {
                             )})}
                         </div>
                     ) : (
-                        <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
                             <p className="text-muted-foreground">You haven't created any events yet.</p>
                             <Button asChild className="mt-4"><Link href="/events/new">Create an Event</Link></Button>
                         </div>

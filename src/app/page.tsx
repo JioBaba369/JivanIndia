@@ -37,25 +37,26 @@ export default function HomePage() {
                 fill
                 className="object-cover"
                 data-ai-hint="Indian festival crowd"
+                priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
         </div>
-        <div className="relative container mx-auto px-4 py-24 text-center">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
+        <div className="container relative mx-auto px-4 py-24 text-center">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Discover What's On
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-shadow">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-shadow">
             The heart of the Indian community, all in one place. Explore
             events, connect with organizations, and find what you need.
           </p>
           <div className="mt-8">
-            <Card className="max-w-4xl mx-auto text-foreground">
+            <Card className="mx-auto max-w-4xl text-foreground">
                 <CardContent className="p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div className="relative md:col-span-2">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                        placeholder="Search for an event, organization, or provider..."
+                        placeholder="Search for events, communities, deals..."
                         className="pl-10"
                     />
                     </div>
@@ -64,11 +65,10 @@ export default function HomePage() {
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="festivals">Festivals</SelectItem>
-                        <SelectItem value="workshops">Workshops</SelectItem>
-                        <SelectItem value="food">Food</SelectItem>
-                        <SelectItem value="concerts">Concerts</SelectItem>
-                        <SelectItem value="business">Business</SelectItem>
+                        <SelectItem value="events">Events</SelectItem>
+                        <SelectItem value="communities">Communities</SelectItem>
+                        <SelectItem value="deals">Deals</SelectItem>
+                        <SelectItem value="careers">Careers</SelectItem>
                     </SelectContent>
                     </Select>
                      <Button className="w-full">
@@ -84,8 +84,8 @@ export default function HomePage() {
 
       <section className="container mx-auto px-4 py-16">
         <Tabs defaultValue="events" className="w-full">
-          <div className="flex justify-center mb-10">
-            <TabsList className="grid grid-cols-3 w-full max-w-lg">
+          <div className="mb-10 flex justify-center">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
               <TabsTrigger value="events">Upcoming Events</TabsTrigger>
               <TabsTrigger value="deals">Community Deals</TabsTrigger>
               <TabsTrigger value="careers">Job Openings</TabsTrigger>
@@ -95,8 +95,8 @@ export default function HomePage() {
           <TabsContent value="events">
              {latestEvents.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {latestEvents.map((event) => (
-                <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-                  <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
+                <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+                  <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                     <div className="relative h-48 w-full">
                       <Image
                         src={event.imageUrl}
@@ -107,8 +107,8 @@ export default function HomePage() {
                       />
                       <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
                     </div>
-                    <CardContent className="p-6 flex flex-col flex-grow">
-                      <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
+                    <CardContent className="flex flex-grow flex-col p-6">
+                      <h3 className="font-headline flex-grow text-xl font-bold group-hover:text-primary">{event.title}</h3>
                       <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
@@ -128,11 +128,11 @@ export default function HomePage() {
                 </Card>
               ))}
             </div> : (
-                 <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                 <div className="rounded-lg border-2 border-dashed py-12 text-center">
                     <p className="text-muted-foreground">No upcoming events right now. Check back soon!</p>
                 </div>
             )}
-             <div className="text-center mt-12">
+             <div className="mt-12 text-center">
                 <Button asChild>
                     <Link href="/events">View All Events</Link>
                 </Button>
@@ -142,8 +142,8 @@ export default function HomePage() {
           <TabsContent value="deals">
              {latestDeals.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {latestDeals.map((deal) => (
-                <Card key={deal.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-                  <Link href={`/deals/${deal.id}`} className="block h-full flex flex-col">
+                <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+                  <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                     <div className="relative h-48 w-full">
                       <Image
                         src={deal.imageUrl}
@@ -153,9 +153,9 @@ export default function HomePage() {
                         data-ai-hint={deal.aiHint}
                       />
                     </div>
-                    <CardContent className="p-6 flex-grow flex flex-col">
+                    <CardContent className="flex flex-grow flex-col p-6">
                         <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                      <h3 className="font-headline text-xl font-bold mt-2 flex-grow group-hover:text-primary">{deal.title}</h3>
+                      <h3 className="font-headline mt-2 flex-grow text-xl font-bold group-hover:text-primary">{deal.title}</h3>
                       <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                           <span className="text-sm">{deal.business}</span>
                       </div>
@@ -168,11 +168,11 @@ export default function HomePage() {
                 </Card>
               ))}
             </div> : (
-                <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                <div className="rounded-lg border-2 border-dashed py-12 text-center">
                     <p className="text-muted-foreground">No active deals right now. Check back soon!</p>
                 </div>
             )}
-             <div className="text-center mt-12">
+             <div className="mt-12 text-center">
                 <Button asChild>
                     <Link href="/deals">View All Deals</Link>
                 </Button>
@@ -182,7 +182,7 @@ export default function HomePage() {
           <TabsContent value="careers">
              {latestJobs.length > 0 ? <div className="space-y-6">
               {latestJobs.map((job) => (
-                 <Card key={job.id} className="transition-all hover:shadow-lg hover:border-primary/50 group">
+                 <Card key={job.id} className="group transition-all hover:border-primary/50 hover:shadow-lg">
                    <Link href={`/careers/${job.id}`} className="block">
                     <CardContent className="p-6">
                         <div className="flex items-center gap-4">
@@ -197,7 +197,7 @@ export default function HomePage() {
                                 />
                             </div>
                              <div className="flex-grow">
-                                <h3 className="font-headline text-lg font-bold group-hover:text-primary transition-colors">{job.title}</h3>
+                                <h3 className="font-headline text-lg font-bold transition-colors group-hover:text-primary">{job.title}</h3>
                                 <p className="text-muted-foreground">{job.company} - {job.location}</p>
                             </div>
                             <Button variant="secondary">
@@ -210,11 +210,11 @@ export default function HomePage() {
                 </Card>
               ))}
             </div> : (
-                 <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                 <div className="rounded-lg border-2 border-dashed py-12 text-center">
                     <p className="text-muted-foreground">No job openings right now. Check back soon!</p>
                 </div>
             )}
-             <div className="text-center mt-12">
+             <div className="mt-12 text-center">
                 <Button asChild>
                     <Link href="/careers">View All Careers</Link>
                 </Button>

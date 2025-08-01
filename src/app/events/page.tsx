@@ -53,10 +53,10 @@ export default function EventsPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             What's On
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Explore cultural, professional, and community events happening near you.
           </p>
            <Button size="lg" className="mt-8" asChild>
@@ -68,13 +68,13 @@ export default function EventsPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
+      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
                 <div className="relative lg:col-span-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Search event, organizer..."
                     className="pl-10 text-base"
@@ -83,7 +83,7 @@ export default function EventsPage() {
                   />
                 </div>
                  <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Location"
                     className="pl-10 text-base"
@@ -112,8 +112,8 @@ export default function EventsPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.length > 0 ? filteredEvents.map((event) => (
-            <Card key={event.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-               <Link href={`/events/${event.id}`} className="block h-full flex flex-col">
+            <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+               <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                 <div className="relative h-48 w-full">
                   <Image
                     src={event.imageUrl}
@@ -124,8 +124,8 @@ export default function EventsPage() {
                   />
                     <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
                 </div>
-                <CardContent className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-headline text-xl font-bold group-hover:text-primary flex-grow">{event.title}</h3>
+                <CardContent className="flex flex-grow flex-col p-6">
+                  <h3 className="font-headline flex-grow text-xl font-bold group-hover:text-primary">{event.title}</h3>
                   <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
@@ -144,8 +144,8 @@ export default function EventsPage() {
               </Link>
             </Card>
           )) : (
-             <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
-                <p className="text-muted-foreground">No events found that match your criteria.</p>
+             <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-2 lg:col-span-3">
+                <p className="text-muted-foreground">No events found. Please check back later!</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');

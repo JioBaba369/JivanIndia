@@ -92,17 +92,17 @@ export default function CommunitiesPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background pt-20 pb-12 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Community Hub
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find and connect with cultural, business, and community groups.
           </p>
         </div>
       </section>
 
       <section className="container mx-auto px-4 pb-12">
-        <h2 className="font-headline text-3xl font-bold mb-8">Featured Communities</h2>
+        <h2 className="font-headline mb-8 text-3xl font-bold">Featured Communities</h2>
          <Carousel
           opts={{
             align: "start",
@@ -113,8 +113,8 @@ export default function CommunitiesPage() {
           <CarouselContent>
             {featuredCommunities.map((org) => (
               <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
-                 <Card className="overflow-hidden transition-all hover:shadow-lg h-full flex flex-col">
-                    <Link href={`/communities/${org.id}`} className="block h-full flex flex-col">
+                 <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
+                    <Link href={`/communities/${org.id}`} className="flex h-full flex-col">
                         <div className="relative h-48 w-full">
                             <Image
                             src={org.imageUrl}
@@ -122,16 +122,17 @@ export default function CommunitiesPage() {
                             fill
                             className="object-cover"
                             data-ai-hint={org.aiHint}
+                            priority
                             />
                         </div>
-                        <CardContent className="p-6 flex flex-col flex-grow">
+                        <CardContent className="flex flex-grow flex-col p-6">
                              <div className="flex items-center gap-2">
                                 <h3 className="font-headline text-xl font-bold">{org.name}</h3>
                                 {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
                             </div>
-                            <p className="text-sm text-primary font-semibold">{org.type}</p>
-                            <p className="mt-2 text-sm text-muted-foreground flex-grow">{org.description}</p>
-                             <div className="mt-4 flex items-center gap-2 text-muted-foreground text-sm">
+                            <p className="font-semibold text-primary">{org.type}</p>
+                            <p className="mt-2 flex-grow text-sm text-muted-foreground">{org.description}</p>
+                             <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="h-4 w-4" />
                                 <span>{org.region}</span>
                             </div>
@@ -146,13 +147,13 @@ export default function CommunitiesPage() {
         </Carousel>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-t">
+      <div className="sticky top-[65px] z-30 border-t bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div className="relative md:col-span-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Search by name or keyword..."
                     className="pl-10 text-base"
@@ -161,7 +162,7 @@ export default function CommunitiesPage() {
                   />
                 </div>
                  <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Location"
                     className="pl-10 text-base"
@@ -190,8 +191,8 @@ export default function CommunitiesPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredCommunities.length > 0 ? filteredCommunities.map((org) => (
-            <Card key={org.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col border">
-                <Link href={`/communities/${org.id}`} className="block h-full flex flex-col flex-grow">
+            <Card key={org.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Link href={`/communities/${org.id}`} className="flex h-full flex-grow flex-col">
                     <div className="relative h-48 w-full">
                     <Image
                         src={org.imageUrl}
@@ -201,15 +202,15 @@ export default function CommunitiesPage() {
                         data-ai-hint={org.aiHint}
                     />
                     </div>
-                    <CardContent className="p-6 flex flex-col flex-grow">
-                    <p className="text-sm font-semibold text-primary">{org.type}</p>
-                     <div className="flex items-center gap-2 mt-1">
+                    <CardContent className="flex flex-grow flex-col p-6">
+                    <p className="font-semibold text-primary">{org.type}</p>
+                     <div className="mt-1 flex items-center gap-2">
                         <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
                         {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground flex-grow line-clamp-3">{org.description}</p>
+                    <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{org.description}</p>
                     
-                    <div className="mt-4 flex flex-col space-y-2 text-muted-foreground text-sm">
+                    <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <Users className="h-4 w-4" />
                             <span>{org.membersCount}</span>
@@ -221,7 +222,7 @@ export default function CommunitiesPage() {
                     </div>
                     </CardContent>
                 </Link>
-                 <CardFooter className="p-6 pt-0 mt-auto flex gap-2">
+                 <CardFooter className="mt-auto flex gap-2 p-6 pt-0">
                     <Button asChild className="flex-1">
                         <Link href={`/communities/${org.id}`}>View</Link>
                     </Button>
@@ -232,7 +233,7 @@ export default function CommunitiesPage() {
                  </CardFooter>
             </Card>
           )) : (
-            <div className="text-center py-12 border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
+            <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-2 lg:col-span-3">
                 <p className="text-muted-foreground">No communities found that match your criteria.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');

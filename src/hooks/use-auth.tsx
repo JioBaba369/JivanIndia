@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -137,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       affiliation = { orgId: '1', orgName: 'Saffron Restaurant Group' };
     } else if (loginData.email === 'admin@yashraj.com') {
       affiliation = { orgId: '7', orgName: 'Yash Raj Films' };
-    } else {
+    } else if (loginData.email === 'admin@icc.com') {
       affiliation = { orgId: '2', orgName: 'India Cultural Center' };
     }
     
@@ -158,6 +157,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    setSavedJobs([]);
+    setSavedEvents([]);
+    setJoinedCommunities([]);
+    setSavedDeals([]);
   };
 
   const createSaveFunctions = (
@@ -215,5 +218,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    

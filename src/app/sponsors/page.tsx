@@ -23,21 +23,21 @@ export default function SponsorsPage() {
     <div className="flex flex-col">
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Our Valued Sponsors
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             The businesses and individuals powering our community.
           </p>
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 bg-background/80 py-4 backdrop-blur-md border-y">
+      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Search for a sponsor by name or industry..."
                     className="pl-10"
@@ -53,8 +53,8 @@ export default function SponsorsPage() {
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredSponsors.length > 0 ? filteredSponsors.map((sponsor) => (
-            <Card key={sponsor.id} className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 group flex flex-col">
-               <Link href={`/sponsors/${sponsor.id}`} className="block h-full flex flex-col">
+            <Card key={sponsor.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+               <Link href={`/sponsors/${sponsor.id}`} className="flex h-full flex-col">
                 <div className="relative h-48 w-full">
                   <Image
                     src={sponsor.imageUrl}
@@ -64,9 +64,9 @@ export default function SponsorsPage() {
                     data-ai-hint={sponsor.aiHint}
                   />
                 </div>
-                <CardContent className="p-6 text-center flex flex-col flex-grow">
+                <CardContent className="flex flex-grow flex-col p-6 text-center">
                   <h3 className="font-headline text-xl font-bold group-hover:text-primary">{sponsor.name}</h3>
-                  <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground flex-grow">
+                  <div className="mt-2 flex flex-grow items-center justify-center gap-2 text-muted-foreground">
                       <HeartHandshake className="h-4 w-4" />
                       <span>{sponsor.industry}</span>
                   </div>
@@ -77,8 +77,8 @@ export default function SponsorsPage() {
               </Link>
             </Card>
           )) : (
-             <div className="text-center py-12 border-2 border-dashed rounded-lg col-span-full">
-                <p className="text-muted-foreground">No sponsors found that match your criteria.</p>
+             <div className="col-span-full rounded-lg border-2 border-dashed py-12 text-center">
+                <p className="text-muted-foreground">No sponsors found. Please check back later!</p>
                 <Button variant="link" onClick={() => setSearchQuery('')}>Clear search</Button>
             </div>
           )}

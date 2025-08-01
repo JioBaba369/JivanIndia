@@ -86,7 +86,7 @@ export default function NewEventPage() {
   if (!user) {
     return (
        <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="max-w-md mx-auto">
+        <Card className="mx-auto max-w-md">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
                 <CardDescription>You must be logged in to create an event. Please log in to continue.</CardDescription>
@@ -103,7 +103,7 @@ export default function NewEventPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="max-w-3xl mx-auto">
+      <Card className="mx-auto max-w-3xl">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Share Your Event</CardTitle>
           <CardDescription>
@@ -112,7 +112,7 @@ export default function NewEventPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="title">Event Title</Label>
                 <Input
@@ -144,7 +144,7 @@ export default function NewEventPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="startDateTime">Start Date & Time</Label>
                 <Input
