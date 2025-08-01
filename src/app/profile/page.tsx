@@ -243,14 +243,19 @@ export default function ProfilePage() {
                 <TabsContent value="events" className="mt-6">
                     {userSavedEvents.length > 0 ? (
                         <div className="space-y-4">
-                            {userSavedEvents.map((event) => (
+                            {userSavedEvents.map((event) => {
+                                const eventDate = event.startDateTime && !isNaN(new Date(event.startDateTime).getTime()) 
+                                    ? format(new Date(event.startDateTime), 'eee, MMM d, p') 
+                                    : 'Date not available';
+
+                                return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
                                         <div className="flex-grow">
                                             <Link href={`/events/${event.id}`} className="group"><h3 className="font-headline text-xl font-bold group-hover:text-primary transition-colors">{event.title}</h3></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span></div>
+                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
@@ -260,7 +265,7 @@ export default function ProfilePage() {
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))}
+                            )})}
                         </div>
                     ) : (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
@@ -333,7 +338,12 @@ export default function ProfilePage() {
                  <TabsContent value="my-events" className="mt-6">
                     {userOrganizedEvents.length > 0 ? (
                         <div className="space-y-4">
-                            {userOrganizedEvents.map((event) => (
+                            {userOrganizedEvents.map((event) => {
+                                const eventDate = event.startDateTime && !isNaN(new Date(event.startDateTime).getTime()) 
+                                    ? format(new Date(event.startDateTime), 'eee, MMM d, p') 
+                                    : 'Date not available';
+
+                                return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start">
                                         <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="rounded-lg object-cover border bg-background aspect-video sm:aspect-square" data-ai-hint={event.aiHint} />
@@ -343,7 +353,7 @@ export default function ProfilePage() {
                                                 <Badge variant={event.status === 'Approved' ? 'default' : event.status === 'Pending' ? 'secondary' : 'destructive'}>{event.status}</Badge>
                                             </div>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span></div>
+                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
@@ -353,7 +363,7 @@ export default function ProfilePage() {
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))}
+                            )})}
                         </div>
                     ) : (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
