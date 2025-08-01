@@ -12,8 +12,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/use-auth';
 import { useEvents, type Event } from '@/hooks/use-events';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +24,7 @@ export default function NewEventPage() {
   const router = useRouter();
   const { addEvent } = useEvents();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
@@ -57,6 +60,24 @@ export default function NewEventPage() {
 
     router.push('/events');
   };
+
+  if (!user) {
+    return (
+       <div className="container mx-auto px-4 py-12 text-center">
+        <Card className="max-w-md mx-auto">
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
+                <CardDescription>You must be logged in to create an event. Please log in to continue.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="mt-2">
+                    <Link href="/login">Login</Link>
+                </Button>
+            </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
