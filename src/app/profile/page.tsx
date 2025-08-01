@@ -10,11 +10,13 @@ import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Ticket, Users, Badg
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
+import { useState } from 'react';
 
 // Mock data from other pages
 import { jobs as allJobs } from '../careers/page';
 import { organizations as allOrgs } from '../organizations/page';
 import { deals as allDeals } from '../deals/page';
+import { EditProfileForm } from '@/components/edit-profile-form';
 
 
 export default function ProfilePage() {
@@ -26,6 +28,8 @@ export default function ProfilePage() {
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+
 
   const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
@@ -81,6 +85,8 @@ export default function ProfilePage() {
   const profileImageAiHint = user.affiliation?.orgLogoAiHint || "user avatar";
 
   return (
+    <>
+    <EditProfileForm isOpen={isEditFormOpen} onOpenChange={setIsEditFormOpen} />
     <div className="bg-muted/40 min-h-[calc(100vh-128px)]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -119,7 +125,7 @@ export default function ProfilePage() {
                         )}
                     </CardContent>
                     <CardFooter>
-                         <Button variant="outline" className="w-full">Edit Profile</Button>
+                         <Button variant="outline" className="w-full" onClick={() => setIsEditFormOpen(true)}>Edit Profile</Button>
                     </CardFooter>
                 </Card>
             </div>
@@ -257,6 +263,7 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

@@ -18,6 +18,7 @@ interface AuthContextType {
   user: User | null;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (updatedUser: Partial<User>) => void;
   isLoading: boolean;
   
   // Job saving
@@ -118,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         affiliation: user.email ? { 
             orgId: '1', 
             orgName: 'India Cultural Center',
-            orgLogoUrl: 'https://placehold.co/100x100.png',
+            orgLogoUrl: 'https://images.unsplash.com/photo-1583445063483-392a2596e7e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb21tdW5pdHklMjBjZW50ZXJ8ZW58MHx8fHwxNzU0MDUxODgxfDA&ixlib=rb-4.1.0&q=80&w=1080',
             orgLogoAiHint: 'community center logo',
         } : undefined,
     };
@@ -146,6 +147,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSavedOrgs([]);
     setSavedDeals([]);
   };
+
+  const updateUser = (updatedUser: Partial<User>) => {
+    if (user) {
+      const newUser = { ...user, ...updatedUser };
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
+    }
+  };
   
   const { saveItem: saveJob, unsaveItem: unsaveJob, isItemSaved: isJobSaved } = createSaveFunctions(user, savedJobs, setSavedJobs, 'jobs');
   const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions(user, savedEvents, setSavedEvents, 'events');
@@ -157,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user, 
     login, 
     logout, 
+    updateUser,
     isLoading, 
     savedJobs, saveJob, unsaveJob, isJobSaved,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
