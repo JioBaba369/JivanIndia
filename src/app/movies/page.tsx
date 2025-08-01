@@ -85,12 +85,22 @@ const movies = [
 export default function MoviesPage() {
   return (
     <div className="flex flex-col">
-      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
-        <div className="container mx-auto px-4">
+      <section className="relative bg-background text-white py-20">
+        <div className="absolute inset-0">
+             <Image 
+                src="https://images.unsplash.com/photo-1579581454848-8af8a268926b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHBvc3RlcnMlMjBjb2xsYWdlfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
+                alt="Movie posters collage"
+                fill
+                className="object-cover"
+                data-ai-hint="movie posters collage"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+        </div>
+        <div className="relative container mx-auto px-4 text-center">
           <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Movies In Theaters
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-shadow">
             Catch the latest Bollywood and regional hits near you.
           </p>
         </div>
