@@ -87,7 +87,7 @@ export default function DealDetailPage() {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="font-headline text-3xl font-bold">Deal Not Found</h1>
-        <p className="mt-4 text-muted-foreground">The deal you are looking for does not exist or may have been removed.</p>
+        <p className="text-muted-foreground">The deal you are looking for does not exist or may have been removed.</p>
         <Button asChild className="mt-6">
           <Link href="/deals">Back to Deals</Link>
         </Button>

@@ -27,38 +27,38 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative bg-background py-24 text-white">
+      <section className="relative bg-background py-24">
         <div className="absolute inset-0">
             <Image 
                 src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Indian festival crowd"
                 fill
-                className="object-cover"
+                className="object-cover opacity-20"
                 priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
         <div className="container relative mx-auto px-4 text-center">
-          <h1 className="font-headline text-5xl font-bold text-shadow-lg md:text-7xl text-white">
+          <h1 className="font-headline text-5xl font-bold text-shadow-lg md:text-7xl text-foreground">
             Discover What's On
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-shadow text-white">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-shadow text-foreground/80">
             The heart of the Indian community, all in one place. Explore
             events, connect with organizations, and find what you need.
           </p>
           <div className="mt-10">
-            <Card className="mx-auto max-w-4xl border-foreground/20 bg-white/10 text-foreground backdrop-blur-md">
+            <Card className="mx-auto max-w-4xl border-foreground/20 bg-background/80 text-foreground backdrop-blur-md">
                 <CardContent className="p-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto]">
                     <div className="relative">
                       <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                       <Input
                           placeholder="Search for events, communities, deals..."
-                          className="h-12 rounded-lg border-none bg-white/20 pl-12 text-base text-white placeholder:text-gray-200 focus:ring-2 focus:ring-primary"
+                          className="h-12 rounded-lg border-input pl-12 text-base focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <Select>
-                      <SelectTrigger className="h-12 rounded-lg border-none bg-white/20 text-base focus:ring-2 focus:ring-primary">
+                      <SelectTrigger className="h-12 rounded-lg border-input text-base focus:ring-2 focus:ring-primary">
                           <SelectValue placeholder="All Categories" />
                       </SelectTrigger>
                       <SelectContent>
