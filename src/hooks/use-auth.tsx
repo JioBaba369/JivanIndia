@@ -241,7 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved,
     savedProviders, saveProvider, unsaveProvider, isProviderSaved,
-    sponsors: savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
+    savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
   };
 
   return (
