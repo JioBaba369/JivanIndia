@@ -40,6 +40,7 @@ interface EventsContextType {
   events: Event[];
   addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => void;
   getEventById: (id: string) => Event | undefined;
+  updateEventStatus: (eventId: string, status: Event['status']) => void;
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -72,6 +73,17 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const persistEvents = (updatedEvents: Event[]) => {
+    setEvents(updatedEvents);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEvents));
+      } catch (error) {
+        console.error("Failed to save events to localStorage", error);
+      }
+    }
+  };
+
   const addEvent = (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => {
     const affiliatedCommunity = communities.find(c => c.id === affiliationId);
     const status = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
@@ -82,27 +94,26 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString(),
       status: status,
     };
-    const newEvents = [...events, newEvent];
-    setEvents(newEvents);
-    
-    if (typeof window === 'undefined') {
-        return;
-    }
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newEvents));
-    } catch (error) {
-      console.error("Failed to save events to localStorage", error);
-    }
+    persistEvents([...events, newEvent]);
   };
 
   const getEventById = (id: string) => {
     return events.find(event => event.id === id);
   };
 
+  const updateEventStatus = (eventId: string, status: Event['status']) => {
+    const updatedEvents = events.map(event => 
+      event.id === eventId ? { ...event, status, updatedAt: new Date().toISOString() } : event
+    );
+    persistEvents(updatedEvents);
+  };
+
+
   const value = {
     events,
     addEvent,
     getEventById,
+    updateEventStatus,
   };
 
   return (

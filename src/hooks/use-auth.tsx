@@ -7,6 +7,7 @@ interface User {
   uid: string;
   name: string;
   email: string;
+  isAdmin?: boolean;
   profileImageUrl?: string;
   bio?: string;
   affiliation?: {
@@ -153,18 +154,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (loginData: Pick<User, 'name' | 'email'>) => {
     let affiliation;
+    let isAdmin = false;
     if (loginData.email === 'admin@saffron.com') {
       affiliation = { orgId: '1', orgName: 'Saffron Restaurant Group' };
     } else if (loginData.email === 'admin@yashraj.com') {
       affiliation = { orgId: '7', orgName: 'Yash Raj Films' };
     } else if (loginData.email === 'admin@icc.com') {
       affiliation = { orgId: '2', orgName: 'India Cultural Center' };
+    } else if (loginData.email === 'admin@jivanindia.co') {
+      isAdmin = true;
     }
     
     const userToLogin: User = {
         ...loginData,
         uid: `user-${new Date().getTime()}`,
         affiliation,
+        isAdmin,
         profileImageUrl: '',
         savedEvents: [],
         joinedCommunities: [],
@@ -236,7 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved,
     savedProviders, saveProvider, unsaveProvider, isProviderSaved,
-    savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
+    sponsors: savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
   };
 
   return (

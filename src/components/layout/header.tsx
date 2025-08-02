@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -5,7 +6,7 @@ import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -60,6 +61,7 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild onClick={onAction}><Link href="/profile">My Profile</Link></DropdownMenuItem>
+          {user.isAdmin && <DropdownMenuItem asChild onClick={onAction}><Link href="/admin"><ShieldCheck className="mr-2" />Admin</Link></DropdownMenuItem>}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => { logout(); if(onAction) onAction(); }}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
