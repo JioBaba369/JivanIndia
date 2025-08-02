@@ -187,7 +187,7 @@ export default function JobDetailPage() {
                     </Button>
                   </div>
                   <Card>
-                    <CardContent className="space-y-4 p-4">
+                    <CardContent className="p-4">
                       <h4 className="font-headline mb-2 font-semibold">About {job.company}</h4>
                       <div className="flex items-start gap-4">
                         <Building className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />

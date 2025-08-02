@@ -110,7 +110,7 @@ export default function DealsPage() {
               </Link>
             </Card>
           )) : (
-            <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-3">
+            <div className="col-span-full rounded-lg border-2 border-dashed py-12 text-center">
                 <p className="text-muted-foreground">No deals found. Please check back later!</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
