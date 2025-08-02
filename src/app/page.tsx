@@ -18,14 +18,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { deals } from "./deals/page";
-import { jobs } from "./careers/page";
 import { format } from "date-fns";
 
 export default function HomePage() {
   const { events } = useEvents();
   const latestEvents = events.filter(e => e.status === 'Approved').slice(0, 3);
   const latestDeals = deals.slice(0, 3);
-  const latestJobs = jobs.slice(0, 3);
 
   return (
     <div className="flex flex-col">
@@ -67,7 +65,6 @@ export default function HomePage() {
                           <SelectItem value="events">Events</SelectItem>
                           <SelectItem value="communities">Communities</SelectItem>
                           <SelectItem value="deals">Deals</SelectItem>
-                          <SelectItem value="careers">Careers</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button size="lg" className="h-12 w-full text-base">
@@ -83,10 +80,9 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-16">
         <Tabs defaultValue="events" className="w-full">
           <div className="mb-10 flex justify-center">
-            <TabsList className="grid w-full max-w-lg grid-cols-3">
+            <TabsList className="grid w-full max-w-lg grid-cols-2">
               <TabsTrigger value="events">Upcoming Events</TabsTrigger>
               <TabsTrigger value="deals">Community Deals</TabsTrigger>
-              <TabsTrigger value="careers">Job Openings</TabsTrigger>
             </TabsList>
           </div>
 
@@ -175,45 +171,6 @@ export default function HomePage() {
             </div>
           </TabsContent>
           
-          <TabsContent value="careers">
-             {latestJobs.length > 0 ? <div className="space-y-6">
-              {latestJobs.map((job) => (
-                 <Card key={job.id} className="group transition-all hover:border-primary/50 hover:shadow-lg">
-                   <Link href={`/careers/${job.id}`} className="block">
-                    <CardContent>
-                        <div className="flex items-center gap-4">
-                             <div className="flex-shrink-0">
-                               <Image
-                                src={job.imageUrl}
-                                alt={`${job.company} logo`}
-                                width={60}
-                                height={60}
-                                className="rounded-lg object-cover"
-                                />
-                            </div>
-                             <div className="flex-grow">
-                                <h3 className="font-headline text-lg font-bold transition-colors group-hover:text-primary">{job.title}</h3>
-                                <p className="text-muted-foreground">{job.company} - {job.location}</p>
-                            </div>
-                            <Button variant="secondary" asChild>
-                                <Link href={`/careers/${job.id}`}>View Details</Link>
-                            </Button>
-                        </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              ))}
-            </div> : (
-                 <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                    <p className="text-muted-foreground">No job openings right now. Check back soon!</p>
-                </div>
-            )}
-             <div className="mt-12 text-center">
-                <Button asChild>
-                    <Link href="/careers">View All Careers</Link>
-                </Button>
-            </div>
-          </TabsContent>
         </Tabs>
       </section>
     </div>

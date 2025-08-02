@@ -26,7 +26,6 @@ interface User {
   languagesSpoken?: string[];
   interests?: string[];
   
-  savedJobs?: string[];
   savedEvents?: string[];
   joinedCommunities?: string[];
   savedDeals?: string[];
@@ -46,11 +45,6 @@ interface AuthContextType {
   isLoading: boolean;
   getInitials: (name: string) => string;
   
-  savedJobs: string[];
-  saveJob: (jobId: string) => void;
-  unsaveJob: (jobId: string) => void;
-  isJobSaved: (jobId: string) => boolean;
-
   savedEvents: string[];
   saveEvent: (eventId: string) => void;
   unsaveEvent: (eventId: string) => void;
@@ -108,7 +102,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = usePersistedState<User | null>('jivanindia-user', null);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [savedJobs, setSavedJobs] = useState<string[]>([]);
   const [savedEvents, setSavedEvents] = useState<string[]>([]);
   const [joinedCommunities, setJoinedCommunities] = useState<string[]>([]);
   const [savedDeals, setSavedDeals] = useState<string[]>([]);
@@ -116,10 +109,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsLoading(false);
   }, []);
-
-  useEffect(() => {
-    setSavedJobs(user?.savedJobs || []);
-  }, [user?.savedJobs]);
 
   useEffect(() => {
     setSavedEvents(user?.savedEvents || []);
@@ -155,7 +144,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         uid: `user-${new Date().getTime()}`,
         affiliation,
         profileImageUrl: '',
-        savedJobs: [],
         savedEvents: [],
         joinedCommunities: [],
         savedDeals: [],
@@ -167,7 +155,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    setSavedJobs([]);
     setSavedEvents([]);
     setJoinedCommunities([]);
     setSavedDeals([]);
@@ -185,7 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const createSaveFunctions = (
     list: string[],
-    listType: 'savedJobs' | 'savedEvents' | 'joinedCommunities' | 'savedDeals'
+    listType: 'savedEvents' | 'joinedCommunities' | 'savedDeals'
   ) => {
     const saveItem = (itemId: string) => {
       if (user && !list.includes(itemId)) {
@@ -206,7 +193,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { saveItem, unsaveItem, isItemSaved };
   };
   
-  const { saveItem: saveJob, unsaveItem: unsaveJob, isItemSaved: isJobSaved } = createSaveFunctions(savedJobs, 'savedJobs');
   const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions(savedEvents, 'savedEvents');
   const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined } = createSaveFunctions(joinedCommunities, 'joinedCommunities');
   const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions(savedDeals, 'savedDeals');
@@ -218,7 +204,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateUser,
     isLoading, 
     getInitials,
-    savedJobs, saveJob, unsaveJob, isJobSaved,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved

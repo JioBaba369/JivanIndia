@@ -17,14 +17,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 
 // Mock data from other pages
-import { jobs as allJobs } from '../careers/page';
 import { communities as allCommunities } from '../communities/page';
 import { deals as allDeals } from '../deals/page';
 
 
 export default function ProfilePage() {
   const { user, 
-    savedJobs, unsaveJob, 
     savedEvents, unsaveEvent,
     joinedCommunities, leaveCommunity,
     savedDeals, unsaveDeal,
@@ -32,21 +30,16 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
 
-  const userSavedJobs = allJobs.filter(job => savedJobs.includes(job.id));
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
   const userJoinedCommunities = allCommunities.filter(org => joinedCommunities.includes(org.id));
   const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
   const userOrganizedEvents = user ? allEvents.filter(event => event.submittedByUid === user.uid) : [];
 
-  const handleUnsave = (type: 'job' | 'event' | 'community' | 'deal', id: string, title: string) => {
+  const handleUnsave = (type: 'event' | 'community' | 'deal', id: string, title: string) => {
     let unsaveFunction;
     let typeName = '';
 
     switch(type) {
-        case 'job':
-            unsaveFunction = unsaveJob;
-            typeName = 'Job';
-            break;
         case 'event':
             unsaveFunction = unsaveEvent;
             typeName = 'Event';
@@ -203,53 +196,14 @@ export default function ProfilePage() {
 
             </div>
             <div className="md:col-span-2 lg:col-span-3">
-                <Tabs defaultValue="jobs" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                    <TabsTrigger value="jobs">Jobs ({userSavedJobs.length})</TabsTrigger>
+                <Tabs defaultValue="events" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
                     <TabsTrigger value="organizations">Communities ({userJoinedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
                     <TabsTrigger value="my-events">My Events ({userOrganizedEvents.length})</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="jobs" className="mt-6">
-                    {userSavedJobs.length > 0 ? (
-                    <div className="space-y-4">
-                        {userSavedJobs.map((job) => (
-                        <Card key={job.id} className="transition-all hover:shadow-sm">
-                            <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                <Image src={job.imageUrl} alt={`${job.company} logo`} width={60} height={60} className="rounded-lg border bg-background object-cover"/>
-                                <div className="flex-grow">
-                                    <Link href={`/careers/${job.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{job.title}</CardTitle></Link>
-                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                                        <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{job.company}</span></div>
-                                        <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{job.location}</span></div>
-                                        <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{job.type}</span></div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
-                                    <Button variant="outline" size="sm" asChild><Link href={`/careers/${job.id}`}>View Details</Link></Button>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button variant="destructive" size="icon" onClick={() => handleUnsave('job', job.id, job.title)}><Trash2 className="h-4 w-4" /></Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Unsave</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        ))}
-                    </div>
-                    ) : (
-                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                        <p className="text-muted-foreground">You haven't saved any jobs yet.</p>
-                        <Button asChild className="mt-4"><Link href="/careers">Find Jobs</Link></Button>
-                    </div>
-                    )}
-                </TabsContent>
-
                 <TabsContent value="events" className="mt-6">
                     {userSavedEvents.length > 0 ? (
                         <div className="space-y-4">

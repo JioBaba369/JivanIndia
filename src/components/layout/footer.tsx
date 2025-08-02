@@ -29,8 +29,6 @@ export default function Footer() {
               <ul className="mt-4 space-y-2">
                 <li><Link href="/" className="text-muted-foreground hover:text-primary">What's On</Link></li>
                 <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
-                <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
-                <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
                 <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
               </ul>
             </div>
@@ -40,7 +38,6 @@ export default function Footer() {
                  <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                  <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
-                <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
               </ul>
             </div>
             <div>
