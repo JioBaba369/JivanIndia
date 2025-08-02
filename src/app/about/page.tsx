@@ -1,7 +1,12 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Metadata } from "next";
+import { Card, CardContent } from "@/components/ui/card";
 import { Users, Heart, Target } from "lucide-react";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "About Us | JivanIndia.co",
+  description: "Learn about the mission and vision of JivanIndia.co, the central hub for the Indian community.",
+};
 
 export default function AboutUsPage() {
   return (
@@ -21,14 +26,14 @@ export default function AboutUsPage() {
           <h1 className="font-headline text-4xl font-bold md:text-6xl">
             About JivanIndia.co
           </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80">
             Connecting the vibrant heart of the Indian community, all in one place.
           </p>
         </div>
       </section>
       
       <section className="container mx-auto px-4 py-16">
-        <Card className="max-w-5xl mx-auto">
+        <Card className="max-w-5xl mx-auto border-none shadow-xl shadow-black/5">
             <CardContent className="p-8 md:p-12">
                 <div className="grid md:grid-cols-3 gap-12 text-center">
                     <div className="flex flex-col items-center">
@@ -48,7 +53,7 @@ export default function AboutUsPage() {
                     </div>
                 </div>
 
-                <div className="mt-16 text-lg text-muted-foreground leading-relaxed prose prose-invert mx-auto">
+                <div className="mt-16 text-lg text-foreground/80 leading-relaxed prose prose-stone max-w-none dark:prose-invert mx-auto">
                     <p>JivanIndia.co was born from a simple idea: to bridge the gap between finding information and feeling connected. In our daily lives, we saw how challenging it could be to keep track of cultural events, find trusted local businesses, or connect with community organizations. We envisioned a single, reliable platform where all this information could live, breathe, and be easily accessible to everyone.</p>
                     <p>Our platform is more than just a directory; it's a dynamic ecosystem designed to empower every member of the Indian community. Whether you're looking to attend a local Diwali celebration, find a new job, support a local Indian-owned business, or join a cultural group, JivanIndia.co is your starting point. We are committed to building a trusted, comprehensive, and vibrant resource that truly serves as the heartbeat of the Indian community.</p>
                 </div>

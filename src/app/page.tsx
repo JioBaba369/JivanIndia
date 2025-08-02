@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Briefcase, Tag } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,26 +39,26 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
         <div className="container relative mx-auto px-4 text-center">
-          <h1 className="font-headline text-5xl font-bold text-shadow-lg md:text-7xl">
+          <h1 className="font-headline text-5xl font-bold text-shadow-lg md:text-7xl text-white">
             Discover What's On
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-shadow">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-shadow text-white">
             The heart of the Indian community, all in one place. Explore
             events, connect with organizations, and find what you need.
           </p>
           <div className="mt-10">
-            <Card className="mx-auto max-w-4xl border-none bg-white/10 text-foreground backdrop-blur-md">
-                <CardContent>
+            <Card className="mx-auto max-w-4xl border-foreground/20 bg-white/10 text-foreground backdrop-blur-md">
+                <CardContent className="p-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto]">
                     <div className="relative">
                       <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                       <Input
                           placeholder="Search for events, communities, deals..."
-                          className="h-12 rounded-lg border-none bg-white/10 pl-12 text-base text-white placeholder:text-gray-300 focus:ring-2 focus:ring-primary"
+                          className="h-12 rounded-lg border-none bg-white/20 pl-12 text-base text-white placeholder:text-gray-200 focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <Select>
-                      <SelectTrigger className="h-12 rounded-lg border-none bg-white/10 text-base focus:ring-2 focus:ring-primary">
+                      <SelectTrigger className="h-12 rounded-lg border-none bg-white/20 text-base focus:ring-2 focus:ring-primary">
                           <SelectValue placeholder="All Categories" />
                       </SelectTrigger>
                       <SelectContent>
@@ -100,9 +100,9 @@ export default function HomePage() {
                       />
                       <Badge variant="secondary" className="absolute top-3 right-3">{event.eventType}</Badge>
                     </div>
-                    <CardContent className="flex flex-grow flex-col">
+                    <CardContent className="flex flex-grow flex-col p-6">
                       <h3 className="font-headline flex-grow text-xl font-semibold group-hover:text-primary">{event.title}</h3>
-                      <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
+                      <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
                           <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
@@ -121,7 +121,7 @@ export default function HomePage() {
                 </Card>
               ))}
             </div> : (
-                 <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                 <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
                     <p className="text-muted-foreground">No upcoming events right now. Check back soon!</p>
                 </div>
             )}
@@ -146,7 +146,7 @@ export default function HomePage() {
                       />
                        <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
                     </div>
-                    <CardContent className="flex flex-grow flex-col">
+                    <CardContent className="flex flex-grow flex-col p-6">
                       <h3 className="font-headline mt-2 flex-grow text-xl font-semibold group-hover:text-primary">{deal.title}</h3>
                       <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                           <span className="text-sm">{deal.business}</span>
@@ -160,7 +160,7 @@ export default function HomePage() {
                 </Card>
               ))}
             </div> : (
-                <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
                     <p className="text-muted-foreground">No active deals right now. Check back soon!</p>
                 </div>
             )}

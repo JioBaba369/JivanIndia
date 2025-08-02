@@ -4,25 +4,34 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 346.8 77.2% 49.8%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --background: 48 33% 94%; /* Light warm yellow */
+    --foreground: 24 9.8% 10%;
+
+    --card: 45 50% 98%;
+    --card-foreground: 24 9.8% 10%;
+
+    --popover: 45 50% 98%;
+    --popover-foreground: 24 9.8% 10%;
+
+    --primary: 30 100% 59%; /* Saffron */
+    --primary-foreground: 24 9.8% 10%;
+
+    --secondary: 48 33% 90%;
+    --secondary-foreground: 24 9.8% 10%;
+
+    --muted: 48 33% 90%;
+    --muted-foreground: 24 5% 45%;
+
+    --accent: 25 80% 50%; /* Deep orange */
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 346.8 77.2% 49.8%;
+
+    --border: 48 33% 88%;
+    --input: 48 33% 88%;
+    --ring: 30 100% 59%;
+
     --radius: 0.5rem;
 
     --chart-1: 12 76% 61%;
@@ -33,25 +42,33 @@
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 346.8 77.2% 49.8%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 3.7% 15.9%;
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 24 9.8% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 30 100% 59%; /* Saffron */
+    --primary-foreground: 24 9.8% 10%;
+
+    --secondary: 12 6.5% 15.1%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+
+    --muted: 12 6.5% 15.1%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+
+    --accent: 25 95% 53.1%; /* Deep orange */
     --accent-foreground: 0 0% 98%;
+    
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 346.8 77.2% 49.8%;
+
+    --border: 12 6.5% 15.1%;
+    --input: 12 6.5% 15.1%;
+    --ring: 30 100% 59%;
     
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;

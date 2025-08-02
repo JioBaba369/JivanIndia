@@ -1,6 +1,7 @@
 
 'use client';
 
+import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -102,7 +104,7 @@ export default function NewEventPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="mx-auto max-w-3xl">
+      <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Share Your Event</CardTitle>
           <CardDescription>
@@ -124,22 +126,21 @@ export default function NewEventPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="eventType">Category</Label>
-                <select
-                  id="eventType"
-                  value={eventType}
-                  onChange={(e) => setEventType(e.target.value as any)}
-                  required
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                >
-                    <option>Cultural</option>
-                    <option>Religious</option>
-                    <option>Professional</option>
-                    <option>Sports</option>
-                    <option>Festival</option>
-                    <option>Workshop</option>
-                    <option>Food</option>
-                    <option>Other</option>
-                </select>
+                 <Select value={eventType} onValueChange={(value) => setEventType(value as any)} required>
+                    <SelectTrigger id="eventType">
+                        <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Cultural">Cultural</SelectItem>
+                        <SelectItem value="Religious">Religious</SelectItem>
+                        <SelectItem value="Professional">Professional</SelectItem>
+                        <SelectItem value="Sports">Sports</SelectItem>
+                        <SelectItem value="Festival">Festival</SelectItem>
+                        <SelectItem value="Workshop">Workshop</SelectItem>
+                        <SelectItem value="Food">Food</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                </Select>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 
 'use client';
 
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -50,30 +51,30 @@ export default function ContactUsPage() {
           <h1 className="font-headline text-4xl font-bold md:text-6xl">
             Get in Touch
           </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80">
             We'd love to hear from you. Reach out with any questions, feedback, or inquiries.
           </p>
         </div>
       </section>
 
       <section className="container mx-auto px-4 py-16">
-        <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8 text-center mb-12">
-                <Card>
+        <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 text-center mb-16">
+                <Card className="border-none bg-transparent shadow-none">
                     <CardContent className="p-6">
                         <Mail className="h-10 w-10 text-primary mx-auto mb-4" />
                         <h3 className="font-headline text-xl font-semibold">Email Us</h3>
                         <p className="text-muted-foreground mt-2">contact@jivanindia.co</p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="border-none bg-transparent shadow-none">
                     <CardContent className="p-6">
                         <Phone className="h-10 w-10 text-primary mx-auto mb-4" />
                         <h3 className="font-headline text-xl font-semibold">Call Us</h3>
                         <p className="text-muted-foreground mt-2">(123) 456-7890</p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="border-none bg-transparent shadow-none">
                     <CardContent className="p-6">
                         <MapPin className="h-10 w-10 text-primary mx-auto mb-4" />
                         <h3 className="font-headline text-xl font-semibold">Our Office</h3>
@@ -82,7 +83,7 @@ export default function ContactUsPage() {
                 </Card>
             </div>
 
-            <Card className="max-w-2xl mx-auto">
+            <Card className="max-w-2xl mx-auto shadow-xl shadow-black/5">
                 <CardHeader className="text-center">
                     <CardTitle className="font-headline text-3xl">Send Us a Message</CardTitle>
                 </CardHeader>
@@ -100,7 +101,7 @@ export default function ContactUsPage() {
                             <Label htmlFor="message">Your Message</Label>
                             <Textarea id="message" value={message} onChange={e => setMessage(e.target.value)} required rows={5} />
                         </div>
-                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
                             {isSubmitting ? 'Sending...' : 'Send Message'}
                         </Button>
                     </form>

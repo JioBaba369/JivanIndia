@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lexend } from "next/font/google";
+import { PT_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/header";
@@ -10,14 +10,15 @@ import { EventsProvider } from "@/hooks/use-events";
 import { ProvidersProvider } from "@/hooks/use-providers";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
 
-const inter = Inter({
+const ptSans = PT_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "700"],
+  variable: "--font-pt-sans",
 });
 
-const lexend = Lexend({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-lexend",
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
@@ -36,8 +37,8 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-body antialiased",
-          inter.variable,
-          lexend.variable
+          ptSans.variable,
+          spaceGrotesk.variable
         )}
       >
         <AuthProvider>
