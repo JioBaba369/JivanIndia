@@ -20,6 +20,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import ImageCropper from '@/components/feature/image-cropper';
 
 export default function EditProfilePage() {
   const { toast } = useToast();
@@ -40,9 +41,12 @@ export default function EditProfilePage() {
 
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+  
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -61,7 +65,7 @@ export default function EditProfilePage() {
       if (user.profileImageUrl) {
         setProfileImageUrl(user.profileImageUrl);
       }
-    } else if (!user) { // Added check to prevent router push on initial load
+    } else if (!user) {
         router.push('/login');
     }
   }, [user, router]);
@@ -71,16 +75,6 @@ export default function EditProfilePage() {
     setIsSubmitting(true);
 
     try {
-        let newImageUrl = profileImageUrl;
-        if (profileImage) {
-            newImageUrl = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(profileImage);
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = error => reject(error);
-            });
-        }
-        
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const languagesSpoken = languages.split(',').map(s => s.trim()).filter(Boolean);
@@ -90,7 +84,7 @@ export default function EditProfilePage() {
             name, 
             email, 
             bio, 
-            profileImageUrl: newImageUrl, 
+            profileImageUrl: profileImageUrl, 
             phone,
             currentLocation: {
                 country: currentCountry,
@@ -126,18 +120,36 @@ export default function EditProfilePage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-        const file = e.target.files[0];
-        setProfileImage(file);
-        setProfileImageUrl(URL.createObjectURL(file));
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setImageSrc(reader.result?.toString() || '');
+        setIsCropperOpen(true);
+      });
+      reader.readAsDataURL(file);
     }
   }
 
+  const handleCropSave = (croppedDataUrl: string) => {
+    setProfileImageUrl(croppedDataUrl);
+    setIsCropperOpen(false);
+  };
+
   if (!user) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
+        {imageSrc && (
+          <ImageCropper
+            isOpen={isCropperOpen}
+            onClose={() => setIsCropperOpen(false)}
+            imageSrc={imageSrc}
+            onSave={handleCropSave}
+            aspectRatio={1} 
+          />
+        )}
         <Card className="max-w-3xl mx-auto">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Update Your Profile</CardTitle>

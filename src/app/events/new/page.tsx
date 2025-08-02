@@ -18,8 +18,11 @@ import { useEvents, type Event } from '@/hooks/use-events';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Image from 'next/image';
+import { ImageUp } from 'lucide-react';
+import ImageCropper from '@/components/feature/image-cropper';
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -37,6 +40,29 @@ export default function NewEventPage() {
   const [organizerName, setOrganizerName] = useState(user?.affiliation?.orgName || '');
   const [tags, setTags] = useState('');
   const [ticketLink, setTicketLink] = useState('');
+  
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setImageSrc(reader.result?.toString() || '');
+        setIsCropperOpen(true);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropSave = (croppedDataUrl: string) => {
+    setCroppedImage(croppedDataUrl);
+    setIsCropperOpen(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +82,15 @@ export default function NewEventPage() {
         });
         return;
     }
+     if (!croppedImage) {
+      toast({
+        title: 'Image Required',
+        description: 'Please upload and crop an image for the event banner.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const newEvent: Omit<Event, 'id' | 'createdAt' | 'status'> = {
       title,
       eventType,
@@ -68,7 +103,7 @@ export default function NewEventPage() {
       description,
       organizerName: user.affiliation.orgName,
       organizerId: user.affiliation.orgId,
-      imageUrl: 'https://placehold.co/600x400.png',
+      imageUrl: croppedImage,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       ticketLink,
       submittedByUid: user.uid,
@@ -104,6 +139,15 @@ export default function NewEventPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
+      {imageSrc && (
+        <ImageCropper
+          isOpen={isCropperOpen}
+          onClose={() => setIsCropperOpen(false)}
+          imageSrc={imageSrc}
+          onSave={handleCropSave}
+          aspectRatio={16 / 9}
+        />
+      )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Share Your Event</CardTitle>
@@ -113,6 +157,30 @@ export default function NewEventPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="event-image">Event Banner Image</Label>
+                <Card 
+                  className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {croppedImage ? (
+                    <Image src={croppedImage} alt="Event banner preview" fill className="object-cover rounded-lg"/>
+                  ) : (
+                    <>
+                      <ImageUp className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
+                    </>
+                  )}
+                </Card>
+                 <Input 
+                  id="event-image" 
+                  type="file" 
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/png, image/jpeg"
+                />
+            </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="title">Event Title</Label>
