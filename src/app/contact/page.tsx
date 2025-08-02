@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function ContactUsPage() {
     const { toast } = useToast();
@@ -33,60 +34,80 @@ export default function ContactUsPage() {
     };
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="font-headline text-4xl">Contact Us</CardTitle>
-          <CardDescription className="text-lg">
-            We'd love to hear from you. Reach out with any questions or feedback.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid md:grid-cols-2 gap-12">
-                <div className="space-y-6">
-                    <h3 className="font-headline text-2xl font-semibold">Get in Touch</h3>
-                    <div className="flex items-start gap-4">
-                        <MapPin className="h-6 w-6 text-primary mt-1" />
-                        <div>
-                            <h4 className="font-semibold">Our Office</h4>
-                            <p className="text-muted-foreground">123 Saffron Street, Suite 100<br/>Community City, CA 90210</p>
-                        </div>
-                    </div>
-                     <div className="flex items-start gap-4">
-                        <Mail className="h-6 w-6 text-primary mt-1" />
-                        <div>
-                            <h4 className="font-semibold">Email Us</h4>
-                            <p className="text-muted-foreground">contact@jivanindia.co</p>
-                        </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                        <Phone className="h-6 w-6 text-primary mt-1" />
-                        <div>
-                            <h4 className="font-semibold">Call Us</h4>
-                            <p className="text-muted-foreground">(123) 456-7890</p>
-                        </div>
-                    </div>
-                </div>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <Label htmlFor="name">Your Name</Label>
-                        <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
-                    </div>
-                     <div>
-                        <Label htmlFor="email">Your Email</Label>
-                        <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-                    </div>
-                     <div>
-                        <Label htmlFor="message">Your Message</Label>
-                        <Textarea id="message" value={message} onChange={e => setMessage(e.target.value)} required rows={5} />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Sending...' : 'Send Message'}
-                    </Button>
-                </form>
+    <div className="bg-background">
+       <section className="relative bg-primary/10 py-20 md:py-32 text-center">
+         <div className="absolute inset-0">
+            <Image 
+                src="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb250YWN0JTIwdXMlMjBtYWlsJTIwซองจดหมายfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
+                alt="Contact us background"
+                fill
+                className="object-cover opacity-10"
+                priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+        </div>
+        <div className="container mx-auto px-4 relative">
+          <h1 className="font-headline text-4xl font-bold md:text-6xl">
+            Get in Touch
+          </h1>
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
+            We'd love to hear from you. Reach out with any questions, feedback, or inquiries.
+          </p>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 text-center mb-12">
+                <Card>
+                    <CardContent className="p-6">
+                        <Mail className="h-10 w-10 text-primary mx-auto mb-4" />
+                        <h3 className="font-headline text-xl font-semibold">Email Us</h3>
+                        <p className="text-muted-foreground mt-2">contact@jivanindia.co</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="p-6">
+                        <Phone className="h-10 w-10 text-primary mx-auto mb-4" />
+                        <h3 className="font-headline text-xl font-semibold">Call Us</h3>
+                        <p className="text-muted-foreground mt-2">(123) 456-7890</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="p-6">
+                        <MapPin className="h-10 w-10 text-primary mx-auto mb-4" />
+                        <h3 className="font-headline text-xl font-semibold">Our Office</h3>
+                        <p className="text-muted-foreground mt-2">123 Saffron St, Suite 100<br/>Community City, CA 90210</p>
+                    </CardContent>
+                </Card>
             </div>
-        </CardContent>
-      </Card>
+
+            <Card className="max-w-2xl mx-auto">
+                <CardHeader className="text-center">
+                    <CardTitle className="font-headline text-3xl">Send Us a Message</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <Label htmlFor="name">Your Name</Label>
+                            <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
+                        </div>
+                        <div>
+                            <Label htmlFor="email">Your Email</Label>
+                            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                        </div>
+                        <div>
+                            <Label htmlFor="message">Your Message</Label>
+                            <Textarea id="message" value={message} onChange={e => setMessage(e.target.value)} required rows={5} />
+                        </div>
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? 'Sending...' : 'Send Message'}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
+      </section>
     </div>
   );
 }
