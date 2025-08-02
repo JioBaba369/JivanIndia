@@ -29,6 +29,8 @@ interface User {
   savedEvents?: string[];
   joinedCommunities?: string[];
   savedDeals?: string[];
+  savedProviders?: string[];
+  savedSponsors?: string[];
   
   notificationPreferences?: {
     eventsNearby: boolean;
@@ -59,6 +61,16 @@ interface AuthContextType {
   saveDeal: (dealId: string) => void;
   unsaveDeal: (dealId: string) => void;
   isDealSaved: (dealId: string) => boolean;
+
+  savedProviders: string[];
+  saveProvider: (providerId: string) => void;
+  unsaveProvider: (providerId: string) => void;
+  isProviderSaved: (providerId: string) => boolean;
+
+  savedSponsors: string[];
+  saveSponsor: (sponsorId: string) => void;
+  unsaveSponsor: (sponsorId: string) => void;
+  isSponsorSaved: (sponsorId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [savedEvents, setSavedEvents] = useState<string[]>([]);
   const [joinedCommunities, setJoinedCommunities] = useState<string[]>([]);
   const [savedDeals, setSavedDeals] = useState<string[]>([]);
+  const [savedProviders, setSavedProviders] = useState<string[]>([]);
+  const [savedSponsors, setSavedSponsors] = useState<string[]>([]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -121,6 +135,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setSavedDeals(user?.savedDeals || []);
   }, [user?.savedDeals]);
+
+  useEffect(() => {
+    setSavedProviders(user?.savedProviders || []);
+  }, [user?.savedProviders]);
+  
+  useEffect(() => {
+    setSavedSponsors(user?.savedSponsors || []);
+  }, [user?.savedSponsors]);
 
 
   const updateUser = (updatedData: Partial<User>) => {
@@ -147,6 +169,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         savedEvents: [],
         joinedCommunities: [],
         savedDeals: [],
+        savedProviders: [],
+        savedSponsors: [],
         notificationPreferences: { eventsNearby: true, reminders: true },
         calendarSyncEnabled: false,
     };
@@ -158,6 +182,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSavedEvents([]);
     setJoinedCommunities([]);
     setSavedDeals([]);
+    setSavedProviders([]);
+    setSavedSponsors([]);
     setIsLoading(false);
   };
   
@@ -172,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const createSaveFunctions = (
     list: string[],
-    listType: 'savedEvents' | 'joinedCommunities' | 'savedDeals'
+    listType: 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedProviders' | 'savedSponsors'
   ) => {
     const saveItem = (itemId: string) => {
       if (user && !list.includes(itemId)) {
@@ -196,6 +222,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions(savedEvents, 'savedEvents');
   const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined } = createSaveFunctions(joinedCommunities, 'joinedCommunities');
   const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions(savedDeals, 'savedDeals');
+  const { saveItem: saveProvider, unsaveItem: unsaveProvider, isItemSaved: isProviderSaved } = createSaveFunctions(savedProviders, 'savedProviders');
+  const { saveItem: saveSponsor, unsaveItem: unsaveSponsor, isItemSaved: isSponsorSaved } = createSaveFunctions(savedSponsors, 'savedSponsors');
 
   const value = { 
     user, 
@@ -206,7 +234,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getInitials,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
-    savedDeals, saveDeal, unsaveDeal, isDealSaved
+    savedDeals, saveDeal, unsaveDeal, isDealSaved,
+    savedProviders, saveProvider, unsaveProvider, isProviderSaved,
+    savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
   };
 
   return (

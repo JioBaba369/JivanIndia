@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import Logo from "../logo";
 import { Github, Twitter } from "lucide-react";
@@ -30,19 +29,21 @@ export default function Footer() {
                 <li><Link href="/" className="text-muted-foreground hover:text-primary">What's On</Link></li>
                 <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
                 <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
+                <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-headline font-semibold">Company</h4>
+              <h4 className="font-headline font-semibold">Community</h4>
               <ul className="mt-4 space-y-2">
-                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
-                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
-                <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
+                 <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
+                 <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-headline font-semibold">Legal</h4>
               <ul className="mt-4 space-y-2">
+                <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
+                <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
                 <li><Link href="/legal/privacy" className="text-muted-foreground hover:text-primary">Privacy</Link></li>
                 <li><Link href="/legal/terms" className="text-muted-foreground hover:text-primary">Terms</Link></li>
               </ul>

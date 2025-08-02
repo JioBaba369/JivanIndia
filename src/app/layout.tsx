@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Inter, Lexend } from "next/font/google";
 import "./globals.css";
@@ -8,6 +7,8 @@ import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/use-auth";
 import { EventsProvider } from "@/hooks/use-events";
+import { ProvidersProvider } from "@/hooks/use-providers";
+import { SponsorsProvider } from "@/hooks/use-sponsors";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,14 +41,18 @@ export default function RootLayout({
         )}
       >
         <AuthProvider>
-          <EventsProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-            <Toaster />
-          </EventsProvider>
+          <SponsorsProvider>
+            <ProvidersProvider>
+              <EventsProvider>
+                <div className="relative flex min-h-screen flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+                <Toaster />
+              </EventsProvider>
+            </ProvidersProvider>
+          </SponsorsProvider>
         </AuthProvider>
       </body>
     </html>

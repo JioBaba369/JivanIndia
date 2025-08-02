@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -53,8 +52,7 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              {user.profileImageUrl && <AvatarImage src={user.profileImageUrl} alt={user.name} />}
-              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              {user.profileImageUrl ? <AvatarImage src={user.profileImageUrl} alt={user.name} /> : <AvatarFallback>{getInitials(user.name)}</AvatarFallback>}
             </Avatar>
           </Button>
         </DropdownMenuTrigger>

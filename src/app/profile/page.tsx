@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Users, BadgeCheck, Phone, Flag, Mail, Languages, Heart, Globe } from 'lucide-react';
+import { Briefcase, Building, MapPin, Trash2, Calendar, Tag, Users, BadgeCheck, Phone, Flag, Mail, Languages, Heart, Globe, Handshake, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
@@ -15,10 +15,10 @@ import { format } from 'date-fns';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-
-// Mock data from other pages
 import { communities as allCommunities } from '../communities/page';
 import { deals as allDeals } from '../deals/page';
+import { useProviders } from '@/hooks/use-providers';
+import { useSponsors } from '@/hooks/use-sponsors';
 
 
 export default function ProfilePage() {
@@ -26,16 +26,22 @@ export default function ProfilePage() {
     savedEvents, unsaveEvent,
     joinedCommunities, leaveCommunity,
     savedDeals, unsaveDeal,
+    savedProviders, unsaveProvider,
+    savedSponsors, unsaveSponsor,
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
+  const { providers: allProviders } = useProviders();
+  const { sponsors: allSponsors } = useSponsors();
 
   const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
   const userJoinedCommunities = allCommunities.filter(org => joinedCommunities.includes(org.id));
   const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
+  const userSavedProviders = allProviders.filter(provider => savedProviders.includes(provider.id));
+  const userSavedSponsors = allSponsors.filter(sponsor => savedSponsors.includes(sponsor.id));
   const userOrganizedEvents = user ? allEvents.filter(event => event.submittedByUid === user.uid) : [];
 
-  const handleUnsave = (type: 'event' | 'community' | 'deal', id: string, title: string) => {
+  const handleUnsave = (type: 'event' | 'community' | 'deal' | 'provider' | 'sponsor', id: string, title: string) => {
     let unsaveFunction;
     let typeName = '';
 
@@ -51,6 +57,14 @@ export default function ProfilePage() {
         case 'deal':
             unsaveFunction = unsaveDeal;
             typeName = 'Deal';
+            break;
+        case 'provider':
+            unsaveFunction = unsaveProvider;
+            typeName = 'Provider';
+            break;
+        case 'sponsor':
+            unsaveFunction = unsaveSponsor;
+            typeName = 'Sponsor';
             break;
         default:
             return;
@@ -201,6 +215,8 @@ export default function ProfilePage() {
                     <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
                     <TabsTrigger value="organizations">Communities ({userJoinedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
+                    <TabsTrigger value="providers">Providers ({userSavedProviders.length})</TabsTrigger>
+                    <TabsTrigger value="sponsors">Sponsors ({userSavedSponsors.length})</TabsTrigger>
                     <TabsTrigger value="my-events">My Events ({userOrganizedEvents.length})</TabsTrigger>
                 </TabsList>
                 
@@ -316,6 +332,80 @@ export default function ProfilePage() {
                         <div className="rounded-lg border-2 border-dashed py-12 text-center">
                             <p className="text-muted-foreground">You haven't saved any deals yet.</p>
                             <Button asChild className="mt-4"><Link href="/deals">Find Deals</Link></Button>
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="providers" className="mt-6">
+                    {userSavedProviders.length > 0 ? (
+                        <div className="space-y-4">
+                            {userSavedProviders.map((provider) => (
+                                <Card key={provider.id} className="transition-all hover:shadow-sm">
+                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                        <Image src={provider.imageUrl} alt={provider.name} width={80} height={80} className="aspect-video rounded-lg border bg-background object-cover sm:aspect-square" />
+                                        <div className="flex-grow">
+                                            <Link href={`/providers/${provider.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                                <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{provider.category}</span></div>
+                                                <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)}</span></div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
+                                            <Button variant="outline" size="sm" asChild><Link href={`/providers/${provider.id}`}>View</Link></Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('provider', provider.id, provider.name)}><Trash2 className="h-4 w-4" /></Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Unsave</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                            <p className="text-muted-foreground">You haven't saved any providers yet.</p>
+                            <Button asChild className="mt-4"><Link href="/providers">Find Providers</Link></Button>
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="sponsors" className="mt-6">
+                    {userSavedSponsors.length > 0 ? (
+                        <div className="space-y-4">
+                            {userSavedSponsors.map((sponsor) => (
+                                <Card key={sponsor.id} className="transition-all hover:shadow-sm">
+                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
+                                        <Image src={sponsor.logoUrl} alt={sponsor.name} width={80} height={80} className="aspect-video rounded-lg border bg-background object-contain p-2 sm:aspect-square" />
+                                        <div className="flex-grow">
+                                            <Link href={`/sponsors/${sponsor.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{sponsor.name}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                                <div className="flex items-center gap-2"><Handshake className="h-4 w-4" /><span>{sponsor.industry}</span></div>
+                                                <div className="flex items-center gap-2"><Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'}>{sponsor.tier}</Badge></div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 pt-2 sm:ml-auto sm:pt-0">
+                                            <Button variant="outline" size="sm" asChild><Link href={`/sponsors/${sponsor.id}`}>View</Link></Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="destructive" size="icon" onClick={() => handleUnsave('sponsor', sponsor.id, sponsor.name)}><Trash2 className="h-4 w-4" /></Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Unsave</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                            <p className="text-muted-foreground">You haven't saved any sponsors yet.</p>
+                            <Button asChild className="mt-4"><Link href="/sponsors">Find Sponsors</Link></Button>
                         </div>
                     )}
                 </TabsContent>
