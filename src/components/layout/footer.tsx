@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Logo from "../logo";
-import { Github, Twitter } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram } from "lucide-react";
 import { Button } from "../ui/button";
 
 export default function Footer() {
@@ -8,34 +8,35 @@ export default function Footer() {
     <footer className="border-t bg-background">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
-          <div className="md:col-span-1">
+          <div className="md:col-span-2">
             <Logo as={Link} href="/" />
-            <p className="mt-4 text-muted-foreground">
-              The heart of the Indian community, all in one place.
+            <p className="mt-4 max-w-sm text-muted-foreground">
+              The heart of the Indian community, all in one place. Discover events, connect with organizations, and find local deals.
             </p>
             <div className="mt-4 flex space-x-2">
               <Button variant="ghost" size="icon" asChild>
                 <Link href="#"><Twitter /></Link>
               </Button>
                <Button variant="ghost" size="icon" asChild>
+                <Link href="#"><Facebook /></Link>
+              </Button>
+               <Button variant="ghost" size="icon" asChild>
+                <Link href="#"><Instagram /></Link>
+              </Button>
+               <Button variant="ghost" size="icon" asChild>
                 <Link href="#"><Github /></Link>
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-8 md:col-span-3 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-8 md:col-span-2">
             <div>
               <h4 className="font-headline font-semibold">Explore</h4>
               <ul className="mt-4 space-y-2">
                 <li><Link href="/" className="text-muted-foreground hover:text-primary">What's On</Link></li>
                 <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
+                 <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
                 <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-headline font-semibold">Community</h4>
-              <ul className="mt-4 space-y-2">
-                 <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
                  <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
               </ul>
             </div>
@@ -44,14 +45,14 @@ export default function Footer() {
               <ul className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
-                <li><Link href="/legal/privacy" className="text-muted-foreground hover:text-primary">Privacy</Link></li>
-                <li><Link href="/legal/terms" className="text-muted-foreground hover:text-primary">Terms</Link></li>
+                <li><Link href="/legal/privacy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+                <li><Link href="/legal/terms" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
         </div>
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} JivanIndia.co. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} JivanIndia.co. Built with love for the community. All rights reserved.</p>
         </div>
       </div>
     </footer>
