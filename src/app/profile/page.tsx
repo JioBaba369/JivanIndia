@@ -211,7 +211,7 @@ export default function ProfilePage() {
             </div>
             <div className="md:col-span-2 lg:col-span-3">
                 <Tabs defaultValue="events" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <TabsList className="grid w-full grid-cols-2 md:flex md:flex-wrap">
                     <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
                     <TabsTrigger value="organizations">Communities ({userJoinedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
