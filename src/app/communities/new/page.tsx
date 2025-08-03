@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { ImageUp } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
-import { useCommunities, type Community, type NewCommunityInput } from '@/hooks/use-communities.tsx';
+import { useCommunities, type Community, type NewCommunityInput } from '@/hooks/use-communities';
 
 export default function NewCommunityPage() {
   const router = useRouter();
@@ -315,5 +315,3 @@ export default function NewCommunityPage() {
     </div>
   );
 }
-
-    
