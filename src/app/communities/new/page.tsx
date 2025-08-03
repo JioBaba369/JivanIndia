@@ -318,7 +318,7 @@ export default function NewCommunityPage() {
                             ) : (
                               <div className="text-center">
                                 <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />
-                                <span className="text-muted-foreground text-sm">Click to upload</span>
+                                <span className="text-muted-foreground text-sm">Upload Community Logo</span>
                               </div>
                             )}
                           </Card>
@@ -355,7 +355,7 @@ export default function NewCommunityPage() {
                             ) : (
                               <div className="text-center">
                                 <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />
-                                <span className="text-muted-foreground text-sm">Click to upload</span>
+                                <span className="text-muted-foreground text-sm">Upload Banner Image</span>
                               </div>
                             )}
                           </Card>
