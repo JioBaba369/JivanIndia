@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, FormEvent, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ImageUp } from 'lucide-react';
@@ -25,11 +25,14 @@ import { useCommunities, type Community } from '@/hooks/use-communities.tsx';
 
 export default function NewCommunityPage() {
   const router = useRouter();
-  const { addCommunity } = useCommunities();
+  const { addCommunity, isSlugUnique } = useCommunities();
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
 
   const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [slugIsDirty, setSlugIsDirty] = useState(false);
+  const [slugError, setSlugError] = useState<string | null>(null);
   const [type, setType] = useState<'Cultural' | 'Business' | 'Religious' | 'Social' | 'Non-Profit' | 'Other'>('Other');
   const [description, setDescription] = useState('');
   const [fullDescription, setFullDescription] = useState('');
@@ -40,6 +43,32 @@ export default function NewCommunityPage() {
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const generateSlug = useCallback((value: string) => {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }, []);
+
+  useEffect(() => {
+    if (!slugIsDirty) {
+      setSlug(generateSlug(name));
+    }
+  }, [name, slugIsDirty, generateSlug]);
+
+  useEffect(() => {
+    if (slug) {
+      if (!isSlugUnique(slug)) {
+        setSlugError('This URL is already taken.');
+      } else {
+        setSlugError(null);
+      }
+    }
+  }, [slug, isSlugUnique]);
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -76,9 +105,18 @@ export default function NewCommunityPage() {
       });
       return;
     }
+    if (slugError) {
+      toast({
+        title: 'Invalid URL',
+        description: slugError,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const newCommunity: Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'> = {
       name,
+      slug,
       type,
       description,
       fullDescription,
@@ -89,8 +127,8 @@ export default function NewCommunityPage() {
       // These are placeholders, a real app would have more complex logic
       address: `${region}, USA`,
       phone: '(123) 456-7890',
-      contactEmail: `contact@${name.toLowerCase().replace(/\s/g, '')}.org`,
-      website: `www.${name.toLowerCase().replace(/\s/g, '')}.org`,
+      contactEmail: `contact@${slug}.org`,
+      website: `www.${slug}.org`,
       founded: new Date().getFullYear().toString(),
       founderUid: user.uid,
     };
@@ -104,7 +142,7 @@ export default function NewCommunityPage() {
       description: `Your community "${name}" has been submitted for review.`,
     });
 
-    router.push('/communities');
+    router.push(`/c/${addedCommunity.slug}`);
   };
 
   if (!user) {
@@ -181,33 +219,50 @@ export default function NewCommunityPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">Category</Label>
-                 <Select value={type} onValueChange={(value) => setType(value as any)} required>
-                    <SelectTrigger id="type">
-                        <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Cultural">Cultural</SelectItem>
-                        <SelectItem value="Business">Business</SelectItem>
-                        <SelectItem value="Religious">Religious</SelectItem>
-                        <SelectItem value="Social">Social</SelectItem>
-                        <SelectItem value="Non-Profit">Non-Profit</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                </Select>
+                <Label htmlFor="slug">Community URL</Label>
+                <Input
+                  id="slug"
+                  placeholder="e.g., bay-area-tamil-sangam"
+                  value={slug}
+                  onChange={(e) => {
+                    setSlugIsDirty(true);
+                    setSlug(generateSlug(e.target.value));
+                  }}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">jivanindia.co/c/{slug}</p>
+                {slugError && <p className="text-xs text-destructive">{slugError}</p>}
               </div>
             </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="region">Region</Label>
-                <Input
-                    id="region"
-                    placeholder="e.g., San Francisco Bay Area"
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    required
-                />
+             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                 <div className="space-y-2">
+                    <Label htmlFor="type">Category</Label>
+                    <Select value={type} onValueChange={(value) => setType(value as any)} required>
+                        <SelectTrigger id="type">
+                            <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Cultural">Cultural</SelectItem>
+                            <SelectItem value="Business">Business</SelectItem>
+                            <SelectItem value="Religious">Religious</SelectItem>
+                            <SelectItem value="Social">Social</SelectItem>
+                            <SelectItem value="Non-Profit">Non-Profit</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="region">Region</Label>
+                    <Input
+                        id="region"
+                        placeholder="e.g., San Francisco Bay Area"
+                        value={region}
+                        onChange={(e) => setRegion(e.target.value)}
+                        required
+                    />
+                </div>
             </div>
+            
 
             <div className="space-y-2">
               <Label htmlFor="description">Short Description (for cards)</Label>
@@ -248,7 +303,7 @@ export default function NewCommunityPage() {
               <Button type="button" variant="outline" onClick={() => router.back()}>
                 Cancel
               </Button>
-              <Button type="submit">Create Community</Button>
+              <Button type="submit" disabled={!!slugError}>Create Community</Button>
             </div>
           </form>
         </CardContent>

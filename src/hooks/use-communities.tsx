@@ -5,6 +5,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 
 export interface Community {
   id: string;
+  slug: string;
   name: string;
   type: 'Cultural' | 'Business' | 'Religious' | 'Social' | 'Non-Profit' | 'Other';
   description: string;
@@ -31,6 +32,8 @@ interface CommunitiesContextType {
   communities: Community[];
   addCommunity: (community: NewCommunityInput, founderEmail: string) => Community;
   getCommunityById: (id: string) => Community | undefined;
+  getCommunityBySlug: (slug: string) => Community | undefined;
+  isSlugUnique: (slug: string) => boolean;
   verifyCommunity: (communityId: string) => void;
 }
 
@@ -41,7 +44,7 @@ const STORAGE_KEY = 'jivanindia-communities';
 const initialCommunities: Community[] = [];
 
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
-  const [communities, setCommunities] = useState<Community[]>([]);
+  const [communities, setCommunities] = useState<Community[]>(initialCommunities);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -81,6 +84,14 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const getCommunityById = (id: string): Community | undefined => {
     return communities.find(c => c.id === id);
   };
+  
+  const getCommunityBySlug = (slug: string): Community | undefined => {
+    return communities.find(c => c.slug === slug);
+  };
+  
+  const isSlugUnique = (slug: string): boolean => {
+    return !communities.some(c => c.slug === slug);
+  }
 
   const verifyCommunity = (communityId: string): void => {
     const updatedCommunities = communities.map(c => 
@@ -93,6 +104,8 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     communities,
     addCommunity,
     getCommunityById,
+    getCommunityBySlug,
+    isSlugUnique,
     verifyCommunity,
   };
 

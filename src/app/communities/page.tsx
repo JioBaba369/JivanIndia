@@ -123,7 +123,7 @@ export default function CommunitiesPage() {
             {featuredCommunities.map((org) => (
               <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
                  <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
-                    <Link href={`/communities/${org.id}`} className="flex h-full flex-col">
+                    <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
                         <div className="relative h-48 w-full">
                             <Image
                             src={org.imageUrl}
@@ -200,7 +200,7 @@ export default function CommunitiesPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredCommunities.length > 0 ? filteredCommunities.map((org) => (
             <Card key={org.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
-                <Link href={`/communities/${org.id}`} className="flex h-full flex-grow flex-col">
+                <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
                     <div className="relative h-48 w-full">
                     <Image
                         src={org.imageUrl}
@@ -229,7 +229,7 @@ export default function CommunitiesPage() {
                     </div>
                     <div className="mt-auto flex gap-2 pt-6">
                         <Button asChild className="flex-1">
-                            <Link href={`/communities/${org.id}`}>View</Link>
+                            <Link href={`/c/${org.slug}`}>View</Link>
                         </Button>
                         <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                             <Bookmark className="mr-2 h-4 w-4" />

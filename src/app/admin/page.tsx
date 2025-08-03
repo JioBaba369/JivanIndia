@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
                                 {sortedCommunities.map(community => (
                                     <TableRow key={community.id}>
                                         <TableCell className="font-medium">
-                                          <Link href={`/communities/${community.id}`} className="hover:underline" target="_blank">{community.name}</Link>
+                                          <Link href={`/c/${community.slug}`} className="hover:underline" target="_blank">{community.name}</Link>
                                         </TableCell>
                                         <TableCell>{community.region}</TableCell>
                                         <TableCell>{community.founderEmail}</TableCell>
