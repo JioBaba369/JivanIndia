@@ -12,15 +12,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, Globe, Handshake, MapPin, Star, Ticket } from 'lucide-react';
+import { Building, Calendar, Globe, Handshake, MapPin, Star, Ticket, Share2, Copy } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import QRCode from 'qrcode.react';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
     const router = useRouter();
+    const { toast } = useToast();
     const username = typeof params.username === 'string' ? params.username : '';
 
     const { getUserByUsername, getInitials } = useAuth();
@@ -29,11 +34,15 @@ export default function UserPublicProfilePage() {
     const { sponsors } = useSponsors();
 
     const [profileUser, setProfileUser] = useState<any | null>(null);
+    const [pageUrl, setPageUrl] = useState('');
 
     useEffect(() => {
         if (username) {
             const foundUser = getUserByUsername(username);
             setProfileUser(foundUser);
+        }
+        if (typeof window !== 'undefined') {
+            setPageUrl(window.location.href);
         }
     }, [username, getUserByUsername]);
 
@@ -48,6 +57,14 @@ export default function UserPublicProfilePage() {
     const userAffiliatedSponsors = profileUser?.affiliation
         ? sponsors.filter(s => s.eventsSponsored.some(e => events.find(ev => ev.id === e.eventId)?.organizerId === profileUser.affiliation.orgId))
         : [];
+        
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(pageUrl);
+        toast({
+            title: "Link Copied!",
+            description: "Profile URL copied to clipboard.",
+        });
+    };
 
 
     if (!profileUser) {
@@ -145,6 +162,28 @@ export default function UserPublicProfilePage() {
                                     </Link>
                                 </Button>
                             )}
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline"><Share2 className="mr-2"/>Share</Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle>Share this Profile</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="flex flex-col items-center justify-center gap-4 py-4">
+                                        <div className="rounded-lg border p-4">
+                                            <QRCode value={pageUrl} size={192} />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">Scan this QR code with your phone</p>
+                                        <div className="w-full flex items-center space-x-2">
+                                            <Input id="copy-url" value={pageUrl} readOnly />
+                                            <Button type="submit" size="icon" onClick={copyToClipboard}>
+                                                <Copy className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </div>
 
                          <div className="mt-12">
