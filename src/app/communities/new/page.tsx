@@ -16,64 +16,109 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef, FormEvent, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp, UploadCloud } from 'lucide-react';
+import { ImageUp, UploadCloud, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
-import { useCommunities, type Community, type NewCommunityInput } from '@/hooks/use-communities';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+const formSchema = z.object({
+  name: z.string().min(3, "Community name must be at least 3 characters.").max(100),
+  slug: z.string().min(3, "URL must be at least 3 characters.").max(50)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces."),
+  type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
+  description: z.string().min(10, "Short description must be at least 10 characters.").max(160, "Short description must be 160 characters or less."),
+  fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(2000),
+  region: z.string().min(2, "Region is required."),
+  tags: z.string().optional(),
+  logoUrl: z.string().min(1, { message: "A logo image is required." }),
+  bannerUrl: z.string().min(1, { message: "A banner image is required." }),
+});
 
 export default function NewCommunityPage() {
   const router = useRouter();
   const { addCommunity, isSlugUnique, getInitials } = useCommunities();
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
-
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [slugIsDirty, setSlugIsDirty] = useState(false);
-  const [slugError, setSlugError] = useState<string | null>(null);
-  const [type, setType] = useState<Community['type']>('Other');
-  const [description, setDescription] = useState('');
-  const [fullDescription, setFullDescription] = useState('');
-  const [region, setRegion] = useState('');
-  const [tags, setTags] = useState('');
-
+  
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [croppedBanner, setCroppedBanner] = useState<string | null>(null);
-  const [croppedLogo, setCroppedLogo] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 16/9, onSave: (img: string) => {} });
   
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      slug: '',
+      type: 'Other',
+      description: '',
+      fullDescription: '',
+      region: '',
+      tags: '',
+      logoUrl: '',
+      bannerUrl: '',
+    },
+  });
+
   const generateSlug = useCallback((value: string) => {
     return value
       .toLowerCase()
+      .replace(/&/g, 'and')
       .replace(/[^a-z0-9\s-]/g, '')
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
   }, []);
 
+  const nameValue = form.watch('name');
   useEffect(() => {
-    if (!slugIsDirty) {
-      setSlug(generateSlug(name));
+    if (!slugIsDirty && nameValue) {
+      const newSlug = generateSlug(nameValue);
+      form.setValue('slug', newSlug);
     }
-  }, [name, slugIsDirty, generateSlug]);
+  }, [nameValue, slugIsDirty, generateSlug, form]);
 
+  const slugValue = form.watch('slug');
   useEffect(() => {
-    if (slug) {
-      if (!isSlugUnique(slug)) {
-        setSlugError('This URL is already taken.');
+    if (slugValue) {
+      if (!isSlugUnique(slugValue)) {
+        form.setError('slug', { type: 'manual', message: 'This URL is already taken.' });
       } else {
-        setSlugError(null);
+        form.clearErrors('slug');
       }
     }
-  }, [slug, isSlugUnique]);
-
+  }, [slugValue, isSlugUnique, form]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, onSave: (dataUrl: string) => void, aspectRatio: number) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -83,68 +128,53 @@ export default function NewCommunityPage() {
         setImageSrc(reader.result?.toString() || '');
         setCropperConfig({ onSave, aspectRatio });
         setIsCropperOpen(true);
+        e.target.value = ''; // Reset file input
       });
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
-        toast({
-            title: 'Authentication Error',
-            description: 'You must be logged in to create a community.',
-            variant: 'destructive',
-        });
+        toast({ title: 'Authentication Error', description: 'You must be logged in to create a community.', variant: 'destructive' });
         return;
     }
-     if (!croppedBanner || !croppedLogo) {
-      toast({
-        title: 'Images Required',
-        description: 'Please upload and crop both a banner and a logo for the community.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    if (slugError) {
-      toast({
-        title: 'Invalid URL',
-        description: slugError,
-        variant: 'destructive',
-      });
-      return;
-    }
+    
+    setIsSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
 
     const newCommunity: NewCommunityInput = {
-      name,
-      slug,
-      type,
-      description,
-      fullDescription,
-      region,
-      imageUrl: croppedBanner,
-      logoUrl: croppedLogo,
-      tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      name: values.name,
+      slug: values.slug,
+      type: values.type,
+      description: values.description,
+      fullDescription: values.fullDescription,
+      region: values.region,
+      imageUrl: values.bannerUrl,
+      logoUrl: values.logoUrl,
+      tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
       membersCount: 1,
-      // These are placeholders, a real app would have more complex logic
-      address: `${region}, USA`,
+      address: `${values.region}, USA`,
       phone: '(123) 456-7890',
-      contactEmail: `contact@${slug}.org`,
-      website: `www.${slug}.org`,
+      contactEmail: `contact@${values.slug}.org`,
+      website: `www.${values.slug}.org`,
       founded: new Date().getFullYear().toString(),
       founderUid: user.uid,
     };
 
     const addedCommunity = addCommunity(newCommunity, user.email);
-
     setAffiliation(addedCommunity.id, addedCommunity.name);
 
+    setIsSubmitting(false);
+    setIsSuccess(true);
     toast({
       title: 'Community Submitted!',
-      description: `Your community "${name}" has been submitted for review.`,
+      description: `Your community "${values.name}" has been submitted for review.`,
     });
 
-    router.push(`/c/${addedCommunity.slug}`);
+    setTimeout(() => {
+        router.push(`/c/${addedCommunity.slug}`);
+    }, 1500);
   };
 
   if (!user) {
@@ -165,7 +195,7 @@ export default function NewCommunityPage() {
     );
   }
   
-    if (user.affiliation) {
+  if (user.affiliation) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
@@ -206,166 +236,237 @@ export default function NewCommunityPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                  <div className="space-y-2">
-                      <Label htmlFor="community-logo">Community Logo</Label>
-                      <Card 
-                        className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                        onClick={() => logoInputRef.current?.click()}
-                      >
-                        {croppedLogo ? (
-                          <Image src={croppedLogo} alt="Logo preview" fill className="object-cover rounded-lg p-2"/>
-                        ) : (
-                          <>
-                            <UploadCloud className="h-8 w-8 text-muted-foreground" />
-                            <span className="text-muted-foreground text-center text-sm">Click to upload logo (1:1 ratio)</span>
-                          </>
-                        )}
-                      </Card>
-                      <Input 
-                        id="community-logo" 
-                        type="file" 
-                        className="hidden"
-                        ref={logoInputRef}
-                        onChange={(e) => handleFileChange(e, setCroppedLogo, 1)}
-                        accept="image/png, image/jpeg"
-                      />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="community-banner">Community Banner Image</Label>
-                    <Card 
-                      className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                      onClick={() => bannerInputRef.current?.click()}
-                    >
-                      {croppedBanner ? (
-                        <Image src={croppedBanner} alt="Community banner preview" fill className="object-cover rounded-lg"/>
-                      ) : (
-                        <>
-                          <ImageUp className="h-8 w-8 text-muted-foreground" />
-                          <span className="text-muted-foreground text-center text-sm">Click to upload banner (16:9 ratio)</span>
-                        </>
-                      )}
-                    </Card>
-                     <Input 
-                      id="community-banner" 
-                      type="file" 
-                      className="hidden"
-                      ref={bannerInputRef}
-                      onChange={(e) => handleFileChange(e, setCroppedBanner, 16/9)}
-                      accept="image/png, image/jpeg"
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="logoUrl"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormLabel>Community Logo (1:1 Ratio)</FormLabel>
+                        <FormControl>
+                          <Card 
+                            className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                            onClick={() => logoInputRef.current?.click()}
+                          >
+                            {field.value ? (
+                              <Image src={field.value} alt="Logo preview" fill className="object-cover rounded-lg p-2"/>
+                            ) : (
+                              <>
+                                <UploadCloud className="h-8 w-8 text-muted-foreground" />
+                                <span className="text-muted-foreground text-center text-sm">Click to upload</span>
+                              </>
+                            )}
+                          </Card>
+                        </FormControl>
+                        <FormMessage />
+                         <Input 
+                          id="community-logo-input" 
+                          type="file" 
+                          className="hidden"
+                          ref={logoInputRef}
+                          onChange={(e) => handleFileChange(e, (url) => form.setValue('logoUrl', url, { shouldValidate: true }), 1)}
+                          accept="image/png, image/jpeg, image/webp"
+                        />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bannerUrl"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2">
+                        <FormLabel>Community Banner (16:9 Ratio)</FormLabel>
+                        <FormControl>
+                          <Card 
+                            className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                            onClick={() => bannerInputRef.current?.click()}
+                          >
+                            {field.value ? (
+                              <Image src={field.value} alt="Banner preview" fill className="object-cover rounded-lg"/>
+                            ) : (
+                              <>
+                                <ImageUp className="h-8 w-8 text-muted-foreground" />
+                                <span className="text-muted-foreground text-center text-sm">Click to upload</span>
+                              </>
+                            )}
+                          </Card>
+                        </FormControl>
+                        <FormMessage />
+                         <Input 
+                          id="community-banner-input" 
+                          type="file" 
+                          className="hidden"
+                          ref={bannerInputRef}
+                          onChange={(e) => handleFileChange(e, (url) => form.setValue('bannerUrl', url, { shouldValidate: true }), 16/9)}
+                          accept="image/png, image/jpeg, image/webp"
+                        />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-            </div>
+              </div>
 
-            <div className="space-y-4">
+              <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Community Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="e.g., Bay Area Tamil Sangam"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="slug">Community URL</Label>
-                    <Input
-                      id="slug"
-                      placeholder="e.g., bay-area-tamil-sangam"
-                      value={slug}
-                      onChange={(e) => {
-                        setSlugIsDirty(true);
-                        setSlug(generateSlug(e.target.value));
-                      }}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">jivanindia.co/c/{slug}</p>
-                    {slugError && <p className="text-xs text-destructive">{slugError}</p>}
-                  </div>
-                </div>
-            </div>
-
-            <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Details & Purpose</h3>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                     <div className="space-y-2">
-                        <Label htmlFor="type">Community Category</Label>
-                        <Select value={type} onValueChange={(value) => setType(value as any)} required>
-                            <SelectTrigger id="type">
-                                <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Cultural & Arts">Cultural & Arts</SelectItem>
-                                <SelectItem value="Business & Commerce">Business & Commerce</SelectItem>
-                                <SelectItem value="Social & Non-Profit">Social & Non-Profit</SelectItem>
-                                <SelectItem value="Educational">Educational</SelectItem>
-                                <SelectItem value="Religious">Religious</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="region">Region</Label>
-                        <Input
-                            id="region"
-                            placeholder="e.g., San Francisco Bay Area"
-                            value={region}
-                            onChange={(e) => setRegion(e.target.value)}
-                            required
-                        />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Short Description (for listing pages)</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="A brief, one-sentence summary of your community's purpose."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                    rows={2}
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Bay Area Tamil Sangam" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., bay-area-tamil-sangam"
+                            {...field}
+                            onChange={(e) => {
+                              setSlugIsDirty(true);
+                              field.onChange(generateSlug(e.target.value));
+                            }}
+                          />
+                        </FormControl>
+                        <FormDescription>jivanindia.co/c/{field.value || 'your-url'}</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="fullDescription">Full Description (for your main profile page)</Label>
-                  <Textarea
-                    id="fullDescription"
-                    placeholder="Provide a detailed description of your community's mission, activities, history, and who it's for."
-                    value={fullDescription}
-                    onChange={(e) => setFullDescription(e.target.value)}
-                    required
-                    rows={5}
+              </div>
+              
+              <div className="space-y-6">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Details & Purpose</h3>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <FormField
+                          control={form.control}
+                          name="type"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Community Category</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                          <SelectItem value="Cultural & Arts">Cultural & Arts</SelectItem>
+                                          <SelectItem value="Business & Commerce">Business & Commerce</SelectItem>
+                                          <SelectItem value="Social & Non-Profit">Social & Non-Profit</SelectItem>
+                                          <SelectItem value="Educational">Educational</SelectItem>
+                                          <SelectItem value="Religious">Religious</SelectItem>
+                                          <SelectItem value="Other">Other</SelectItem>
+                                      </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                       <FormField
+                          control={form.control}
+                          name="region"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Region</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="e.g., San Francisco Bay Area" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                  </div>
+                  <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Short Description</FormLabel>
+                              <FormControl>
+                                  <Textarea placeholder="A brief, one-sentence summary for listing pages." {...field} rows={2} />
+                              </FormControl>
+                               <FormDescription>Max 160 characters.</FormDescription>
+                              <FormMessage />
+                          </FormItem>
+                      )}
                   />
-                </div>
+                   <FormField
+                      control={form.control}
+                      name="fullDescription"
+                      render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Full Description</FormLabel>
+                              <FormControl>
+                                  <Textarea placeholder="Provide a detailed description of your community's mission, activities, history, and who it's for." {...field} rows={5} />
+                              </FormControl>
+                              <FormDescription>This will appear on your main community profile page.</FormDescription>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+                   <FormField
+                      control={form.control}
+                      name="tags"
+                      render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Tags / Keywords</FormLabel>
+                              <FormControl>
+                                  <Input placeholder="e.g., cultural, family-friendly, south-indian" {...field} />
+                              </FormControl>
+                              <FormDescription>Separate with commas. Helps users discover your community.</FormDescription>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+              </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="tags">Tags / Keywords</Label>
-                    <Input
-                        id="tags"
-                        placeholder="e.g., cultural, family-friendly, south-indian, networking"
-                        value={tags}
-                        onChange={(e) => setTags(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">Separate keywords with a comma to help users discover your community.</p>
-                </div>
-            </div>
+              <div className="flex justify-end gap-4 pt-4">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button type="button" variant="outline" disabled={isSubmitting || isSuccess}>
+                      Cancel
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Any unsaved changes on this form will be lost.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => router.back()}>Leave Page</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
 
-            <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={!!slugError}>Create Community</Button>
-            </div>
-          </form>
+                <Button type="submit" disabled={!form.formState.isValid || isSubmitting || isSuccess}>
+                  {isSubmitting && <><Loader2 className="mr-2 animate-spin" /> Submitting...</>}
+                  {isSuccess && <><CheckCircle className="mr-2" /> Community Created!</>}
+                  {!isSubmitting && !isSuccess && 'Create Community'}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+    
