@@ -228,8 +228,8 @@ export default function CommunitiesPage() {
                         </div>
                     </div>
                     <div className="mt-auto flex gap-2 pt-6">
-                        <Button asChild className="flex-1">
-                            <Link href={`/c/${org.slug}`}>View</Link>
+                        <Button className="flex-1">
+                            View
                         </Button>
                         <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                             <Bookmark className="mr-2 h-4 w-4" />
