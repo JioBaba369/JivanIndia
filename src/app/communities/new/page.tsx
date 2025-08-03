@@ -16,10 +16,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp, UploadCloud, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ImageUp, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
 import { useForm, Controller } from 'react-hook-form';
@@ -43,21 +43,35 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-const formSchema = z.object({
+const generateSlug = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+};
+
+const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(100),
   slug: z.string().min(3, "URL must be at least 3 characters.").max(50)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces."),
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces.")
+    .refine(isSlugUnique, {
+      message: "This URL is already taken.",
+    }),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(160, "Short description must be 160 characters or less."),
   fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(2000),
   region: z.string().min(2, "Region is required."),
   tags: z.string().optional(),
-  logoUrl: z.string().min(1, { message: "A logo image is required." }),
-  bannerUrl: z.string().min(1, { message: "A banner image is required." }),
+  logoUrl: z.string({ required_error: "A logo image is required." }).min(1, { message: "A logo image is required." }),
+  bannerUrl: z.string({ required_error: "A banner image is required." }).min(1, { message: "A banner image is required." }),
 });
+
+type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
 
 export default function NewCommunityPage() {
   const router = useRouter();
@@ -65,19 +79,23 @@ export default function NewCommunityPage() {
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const [slugIsDirty, setSlugIsDirty] = useState(false);
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
-  const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 16/9, onSave: (img: string) => {} });
+  const [cropperConfig, setCropperConfig] = useState({ 
+    aspectRatio: 16/9, 
+    onSave: (img: string) => {},
+    field: 'bannerUrl' as keyof CommunityFormValues
+  });
   
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CommunityFormValues>({
+    resolver: zodResolver(formSchema(isSlugUnique)),
     defaultValues: {
       name: '',
       slug: '',
@@ -89,94 +107,88 @@ export default function NewCommunityPage() {
       logoUrl: '',
       bannerUrl: '',
     },
+    mode: 'onChange',
   });
-
-  const generateSlug = useCallback((value: string) => {
-    return value
-      .toLowerCase()
-      .replace(/&/g, 'and')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-  }, []);
 
   const nameValue = form.watch('name');
   useEffect(() => {
     if (!slugIsDirty && nameValue) {
       const newSlug = generateSlug(nameValue);
-      form.setValue('slug', newSlug);
+      form.setValue('slug', newSlug, { shouldValidate: true });
     }
-  }, [nameValue, slugIsDirty, generateSlug, form]);
+  }, [nameValue, slugIsDirty, form]);
 
-  const slugValue = form.watch('slug');
-  useEffect(() => {
-    if (slugValue) {
-      if (!isSlugUnique(slugValue)) {
-        form.setError('slug', { type: 'manual', message: 'This URL is already taken.' });
-      } else {
-        form.clearErrors('slug');
-      }
-    }
-  }, [slugValue, isSlugUnique, form]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, onSave: (dataUrl: string) => void, aspectRatio: number) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'bannerUrl' | 'logoUrl',
+    aspectRatio: number,
+  ) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+          toast({ title: 'Image Too Large', description: 'Please select an image smaller than 4MB.', variant: 'destructive'});
+          return;
+      }
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         setImageSrc(reader.result?.toString() || '');
-        setCropperConfig({ onSave, aspectRatio });
+        setCropperConfig({ 
+            onSave: (url) => {
+                form.setValue(field, url, { shouldValidate: true });
+                toast({ title: 'Image Uploaded', description: 'Your image has been successfully cropped and saved.'});
+            }, 
+            aspectRatio,
+            field
+        });
         setIsCropperOpen(true);
-        e.target.value = ''; // Reset file input
+        e.target.value = '';
       });
       reader.readAsDataURL(file);
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: CommunityFormValues) => {
     if (!user) {
         toast({ title: 'Authentication Error', description: 'You must be logged in to create a community.', variant: 'destructive' });
         return;
     }
     
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+    startTransition(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newCommunity: NewCommunityInput = {
-      name: values.name,
-      slug: values.slug,
-      type: values.type,
-      description: values.description,
-      fullDescription: values.fullDescription,
-      region: values.region,
-      imageUrl: values.bannerUrl,
-      logoUrl: values.logoUrl,
-      tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
-      membersCount: 1,
-      address: `${values.region}, USA`,
-      phone: '(123) 456-7890',
-      contactEmail: `contact@${values.slug}.org`,
-      website: `www.${values.slug}.org`,
-      founded: new Date().getFullYear().toString(),
-      founderUid: user.uid,
-    };
+        const newCommunity: NewCommunityInput = {
+          name: values.name,
+          slug: values.slug,
+          type: values.type,
+          description: values.description,
+          fullDescription: values.fullDescription,
+          region: values.region,
+          imageUrl: values.bannerUrl,
+          logoUrl: values.logoUrl,
+          tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
+          membersCount: 1,
+          address: `${values.region}, USA`,
+          phone: '(123) 456-7890',
+          contactEmail: `contact@${values.slug}.org`,
+          website: `www.${values.slug}.org`,
+          founded: new Date().getFullYear().toString(),
+          founderUid: user.uid,
+        };
 
-    const addedCommunity = addCommunity(newCommunity, user.email);
-    setAffiliation(addedCommunity.id, addedCommunity.name);
+        const addedCommunity = addCommunity(newCommunity, user.email);
+        setAffiliation(addedCommunity.id, addedCommunity.name);
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    toast({
-      title: 'Community Submitted!',
-      description: `Your community "${values.name}" has been submitted for review.`,
-    });
+        setIsSuccess(true);
+        toast({
+          title: 'Community Submitted!',
+          description: `Your community "${values.name}" has been submitted for review.`,
+        });
 
-    setTimeout(() => {
         router.push(`/c/${addedCommunity.slug}`);
-    }, 1500);
+    });
   };
-
+  
   if (!user) {
     return (
        <div className="container mx-auto px-4 py-12 text-center">
@@ -249,8 +261,12 @@ export default function NewCommunityPage() {
                         <FormLabel>Community Logo (1:1 Ratio)</FormLabel>
                         <FormControl>
                           <Card 
+                            role="button"
+                            aria-label="Upload logo image"
+                            tabIndex={0}
                             className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
                             onClick={() => logoInputRef.current?.click()}
+                            onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
                           >
                             {field.value ? (
                               <Image src={field.value} alt="Logo preview" fill className="object-cover rounded-lg p-2"/>
@@ -268,7 +284,7 @@ export default function NewCommunityPage() {
                           type="file" 
                           className="hidden"
                           ref={logoInputRef}
-                          onChange={(e) => handleFileChange(e, (url) => form.setValue('logoUrl', url, { shouldValidate: true }), 1)}
+                          onChange={(e) => handleFileChange(e, 'logoUrl', 1)}
                           accept="image/png, image/jpeg, image/webp"
                         />
                       </FormItem>
@@ -282,8 +298,12 @@ export default function NewCommunityPage() {
                         <FormLabel>Community Banner (16:9 Ratio)</FormLabel>
                         <FormControl>
                           <Card 
+                            role="button"
+                            aria-label="Upload banner image"
+                            tabIndex={0}
                             className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
                             onClick={() => bannerInputRef.current?.click()}
+                            onKeyDown={(e) => e.key === 'Enter' && bannerInputRef.current?.click()}
                           >
                             {field.value ? (
                               <Image src={field.value} alt="Banner preview" fill className="object-cover rounded-lg"/>
@@ -301,7 +321,7 @@ export default function NewCommunityPage() {
                           type="file" 
                           className="hidden"
                           ref={bannerInputRef}
-                          onChange={(e) => handleFileChange(e, (url) => form.setValue('bannerUrl', url, { shouldValidate: true }), 16/9)}
+                          onChange={(e) => handleFileChange(e, 'bannerUrl', 16/9)}
                           accept="image/png, image/jpeg, image/webp"
                         />
                       </FormItem>
@@ -336,6 +356,7 @@ export default function NewCommunityPage() {
                           <Input
                             placeholder="e.g., bay-area-tamil-sangam"
                             {...field}
+                            onFocus={() => setSlugIsDirty(true)}
                             onChange={(e) => {
                               setSlugIsDirty(true);
                               field.onChange(generateSlug(e.target.value));
@@ -437,7 +458,7 @@ export default function NewCommunityPage() {
               <div className="flex justify-end gap-4 pt-4">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button type="button" variant="outline" disabled={isSubmitting || isSuccess}>
+                    <Button type="button" variant="outline" disabled={isPending || isSuccess}>
                       Cancel
                     </Button>
                   </AlertDialogTrigger>
@@ -455,10 +476,10 @@ export default function NewCommunityPage() {
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <Button type="submit" disabled={!form.formState.isValid || isSubmitting || isSuccess}>
-                  {isSubmitting && <><Loader2 className="mr-2 animate-spin" /> Submitting...</>}
-                  {isSuccess && <><CheckCircle className="mr-2" /> Community Created!</>}
-                  {!isSubmitting && !isSuccess && 'Create Community'}
+                <Button type="submit" disabled={!form.formState.isValid || isPending || isSuccess}>
+                  {isPending && <><Loader2 className="mr-2 animate-spin" /> Submitting...</>}
+                  {isSuccess && <><CheckCircle className="mr-2" /> Submitted!</>}
+                  {!isPending && !isSuccess && 'Create Community'}
                 </Button>
               </div>
             </form>
