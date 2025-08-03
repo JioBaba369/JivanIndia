@@ -68,9 +68,8 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild onClick={onAction}><Link href="/profile">My Profile</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild onClick={onAction}><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
           {user.username && <DropdownMenuItem asChild onClick={onAction}><Link href={`/${user.username}`}>View Public Profile</Link></DropdownMenuItem>}
-          {user.isAdmin && <DropdownMenuItem asChild onClick={onAction}><Link href="/admin"><ShieldCheck className="mr-2" />Admin</Link></DropdownMenuItem>}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => { logout(); if(onAction) onAction(); }}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
