@@ -2,10 +2,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { communities } from '@/app/communities/page';
 
 interface User {
   uid: string;
   name: string;
+  username?: string;
   email: string;
   isAdmin?: boolean;
   profileImageUrl?: string;
@@ -15,6 +17,7 @@ interface User {
     orgName: string;
   };
   phone?: string;
+  website?: string;
   currentLocation?: {
     country: string;
     state: string;
@@ -45,6 +48,7 @@ interface AuthContextType {
   login: (user: Pick<User, 'name' | 'email'>) => void;
   logout: () => void;
   updateUser: (updatedData: Partial<User>) => void;
+  getUserByUsername: (username: string) => User | undefined;
   isLoading: boolean;
   getInitials: (name: string) => string;
   
@@ -75,6 +79,22 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const jivanIndiaUser: User = {
+    uid: 'jivanindia-official',
+    name: 'JivanIndia.co',
+    username: 'jivanindia',
+    email: 'contact@jivanindia.co',
+    profileImageUrl: 'https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
+    bio: 'The heart of the Indian community, all in one place. Discover events, connect with organizations, and find local deals.',
+    affiliation: { orgId: '2', orgName: 'India Cultural Center' },
+    website: 'jivanindia.co',
+    currentLocation: { country: 'USA', state: 'CA', city: 'San Francisco' },
+    originLocation: { indiaState: 'Maharashtra', indiaDistrict: 'Mumbai' },
+};
+
+const allUsers: User[] = [jivanIndiaUser];
+
 
 const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
   const [state, setState] = useState<T>(() => {
@@ -151,6 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser({ ...user, ...updatedData });
     }
   };
+
+  const getUserByUsername = (username: string) => {
+    return allUsers.find(u => u.username?.toLowerCase() === username.toLowerCase());
+  }
 
   const login = (loginData: Pick<User, 'name' | 'email'>) => {
     let affiliation;
@@ -235,6 +259,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login, 
     logout, 
     updateUser,
+    getUserByUsername,
     isLoading, 
     getInitials,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,

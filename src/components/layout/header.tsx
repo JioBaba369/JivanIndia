@@ -46,6 +46,14 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
 
 const UserActions = ({ onAction }: { onAction?: () => void }) => {
   const { user, logout, getInitials } = useAuth();
+  const pathname = usePathname();
+
+  const isPublicProfilePage = navLinks.every(link => link.href !== pathname) && pathname !== '/profile' && pathname !== '/admin' && pathname !== '/login' && pathname !== '/signup' && pathname !== '/events/new' && pathname.startsWith('/');
+
+
+  if (isPublicProfilePage) {
+    return null;
+  }
 
   if (user) {
     return (
