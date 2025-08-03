@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, FormEvent } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp } from 'lucide-react';
+import { ImageUp, Loader2 } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 
 export default function NewDealPage() {
@@ -33,6 +33,7 @@ export default function NewDealPage() {
   const [category, setCategory] = useState('Food & Dining');
   const [businessName, setBusinessName] = useState(user?.affiliation?.orgName || '');
   const [expires, setExpires] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
@@ -57,7 +58,7 @@ export default function NewDealPage() {
   };
 
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
      if (!user?.affiliation) {
       toast({
@@ -75,8 +76,11 @@ export default function NewDealPage() {
       });
       return;
     }
-
+    
+    setIsSubmitting(true);
+    
     // In a real app, this would save to a database.
+    await new Promise(resolve => setTimeout(resolve, 1000));
     console.log({
         title, description, terms, category, businessName, expires, imageUrl: croppedImage
     });
@@ -85,7 +89,8 @@ export default function NewDealPage() {
       title: 'Deal Submitted!',
       description: `Your deal "${title}" has been submitted for review.`,
     });
-
+    
+    setIsSubmitting(false);
     router.push('/deals');
   };
 
@@ -216,8 +221,10 @@ export default function NewDealPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-              <Button type="submit">Create Deal</Button>
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Deal"}
+              </Button>
             </div>
           </form>
         </CardContent>

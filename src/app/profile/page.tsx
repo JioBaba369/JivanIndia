@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useCommunities } from '@/hooks/use-communities';
-import { deals as allDeals } from '../deals/page';
+import { deals as allDeals } from "@/data/deals";
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 

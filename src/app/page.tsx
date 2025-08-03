@@ -17,7 +17,7 @@ import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
-import { deals } from "./deals/page";
+import { deals } from "@/data/deals";
 import { format } from "date-fns";
 
 export default function HomePage() {

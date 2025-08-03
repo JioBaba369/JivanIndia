@@ -95,7 +95,7 @@ export default function NewCommunityPage() {
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   
@@ -183,55 +183,51 @@ export default function NewCommunityPage() {
         return;
     }
     
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    startTransition(async () => {
+        // In a real app, this would be handled by the backend.
+        const newCommunity: NewCommunityInput = {
+          name: values.name,
+          slug: values.slug,
+          type: values.type,
+          description: values.description,
+          fullDescription: values.fullDescription,
+          region: values.region,
+          imageUrl: values.bannerUrl,
+          logoUrl: values.logoUrl,
+          tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
+          membersCount: 1,
+          address: values.address || '',
+          phone: values.phone || '',
+          contactEmail: values.contactEmail,
+          website: values.website || '',
+          socialMedia: {
+            twitter: values.socialTwitter,
+            linkedin: values.socialLinkedin,
+            facebook: values.socialFacebook,
+          },
+          founded: new Date().getFullYear().toString(),
+          founderUid: user.uid,
+        };
 
-    // In a real app, this would be handled by the backend.
-    const newCommunity: NewCommunityInput = {
-      name: values.name,
-      slug: values.slug,
-      type: values.type,
-      description: values.description,
-      fullDescription: values.fullDescription,
-      region: values.region,
-      imageUrl: values.bannerUrl,
-      logoUrl: values.logoUrl,
-      tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
-      membersCount: 1,
-      address: values.address || '',
-      phone: values.phone || '',
-      contactEmail: values.contactEmail,
-      website: values.website || '',
-      socialMedia: {
-        twitter: values.socialTwitter,
-        linkedin: values.socialLinkedin,
-        facebook: values.socialFacebook,
-      },
-      founded: new Date().getFullYear().toString(),
-      founderUid: user.uid,
-    };
+        try {
+          const addedCommunity = addCommunity(newCommunity, user.email);
+          setAffiliation(addedCommunity.id, addedCommunity.name);
+          setIsSuccess(true);
+          toast({
+            title: 'Community Submitted!',
+            description: `Your community "${values.name}" has been submitted for review.`,
+          });
+          
+          router.push(`/c/${addedCommunity.slug}`);
 
-    try {
-      const addedCommunity = addCommunity(newCommunity, user.email);
-      setAffiliation(addedCommunity.id, addedCommunity.name);
-
-      setIsSuccess(true);
-      toast({
-        title: 'Community Submitted!',
-        description: `Your community "${values.name}" has been submitted for review.`,
-      });
-      
-      router.push(`/c/${addedCommunity.slug}`);
-
-    } catch (error) {
-       toast({
-        title: 'Submission Failed',
-        description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+        } catch (error) {
+           toast({
+            title: 'Submission Failed',
+            description: 'An unexpected error occurred. Please try again.',
+            variant: 'destructive',
+          });
+        }
+    });
   };
   
   if (!user) {
@@ -526,7 +522,7 @@ export default function NewCommunityPage() {
               <div className="flex justify-end gap-4 pt-4">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button type="button" variant="outline" disabled={isSubmitting || isSuccess}>
+                    <Button type="button" variant="outline" disabled={isPending || isSuccess}>
                       Cancel
                     </Button>
                   </AlertDialogTrigger>
@@ -544,10 +540,10 @@ export default function NewCommunityPage() {
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <Button type="submit" disabled={!form.formState.isValid || isSubmitting || isSuccess || isSlugChecking}>
-                  {isSubmitting && <><Loader2 className="mr-2 animate-spin" /> Submitting...</>}
+                <Button type="submit" disabled={!form.formState.isValid || isPending || isSuccess || isSlugChecking}>
+                  {isPending && <><Loader2 className="mr-2 animate-spin" /> Submitting...</>}
                   {isSuccess && <><CheckCircle className="mr-2" /> Submitted!</>}
-                  {!isSubmitting && !isSuccess && 'Create Community'}
+                  {!isPending && !isSuccess && 'Create Community'}
                 </Button>
               </div>
             </form>

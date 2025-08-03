@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, FormEvent } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp } from 'lucide-react';
+import { ImageUp, Loader2 } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 
 export default function NewEventPage() {
@@ -39,6 +39,7 @@ export default function NewEventPage() {
   const [organizerName, setOrganizerName] = useState(user?.affiliation?.orgName || '');
   const [tags, setTags] = useState('');
   const [ticketLink, setTicketLink] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
@@ -63,7 +64,7 @@ export default function NewEventPage() {
     setIsCropperOpen(false);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!user?.affiliation) {
       toast({
@@ -89,6 +90,8 @@ export default function NewEventPage() {
       });
       return;
     }
+    
+    setIsSubmitting(true);
 
     const newEventData = {
       title,
@@ -107,6 +110,9 @@ export default function NewEventPage() {
       ticketLink,
       submittedByUid: user.uid,
     };
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     addEvent(newEventData);
 
@@ -114,7 +120,8 @@ export default function NewEventPage() {
       title: 'Event Submitted!',
       description: `Your event "${title}" has been submitted for review.`,
     });
-
+    
+    setIsSubmitting(false);
     router.push('/events');
   };
 
@@ -333,10 +340,12 @@ export default function NewEventPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit">Create Event</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Event"}
+              </Button>
             </div>
           </form>
         </CardContent>

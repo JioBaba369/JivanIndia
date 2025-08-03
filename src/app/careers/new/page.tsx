@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -31,9 +32,10 @@ export default function NewJobPage() {
   const [salary, setSalary] = useState('');
   const [description, setDescription] = useState('');
   const [applicationUrl, setApplicationUrl] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!user?.affiliation) {
       toast({
@@ -43,8 +45,11 @@ export default function NewJobPage() {
       });
       return;
     }
+    
+    setIsSubmitting(true);
    
     // In a real app, you would save this data to your database
+    await new Promise(resolve => setTimeout(resolve, 1000));
     console.log({
       title,
       companyName,
@@ -59,7 +64,8 @@ export default function NewJobPage() {
       title: 'Job Submitted!',
       description: `Your job posting for "${title}" has been submitted for review.`,
     });
-
+    
+    setIsSubmitting(false);
     router.push('/careers');
   };
 
@@ -195,10 +201,12 @@ export default function NewJobPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit">Post Job</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Submitting...</> : "Post Job"}
+              </Button>
             </div>
           </form>
         </CardContent>
