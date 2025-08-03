@@ -1,6 +1,7 @@
+
 import Link from "next/link";
 import Logo from "../logo";
-import { Github, Twitter, Facebook, Instagram } from "lucide-react";
+import { Github, Twitter, Facebook, Instagram, Wand2 } from "lucide-react";
 import { Button } from "../ui/button";
 
 export default function Footer() {
@@ -34,19 +35,20 @@ export default function Footer() {
               <ul className="mt-4 space-y-2">
                 <li><Link href="/" className="text-muted-foreground hover:text-primary">What's On</Link></li>
                 <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
-                 <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
+                <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
                 <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
-                 <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
+                <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
+                <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-headline font-semibold">Legal</h4>
+              <h4 className="font-headline font-semibold">Resources</h4>
               <ul className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
-                <li><Link href="/legal/privacy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-                <li><Link href="/legal/terms" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+                <li><Link href="/events/title-tool" className="text-muted-foreground hover:text-primary flex items-center gap-2">Event Title Tool <Wand2 className="h-4 w-4"/></Link></li>
+                <li><Link href="/legal" className="text-muted-foreground hover:text-primary">Legal Center</Link></li>
               </ul>
             </div>
           </div>

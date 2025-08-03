@@ -10,38 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-export const deals: any[] = [
-    {
-    id: '1',
-    title: '20% Off Lunch Special',
-    description: 'Enjoy a delicious 20% discount on our entire lunch menu. Valid Monday to Friday, from 11 AM to 3 PM. Cannot be combined with other offers.',
-    terms: 'Offer valid for dine-in only. Mention JivanIndia.co to redeem. Expires end of next month.',
-    category: 'Food & Dining',
-    imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kJTIwZGlzaHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    business: 'Saffron Restaurant Group',
-    businessId: '1',
-    businessLocation: '123 Saffron Avenue, New York, NY',
-    businessWebsite: 'www.saffronrestaurants.com',
-    expires: 'August 31, 2024',
-    postedAt: '2024-07-20T11:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'Free Samosas with Entree',
-    description: 'Get a complimentary order of our famous vegetable samosas with the purchase of any two dinner entrees.',
-    terms: 'Valid for dine-in or takeout. One per table/order. Not valid with other promotions.',
-    category: 'Food & Dining',
-    imageUrl: 'https://images.unsplash.com/photo-1601252399679-68d184a8775f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzYW1vc2FzfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
-    business: 'Saffron Restaurant Group',
-    businessId: '1',
-    businessLocation: '123 Saffron Avenue, New York, NY',
-    businessWebsite: 'www.saffronrestaurants.com',
-    expires: 'September 15, 2024',
-    postedAt: '2024-07-18T18:00:00Z',
-  }
-];
-
+import { deals } from "@/data/deals";
 
 export default function DealsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,9 +41,11 @@ export default function DealsPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Exclusive offers from businesses in our community. Support local, save money.
           </p>
-           <Button size="lg" className="mt-8">
-              <PlusCircle className="mr-2 h-5 w-5" />
-              Post a Deal
+           <Button asChild size="lg" className="mt-8">
+              <Link href="/deals/new">
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Post a Deal
+              </Link>
             </Button>
         </div>
       </section>

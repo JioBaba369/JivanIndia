@@ -25,6 +25,7 @@ const navLinks = [
   { href: "/communities", label: "Communities" },
   { href: "/movies", label: "Movies" },
   { href: "/deals", label: "Deals" },
+  { href: "/careers", label: "Careers" },
 ];
 
 const NavLink = ({ href, label, onClick }: { href: string; label: string, onClick?: () => void }) => {
