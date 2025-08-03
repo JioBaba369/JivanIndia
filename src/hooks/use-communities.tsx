@@ -21,6 +21,11 @@ export interface Community {
   phone: string;
   contactEmail: string;
   website: string;
+  socialMedia?: {
+    twitter?: string;
+    linkedin?: string;
+    facebook?: string;
+  };
   founderUid: string;
   founderEmail: string;
   createdAt: string;
@@ -63,6 +68,10 @@ const initialCommunities: Community[] = [
       phone: '(212) 555-1234',
       contactEmail: 'contact@saffron.com',
       website: 'www.saffronrestaurants.com',
+      socialMedia: {
+        twitter: 'https://twitter.com/saffron',
+        facebook: 'https://facebook.com/saffron',
+      },
       founderUid: 'admin-saffron-uid',
       founderEmail: 'admin@saffron.com',
       createdAt: '2024-01-15T12:00:00Z',
@@ -85,6 +94,11 @@ const initialCommunities: Community[] = [
       phone: '(510) 555-5678',
       contactEmail: 'info@iccbayarea.org',
       website: 'www.iccbayarea.org',
+       socialMedia: {
+        twitter: 'https://twitter.com/icc',
+        linkedin: 'https://linkedin.com/icc',
+        facebook: 'https://facebook.com/icc',
+      },
       founderUid: 'admin-icc-uid',
       founderEmail: 'admin@icc.com',
       createdAt: '2024-02-01T10:00:00Z',
@@ -107,6 +121,11 @@ const initialCommunities: Community[] = [
         phone: '+91 22 3061 3500',
         contactEmail: 'helpdesk@yashrajfilms.com',
         website: 'www.yashrajfilms.com',
+        socialMedia: {
+            twitter: 'https://twitter.com/yrf',
+            linkedin: 'https://www.linkedin.com/company/yash-raj-films',
+            facebook: 'https://www.facebook.com/YashRajFilms',
+        },
         founderUid: 'admin-yashraj-uid',
         founderEmail: 'admin@yashraj.com',
         createdAt: '2024-03-20T09:00:00Z',

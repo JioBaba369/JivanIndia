@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp, Loader2, CheckCircle, AlertTriangle, UploadCloud, Check } from 'lucide-react';
+import { ImageUp, Loader2, CheckCircle, AlertTriangle, UploadCloud, Check, Twitter, Linkedin, Facebook } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
 import { useForm, Controller } from 'react-hook-form';
@@ -76,6 +76,13 @@ const formSchema = (isSlugUnique: (slug: string) => Promise<boolean>) => z.objec
   tags: z.string().optional(),
   logoUrl: z.string({ required_error: "A logo image is required." }).url({ message: "A logo image is required." }),
   bannerUrl: z.string({ required_error: "A banner image is required." }).url({ message: "A banner image is required." }),
+  website: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  contactEmail: z.string().email("Please enter a valid email address."),
+  phone: z.string().min(10, "Please enter a valid phone number.").optional().or(z.literal('')),
+  address: z.string().min(10, "Please enter a valid address.").optional().or(z.literal('')),
+  socialTwitter: z.string().url().optional().or(z.literal('')),
+  socialFacebook: z.string().url().optional().or(z.literal('')),
+  socialLinkedin: z.string().url().optional().or(z.literal('')),
 });
 
 type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -119,6 +126,13 @@ export default function NewCommunityPage() {
       tags: '',
       logoUrl: undefined,
       bannerUrl: undefined,
+      website: '',
+      contactEmail: user?.email || '',
+      phone: '',
+      address: '',
+      socialTwitter: '',
+      socialFacebook: '',
+      socialLinkedin: '',
     },
     mode: 'onChange',
   });
@@ -184,10 +198,15 @@ export default function NewCommunityPage() {
       logoUrl: values.logoUrl,
       tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
       membersCount: 1,
-      address: '',
-      phone: '',
-      contactEmail: '',
-      website: '',
+      address: values.address || '',
+      phone: values.phone || '',
+      contactEmail: values.contactEmail,
+      website: values.website || '',
+      socialMedia: {
+        twitter: values.socialTwitter,
+        linkedin: values.socialLinkedin,
+        facebook: values.socialFacebook,
+      },
       founded: new Date().getFullYear().toString(),
       founderUid: user.uid,
     };
@@ -486,6 +505,23 @@ export default function NewCommunityPage() {
                       )}
                   />
               </div>
+
+               <div className="space-y-6">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Contact & Social Media</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField control={form.control} name="contactEmail" render={({ field }) => (<FormItem><FormLabel>Contact Email *</FormLabel><FormControl><Input placeholder="e.g., contact@yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="e.g., (123) 456-7890" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+                 <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Public Address</FormLabel><FormControl><Input placeholder="e.g., 123 Community Lane, City, State" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                 <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Twitter /> Twitter</div></FormLabel><FormControl><Input placeholder="https://twitter.com/..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><FormControl><Input placeholder="https://linkedin.com/..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><FormControl><Input placeholder="https://facebook.com/..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+              </div>
+
 
               <div className="flex justify-end gap-4 pt-4">
                 <AlertDialog>
