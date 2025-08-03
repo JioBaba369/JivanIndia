@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { ImageUp } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
-import { useCommunities, type Community } from '@/hooks/use-communities.tsx';
+import { useCommunities, type Community, type NewCommunityInput } from '@/hooks/use-communities.tsx';
 
 export default function NewCommunityPage() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function NewCommunityPage() {
   const [slug, setSlug] = useState('');
   const [slugIsDirty, setSlugIsDirty] = useState(false);
   const [slugError, setSlugError] = useState<string | null>(null);
-  const [type, setType] = useState<'Cultural' | 'Business' | 'Religious' | 'Social' | 'Non-Profit' | 'Other'>('Other');
+  const [type, setType] = useState<Community['type']>('Other');
   const [description, setDescription] = useState('');
   const [fullDescription, setFullDescription] = useState('');
   const [region, setRegion] = useState('');
@@ -114,7 +114,7 @@ export default function NewCommunityPage() {
       return;
     }
 
-    const newCommunity: Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'> = {
+    const newCommunity: NewCommunityInput = {
       name,
       slug,
       type,
@@ -178,125 +178,129 @@ export default function NewCommunityPage() {
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Establish Your Community's Presence</CardTitle>
           <CardDescription>
-            Give your organization a home on JivanIndia.co. Fill out the details below to create a hub where you can share events, connect with members, and grow your community.
+            Fill out the form below to add your organization to the JivanIndia.co community hub.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-                <Label htmlFor="community-image">Community Banner Image</Label>
-                <Card 
-                  className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {croppedImage ? (
-                    <Image src={croppedImage} alt="Community banner preview" fill className="object-cover rounded-lg"/>
-                  ) : (
-                    <>
-                      <ImageUp className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
-                    </>
-                  )}
-                </Card>
-                 <Input 
-                  id="community-image" 
-                  type="file" 
-                  className="hidden"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/png, image/jpeg"
-                />
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="name">Community Name</Label>
-                <Input
-                  id="name"
-                  placeholder="e.g., Bay Area Tamil Sangam"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="slug">Community URL</Label>
-                <Input
-                  id="slug"
-                  placeholder="e.g., bay-area-tamil-sangam"
-                  value={slug}
-                  onChange={(e) => {
-                    setSlugIsDirty(true);
-                    setSlug(generateSlug(e.target.value));
-                  }}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">jivanindia.co/c/{slug}</p>
-                {slugError && <p className="text-xs text-destructive">{slugError}</p>}
-              </div>
-            </div>
-             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                 <div className="space-y-2">
-                    <Label htmlFor="type">Category</Label>
-                    <Select value={type} onValueChange={(value) => setType(value as any)} required>
-                        <SelectTrigger id="type">
-                            <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Cultural">Cultural</SelectItem>
-                            <SelectItem value="Business">Business</SelectItem>
-                            <SelectItem value="Religious">Religious</SelectItem>
-                            <SelectItem value="Social">Social</SelectItem>
-                            <SelectItem value="Non-Profit">Non-Profit</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="region">Region</Label>
-                    <Input
-                        id="region"
-                        placeholder="e.g., San Francisco Bay Area"
-                        value={region}
-                        onChange={(e) => setRegion(e.target.value)}
-                        required
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
+                <div className="space-y-2">
+                    <Label htmlFor="community-image">Community Banner Image</Label>
+                    <Card 
+                      className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {croppedImage ? (
+                        <Image src={croppedImage} alt="Community banner preview" fill className="object-cover rounded-lg"/>
+                      ) : (
+                        <>
+                          <ImageUp className="h-8 w-8 text-muted-foreground" />
+                          <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
+                        </>
+                      )}
+                    </Card>
+                     <Input 
+                      id="community-image" 
+                      type="file" 
+                      className="hidden"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/png, image/jpeg"
                     />
                 </div>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Community Name</Label>
+                    <Input
+                      id="name"
+                      placeholder="e.g., Bay Area Tamil Sangam"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="slug">Community URL</Label>
+                    <Input
+                      id="slug"
+                      placeholder="e.g., bay-area-tamil-sangam"
+                      value={slug}
+                      onChange={(e) => {
+                        setSlugIsDirty(true);
+                        setSlug(generateSlug(e.target.value));
+                      }}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">jivanindia.co/c/{slug}</p>
+                    {slugError && <p className="text-xs text-destructive">{slugError}</p>}
+                  </div>
+                </div>
             </div>
-            
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Short Description (for cards)</Label>
-              <Textarea
-                id="description"
-                placeholder="A brief, one-sentence summary of your community."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                rows={2}
-              />
-            </div>
-            
-             <div className="space-y-2">
-              <Label htmlFor="fullDescription">Full Description (for profile page)</Label>
-              <Textarea
-                id="fullDescription"
-                placeholder="Tell us more about your community's mission, history, and activities."
-                value={fullDescription}
-                onChange={(e) => setFullDescription(e.target.value)}
-                required
-                rows={5}
-              />
-            </div>
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Details & Purpose</h3>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                     <div className="space-y-2">
+                        <Label htmlFor="type">Community Category</Label>
+                        <Select value={type} onValueChange={(value) => setType(value as any)} required>
+                            <SelectTrigger id="type">
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Cultural & Arts">Cultural & Arts</SelectItem>
+                                <SelectItem value="Business & Commerce">Business & Commerce</SelectItem>
+                                <SelectItem value="Social & Non-Profit">Social & Non-Profit</SelectItem>
+                                <SelectItem value="Educational">Educational</SelectItem>
+                                <SelectItem value="Religious">Religious</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="region">Region</Label>
+                        <Input
+                            id="region"
+                            placeholder="e.g., San Francisco Bay Area"
+                            value={region}
+                            onChange={(e) => setRegion(e.target.value)}
+                            required
+                        />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Short Description (for listing pages)</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="A brief, one-sentence summary of your community's purpose."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                    rows={2}
+                  />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="fullDescription">Full Description (for your main profile page)</Label>
+                  <Textarea
+                    id="fullDescription"
+                    placeholder="Provide a detailed description of your community's mission, activities, history, and who it's for."
+                    value={fullDescription}
+                    onChange={(e) => setFullDescription(e.target.value)}
+                    required
+                    rows={5}
+                  />
+                </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="tags">Tags</Label>
-                <Input
-                    id="tags"
-                    placeholder="e.g., cultural, family-friendly, south-indian"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">Separate tags with a comma.</p>
+                <div className="space-y-2">
+                    <Label htmlFor="tags">Tags / Keywords</Label>
+                    <Input
+                        id="tags"
+                        placeholder="e.g., cultural, family-friendly, south-indian, networking"
+                        value={tags}
+                        onChange={(e) => setTags(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">Separate keywords with a comma to help users discover your community.</p>
+                </div>
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
@@ -311,3 +315,5 @@ export default function NewCommunityPage() {
     </div>
   );
 }
+
+    
