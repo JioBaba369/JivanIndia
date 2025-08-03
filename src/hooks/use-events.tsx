@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { useCommunities } from '@/hooks/use-communities';
 
 export interface Event {
@@ -35,10 +35,11 @@ export interface Event {
   updatedAt?: string; // ISO 8601
 }
 
+type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'status'>;
 
 interface EventsContextType {
   events: Event[];
-  addEvent: (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => void;
+  addEvent: (event: NewEventInput) => void;
   getEventById: (id: string) => Event | undefined;
   updateEventStatus: (eventId: string, status: Event['status']) => void;
 }
@@ -47,7 +48,6 @@ const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
 const initialEvents: Event[] = [];
 
-
 const STORAGE_KEY = 'jivanindia-events';
 
 export function EventsProvider({ children }: { children: ReactNode }) {
@@ -55,7 +55,6 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const { getCommunityById } = useCommunities();
 
   useEffect(() => {
-    // Ensure this runs only on the client
     if (typeof window === 'undefined') {
         setEvents(initialEvents);
         return;
@@ -69,7 +68,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialEvents));
       }
     } catch (error) {
-      console.error("Failed to access localStorage", error);
+      console.error("Failed to access localStorage for events", error);
       setEvents(initialEvents);
     }
   }, []);
@@ -85,30 +84,30 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addEvent = (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => {
-    const affiliatedCommunity = affiliationId ? getCommunityById(affiliationId) : undefined;
+  const addEvent = useCallback((eventData: NewEventInput) => {
+    const affiliatedCommunity = getCommunityById(eventData.organizerId);
     const status = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
 
     const newEvent: Event = {
-      ...event,
+      ...eventData,
       id: new Date().getTime().toString(),
       createdAt: new Date().toISOString(),
       status: status,
     };
     persistEvents([...events, newEvent]);
-  };
+  }, [events, getCommunityById]);
 
-  const getEventById = (id: string) => {
+
+  const getEventById = useCallback((id: string) => {
     return events.find(event => event.id === id);
-  };
+  }, [events]);
 
-  const updateEventStatus = (eventId: string, status: Event['status']) => {
+  const updateEventStatus = useCallback((eventId: string, status: Event['status']) => {
     const updatedEvents = events.map(event => 
       event.id === eventId ? { ...event, status, updatedAt: new Date().toISOString() } : event
     );
     persistEvents(updatedEvents);
-  };
-
+  }, [events]);
 
   const value = {
     events,

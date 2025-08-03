@@ -1,7 +1,6 @@
 
 'use client';
 
-import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,7 +17,7 @@ import { useEvents, type Event } from '@/hooks/use-events';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, FormEvent } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ImageUp } from 'lucide-react';
@@ -31,7 +30,7 @@ export default function NewEventPage() {
   const { user } = useAuth();
 
   const [title, setTitle] = useState('');
-  const [eventType, setEventType] = useState<'Cultural' | 'Religious' | 'Professional' | 'Sports' | 'Festival' | 'Workshop' | 'Food' | 'Other'>('Other');
+  const [eventType, setEventType] = useState<Event['eventType']>('Other');
   const [startDateTime, setStartDateTime] = useState('');
   const [endDateTime, setEndDateTime] = useState('');
   const [venueName, setVenueName] = useState('');
@@ -64,7 +63,7 @@ export default function NewEventPage() {
     setIsCropperOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!user?.affiliation) {
       toast({
@@ -91,7 +90,7 @@ export default function NewEventPage() {
       return;
     }
 
-    const newEvent: Omit<Event, 'id' | 'createdAt' | 'status'> = {
+    const newEventData = {
       title,
       eventType,
       startDateTime,
@@ -109,7 +108,7 @@ export default function NewEventPage() {
       submittedByUid: user.uid,
     };
 
-    addEvent(newEvent, user.affiliation.orgId);
+    addEvent(newEventData);
 
     toast({
       title: 'Event Submitted!',
@@ -136,6 +135,25 @@ export default function NewEventPage() {
       </div>
     );
   }
+  
+  if (!user.affiliation) {
+     return (
+       <div className="container mx-auto px-4 py-12 text-center">
+        <Card className="mx-auto max-w-md">
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Affiliation Required</CardTitle>
+                <CardDescription>You must be part of a community to post an event. Register your community first.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="mt-2">
+                    <Link href="/communities/new">Register a Community</Link>
+                </Button>
+            </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -156,151 +174,163 @@ export default function NewEventPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-                <Label htmlFor="event-image">Event Banner Image</Label>
-                <Card 
-                  className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {croppedImage ? (
-                    <Image src={croppedImage} alt="Event banner preview" fill className="object-cover rounded-lg"/>
-                  ) : (
-                    <>
-                      <ImageUp className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
-                    </>
-                  )}
-                </Card>
-                 <Input 
-                  id="event-image" 
-                  type="file" 
-                  className="hidden"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/png, image/jpeg"
-                />
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="title">Event Title</Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Annual Diwali Gala"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="eventType">Category</Label>
-                 <Select value={eventType} onValueChange={(value) => setEventType(value as any)} required>
-                    <SelectTrigger id="eventType">
-                        <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Cultural">Cultural</SelectItem>
-                        <SelectItem value="Religious">Religious</SelectItem>
-                        <SelectItem value="Professional">Professional</SelectItem>
-                        <SelectItem value="Sports">Sports</SelectItem>
-                        <SelectItem value="Festival">Festival</SelectItem>
-                        <SelectItem value="Workshop">Workshop</SelectItem>
-                        <SelectItem value="Food">Food</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                </Select>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Event Media</h3>
+                <div className="space-y-2">
+                    <Label htmlFor="event-image">Event Banner Image</Label>
+                    <Card 
+                      className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {croppedImage ? (
+                        <Image src={croppedImage} alt="Event banner preview" fill className="object-cover rounded-lg"/>
+                      ) : (
+                        <>
+                          <ImageUp className="h-8 w-8 text-muted-foreground" />
+                          <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
+                        </>
+                      )}
+                    </Card>
+                     <Input 
+                      id="event-image" 
+                      type="file" 
+                      className="hidden"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/png, image/jpeg"
+                    />
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="startDateTime">Start Date & Time</Label>
-                <Input
-                  id="startDateTime"
-                  type="datetime-local"
-                  value={startDateTime}
-                  onChange={(e) => setStartDateTime(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endDateTime">End Date & Time</Label>
-                <Input
-                  id="endDateTime"
-                  type="datetime-local"
-                  value={endDateTime}
-                  onChange={(e) => setEndDateTime(e.target.value)}
-                  required
-                />
-              </div>
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Core Details</h3>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Event Title</Label>
+                    <Input
+                      id="title"
+                      placeholder="e.g., Annual Diwali Gala"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="eventType">Category</Label>
+                     <Select value={eventType} onValueChange={(value) => setEventType(value as any)} required>
+                        <SelectTrigger id="eventType">
+                            <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Cultural">Cultural</SelectItem>
+                            <SelectItem value="Religious">Religious</SelectItem>
+                            <SelectItem value="Professional">Professional</SelectItem>
+                            <SelectItem value="Sports">Sports</SelectItem>
+                            <SelectItem value="Festival">Festival</SelectItem>
+                            <SelectItem value="Workshop">Workshop</SelectItem>
+                            <SelectItem value="Food">Food</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Event Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Tell us more about the event, its purpose, and who should attend."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                    rows={5}
+                  />
+                </div>
             </div>
             
-            <div className="space-y-2">
-                <Label htmlFor="venueName">Location Name</Label>
-                <Input
-                id="venueName"
-                placeholder="e.g., Grand Park, Downtown LA"
-                value={venueName}
-                onChange={(e) => setVenueName(e.target.value)}
-                required
-                />
-            </div>
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Date, Time & Location</h3>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDateTime">Start Date & Time</Label>
+                    <Input
+                      id="startDateTime"
+                      type="datetime-local"
+                      value={startDateTime}
+                      onChange={(e) => setStartDateTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endDateTime">End Date & Time</Label>
+                    <Input
+                      id="endDateTime"
+                      type="datetime-local"
+                      value={endDateTime}
+                      onChange={(e) => setEndDateTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor="venueName">Location / Venue Name</Label>
+                    <Input
+                    id="venueName"
+                    placeholder="e.g., Grand Park, Downtown LA"
+                    value={venueName}
+                    onChange={(e) => setVenueName(e.target.value)}
+                    required
+                    />
+                </div>
 
-             <div className="space-y-2">
-                <Label htmlFor="address">Full Address</Label>
-                <Input
-                id="address"
-                placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                required
-                />
+                 <div className="space-y-2">
+                    <Label htmlFor="address">Full Address</Label>
+                    <Input
+                    id="address"
+                    placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                    />
+                </div>
             </div>
             
-            <div className="space-y-2">
-                <Label htmlFor="organizerName">Organizer</Label>
-                <Input
-                    id="organizerName"
-                    value={organizerName}
-                    disabled
-                    readOnly
-                />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Event Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Tell us more about the event..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                rows={5}
-              />
-            </div>
-            
-            <div className="space-y-2">
-                <Label htmlFor="tags">Tags</Label>
-                <Input
-                    id="tags"
-                    placeholder="e.g., family-friendly, diwali, free-entry"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">Separate tags with a comma.</p>
-            </div>
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Additional Information</h3>
+                <div className="space-y-2">
+                    <Label htmlFor="organizerName">Organizer</Label>
+                    <Input
+                        id="organizerName"
+                        value={organizerName}
+                        disabled
+                        readOnly
+                    />
+                    <p className="text-xs text-muted-foreground">This is based on your community affiliation.</p>
+                </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor="tags">Tags / Keywords</Label>
+                    <Input
+                        id="tags"
+                        placeholder="e.g., family-friendly, diwali, free-entry, networking"
+                        value={tags}
+                        onChange={(e) => setTags(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">Separate keywords with a comma to help users discover your event.</p>
+                </div>
 
-             <div className="space-y-2">
-                <Label htmlFor="ticketLink">Ticket URL (Optional)</Label>
-                <Input
-                    id="ticketLink"
-                    placeholder="e.g., https://www.eventbrite.com/..."
-                    value={ticketLink}
-                    onChange={(e) => setTicketLink(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">Link to an external ticketing page.</p>
+                 <div className="space-y-2">
+                    <Label htmlFor="ticketLink">Ticket / Registration URL (Optional)</Label>
+                    <Input
+                        id="ticketLink"
+                        placeholder="e.g., https://www.eventbrite.com/..."
+                        value={ticketLink}
+                        onChange={(e) => setTicketLink(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">Link to an external page for tickets or registration.</p>
+                </div>
             </div>
-
 
             <div className="flex justify-end gap-4 pt-4">
               <Button type="button" variant="outline" onClick={() => router.back()}>
