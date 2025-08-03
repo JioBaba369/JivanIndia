@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck } from "lucide-react";
+import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -25,20 +25,21 @@ import { type MouseEvent, useState, useMemo } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-
-export const communities: any[] = [];
-
-const featuredCommunities = communities.slice(0, 3);
-
+import { useCommunities } from "@/hooks/use-communities";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
-    const { user, joinCommunity, isCommunityJoined } = useAuth();
+    const { user, joinCommunity, leaveCommunity, isCommunityJoined } = useAuth();
     const router = useRouter();
+    const { communities } = useCommunities();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [locationQuery, setLocationQuery] = useState('');
     const [category, setCategory] = useState('all');
+
+    const featuredCommunities = useMemo(() => {
+      return communities.filter(c => c.isVerified).slice(0, 5);
+    }, [communities]);
 
     const communityCategories = useMemo(() => {
       const categories = new Set(communities.map(c => c.type));
@@ -57,10 +58,10 @@ export default function CommunitiesPage() {
     
           return matchesSearch && matchesLocation && matchesCategory;
         });
-    }, [searchQuery, locationQuery, category]);
+    }, [communities, searchQuery, locationQuery, category]);
 
 
-    const handleSave = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {
+    const handleJoinToggle = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {
         e.preventDefault();
         e.stopPropagation();
          if (!user) {
@@ -72,17 +73,19 @@ export default function CommunitiesPage() {
             router.push('/login');
             return;
         }
-
-        if (!isCommunityJoined(orgId)) {
-            joinCommunity(orgId);
+        
+        const currentlyJoined = isCommunityJoined(orgId);
+        if (currentlyJoined) {
+            leaveCommunity(orgId);
             toast({
-            title: "Community Joined!",
-            description: `You have joined ${orgName}.`,
+                title: "Community Left",
+                description: `You have left ${orgName}.`,
             });
         } else {
-             toast({
-                title: "Already Joined",
-                description: "You are already a member of this community.",
+            joinCommunity(orgId);
+            toast({
+                title: "Community Joined!",
+                description: `You have joined ${orgName}.`,
             });
         }
     };
@@ -98,10 +101,16 @@ export default function CommunitiesPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find and connect with cultural, business, and community groups.
           </p>
+          <Button asChild size="lg" className="mt-8">
+            <Link href="/communities/new">
+              <PlusCircle className="mr-2 h-5 w-5"/>
+              Register Your Community
+            </Link>
+          </Button>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 pb-12">
+      {featuredCommunities.length > 0 && <section className="container mx-auto px-4 pb-12">
         <h2 className="font-headline mb-8 text-3xl font-bold">Featured Communities</h2>
          <Carousel
           opts={{
@@ -124,7 +133,7 @@ export default function CommunitiesPage() {
                             priority
                             />
                         </div>
-                        <CardContent className="flex flex-grow flex-col">
+                        <CardContent className="flex flex-grow flex-col p-4">
                              <div className="flex items-center gap-2">
                                 <h3 className="font-headline text-xl font-bold">{org.name}</h3>
                                 {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
@@ -144,12 +153,12 @@ export default function CommunitiesPage() {
           <CarouselPrevious className="hidden sm:flex" />
           <CarouselNext  className="hidden sm:flex" />
         </Carousel>
-      </section>
+      </section>}
 
       <div className="sticky top-[65px] z-30 border-t bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
-            <CardContent>
+            <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -200,7 +209,7 @@ export default function CommunitiesPage() {
                         className="object-cover transition-transform group-hover:scale-105"
                     />
                     </div>
-                    <CardContent className="flex flex-grow flex-col">
+                    <CardContent className="flex flex-grow flex-col p-4">
                     <p className="font-semibold text-primary">{org.type}</p>
                      <div className="mt-1 flex items-center gap-2">
                         <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
@@ -222,7 +231,7 @@ export default function CommunitiesPage() {
                         <Button asChild className="flex-1">
                             <Link href={`/communities/${org.id}`}>View</Link>
                         </Button>
-                        <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, org.name, org.id)} disabled={isCommunityJoined(org.id)}>
+                        <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                             <Bookmark className="mr-2 h-4 w-4" />
                             {isCommunityJoined(org.id) ? "Joined" : "Join"}
                         </Button>

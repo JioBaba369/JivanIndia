@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useParams, useRouter } from "next/navigation";
 import { useProviders } from "@/hooks/use-providers";
 import { useEvents } from "@/hooks/use-events";
+import { useCommunities } from "@/hooks/use-communities";
 
 export default function ProviderDetailPage() {
   const params = useParams();
@@ -20,8 +21,11 @@ export default function ProviderDetailPage() {
   const id = typeof params.id === 'string' ? params.id : '';
   const provider = getProviderById(id);
   const { events } = useEvents();
+  const { getCommunityById } = useCommunities();
+
+  const associatedCommunity = provider?.associatedCommunityId ? getCommunityById(provider.associatedCommunityId) : null;
   
-  const relatedEvents = events.filter(event => event.organizerId === provider?.associatedCommunityId && event.status === 'Approved').slice(0, 3);
+  const relatedEvents = associatedCommunity ? events.filter(event => event.organizerId === associatedCommunity.id && event.status === 'Approved').slice(0, 3) : [];
 
   const { toast } = useToast();
   const { user, saveProvider, unsaveProvider, isProviderSaved } = useAuth();
@@ -119,15 +123,15 @@ export default function ProviderDetailPage() {
                     {provider.services.map((service: string) => <Badge key={service} variant="outline">{service}</Badge>)}
                 </div>
 
-                {provider.associatedCommunityName && (
+                {associatedCommunity && (
                 <div className="mt-10">
                    <h3 className="font-headline text-xl font-semibold mb-4">
                      Associated with
                    </h3>
                    <Card>
                        <CardContent className="p-4">
-                            <Link href={`/communities/${provider.associatedCommunityId}`} className="group">
-                               <p className="font-semibold group-hover:text-primary">{provider.associatedCommunityName}</p>
+                            <Link href={`/communities/${associatedCommunity.id}`} className="group">
+                               <p className="font-semibold group-hover:text-primary">{associatedCommunity.name}</p>
                                <p className="text-sm text-muted-foreground">View community profile</p>
                             </Link>
                        </CardContent>

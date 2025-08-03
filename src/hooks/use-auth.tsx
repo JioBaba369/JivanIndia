@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { communities } from '@/app/communities/page';
+import { type Community, useCommunities } from '@/hooks/use-communities';
 
 interface User {
   uid: string;
@@ -48,6 +48,7 @@ interface AuthContextType {
   login: (user: Pick<User, 'name' | 'email'>) => void;
   logout: () => void;
   updateUser: (updatedData: Partial<User>) => void;
+  setAffiliation: (orgId: string, orgName: string) => void;
   getUserByUsername: (username: string) => User | undefined;
   isLoading: boolean;
   getInitials: (name: string) => string;
@@ -172,6 +173,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setAffiliation = (orgId: string, orgName: string) => {
+    if (user) {
+        updateUser({ affiliation: { orgId, orgName } });
+    }
+  };
+
   const getUserByUsername = (username: string) => {
     return allUsers.find(u => u.username?.toLowerCase() === username.toLowerCase());
   }
@@ -259,6 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login, 
     logout, 
     updateUser,
+    setAffiliation,
     getUserByUsername,
     isLoading, 
     getInitials,

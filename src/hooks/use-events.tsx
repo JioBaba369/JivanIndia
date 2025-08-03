@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { communities } from '@/app/communities/page';
+import { useCommunities } from '@/hooks/use-communities';
 
 export interface Event {
   id: string;
@@ -52,6 +52,7 @@ const STORAGE_KEY = 'jivanindia-events';
 
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
+  const { getCommunityById } = useCommunities();
 
   useEffect(() => {
     // Ensure this runs only on the client
@@ -85,7 +86,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   };
 
   const addEvent = (event: Omit<Event, 'id' | 'createdAt' | 'status'>, affiliationId?: string) => {
-    const affiliatedCommunity = communities.find(c => c.id === affiliationId);
+    const affiliatedCommunity = affiliationId ? getCommunityById(affiliationId) : undefined;
     const status = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
 
     const newEvent: Event = {

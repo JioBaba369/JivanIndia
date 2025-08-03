@@ -11,11 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { communities as allCommunities } from '../communities/page';
+import { useCommunities } from '@/hooks/use-communities';
 import { deals as allDeals } from '../deals/page';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
@@ -31,6 +31,7 @@ export default function ProfilePage() {
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
+  const { communities: allCommunities } = useCommunities();
   const { providers: allProviders } = useProviders();
   const { sponsors: allSponsors } = useSponsors();
 
@@ -216,7 +217,7 @@ export default function ProfilePage() {
                     {userSavedEvents.length > 0 ? (
                         <div className="space-y-4">
                             {userSavedEvents.map((event) => {
-                                const eventDate = event.startDateTime && !isNaN(new Date(event.startDateTime).getTime()) 
+                                const eventDate = event.startDateTime && isValid(new Date(event.startDateTime)) 
                                     ? format(new Date(event.startDateTime), 'eee, MMM d, p') 
                                     : 'Date not available';
 
@@ -416,7 +417,7 @@ export default function ProfilePage() {
                     {userOrganizedEvents.length > 0 ? (
                         <div className="space-y-4">
                             {userOrganizedEvents.map((event) => {
-                                const eventDate = event.startDateTime && !isNaN(new Date(event.startDateTime).getTime()) 
+                                const eventDate = event.startDateTime && isValid(new Date(event.startDateTime))
                                     ? format(new Date(event.startDateTime), 'eee, MMM d, p') 
                                     : 'Date not available';
 

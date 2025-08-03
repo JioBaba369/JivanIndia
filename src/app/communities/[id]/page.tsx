@@ -10,14 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from "@/hooks/use-auth";
-import { communities } from '../page';
+import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
 
 export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  const community = communities.find(c => c.id === id);
+  const { getCommunityById } = useCommunities();
+  const community = getCommunityById(id);
   const { events } = useEvents();
 
   const relatedEvents = events.filter(event => event.organizerId === id && event.status === 'Approved').slice(0, 3);
@@ -133,9 +134,9 @@ export default function CommunityDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" variant={orgIsJoined ? "default" : "secondary"} className="w-full" onClick={handleJoinToggle}>
+                    <Button size="lg" variant={orgIsJoined ? "destructive" : "default"} className="w-full" onClick={handleJoinToggle}>
                         <Bookmark className="mr-2 h-4 w-4"/>
-                        {orgIsJoined ? "Joined" : "Join Community"}
+                        {orgIsJoined ? "Leave Community" : "Join Community"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2 h-4 w-4"/>
