@@ -162,6 +162,25 @@ export default function NewCommunityPage() {
       </div>
     );
   }
+  
+    if (user.affiliation) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <Card className="mx-auto max-w-md">
+          <CardHeader>
+            <CardTitle className="font-headline text-3xl">Already Affiliated</CardTitle>
+            <CardDescription>You are already affiliated with a community and cannot create a new one.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <p className="font-semibold">{user.affiliation.orgName}</p>
+            <Button asChild className="mt-4">
+                <Link href={`/communities/${user.affiliation.orgId}`}>View Your Community</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
