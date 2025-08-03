@@ -25,17 +25,23 @@ export interface Community {
   updatedAt?: string; // ISO 8601
 }
 
+export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'>;
+
 interface CommunitiesContextType {
   communities: Community[];
-  addCommunity: (community: Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'>, founderEmail: string) => Community;
+  addCommunity: (community: NewCommunityInput, founderEmail: string) => Community;
   getCommunityById: (id: string) => Community | undefined;
   verifyCommunity: (communityId: string) => void;
 }
 
-const CommunitiesContext = createContext<CommunitiesContextType>(undefined as any);
+const CommunitiesContext = createContext<CommunitiesContextType>({
+    communities: [],
+    addCommunity: () => { throw new Error('addCommunity function not implemented'); },
+    getCommunityById: () => undefined,
+    verifyCommunity: () => { throw new Error('verifyCommunity function not implemented'); },
+});
 
 const initialCommunities: Community[] = [];
-
 const STORAGE_KEY = 'jivanindia-communities';
 
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
@@ -71,7 +77,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addCommunity = (community: Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'>, founderEmail: string) => {
+  const addCommunity = (community: NewCommunityInput, founderEmail: string): Community => {
     const newCommunity: Community = {
       ...community,
       id: new Date().getTime().toString(),
@@ -83,18 +89,18 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     return newCommunity;
   };
 
-  const getCommunityById = (id: string) => {
+  const getCommunityById = (id: string): Community | undefined => {
     return communities.find(c => c.id === id);
   };
 
-  const verifyCommunity = (communityId: string) => {
+  const verifyCommunity = (communityId: string): void => {
     const updatedCommunities = communities.map(c => 
       c.id === communityId ? { ...c, isVerified: true, updatedAt: new Date().toISOString() } : c
     );
     persistCommunities(updatedCommunities);
   };
 
-  const value = {
+  const contextValue: CommunitiesContextType = {
     communities,
     addCommunity,
     getCommunityById,
@@ -102,13 +108,13 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CommunitiesContext.Provider value={value}>
+    <CommunitiesContext.Provider value={contextValue}>
       {children}
     </CommunitiesContext.Provider>
   );
 }
 
-export function useCommunities() {
+export function useCommunities(): CommunitiesContextType {
   const context = useContext(CommunitiesContext);
   if (context === undefined) {
     throw new Error('useCommunities must be used within a CommunitiesProvider');
