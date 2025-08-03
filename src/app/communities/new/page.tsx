@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { ImageUp } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
-import { useCommunities, type Community } from '@/hooks/use-communities';
+import { useCommunities, type Community } from '@/hooks/use-communities.tsx';
 
 export default function NewCommunityPage() {
   const router = useRouter();
@@ -138,9 +138,9 @@ export default function NewCommunityPage() {
       )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Register Your Community</CardTitle>
+          <CardTitle className="font-headline text-3xl">Establish Your Community's Presence</CardTitle>
           <CardDescription>
-            Fill out the form below to add your organization to the JivanIndia.co community hub.
+            Give your organization a home on JivanIndia.co. Fill out the details below to create a hub where you can share events, connect with members, and grow your community.
           </CardDescription>
         </CardHeader>
         <CardContent>
