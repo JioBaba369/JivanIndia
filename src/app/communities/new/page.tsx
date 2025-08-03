@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ImageUp, Loader2, CheckCircle, AlertTriangle, UploadCloud } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
 import { useForm, Controller } from 'react-hook-form';
@@ -43,6 +43,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 const generateSlug = (value: string) => {
@@ -119,7 +120,7 @@ export default function NewCommunityPage() {
   }, [nameValue, slugIsDirty, form]);
 
 
-  const handleFileChange = (
+  const handleFileChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement>,
     field: 'bannerUrl' | 'logoUrl',
     aspectRatio: number,
@@ -146,7 +147,7 @@ export default function NewCommunityPage() {
       });
       reader.readAsDataURL(file);
     }
-  };
+  }, [form, toast]);
 
   const onSubmit = (values: CommunityFormValues) => {
     if (!user) {
