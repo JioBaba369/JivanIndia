@@ -24,7 +24,10 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ name: "Demo User", email });
+    // In a real app, you'd validate the password. Here we just need email.
+    // The name is derived from the email for demo purposes.
+    const name = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    login({ name: name, email });
     router.push('/');
   };
 

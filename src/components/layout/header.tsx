@@ -46,15 +46,7 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
 
 const UserActions = ({ onAction }: { onAction?: () => void }) => {
   const { user, logout, getInitials } = useAuth();
-  const pathname = usePathname();
-
-  const isPublicProfilePage = navLinks.every(link => link.href !== pathname) && pathname !== '/profile' && pathname !== '/admin' && pathname !== '/login' && pathname !== '/signup' && pathname !== '/events/new' && pathname.startsWith('/');
-
-
-  if (isPublicProfilePage) {
-    return null;
-  }
-
+  
   if (user) {
     return (
       <DropdownMenu>
@@ -68,8 +60,9 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild onClick={onAction}><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild onClick={onAction}><Link href="/profile">My Profile</Link></DropdownMenuItem>
           {user.username && <DropdownMenuItem asChild onClick={onAction}><Link href={`/${user.username}`}>View Public Profile</Link></DropdownMenuItem>}
+          {user.isAdmin && <DropdownMenuItem asChild onClick={onAction}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => { logout(); if(onAction) onAction(); }}>Logout</DropdownMenuItem>
         </DropdownMenuContent>

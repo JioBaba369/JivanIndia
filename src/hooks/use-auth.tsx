@@ -186,6 +186,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (loginData: Pick<User, 'name' | 'email'>) => {
     let affiliation;
     let isAdmin = false;
+    let username = loginData.name.toLowerCase().replace(/\s+/g, '');
+    
     if (loginData.email === 'admin@saffron.com') {
       affiliation = { orgId: '1', orgName: 'Saffron Restaurant Group' };
     } else if (loginData.email === 'admin@yashraj.com') {
@@ -194,10 +196,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       affiliation = { orgId: '2', orgName: 'India Cultural Center' };
     } else if (loginData.email === 'admin@jivanindia.co') {
       isAdmin = true;
+      username = 'jivanindia_admin';
     }
     
     const userToLogin: User = {
         ...loginData,
+        username,
         uid: `user-${new Date().getTime()}`,
         affiliation,
         isAdmin,
@@ -211,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         calendarSyncEnabled: false,
     };
     setUser(userToLogin);
+    allUsers.push(userToLogin);
   };
 
   const logout = () => {

@@ -28,6 +28,7 @@ export default function EditProfilePage() {
   const router = useRouter();
 
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [phone, setPhone] = useState('');
@@ -41,6 +42,7 @@ export default function EditProfilePage() {
 
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
+  const [website, setWebsite] = useState('');
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
@@ -52,9 +54,11 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (user) {
       setName(user.name);
+      setUsername(user.username || '');
       setEmail(user.email);
       setBio(user.bio || '');
       setPhone(user.phone || '');
+      setWebsite(user.website || '');
       setCurrentCountry(user.currentLocation?.country || '');
       setCurrentState(user.currentLocation?.state || '');
       setCurrentCity(user.currentLocation?.city || '');
@@ -82,10 +86,12 @@ export default function EditProfilePage() {
 
         updateUser({ 
             name, 
+            username,
             email, 
             bio, 
             profileImageUrl: profileImageUrl, 
             phone,
+            website,
             currentLocation: {
                 country: currentCountry,
                 state: currentState,
@@ -197,6 +203,15 @@ export default function EditProfilePage() {
                             required 
                         />
                     </div>
+                     <div className="grid gap-2">
+                        <Label htmlFor="username">Username</Label>
+                        <Input 
+                            id="username" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)}
+                            required 
+                        />
+                    </div>
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email Address</Label>
                         <Input 
@@ -205,6 +220,16 @@ export default function EditProfilePage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="website">Website URL</Label>
+                        <Input 
+                            id="website" 
+                            type="url"
+                            placeholder="e.g., your-portfolio.com"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
                         />
                     </div>
                 </div>
