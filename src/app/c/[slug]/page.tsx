@@ -12,12 +12,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = typeof params.slug === 'string' ? params.slug : '';
-  const { getCommunityBySlug } = useCommunities();
+  const { getCommunityBySlug, getInitials } = useCommunities();
   const community = getCommunityBySlug(slug);
   const { events } = useEvents();
 
@@ -77,30 +78,40 @@ export default function CommunityDetailPage() {
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <Card className="overflow-hidden">
-          <div className="relative h-64 md:h-96 w-full">
+        <div className="relative h-64 md:h-80 w-full">
             <Image
-              src={community.imageUrl}
-              alt={community.name}
-              fill
-              className="object-cover"
+                src={community.imageUrl}
+                alt={`${community.name} backdrop`}
+                fill
+                className="object-cover"
+                priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <Badge variant="secondary">
-                {community.type}
-              </Badge>
-              <div className="flex items-center gap-2 mt-2">
-                <h1 className="font-headline text-3xl md:text-5xl font-bold text-white">
-                  {community.name}
-                </h1>
-                {community.isVerified && <BadgeCheck className="h-7 w-7 text-white fill-primary" />}
-              </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        </div>
+
+      <div className="container mx-auto px-4 pb-12">
+        <Card className="overflow-hidden -mt-24 relative z-10 shadow-xl">
+           <CardContent className="p-6 md:p-8">
+            <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-shrink-0 text-center md:text-left">
+                     <Avatar className="h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
+                        <AvatarImage src={community.logoUrl} alt={community.name} />
+                        <AvatarFallback className="text-4xl font-headline">{getInitials(community.name)}</AvatarFallback>
+                    </Avatar>
+                </div>
+                <div className="flex-grow text-center md:text-left">
+                    <Badge variant="secondary">{community.type}</Badge>
+                    <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
+                        <h1 className="font-headline text-3xl md:text-5xl font-bold">
+                            {community.name}
+                        </h1>
+                        {community.isVerified && <BadgeCheck className="h-7 w-7 text-primary fill-primary" />}
+                    </div>
+                     <p className="text-muted-foreground mt-2">{community.description}</p>
+                </div>
             </div>
-          </div>
-          <CardContent className="p-6 md:p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
               <div className="lg:col-span-2">
                 <h2 className="font-headline text-2xl font-semibold mb-4">
                   About Our Community

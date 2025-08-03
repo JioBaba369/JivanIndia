@@ -11,6 +11,7 @@ export interface Community {
   description: string;
   fullDescription: string;
   imageUrl: string;
+  logoUrl: string;
   region: string;
   membersCount: number;
   isVerified: boolean;
@@ -36,6 +37,7 @@ interface CommunitiesContextType {
   getCommunityBySlug: (slug: string) => Community | undefined;
   isSlugUnique: (slug: string) => boolean;
   verifyCommunity: (communityId: string) => void;
+  getInitials: (name: string) => string;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
@@ -50,7 +52,8 @@ const initialCommunities: Community[] = [
       type: 'Business & Commerce',
       description: 'Authentic Indian cuisine with a modern twist. Join our community for exclusive culinary events and offers.',
       fullDescription: 'Founded in 2010, the Saffron Restaurant Group is dedicated to bringing the rich and diverse flavors of India to the world. Our award-winning chefs use traditional recipes and the freshest ingredients to create an unforgettable dining experience. We regularly host cooking classes, wine-pairing dinners, and cultural food festivals. Our mission is to be more than just a restaurant; we aim to be a cultural hub where people can connect over a shared love for Indian food.',
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjByZXN0YXVyYW50fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
+      imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmb29kJTIwY3Vpc2luZXxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      logoUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjByZXN0YXVyYW50fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
       region: 'New York City, NY',
       membersCount: 1250,
       isVerified: true,
@@ -71,7 +74,8 @@ const initialCommunities: Community[] = [
       type: 'Cultural & Arts',
       description: 'Celebrating and preserving Indian culture through arts, education, and community events.',
       fullDescription: 'The India Cultural Center (ICC) is a non-profit organization committed to promoting Indian culture and heritage in the diaspora. We offer a wide range of programs, including classical dance and music classes, language workshops, art exhibitions, and major festival celebrations like Diwali and Holi. Our center serves as a gathering place for all ages to learn, share, and connect with the traditions of India. We welcome everyone to join us in our mission to build a vibrant and inclusive cultural community.',
-      imageUrl: 'https://images.unsplash.com/photo-1627895439379-373f9801844a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjB0ZW1wbGUlMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      imageUrl: 'https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
+      logoUrl: 'https://images.unsplash.com/photo-1627895439379-373f9801844a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjB0ZW1wbGUlMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
       region: 'San Francisco Bay Area, CA',
       membersCount: 4800,
       isVerified: true,
@@ -92,7 +96,8 @@ const initialCommunities: Community[] = [
         type: 'Business & Commerce',
         description: 'Leading Indian film production and distribution house, bringing the best of Bollywood to the world.',
         fullDescription: 'Yash Raj Films (YRF) is one of India’s biggest and most successful film production houses. Since our inception in the 1970s, we have produced and distributed some of the most iconic films in the history of Indian cinema. Our mission is to entertain and inspire audiences globally with compelling stories, unforgettable music, and world-class production values. We are committed to pushing the boundaries of creativity and technology in filmmaking.',
-        imageUrl: 'https://images.unsplash.com/photo-1604975701397-1cfc506e2669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwcHJvamVjdG9yJTIwc2NyZWVufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
+        imageUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
+        logoUrl: 'https://images.unsplash.com/photo-1604975701397-1cfc506e2669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaWxtJTIwcHJvamVjdG9yJTIwc2NyZWVufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
         region: 'Global',
         membersCount: 150000,
         isVerified: true,
@@ -171,6 +176,15 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     persistCommunities(updatedCommunities);
   }, [communities]);
 
+  const getInitials = useCallback((name: string) => {
+    if (!name) return '';
+    const names = name.split(' ');
+    if (names.length > 1) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }, []);
+
   const contextValue = {
     communities,
     addCommunity,
@@ -178,6 +192,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     getCommunityBySlug,
     isSlugUnique,
     verifyCommunity,
+    getInitials,
   };
 
   return (

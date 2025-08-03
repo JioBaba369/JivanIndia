@@ -19,13 +19,14 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, FormEvent, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp } from 'lucide-react';
+import { ImageUp, UploadCloud } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 import { useCommunities, type Community, type NewCommunityInput } from '@/hooks/use-communities';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function NewCommunityPage() {
   const router = useRouter();
-  const { addCommunity, isSlugUnique } = useCommunities();
+  const { addCommunity, isSlugUnique, getInitials } = useCommunities();
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
 
@@ -40,9 +41,13 @@ export default function NewCommunityPage() {
   const [tags, setTags] = useState('');
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
+  const [croppedBanner, setCroppedBanner] = useState<string | null>(null);
+  const [croppedLogo, setCroppedLogo] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 16/9, onSave: (img: string) => {} });
+  
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const generateSlug = useCallback((value: string) => {
     return value
@@ -70,21 +75,17 @@ export default function NewCommunityPage() {
   }, [slug, isSlugUnique]);
 
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, onSave: (dataUrl: string) => void, aspectRatio: number) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         setImageSrc(reader.result?.toString() || '');
+        setCropperConfig({ onSave, aspectRatio });
         setIsCropperOpen(true);
       });
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleCropSave = (croppedDataUrl: string) => {
-    setCroppedImage(croppedDataUrl);
-    setIsCropperOpen(false);
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -97,10 +98,10 @@ export default function NewCommunityPage() {
         });
         return;
     }
-     if (!croppedImage) {
+     if (!croppedBanner || !croppedLogo) {
       toast({
-        title: 'Image Required',
-        description: 'Please upload and crop an image for the community banner.',
+        title: 'Images Required',
+        description: 'Please upload and crop both a banner and a logo for the community.',
         variant: 'destructive',
       });
       return;
@@ -121,7 +122,8 @@ export default function NewCommunityPage() {
       description,
       fullDescription,
       region,
-      imageUrl: croppedImage,
+      imageUrl: croppedBanner,
+      logoUrl: croppedLogo,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       membersCount: 1,
       // These are placeholders, a real app would have more complex logic
@@ -189,8 +191,11 @@ export default function NewCommunityPage() {
           isOpen={isCropperOpen}
           onClose={() => setIsCropperOpen(false)}
           imageSrc={imageSrc}
-          onSave={handleCropSave}
-          aspectRatio={16 / 9}
+          onSave={(img) => {
+            cropperConfig.onSave(img);
+            setIsCropperOpen(false);
+          }}
+          aspectRatio={cropperConfig.aspectRatio}
         />
       )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
@@ -203,31 +208,61 @@ export default function NewCommunityPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
-                <div className="space-y-2">
-                    <Label htmlFor="community-image">Community Banner Image</Label>
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  <div className="space-y-2">
+                      <Label htmlFor="community-logo">Community Logo</Label>
+                      <Card 
+                        className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                        onClick={() => logoInputRef.current?.click()}
+                      >
+                        {croppedLogo ? (
+                          <Image src={croppedLogo} alt="Logo preview" fill className="object-cover rounded-lg p-2"/>
+                        ) : (
+                          <>
+                            <UploadCloud className="h-8 w-8 text-muted-foreground" />
+                            <span className="text-muted-foreground text-center text-sm">Click to upload logo (1:1 ratio)</span>
+                          </>
+                        )}
+                      </Card>
+                      <Input 
+                        id="community-logo" 
+                        type="file" 
+                        className="hidden"
+                        ref={logoInputRef}
+                        onChange={(e) => handleFileChange(e, setCroppedLogo, 1)}
+                        accept="image/png, image/jpeg"
+                      />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="community-banner">Community Banner Image</Label>
                     <Card 
                       className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => bannerInputRef.current?.click()}
                     >
-                      {croppedImage ? (
-                        <Image src={croppedImage} alt="Community banner preview" fill className="object-cover rounded-lg"/>
+                      {croppedBanner ? (
+                        <Image src={croppedBanner} alt="Community banner preview" fill className="object-cover rounded-lg"/>
                       ) : (
                         <>
                           <ImageUp className="h-8 w-8 text-muted-foreground" />
-                          <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
+                          <span className="text-muted-foreground text-center text-sm">Click to upload banner (16:9 ratio)</span>
                         </>
                       )}
                     </Card>
                      <Input 
-                      id="community-image" 
+                      id="community-banner" 
                       type="file" 
                       className="hidden"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
+                      ref={bannerInputRef}
+                      onChange={(e) => handleFileChange(e, setCroppedBanner, 16/9)}
                       accept="image/png, image/jpeg"
                     />
+                  </div>
                 </div>
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name">Community Name</Label>
