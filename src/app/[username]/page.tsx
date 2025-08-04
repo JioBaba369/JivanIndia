@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
+import { useCommunities } from '@/hooks/use-communities';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -32,6 +33,7 @@ export default function UserPublicProfilePage() {
     const { events } = useEvents();
     const { providers } = useProviders();
     const { sponsors } = useSponsors();
+    const { getCommunityById } = useCommunities();
 
 
     const [profileUser, setProfileUser] = useState<any | null>(null);
@@ -47,16 +49,18 @@ export default function UserPublicProfilePage() {
         }
     }, [username, getUserByUsername]);
 
-    const userAffiliatedEvents = profileUser?.affiliation
-        ? events.filter(e => e.organizerId === profileUser.affiliation.orgId && e.status === 'Approved')
+    const affiliatedCommunity = profileUser?.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null;
+
+    const userAffiliatedEvents = affiliatedCommunity
+        ? events.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
         : [];
     
-    const userAffiliatedProviders = profileUser?.affiliation
-        ? providers.filter(p => p.associatedCommunityId === profileUser.affiliation.orgId)
+    const userAffiliatedProviders = affiliatedCommunity
+        ? providers.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
         : [];
 
-    const userAffiliatedSponsors = profileUser?.affiliation
-        ? sponsors.filter(s => s.eventsSponsored.some(e => events.find(ev => ev.id === e.eventId)?.organizerId === profileUser.affiliation.orgId))
+    const userAffiliatedSponsors = affiliatedCommunity
+        ? sponsors.filter(s => s.eventsSponsored.some(e => events.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
         : [];
         
     const copyToClipboard = () => {
@@ -152,9 +156,9 @@ export default function UserPublicProfilePage() {
                         </div>
 
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
-                            {profileUser.affiliation && (
+                            {affiliatedCommunity && (
                                 <Button asChild>
-                                    <Link href={`/c/${profileUser.affiliation.orgId}`}>
+                                    <Link href={`/c/${affiliatedCommunity.slug}`}>
                                         <Building className="mr-2"/> View {profileUser.affiliation.orgName}
                                     </Link>
                                 </Button>

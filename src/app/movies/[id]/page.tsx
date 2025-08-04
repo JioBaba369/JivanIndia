@@ -11,12 +11,16 @@ import { formatDistanceToNow, isValid } from "date-fns";
 import { useState, useEffect } from 'react';
 import { useParams } from "next/navigation";
 import { movies } from "@/data/movies";
+import { useCommunities } from "@/hooks/use-communities";
 
 export default function MovieDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
   const movie = movies.find(m => m.id === id);
   const [postedAt, setPostedAt] = useState('');
+  const { getCommunityBySlug } = useCommunities();
+  const distributor = getCommunityBySlug(movie?.details.distributorId || '');
+
 
   useEffect(() => {
     if (movie?.postedAt) {
@@ -113,7 +117,7 @@ export default function MovieDetailPage() {
                                         <CardTitle className="font-headline text-xl">Distributed By</CardTitle>
                                     </CardHeader>
                                  <CardContent className="p-4 pt-0">
-                                   <Link href={`/c/${movie.details.distributorId}`} className="group flex items-center gap-4">
+                                   <Link href={distributor ? `/c/${distributor.slug}` : '#'} className="group flex items-center gap-4">
                                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                                        <Building className="h-6 w-6 text-muted-foreground" />
                                      </div>
