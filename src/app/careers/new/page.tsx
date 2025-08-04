@@ -80,11 +80,7 @@ export default function NewJobPage() {
     setIsSubmitting(true);
    
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log({
-      ...values,
-      companyName: user.affiliation.orgName,
-    });
-
+    
     toast({
       title: 'Job Submitted!',
       description: `Your job posting for "${values.title}" has been submitted for review.`,

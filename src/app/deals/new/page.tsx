@@ -103,10 +103,6 @@ export default function NewDealPage() {
     setIsSubmitting(true);
     
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log({
-        ...values,
-        businessName: user.affiliation.orgName
-    });
 
     toast({
       title: 'Deal Submitted!',
