@@ -81,20 +81,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const jivanIndiaUser: User = {
-    uid: 'jivanindia-official',
-    name: 'JivanIndia.co',
-    username: 'jivanindia',
-    email: 'contact@jivanindia.co',
-    profileImageUrl: 'https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
-    bio: 'The heart of the Indian community, all in one place. Discover events, connect with organizations, and find local deals.',
-    affiliation: { orgId: '2', orgName: 'India Cultural Center' },
-    website: 'jivanindia.co',
-    currentLocation: { country: 'USA', state: 'CA', city: 'San Francisco' },
-    originLocation: { indiaState: 'Maharashtra', indiaDistrict: 'Mumbai' },
-};
-
-const allUsers: User[] = [jivanIndiaUser];
+const allUsers: User[] = [];
 
 
 const usePersistedState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
