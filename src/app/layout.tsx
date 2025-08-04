@@ -12,6 +12,8 @@ import { CommunitiesProvider } from "@/hooks/use-communities";
 import { AboutProvider } from "@/hooks/use-about";
 import { initializeFirebase } from "@/lib/firebase";
 import CookieConsentBanner from "@/components/cookie-consent-banner";
+import { ProvidersProvider } from "@/hooks/use-providers";
+import { SponsorsProvider } from "@/hooks/use-sponsors";
 
 // Initialize Firebase services
 initializeFirebase();
@@ -73,13 +75,17 @@ export default function RootLayout({
           <AboutProvider>
             <CommunitiesProvider>
               <EventsProvider>
-                <div className="relative flex min-h-screen flex-col">
-                  <Header />
-                  <main className="flex-1">{children}</main>
-                  <Footer />
-                </div>
-                <Toaster />
-                <CookieConsentBanner />
+                <ProvidersProvider>
+                  <SponsorsProvider>
+                    <div className="relative flex min-h-screen flex-col">
+                      <Header />
+                      <main className="flex-1">{children}</main>
+                      <Footer />
+                    </div>
+                    <Toaster />
+                    <CookieConsentBanner />
+                  </SponsorsProvider>
+                </ProvidersProvider>
               </EventsProvider>
             </CommunitiesProvider>
           </AboutProvider>
