@@ -18,7 +18,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { ImageUp, Loader2, CheckCircle, UploadCloud, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { ImageUp, Loader2, CheckCircle, UploadCloud, Twitter, Linkedin, Facebook, Edit } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
@@ -95,7 +95,7 @@ export default function EditCommunityPage() {
           setCommunity(foundCommunity);
           form.reset({
               name: foundCommunity.name || '',
-              type: foundCommunity.type,
+              type: foundCommunity.type || 'Other',
               description: foundCommunity.description || '',
               fullDescription: foundCommunity.fullDescription || '',
               region: foundCommunity.region || '',
@@ -447,7 +447,6 @@ export default function EditCommunityPage() {
                  <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
                     Cancel
                 </Button>
-
                 <Button type="submit" disabled={!form.formState.isValid || isPending}>
                   {isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}
                 </Button>
@@ -459,3 +458,5 @@ export default function EditCommunityPage() {
     </div>
   );
 }
+
+    
