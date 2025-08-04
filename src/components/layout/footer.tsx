@@ -47,7 +47,6 @@ export default function Footer() {
               <ul className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
-                <li><Link href="/events/title-tool" className="text-muted-foreground hover:text-primary flex items-center gap-2">Event Title Tool <Wand2 className="h-4 w-4"/></Link></li>
                 <li><Link href="/legal" className="text-muted-foreground hover:text-primary">Legal Center</Link></li>
               </ul>
             </div>
