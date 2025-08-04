@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// By default, deny all reads and writes to your storage bucket
+// This is a secure starting point for your storage rules
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
