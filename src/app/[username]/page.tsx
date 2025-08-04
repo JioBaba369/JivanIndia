@@ -42,8 +42,9 @@ export default function UserPublicProfilePage() {
 
     useEffect(() => {
         if (username) {
-            const foundUser = getUserByUsername(username);
-            setProfileUser(foundUser);
+            getUserByUsername(username).then(foundUser => {
+                setProfileUser(foundUser || null);
+            });
         }
         if (typeof window !== 'undefined') {
             setPageUrl(window.location.href);

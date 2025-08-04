@@ -14,26 +14,59 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
+import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const { signup } = useAuth();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(() => {
-      login({ name, email });
-      router.push('/');
-    });
-  };
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
 
+    try {
+      await signup(name, email, password);
+      toast({
+        title: "Account Created!",
+        description: "Welcome! You have been successfully signed up.",
+      });
+      router.push('/dashboard');
+    } catch (err: any) {
+      const errorCode = err.code || 'auth/unknown-error';
+      switch (errorCode) {
+        case 'auth/email-already-in-use':
+          setError('This email address is already in use by another account.');
+          break;
+        case 'auth/invalid-email':
+          setError('Please enter a valid email address.');
+          break;
+        case 'auth/weak-password':
+          setError('The password is too weak. Please choose a stronger password.');
+          break;
+        default:
+          setError('An unexpected error occurred. Please try again later.');
+          console.error(err);
+          break;
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background p-4">
@@ -46,6 +79,11 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="full-name">Full Name</Label>
@@ -55,7 +93,7 @@ export default function SignupPage() {
                   required 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  disabled={isPending}
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
@@ -67,7 +105,7 @@ export default function SignupPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isPending}
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
@@ -78,14 +116,25 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isPending}
+                  disabled={isLoading}
+                />
+              </div>
+               <div className="grid gap-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input 
+                  id="confirm-password" 
+                  type="password" 
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex-col">
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 animate-spin" />}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 animate-spin" />}
               Create Account
             </Button>
             <div className="mt-4 text-center text-sm">

@@ -10,13 +10,10 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { EventsProvider } from "@/hooks/use-events";
 import { CommunitiesProvider } from "@/hooks/use-communities";
 import { AboutProvider } from "@/hooks/use-about";
-import { initializeFirebase } from "@/lib/firebase";
+import "@/lib/firebase"; // Import to initialize services
 import CookieConsentBanner from "@/components/cookie-consent-banner";
 import { ProvidersProvider } from "@/hooks/use-providers";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
-
-// Initialize Firebase services
-initializeFirebase();
 
 const ptSans = PT_Sans({
   subsets: ["latin"],

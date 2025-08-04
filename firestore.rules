@@ -3,81 +3,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+  
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
     }
     
-    function isCommunityFounder(communityId) {
-        return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
-    }
-    
-    function isAdmin() {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-    }
-
-    // USERS: Can only read/write their own user document.
+    // Users: Can read/write their own data, but not others'
     match /users/{userId} {
-      allow read, update: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn();
-    }
-    
-    // ABOUT: Anyone can read, only admins can write.
-    match /about/{docId} {
-        allow read: if true;
-        allow write: if isSignedIn() && isAdmin();
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
     }
 
-    // COMMUNITIES: Publicly readable, but only founders or admins can modify.
-    // Creating requires being signed in.
+    // Public Collections: Anyone can read, only authenticated can create
     match /communities/{communityId} {
       allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isCommunityFounder(communityId) || isAdmin());
-      // Deleting communities is restricted to admins for safety.
-      allow delete: if isSignedIn() && isAdmin();
+      allow create: if request.auth != null;
+      // Only the founder can update/delete
+      allow update, delete: if request.auth != null && resource.data.founderUid == request.auth.uid;
     }
     
-    // EVENTS: Publicly readable. Creation requires being a founder of the organizing community.
-    // Updates are restricted to the event submitter, community founder, or an admin.
     match /events/{eventId} {
-        allow read: if true;
-        allow create: if isSignedIn() && isCommunityFounder(resource.data.organizerId);
-        allow update: if isSignedIn() && (isOwner(resource.data.submittedByUid) || isCommunityFounder(resource.data.organizerId) || isAdmin());
-        // Deleting events is restricted to admins.
-        allow delete: if isSignedIn() && isAdmin();
-    }
-
-    // The following are placeholders for future features. They are publicly readable.
-    // Write access is disabled for now.
-    match /providers/{providerId} {
       allow read: if true;
-      allow write: if false; 
+      allow create: if request.auth != null;
+       // Only the original submitter or an admin can update/delete
+      allow update, delete: if request.auth != null && resource.data.submittedByUid == request.auth.uid;
     }
-
-    match /sponsors/{sponsorId} {
+    
+    // Read-only public collections
+    match /movies/{movieId} {
       allow read: if true;
-      allow write: if false; 
     }
     
     match /deals/{dealId} {
-        allow read: if true;
-        allow write: if false;
+       allow read: if true;
+       allow create: if request.auth != null;
     }
     
-    match /careers/{jobId} {
-        allow read: if true;
-        allow write: if false;
+     match /careers/{jobId} {
+       allow read: if true;
+       allow create: if request.auth != null;
     }
-    
-    match /movies/{movieId} {
-        allow read: if true;
-        allow write: if false;
-    }
+
+    // Add other collections as needed (e.g., providers, sponsors)
+    // with similar read/write rules.
   }
 }

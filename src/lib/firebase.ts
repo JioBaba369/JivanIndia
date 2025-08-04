@@ -1,8 +1,11 @@
 
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAnalytics, isSupported as isAnalyticsSupported } from 'firebase/analytics';
 import { getPerformance } from 'firebase/performance';
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,18 +17,18 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// This function can be called multiple times, but it will only initialize
-// the app and services once, making it safe to use in layouts and components.
-export function initializeFirebase() {
-  // Check if we're in a browser environment
-  if (typeof window === 'undefined') {
-    return;
+function initializeServices() {
+  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  const auth = getAuth(app);
+  const firestore = getFirestore(app);
+  const storage = getStorage(app);
+  
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    // connectAuthEmulator(auth, 'http://localhost:9099');
+    // connectFirestoreEmulator(firestore, 'localhost', 8080);
+    // connectStorageEmulator(storage, 'localhost', 9199);
   }
 
-  const apps = getApps();
-  const app = !apps.length ? initializeApp(firebaseConfig) : getApp();
-
-  // Initialize Analytics and Performance Monitoring
   isAnalyticsSupported().then(supported => {
       if (supported && firebaseConfig.measurementId) {
           try {
@@ -35,15 +38,13 @@ export function initializeFirebase() {
           }
       }
   });
-
+  
   try {
     getPerformance(app);
   } catch(e) {
     console.warn("Failed to initialize Firebase Performance", e);
   }
 
-
-  // Initialize App Check
   try {
       if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY !== 'YOUR_RECAPTCHA_V3_SITE_KEY') {
         initializeAppCheck(app, {
@@ -55,5 +56,9 @@ export function initializeFirebase() {
     console.warn("Failed to initialize Firebase App Check", e);
   }
 
-  return app;
+
+  return { app, auth, firestore, storage };
 }
+
+
+export const { app, auth, firestore, storage } = initializeServices();
