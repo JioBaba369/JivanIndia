@@ -13,6 +13,7 @@ import { SponsorsProvider } from "@/hooks/use-sponsors";
 import { CommunitiesProvider } from "@/hooks/use-communities";
 import { AboutProvider } from "@/hooks/use-about";
 import { initializeFirebase } from "@/lib/firebase";
+import CookieConsentBanner from "@/components/cookie-consent-banner";
 
 // Initialize Firebase services
 initializeFirebase();
@@ -82,6 +83,7 @@ export default function RootLayout({
                       <Footer />
                     </div>
                     <Toaster />
+                    <CookieConsentBanner />
                   </EventsProvider>
                 </ProvidersProvider>
               </SponsorsProvider>
