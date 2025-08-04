@@ -102,7 +102,6 @@ export default function UserPublicProfilePage() {
 
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
-        <TooltipProvider>
             <div className="container mx-auto p-4 md:p-12">
                 <Card className="max-w-4xl mx-auto shadow-xl">
                     <CardContent className="p-6 md:p-8">
@@ -117,6 +116,7 @@ export default function UserPublicProfilePage() {
                                 </Avatar>
                                 <div className="absolute -bottom-2 -right-8 flex gap-2">
                                     {profileUser.currentLocation?.country && (
+                                    <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center">
@@ -127,8 +127,10 @@ export default function UserPublicProfilePage() {
                                             <p>Current: {profileUser.currentLocation.city}, {profileUser.currentLocation.state}, {profileUser.currentLocation.country}</p>
                                         </TooltipContent>
                                     </Tooltip>
+                                    </TooltipProvider>
                                     )}
                                      {profileUser.originLocation?.indiaState && (
+                                     <TooltipProvider>
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center">
@@ -139,6 +141,7 @@ export default function UserPublicProfilePage() {
                                             <p>Origin: {profileUser.originLocation.indiaDistrict}, {profileUser.originLocation.indiaState}, India</p>
                                         </TooltipContent>
                                     </Tooltip>
+                                    </TooltipProvider>
                                      )}
                                 </div>
                             </div>
@@ -303,7 +306,6 @@ export default function UserPublicProfilePage() {
                     </CardContent>
                 </Card>
             </div>
-            </TooltipProvider>
         </div>
     )
 }

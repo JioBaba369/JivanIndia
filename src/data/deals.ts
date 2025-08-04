@@ -11,7 +11,7 @@ export const deals = [
     businessId: 'saffron-restaurant-group',
     businessLocation: '123 Saffron Avenue, New York, NY',
     businessWebsite: 'www.saffronrestaurants.com',
-    expires: 'August 31, 2024',
+    expires: '2024-08-31T23:59:59Z',
     postedAt: '2024-07-20T11:00:00Z',
   },
   {
