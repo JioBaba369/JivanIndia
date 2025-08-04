@@ -21,7 +21,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { type MouseEvent, useState, useMemo } from 'react';
+import { type MouseEvent, useState, useMemo, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -34,12 +34,15 @@ export default function CommunitiesPage() {
     const router = useRouter();
     const { communities } = useCommunities();
     const searchParams = useSearchParams();
-    const initialSearch = searchParams.get('q') || '';
 
-    const [searchQuery, setSearchQuery] = useState(initialSearch);
+    const [searchQuery, setSearchQuery] = useState('');
     const [locationQuery, setLocationQuery] = useState('');
     const [category, setCategory] = useState('all');
     const [view, setView] = useState<'grid' | 'list'>('grid');
+    
+    useEffect(() => {
+        setSearchQuery(searchParams.get('q') || '');
+    }, [searchParams]);
 
     const featuredCommunities = useMemo(() => {
       return communities.filter(c => c.isVerified).slice(0, 5);

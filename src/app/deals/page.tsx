@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Search, Tag, Building, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { deals } from "@/data/deals";
 import { cn } from "@/lib/utils";
@@ -16,10 +16,13 @@ import { useSearchParams } from "next/navigation";
 
 export default function DealsPage() {
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('q') || '';
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [view, setView] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+  }, [searchParams]);
 
   const dealCategories = useMemo(() => {
     const categories = new Set(deals.map(d => d.category));

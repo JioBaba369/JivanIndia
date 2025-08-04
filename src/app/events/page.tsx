@@ -24,12 +24,15 @@ import { useSearchParams } from "next/navigation";
 export default function EventsPage() {
   const { events } = useEvents();
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('q') || '';
   
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [view, setView] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+  }, [searchParams]);
 
   const eventCategories = useMemo(() => {
     const categories = new Set(events.filter(e => e.status === 'Approved').map(event => event.eventType));

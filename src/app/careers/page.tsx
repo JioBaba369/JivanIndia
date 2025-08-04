@@ -8,17 +8,20 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Search, PlusCircle, Briefcase, Building, DollarSign } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { jobs } from "@/data/jobs";
 import { useSearchParams } from "next/navigation";
 
 export default function CareersPage() {
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('q') || '';
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [jobType, setJobType] = useState('all');
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+  }, [searchParams]);
 
   const jobTypes = useMemo(() => {
     const types = new Set(jobs.map(j => j.type));

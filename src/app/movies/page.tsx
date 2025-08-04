@@ -14,16 +14,19 @@ import {
 import { Film, MapPin, Search, Star, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { movies } from "@/data/movies";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 export default function MoviesPage() {
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('q') || '';
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+  }, [searchParams]);
 
 
   const filteredMovies = useMemo(() => {
