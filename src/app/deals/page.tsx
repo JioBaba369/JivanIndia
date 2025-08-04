@@ -5,16 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Search, Tag, Building } from "lucide-react";
+import { PlusCircle, Search, Tag, Building, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { deals } from "@/data/deals";
+import { cn } from "@/lib/utils";
 
 export default function DealsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
+  const [view, setView] = useState<'grid' | 'list'>('grid');
 
   const dealCategories = useMemo(() => {
     const categories = new Set(deals.map(d => d.category));
@@ -54,28 +56,38 @@ export default function DealsPage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="relative md:col-span-2">
-                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search for a deal or business..."
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+               <div className="flex flex-col gap-4 md:flex-row">
+                 <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="relative md:col-span-1">
+                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Search for a deal or business..."
+                      className="pl-10"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dealCategories.map((cat, index) => (
+                        <SelectItem key={index} value={cat}>
+                          {cat === 'all' ? 'All Categories' : cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                     {dealCategories.map((cat, index) => (
-                      <SelectItem key={index} value={cat}>
-                        {cat === 'all' ? 'All Categories' : cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
+                        <LayoutGrid />
+                    </Button>
+                    <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
+                        <List />
+                    </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -83,39 +95,80 @@ export default function DealsPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {filteredDeals.length > 0 ? filteredDeals.map((deal) => (
-            <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
-               <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={deal.imageUrl}
-                    alt={deal.title}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                  />
-                </div>
-                <CardContent className="flex flex-grow flex-col p-6">
-                  <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                  <h3 className="font-headline mt-2 flex-grow text-xl font-bold group-hover:text-primary">{deal.title}</h3>
-                  <div className="mt-4 flex items-center gap-2 text-muted-foreground">
-                      <Building className="h-4 w-4" />
-                      <span>{deal.business}</span>
-                  </div>
-                    <Button variant="outline" className="mt-6 w-full">
-                      <Tag className="mr-2 h-4 w-4" />
-                      View Deal
-                    </Button>
-                </CardContent>
-              </Link>
-            </Card>
-          )) : (
+        {filteredDeals.length > 0 ? (
+          <div className={cn(
+            "gap-8",
+            view === 'grid' 
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                : 'flex flex-col'
+            )}>
+            {filteredDeals.map((deal) => (
+              view === 'grid' ? (
+                <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+                  <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={deal.imageUrl}
+                        alt={deal.title}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                      />
+                    </div>
+                    <CardContent className="flex flex-grow flex-col p-6">
+                      <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
+                      <h3 className="font-headline mt-2 flex-grow text-xl font-bold group-hover:text-primary">{deal.title}</h3>
+                      <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+                          <Building className="h-4 w-4" />
+                          <span>{deal.business}</span>
+                      </div>
+                        <Button variant="outline" className="mt-6 w-full">
+                          <Tag className="mr-2 h-4 w-4" />
+                          View Deal
+                        </Button>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ) : (
+                <Card key={deal.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
+                  <Link href={`/deals/${deal.id}`}>
+                    <div className="flex flex-col sm:flex-row">
+                      <div className="relative h-48 w-full sm:h-auto sm:w-64 flex-shrink-0">
+                        <Image
+                          src={deal.imageUrl}
+                          alt={deal.title}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                      </div>
+                      <CardContent className="flex flex-grow flex-col justify-center p-6">
+                        <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
+                        <h3 className="font-headline mt-2 text-xl font-bold group-hover:text-primary">{deal.title}</h3>
+                        <div className="mt-2 flex items-center gap-2 text-muted-foreground">
+                            <Building className="h-4 w-4" />
+                            <span>{deal.business}</span>
+                        </div>
+                         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Expires: {deal.expires}</span>
+                        </div>
+                      </CardContent>
+                      <div className="flex items-center p-6 border-t sm:border-t-0 sm:border-l">
+                        <Button variant="outline" className="w-full sm:w-auto">
+                            <Tag className="mr-2 h-4 w-4" />
+                            View Deal
+                        </Button>
+                      </div>
+                    </div>
+                  </Link>
+                </Card>
+              )
+            ))}
+          </div>
+        ) : (
             <div className="col-span-full rounded-lg border-2 border-dashed py-12 text-center">
                 <p className="text-muted-foreground">No deals found. Please check back later!</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
           )}
-        </div>
       </section>
     </div>
   );

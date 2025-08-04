@@ -11,15 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Film, MapPin, Search, Star } from "lucide-react";
+import { Film, MapPin, Search, Star, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { movies } from "@/data/movies";
+import { cn } from "@/lib/utils";
 
 export default function MoviesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('all');
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+
 
   const filteredMovies = useMemo(() => {
     return movies.filter(movie => {
@@ -56,31 +59,41 @@ export default function MoviesPage() {
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="relative md:col-span-2">
-                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search for a movie..."
-                    className="pl-10 text-base"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <Select value={location} onValueChange={setLocation}>
-                  <SelectTrigger className="text-base">
-                    <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Select Location" />
+               <div className="flex flex-col gap-4 md:flex-row">
+                 <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="relative md:col-span-1">
+                      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search for a movie..."
+                        className="pl-10 text-base"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
                     </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    <SelectItem value="sf">San Francisco, CA</SelectItem>
-                    <SelectItem value="ny">New York, NY</SelectItem>
-                    <SelectItem value="la">Los Angeles, CA</SelectItem>
-                    <SelectItem value="tx">Houston, TX</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <Select value={location} onValueChange={setLocation}>
+                      <SelectTrigger className="text-base">
+                        <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <SelectValue placeholder="Select Location" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Locations</SelectItem>
+                        <SelectItem value="sf">San Francisco, CA</SelectItem>
+                        <SelectItem value="ny">New York, NY</SelectItem>
+                        <SelectItem value="la">Los Angeles, CA</SelectItem>
+                        <SelectItem value="tx">Houston, TX</SelectItem>
+                      </SelectContent>
+                    </Select>
+                 </div>
+                 <div className="flex items-center gap-2">
+                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
+                        <LayoutGrid />
+                    </Button>
+                    <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
+                        <List />
+                    </Button>
+                 </div>
               </div>
             </CardContent>
           </Card>
@@ -88,43 +101,86 @@ export default function MoviesPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredMovies.length > 0 ? filteredMovies.map((movie) => (
-            <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
-               <Link href={`/movies/${movie.id}`} className="block">
-                <div className="relative aspect-[2/3] w-full">
-                  <Image
-                    src={movie.imageUrl}
-                    alt={movie.title}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-headline truncate text-lg font-bold group-hover:text-primary">{movie.title}</h3>
-                  <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Film className="h-4 w-4" />
-                        <span>{movie.genre}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{movie.rating} / 5.0</span>
-                      </div>
-                  </div>
-                    <Button variant="secondary" className="mt-4 w-full">
-                    View Details
-                  </Button>
-                </CardContent>
-              </Link>
-            </Card>
-          )) : (
+       {filteredMovies.length > 0 ? (
+          <div className={cn(
+            "gap-x-6 gap-y-10",
+            view === 'grid' 
+                ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+                : 'flex flex-col'
+            )}>
+            {filteredMovies.map((movie) => (
+                view === 'grid' ? (
+                <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Link href={`/movies/${movie.id}`} className="block">
+                    <div className="relative aspect-[2/3] w-full">
+                    <Image
+                        src={movie.imageUrl}
+                        alt={movie.title}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                    />
+                    </div>
+                    <CardContent className="p-4">
+                    <h3 className="font-headline truncate text-lg font-bold group-hover:text-primary">{movie.title}</h3>
+                    <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                            <Film className="h-4 w-4" />
+                            <span>{movie.genre}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span>{movie.rating} / 5.0</span>
+                        </div>
+                    </div>
+                        <Button variant="secondary" className="mt-4 w-full">
+                        View Details
+                    </Button>
+                    </CardContent>
+                </Link>
+                </Card>
+                ) : (
+                <Card key={movie.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
+                    <Link href={`/movies/${movie.id}`}>
+                    <div className="flex">
+                        <div className="relative aspect-[2/3] h-48 flex-shrink-0">
+                            <Image
+                                src={movie.imageUrl}
+                                alt={movie.title}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                        <CardContent className="flex-grow p-4">
+                            <h3 className="font-headline text-xl font-bold group-hover:text-primary">{movie.title}</h3>
+                             <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2">
+                                    <Film className="h-4 w-4" />
+                                    <span>{movie.genre}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                    <span>{movie.rating} / 5.0</span>
+                                </div>
+                                <div className="flex items-center gap-2 pt-2">
+                                    <span>{movie.details.duration}</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                        <div className="flex items-center p-4 border-l">
+                            <Button variant="outline">View Details</Button>
+                        </div>
+                    </div>
+                    </Link>
+                </Card>
+                )
+            ))}
+          </div>
+       ) : (
             <div className="col-span-full rounded-lg border-2 border-dashed py-12 text-center">
                 <p className="text-muted-foreground">No movies found. Please check back later!</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); setLocation('all'); }}>Clear Filters</Button>
             </div>
           )}
-        </div>
       </section>
     </div>
   );
