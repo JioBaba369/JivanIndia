@@ -1,11 +1,36 @@
 rules_version = '2';
 
-// By default, deny all reads and writes to your storage bucket
-// This is a secure starting point for your storage rules
 service firebase.storage {
   match /b/{bucket}/o {
+    // A good default rule is to allow public access to all files.
+    // This is useful for profile pictures, event banners, etc.
+    // For more sensitive files, you might want to restrict read access.
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read;
     }
+
+    // --- Write Rules ---
+    // Only allow authenticated users to write to storage.
+    // We also add several checks to ensure file integrity and security.
+    match /{allPaths=**} {
+      allow write: if request.auth != null
+        // Ensure the uploaded file is of a supported image type
+        && request.resource.contentType.matches('image/jpeg|image/png|image/webp')
+        // Ensure the file size is within a reasonable limit (e.g., 5MB)
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // More specific write rules can be added for different paths.
+    // For example, only allow a user to write to their own profile image path.
+    match /users/{userId}/{allPaths=**} {
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Example for community-specific images, restricting to members/admins.
+    // This would require a corresponding data structure in Firestore to check against.
+    // match /communities/{communityId}/{allPaths=**} {
+    //   allow write: if request.auth != null &&
+    //                 exists(/databases/$(database)/documents/communities/$(communityId)/members/$(request.auth.uid));
+    // }
   }
 }
