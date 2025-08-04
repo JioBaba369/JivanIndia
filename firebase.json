@@ -1,3 +1,4 @@
+
 {
   "hosting": {
     "source": ".",
@@ -13,6 +14,26 @@
           "serviceId": "jivanindia-co",
           "region": "us-central1"
         }
+      }
+    ],
+    "headers": [
+      {
+        "source": "/_next/static/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/fonts/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
       }
     ]
   }
