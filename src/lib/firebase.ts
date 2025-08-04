@@ -27,7 +27,7 @@ export function initializeFirebase() {
 
   // Initialize Analytics and Performance Monitoring
   isAnalyticsSupported().then(supported => {
-      if (supported) {
+      if (supported && firebaseConfig.measurementId) {
           try {
               getAnalytics(app);
           } catch(e) {
@@ -45,10 +45,12 @@ export function initializeFirebase() {
 
   // Initialize App Check
   try {
-      initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6Ld_...'), // Replace with your reCAPTCHA site key
-        isTokenAutoRefreshEnabled: true,
-      });
+      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY !== 'YOUR_RECAPTCHA_V3_SITE_KEY') {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+          isTokenAutoRefreshEnabled: true,
+        });
+      }
   } catch(e) {
     console.warn("Failed to initialize Firebase App Check", e);
   }
