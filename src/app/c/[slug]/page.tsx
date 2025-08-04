@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatUrl } from "@/lib/utils";
 
 export default function CommunityDetailPage() {
   const params = useParams();
@@ -212,7 +213,7 @@ export default function CommunityDetailPage() {
                      {community.website && <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`${community.website}`} target="_blank" rel="noopener noreferrer">{community.website}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={formatUrl(community.website)} target="_blank" rel="noopener noreferrer">{community.website}</a></p>
                       </div>
                     </div>}
                   </CardContent>
