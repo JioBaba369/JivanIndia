@@ -75,7 +75,7 @@ export default function UserPublicProfilePage() {
         );
     }
     
-    const affiliatedCommunity = profileUser?.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null;
+    const affiliatedCommunity = profileUser.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null;
 
     const userAffiliatedEvents = affiliatedCommunity
         ? events.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
