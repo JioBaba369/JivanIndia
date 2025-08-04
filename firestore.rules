@@ -1,34 +1,39 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users: Allow public read, but only the user can write their own document.
     match /users/{userId} {
-      // Public profiles are readable by anyone.
-      allow read;
-      // Only the authenticated user can write to their own profile.
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if true;
+      allow write: if request.auth.uid == userId;
     }
-    match /events/{eventId} {
-      // Events are publicly readable.
-      allow read;
-      // Any authenticated user can create an event.
-      allow create: if request.auth != null;
-      // Only the user who submitted the event or an admin can update/delete it.
-      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
-    }
+
+    // Communities, Events, About: Allow public read.
+    // Write access is managed through application logic (backend/admin roles).
+    // For this app, we assume admin actions handle writes, so we can be broad here for now.
+    // In a production app, you might add more specific roles/permissions.
     match /communities/{communityId} {
-        // Communities are publicly readable.
-        allow read;
-        // Any authenticated user can create a community.
-        allow create: if request.auth != null;
-        // Only the founder of the community or an admin can update/delete it.
-        allow update, delete: if request.auth != null && (request.auth.uid == resource.data.founderUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+      allow read: if true;
+      allow create: if request.auth != null; // Any logged-in user can create
+      allow update: if request.auth.uid == resource.data.founderUid; // Only founder can update
     }
-     match /about/singleton {
-      // The about page content is publicly readable.
-      allow read;
-      // Only an admin can write to the about page.
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if request.auth != null; // Any logged-in user can create
+      allow update: if request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true; // Submitter or admin
+    }
+
+    match /about/singleton {
+      allow read: if true;
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true; // Only admin
     }
   }
 }
