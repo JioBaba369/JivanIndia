@@ -9,7 +9,7 @@ export const jobs = [
         type: 'Full-time',
         salary: '$80,000 - $100,000',
         description: 'Lead our community engagement efforts. Plan and execute marketing campaigns, manage social media, and build partnerships with local organizations to promote our brand and culinary events.',
-        applicationUrl: '#',
+        applicationUrl: '/careers',
         postedAt: '2024-07-28T09:00:00Z',
     },
     {
@@ -21,7 +21,7 @@ export const jobs = [
         type: 'Full-time',
         salary: '$150,000 - $180,000',
         description: 'Join the core team building the JivanIndia.co platform. We are looking for an experienced full-stack engineer with a passion for building community-focused products. Expertise in Next.js, React, and Firebase is required.',
-        applicationUrl: '#',
+        applicationUrl: '/careers',
         postedAt: '2024-07-29T11:00:00Z',
     },
     {
@@ -33,7 +33,7 @@ export const jobs = [
         type: 'Part-time',
         salary: '$25 - $30 per hour',
         description: 'Assist in planning and executing our diverse calendar of cultural events, from festivals to workshops. This role involves vendor coordination, volunteer management, and on-site support.',
-        applicationUrl: '#',
+        applicationUrl: '/careers',
         postedAt: '2024-07-25T15:00:00Z',
     },
      {
@@ -45,7 +45,7 @@ export const jobs = [
         type: 'Full-time',
         salary: '$90,000 - $110,000',
         description: 'Seeking a detail-oriented Financial Analyst to support our advisory team. Responsibilities include market research, portfolio analysis, and preparing client reports. Strong analytical and communication skills are a must.',
-        applicationUrl: '#',
+        applicationUrl: '/careers',
         postedAt: '2024-07-22T10:00:00Z',
     }
 ];

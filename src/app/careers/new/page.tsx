@@ -79,7 +79,6 @@ export default function NewJobPage() {
     
     setIsSubmitting(true);
    
-    // In a real app, you would save this data to your database
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log({
       ...values,

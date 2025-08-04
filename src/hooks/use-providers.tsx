@@ -82,8 +82,6 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
   const [providers, setProviders] = useState<Provider[]>(initialProviders);
 
   useEffect(() => {
-    // This is where you would fetch data from a database
-    // For now, we'll use the mock data
     setProviders(initialProviders);
   }, []);
 

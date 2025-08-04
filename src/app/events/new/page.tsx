@@ -141,7 +141,6 @@ export default function NewEventPage() {
       submittedByUid: user.uid,
     };
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     addEvent(newEventData);

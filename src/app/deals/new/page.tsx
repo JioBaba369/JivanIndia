@@ -102,7 +102,6 @@ export default function NewDealPage() {
     
     setIsSubmitting(true);
     
-    // In a real app, this would save to a database.
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log({
         ...values,

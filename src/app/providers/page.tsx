@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, Star, BadgeCheck, Bookmark, LayoutGrid, List } from "lucide-react";
+import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, type MouseEvent } from "react";
@@ -186,7 +186,6 @@ export default function ProvidersPage() {
                                 <Link href={`/providers/${provider.id}`}>View Profile</Link>
                             </Button>
                             <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, provider.name, provider.id)} disabled={isProviderSaved(provider.id)}>
-                                <Bookmark className="mr-2 h-4 w-4" />
                                 {isProviderSaved(provider.id) ? "Saved" : "Save"}
                             </Button>
                         </div>
@@ -226,7 +225,6 @@ export default function ProvidersPage() {
                          <div className="flex flex-col justify-center gap-2 p-4 border-t sm:border-t-0 sm:border-l">
                             <Button className="w-full sm:w-auto">View</Button>
                              <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleSave(e, provider.name, provider.id)} disabled={isProviderSaved(provider.id)}>
-                                <Bookmark className="mr-2 h-4 w-4" />
                                 {isProviderSaved(provider.id) ? "Saved" : "Save"}
                             </Button>
                          </div>
