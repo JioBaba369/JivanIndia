@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2 } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -23,6 +23,7 @@ import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
+import { deals as allDeals } from '@/data/deals';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -31,10 +32,10 @@ export default function UserPublicProfilePage() {
     const username = typeof params.username === 'string' ? params.username : '';
 
     const { getUserByUsername, getInitials } = useAuth();
-    const { events } = useEvents();
+    const { events: allEvents } = useEvents();
     const { providers } = useProviders();
     const { sponsors } = useSponsors();
-    const { getCommunityById } = useCommunities();
+    const { communities: allCommunities, getCommunityById } = useCommunities();
 
 
     const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
@@ -80,7 +81,7 @@ export default function UserPublicProfilePage() {
     const affiliatedCommunity = profileUser.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null;
 
     const userAffiliatedEvents = affiliatedCommunity
-        ? events.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
+        ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
         : [];
     
     const userAffiliatedProviders = affiliatedCommunity
@@ -88,9 +89,13 @@ export default function UserPublicProfilePage() {
         : [];
 
     const userAffiliatedSponsors = affiliatedCommunity
-        ? sponsors.filter(s => s.eventsSponsored.some(e => events.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
+        ? sponsors.filter(s => s.eventsSponsored.some(e => allEvents.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
         : [];
         
+    const userSavedEvents = allEvents.filter(event => profileUser.savedEvents?.includes(String(event.id)));
+    const userJoinedCommunities = allCommunities.filter(org => profileUser.joinedCommunities?.includes(org.id));
+    const userSavedDeals = allDeals.filter(deal => profileUser.savedDeals?.includes(deal.id));
+
     const copyToClipboard = () => {
         navigator.clipboard.writeText(pageUrl);
         toast({
@@ -99,8 +104,6 @@ export default function UserPublicProfilePage() {
         });
     };
 
-
-    
     const CountryFlag = ({ countryCode }: { countryCode: string }) => {
         if (!countryCode) return null;
         return (
@@ -206,74 +209,28 @@ export default function UserPublicProfilePage() {
                         </div>
 
                          <div className="mt-12">
-                            <Tabs defaultValue="events" className="w-full">
-                                <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-                                    <TabsTrigger value="events">Events ({userAffiliatedEvents.length})</TabsTrigger>
-                                    <TabsTrigger value="providers">Providers ({userAffiliatedProviders.length})</TabsTrigger>
-                                    <TabsTrigger value="sponsors">Sponsors ({userAffiliatedSponsors.length})</TabsTrigger>
+                            <Tabs defaultValue="saved-events" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+                                    <TabsTrigger value="saved-events">Saved Events ({userSavedEvents.length})</TabsTrigger>
+                                    <TabsTrigger value="saved-deals">Saved Deals ({userSavedDeals.length})</TabsTrigger>
+                                    <TabsTrigger value="joined-communities">Communities ({userJoinedCommunities.length})</TabsTrigger>
+                                    {affiliatedCommunity && <TabsTrigger value="community-activity">Affiliation</TabsTrigger>}
                                 </TabsList>
 
-                                <TabsContent value="events" className="mt-6">
-                                    {userAffiliatedEvents.length > 0 ? (
+                                <TabsContent value="saved-events" className="mt-6">
+                                     {userSavedEvents.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {userAffiliatedEvents.map((event) => (
+                                            {userSavedEvents.map((event) => (
                                                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                     <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                                                         <div className="relative h-40 w-full">
-                                                        <Image
-                                                            src={event.imageUrl}
-                                                            alt={event.title}
-                                                            fill
-                                                            className="object-cover transition-transform group-hover:scale-105"
-                                                        />
+                                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" />
                                                         </div>
                                                         <CardContent className="flex flex-grow flex-col p-4">
                                                             <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{event.title}</h3>
                                                             <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
-                                                                <div className="flex items-center gap-2">
-                                                                <Calendar className="h-4 w-4" />
-                                                                <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                <MapPin className="h-4 w-4" />
-                                                                <span>{event.location.venueName}</span>
-                                                                </div>
-                                                            </div>
-                                                            <Button variant="outline" size="sm" className="mt-4 w-full">
-                                                                <Ticket className="mr-2 h-4 w-4" />
-                                                                View Event
-                                                            </Button>
-                                                        </CardContent>
-                                                    </Link>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                            <p className="text-muted-foreground">No events to display.</p>
-                                        </div>
-                                    )}
-                                </TabsContent>
-                                <TabsContent value="providers" className="mt-6">
-                                    {userAffiliatedProviders.length > 0 ? (
-                                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {userAffiliatedProviders.map((provider) => (
-                                                 <Card key={provider.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
-                                                    <Link href={`/providers/${provider.id}`} className="flex h-full flex-col">
-                                                        <div className="relative h-40 w-full">
-                                                        <Image
-                                                            src={provider.imageUrl}
-                                                            alt={provider.name}
-                                                            fill
-                                                            className="object-cover transition-transform group-hover:scale-105"
-                                                        />
-                                                        </div>
-                                                        <CardContent className="flex flex-grow flex-col p-4">
-                                                            <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{provider.name}</h3>
-                                                            <p className="text-sm font-semibold text-primary">{provider.category}</p>
-                                                            <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                                                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                                <span>{provider.rating.toFixed(1)} ({provider.reviewCount} reviews)</span>
+                                                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span></div>
+                                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                                             </div>
                                                         </CardContent>
                                                     </Link>
@@ -282,28 +239,25 @@ export default function UserPublicProfilePage() {
                                         </div>
                                     ) : (
                                         <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                            <p className="text-muted-foreground">No providers to display.</p>
+                                            <p className="text-muted-foreground">This user hasn't saved any events yet.</p>
                                         </div>
                                     )}
                                 </TabsContent>
-                                 <TabsContent value="sponsors" className="mt-6">
-                                    {userAffiliatedSponsors.length > 0 ? (
+                                 <TabsContent value="saved-deals" className="mt-6">
+                                     {userSavedDeals.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {userAffiliatedSponsors.map((sponsor) => (
-                                                <Card key={sponsor.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
-                                                    <Link href={`/sponsors/${sponsor.id}`} className="flex h-full flex-col">
-                                                        <div className="relative h-40 w-full bg-muted flex items-center justify-center p-4">
-                                                        <Image
-                                                            src={sponsor.logoUrl}
-                                                            alt={sponsor.name}
-                                                            width={150}
-                                                            height={75}
-                                                            className="object-contain transition-transform group-hover:scale-105"
-                                                        />
+                                            {userSavedDeals.map((deal) => (
+                                                <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                    <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
+                                                        <div className="relative h-40 w-full">
+                                                        <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover transition-transform group-hover:scale-105" />
                                                         </div>
                                                         <CardContent className="flex flex-grow flex-col p-4">
-                                                            <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{sponsor.name}</h3>
-                                                            <p className="text-sm font-semibold text-primary">{sponsor.industry}</p>
+                                                            <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{deal.title}</h3>
+                                                            <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                                <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{deal.category}</span></div>
+                                                                <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
+                                                            </div>
                                                         </CardContent>
                                                     </Link>
                                                 </Card>
@@ -311,11 +265,111 @@ export default function UserPublicProfilePage() {
                                         </div>
                                     ) : (
                                         <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                            <p className="text-muted-foreground">No sponsors to display.</p>
+                                            <p className="text-muted-foreground">This user hasn't saved any deals yet.</p>
+                                        </div>
+                                    )}
+                                </TabsContent>
+                                <TabsContent value="joined-communities" className="mt-6">
+                                     {userJoinedCommunities.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {userJoinedCommunities.map((community) => (
+                                                <Card key={community.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                    <Link href={`/c/${community.slug}`} className="flex h-full flex-col">
+                                                        <div className="relative h-40 w-full">
+                                                        <Image src={community.imageUrl} alt={community.name} fill className="object-cover transition-transform group-hover:scale-105" />
+                                                        </div>
+                                                        <CardContent className="flex flex-grow flex-col p-4">
+                                                            <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{community.name}</h3>
+                                                            <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                                <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{community.type}</span></div>
+                                                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{community.region}</span></div>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Link>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                                            <p className="text-muted-foreground">This user hasn't joined any communities yet.</p>
                                         </div>
                                     )}
                                 </TabsContent>
 
+                                {affiliatedCommunity && (
+                                <TabsContent value="community-activity" className="mt-6">
+                                    <Tabs defaultValue="events" className="w-full">
+                                        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+                                            <TabsTrigger value="events">Events ({userAffiliatedEvents.length})</TabsTrigger>
+                                            <TabsTrigger value="providers">Providers ({userAffiliatedProviders.length})</TabsTrigger>
+                                            <TabsTrigger value="sponsors">Sponsors ({userAffiliatedSponsors.length})</TabsTrigger>
+                                        </TabsList>
+
+                                        <TabsContent value="events" className="mt-6">
+                                            {userAffiliatedEvents.length > 0 ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {userAffiliatedEvents.map((event) => (
+                                                        <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                            <Link href={`/events/${event.id}`} className="flex h-full flex-col">
+                                                                <div className="relative h-40 w-full"><Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105"/></div>
+                                                                <CardContent className="flex flex-grow flex-col p-4">
+                                                                    <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{event.title}</h3>
+                                                                    <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                                        <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span></div>
+                                                                        <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
+                                                                    </div>
+                                                                    <Button variant="outline" size="sm" className="mt-4 w-full"><Ticket className="mr-2 h-4 w-4" />View Event</Button>
+                                                                </CardContent>
+                                                            </Link>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="rounded-lg border-2 border-dashed py-12 text-center"><p className="text-muted-foreground">No events to display.</p></div>
+                                            )}
+                                        </TabsContent>
+                                        <TabsContent value="providers" className="mt-6">
+                                            {userAffiliatedProviders.length > 0 ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {userAffiliatedProviders.map((provider) => (
+                                                        <Card key={provider.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                            <Link href={`/providers/${provider.id}`} className="flex h-full flex-col">
+                                                                <div className="relative h-40 w-full"><Image src={provider.imageUrl} alt={provider.name} fill className="object-cover transition-transform group-hover:scale-105"/></div>
+                                                                <CardContent className="flex flex-grow flex-col p-4">
+                                                                    <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{provider.name}</h3>
+                                                                    <p className="text-sm font-semibold text-primary">{provider.category}</p>
+                                                                    <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)} ({provider.reviewCount} reviews)</span></div>
+                                                                </CardContent>
+                                                            </Link>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="rounded-lg border-2 border-dashed py-12 text-center"><p className="text-muted-foreground">No providers to display.</p></div>
+                                            )}
+                                        </TabsContent>
+                                        <TabsContent value="sponsors" className="mt-6">
+                                            {userAffiliatedSponsors.length > 0 ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {userAffiliatedSponsors.map((sponsor) => (
+                                                        <Card key={sponsor.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                            <Link href={`/sponsors/${sponsor.id}`} className="flex h-full flex-col">
+                                                                <div className="relative h-40 w-full bg-muted flex items-center justify-center p-4"><Image src={sponsor.logoUrl} alt={sponsor.name} width={150} height={75} className="object-contain transition-transform group-hover:scale-105"/></div>
+                                                                <CardContent className="flex flex-grow flex-col p-4">
+                                                                    <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{sponsor.name}</h3>
+                                                                    <p className="text-sm font-semibold text-primary">{sponsor.industry}</p>
+                                                                </CardContent>
+                                                            </Link>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="rounded-lg border-2 border-dashed py-12 text-center"><p className="text-muted-foreground">No sponsors to display.</p></div>
+                                            )}
+                                        </TabsContent>
+                                    </Tabs>
+                                </TabsContent>
+                                )}
                             </Tabs>
                         </div>
                     </CardContent>
@@ -324,5 +378,3 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
-
-    
