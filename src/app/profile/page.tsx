@@ -224,19 +224,19 @@ export default function ProfilePage() {
 
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                    <CardContent className="flex items-start gap-4 p-4">
+                                        <div className="aspect-square w-16 shrink-0 relative">
                                             <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                            <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/events/${event.id}`}>View</Link></Button>
+                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/events/${event.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('event', String(event.id), event.title)}><Trash2 className="h-4 w-4" /></Button>
@@ -263,19 +263,19 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userJoinedCommunities.map((org) => (
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                    <CardContent className="flex items-start gap-4 p-4">
+                                        <div className="aspect-square w-16 shrink-0 relative">
                                             <Image src={org.imageUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/c/${org.slug}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                            <Link href={`/c/${org.slug}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.type}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/c/${org.slug}`}>View</Link></Button>
+                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/c/${org.slug}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('community', org.id, org.name)}><Trash2 className="h-4 w-4" /></Button>
@@ -302,19 +302,19 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedDeals.map((deal) => (
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                    <CardContent className="flex items-start gap-4 p-4">
+                                        <div className="aspect-square w-16 shrink-0 relative">
                                             <Image src={deal.imageUrl} alt={deal.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{deal.title}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                            <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{deal.title}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{deal.category}</span></div>
                                                 <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/deals/${deal.id}`}>View</Link></Button>
+                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/deals/${deal.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('deal', deal.id, deal.title)}><Trash2 className="h-4 w-4" /></Button>
@@ -341,19 +341,19 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedProviders.map((provider) => (
                                 <Card key={provider.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                    <CardContent className="flex items-start gap-4 p-4">
+                                        <div className="aspect-square w-16 shrink-0 relative">
                                             <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/providers/${provider.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                            <Link href={`/providers/${provider.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{provider.category}</span></div>
                                                 <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/providers/${provider.id}`}>View</Link></Button>
+                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/providers/${provider.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('provider', provider.id, provider.name)}><Trash2 className="h-4 w-4" /></Button>
@@ -380,19 +380,19 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedSponsors.map((sponsor) => (
                                 <Card key={sponsor.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
-                                            <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-2" />
+                                    <CardContent className="flex items-start gap-4 p-4">
+                                        <div className="aspect-square w-16 shrink-0 relative">
+                                            <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-1" />
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/sponsors/${sponsor.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{sponsor.name}</CardTitle></Link>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                            <Link href={`/sponsors/${sponsor.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{sponsor.name}</CardTitle></Link>
+                                            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Handshake className="h-4 w-4" /><span>{sponsor.industry}</span></div>
                                                 <div className="flex items-center gap-2"><Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'}>{sponsor.tier}</Badge></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/sponsors/${sponsor.id}`}>View</Link></Button>
+                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/sponsors/${sponsor.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('sponsor', sponsor.id, sponsor.name)}><Trash2 className="h-4 w-4" /></Button>
@@ -424,16 +424,16 @@ export default function ProfilePage() {
 
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                    <CardContent className="flex items-start gap-4 p-4">
+                                        <div className="aspect-square w-16 shrink-0 relative">
                                           <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
                                             <div className="flex items-start justify-between">
-                                                <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
+                                                <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
                                                 <Badge variant={event.status === 'Approved' ? 'default' : event.status === 'Pending' ? 'secondary' : 'destructive'}>{event.status}</Badge>
                                             </div>
-                                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                            <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span>{eventDate}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
