@@ -87,6 +87,7 @@ export default function NewJobPage() {
     });
     
     setIsSubmitting(false);
+    form.reset();
     router.push('/careers');
   };
 

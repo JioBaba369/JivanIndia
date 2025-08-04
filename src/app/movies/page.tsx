@@ -23,17 +23,15 @@ export default function MoviesPage() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('q') || '';
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [location, setLocation] = useState('all');
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
 
   const filteredMovies = useMemo(() => {
     return movies.filter(movie => {
       const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
-      // Location filter is not applied as there's no location data in the mock
       return matchesSearch;
     });
-  }, [searchQuery, location]);
+  }, [searchQuery]);
 
   return (
     <div className="flex flex-col">
@@ -64,31 +62,14 @@ export default function MoviesPage() {
           <Card>
             <CardContent className="p-4">
                <div className="flex flex-col gap-4 md:flex-row">
-                 <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="relative md:col-span-1">
-                      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Search for a movie..."
-                        className="pl-10 text-base"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <Select value={location} onValueChange={setLocation}>
-                      <SelectTrigger className="text-base">
-                        <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <SelectValue placeholder="Select Location" />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Locations</SelectItem>
-                        <SelectItem value="sf">San Francisco, CA</SelectItem>
-                        <SelectItem value="ny">New York, NY</SelectItem>
-                        <SelectItem value="la">Los Angeles, CA</SelectItem>
-                        <SelectItem value="tx">Houston, TX</SelectItem>
-                      </SelectContent>
-                    </Select>
+                 <div className="relative flex-grow">
+                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                   <Input
+                     placeholder="Search for a movie..."
+                     className="pl-10 text-base"
+                     value={searchQuery}
+                     onChange={(e) => setSearchQuery(e.target.value)}
+                   />
                  </div>
                  <div className="flex items-center gap-2">
                     <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
@@ -183,7 +164,7 @@ export default function MoviesPage() {
             <div className="rounded-lg border-2 border-dashed py-16 text-center">
                 <h3 className="font-headline text-xl font-semibold">No Movies Found</h3>
                 <p className="text-muted-foreground mt-2">No movies match your criteria. Please check back later or adjust your filters.</p>
-                <Button variant="link" onClick={() => { setSearchQuery(''); setLocation('all'); }}>Clear Filters</Button>
+                <Button variant="link" onClick={() => { setSearchQuery(''); }}>Clear Filters</Button>
             </div>
           )}
       </section>

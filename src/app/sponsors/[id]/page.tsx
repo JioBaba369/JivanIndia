@@ -12,6 +12,7 @@ import { useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { useState, useEffect } from "react";
 import { initialSponsors, type Sponsor } from "@/data/sponsors";
+import { formatUrl } from "@/lib/utils";
 
 
 export default function SponsorDetailPage() {
@@ -78,9 +79,9 @@ export default function SponsorDetailPage() {
                         <p className="text-lg text-muted-foreground mt-1">{sponsor.industry}</p>
                     </div>
                     <div className="flex items-center gap-2 mt-4 md:mt-0">
-                        {sponsor.socialMedia.twitter && <Button variant="outline" size="icon" asChild><Link href={sponsor.socialMedia.twitter} target="_blank"><X className="h-4 w-4"/></Link></Button>}
-                        {sponsor.socialMedia.linkedin && <Button variant="outline" size="icon" asChild><Link href={sponsor.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
-                        {sponsor.socialMedia.facebook && <Button variant="outline" size="icon" asChild><Link href={sponsor.socialMedia.facebook} target="_blank"><Facebook/></Link></Button>}
+                        {sponsor.socialMedia.twitter && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.twitter)} target="_blank" rel="noopener noreferrer"><X className="h-4 w-4"/></a></Button>}
+                        {sponsor.socialMedia.linkedin && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.linkedin)} target="_blank" rel="noopener noreferrer"><Linkedin/></a></Button>}
+                        {sponsor.socialMedia.facebook && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.facebook)} target="_blank" rel="noopener noreferrer"><Facebook/></a></Button>}
                     </div>
                 </div>
 
@@ -143,7 +144,7 @@ export default function SponsorDetailPage() {
                      <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://${sponsor.website}`} target="_blank" rel="noopener noreferrer">{sponsor.website}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={formatUrl(sponsor.website)} target="_blank" rel="noopener noreferrer">{sponsor.website}</a></p>
                       </div>
                     </div>
                   </CardContent>

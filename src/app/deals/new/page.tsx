@@ -154,6 +154,7 @@ export default function NewDealPage() {
                                 onChange={field.onChange}
                                 aspectRatio={16 / 9}
                                 toast={toast}
+                                folderName="deal-images"
                             />
                         </FormControl>
                         <FormMessage />

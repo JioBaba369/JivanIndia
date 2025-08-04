@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List } from "lucide-react";
+import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, type MouseEvent } from "react";
@@ -23,7 +23,7 @@ import { type Provider, initialProviders } from "@/data/providers";
 
 export default function ProvidersPage() {
     const [providers] = useState<Provider[]>(initialProviders);
-    const { user, saveProvider, isProviderSaved } = useAuth();
+    const { user, saveProvider, unsaveProvider, isProviderSaved } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
 
@@ -51,7 +51,7 @@ export default function ProvidersPage() {
         });
     }, [providers, searchQuery, locationQuery, category]);
     
-    const handleSave = (e: MouseEvent<HTMLButtonElement>, providerName: string, providerId: string) => {
+    const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, providerName: string, providerId: string) => {
         e.preventDefault();
         e.stopPropagation();
         if (!user) {
@@ -64,16 +64,17 @@ export default function ProvidersPage() {
             return;
         }
 
-        if (!isProviderSaved(providerId)) {
+        if (isProviderSaved(providerId)) {
+            unsaveProvider(providerId);
+            toast({
+                title: "Provider Unsaved",
+                description: `${providerName} has been removed from your saved providers.`,
+            });
+        } else {
             saveProvider(providerId);
             toast({
                 title: "Provider Saved!",
                 description: `${providerName} has been saved to your profile.`,
-            });
-        } else {
-             toast({
-                title: "Already Saved",
-                description: "You have already saved this provider.",
             });
         }
     };
@@ -151,8 +152,9 @@ export default function ProvidersPage() {
                 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
                 : 'flex flex-col'
             )}>
-            {filteredProviders.map((provider) => (
-                view === 'grid' ? (
+            {filteredProviders.map((provider) => {
+                const isSaved = isProviderSaved(provider.id);
+                return view === 'grid' ? (
                 <Card key={provider.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
                     <Link href={`/providers/${provider.id}`} className="flex h-full flex-grow flex-col">
                         <div className="relative h-48 w-full">
@@ -181,16 +183,17 @@ export default function ProvidersPage() {
                                 <span>{provider.region}</span>
                             </div>
                         </div>
-                        <div className="mt-auto flex gap-2 pt-6">
-                            <Button asChild className="flex-1">
-                                <Link href={`/providers/${provider.id}`}>View Profile</Link>
-                            </Button>
-                            <Button variant="secondary" className="flex-1" onClick={(e) => handleSave(e, provider.name, provider.id)} disabled={isProviderSaved(provider.id)}>
-                                {isProviderSaved(provider.id) ? "Saved" : "Save"}
-                            </Button>
-                        </div>
                         </CardContent>
                     </Link>
+                    <div className="mt-auto flex gap-2 p-4 pt-0">
+                        <Button asChild className="flex-1">
+                            <Link href={`/providers/${provider.id}`}>View Profile</Link>
+                        </Button>
+                        <Button variant="secondary" className="flex-1" onClick={(e) => handleSaveToggle(e, provider.name, provider.id)}>
+                            <Bookmark className="mr-2 h-4 w-4"/>
+                            {isSaved ? "Saved" : "Save"}
+                        </Button>
+                    </div>
                 </Card>
             ) : (
                 <Card key={provider.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
@@ -223,16 +226,19 @@ export default function ProvidersPage() {
                             </div>
                         </CardContent>
                          <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                            <Button className="w-full sm:w-auto">View</Button>
-                             <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleSave(e, provider.name, provider.id)} disabled={isProviderSaved(provider.id)}>
-                                {isProviderSaved(provider.id) ? "Saved" : "Save"}
+                            <Button asChild className="w-full sm:w-auto">
+                               <Link href={`/providers/${provider.id}`}>View</Link>
+                            </Button>
+                             <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleSaveToggle(e, provider.name, provider.id)}>
+                                <Bookmark className="mr-2 h-4 w-4"/>
+                                {isSaved ? "Saved" : "Save"}
                             </Button>
                          </div>
                     </div>
                    </Link>
                 </Card>
             )
-            ))}
+            })}
           </div>
        ) : (
              <div className="rounded-lg border-2 border-dashed py-16 text-center">
