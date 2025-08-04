@@ -2,52 +2,52 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Helper functions
+  
+    // Helper function to check ownership/roles
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
     
     function isCommunityFounder(communityId) {
-       return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+      let communityDoc = get(/databases/$(database)/documents/communities/$(communityId));
+      return request.auth.uid == communityDoc.data.founderUid;
     }
 
-    // Allow public read access to all files.
+    // Default deny all reads and writes
     match /{allPaths=**} {
-      allow read: if true;
-    }
-
-    // Users can only write to their own profile picture folder.
-    // Limit file size to 5MB.
-    match /profile-pictures/{userId}/{fileName} {
-      allow write: if isOwner(userId) && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
-    }
-
-    // Users can only upload community logos/banners if they are the community founder.
-    // Limit file size to 5MB.
-    match /community-logos/{communityId}/{fileName} {
-      allow write: if isCommunityFounder(communityId) && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
-    }
-    match /community-banners/{communityId}/{fileName} {
-      allow write: if isCommunityFounder(communityId) && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
-    }
-
-    // Users can only upload event banners if they are the founder of the organizing community.
-    // Limit file size to 5MB.
-    // Note: This requires the event document to exist first or a more complex setup.
-    // For simplicity, we can check affiliation. A better approach might use custom claims.
-    match /event-banners/{organizerId}/{fileName} {
-       allow write: if isCommunityFounder(organizerId) && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+      allow read, write: if false;
     }
     
-    // Deals and other business-related images follow a similar pattern.
-    match /deal-images/{organizerId}/{fileName} {
-       allow write: if isCommunityFounder(organizerId) && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+    // Allow public read on all image folders
+    match /profile-pictures/{userId}/{fileName} {
+      allow read: if true;
+      // Allow write only if the user is uploading to their own folder
+      allow write: if isOwner(userId);
     }
+    
+    match /community-logos/{communityId}/{fileName} {
+      allow read: if true;
+      // Allow write only if the user is the founder of the community
+      allow write: if isCommunityFounder(communityId);
+    }
+    
+    match /community-banners/{communityId}/{fileName} {
+       allow read: if true;
+       // Allow write only if the user is the founder of the community
+       allow write: if isCommunityFounder(communityId);
+    }
+    
+    match /event-banners/{eventId}/{fileName} {
+      allow read: if true;
+      // Allow any authenticated user to upload event banners.
+      // Firestore rules will control who can create/update the event document itself.
+      allow write: if request.auth != null;
+    }
+
+    match /deal-images/{dealId}/{fileName} {
+        allow read: if true;
+        allow write: if request.auth != null;
+    }
+
   }
 }
