@@ -11,7 +11,7 @@ export const deals = [
     businessId: 'saffron-restaurant-group',
     businessLocation: '123 Saffron Avenue, New York, NY',
     businessWebsite: 'www.saffronrestaurants.com',
-    expires: '2024-08-31T23:59:59Z',
+    expires: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
     postedAt: '2024-07-20T11:00:00Z',
   },
   {
@@ -25,7 +25,7 @@ export const deals = [
     businessId: 'saffron-restaurant-group',
     businessLocation: '123 Saffron Avenue, New York, NY',
     businessWebsite: 'www.saffronrestaurants.com',
-    expires: 'September 15, 2024',
+    expires: new Date(new Date().setMonth(new Date().getMonth() + 2)).toISOString(),
     postedAt: '2024-07-18T18:00:00Z',
   },
   {
@@ -39,7 +39,7 @@ export const deals = [
     businessId: '1',
     businessLocation: '456 Legal Plaza, New York, NY',
     businessWebsite: 'www.sharmalaw.com',
-    expires: 'December 31, 2024',
+    expires: new Date(new Date().getFullYear(), 11, 31).toISOString(),
     postedAt: '2024-07-25T09:00:00Z',
   },
   {
@@ -53,7 +53,7 @@ export const deals = [
     businessId: 'yash-raj-films',
     businessLocation: 'Participating Theaters',
     businessWebsite: 'www.yashrajfilms.com',
-    expires: 'October 31, 2024',
+    expires: new Date(new Date().getFullYear(), 9, 31).toISOString(),
     postedAt: '2024-07-28T12:00:00Z',
   }
 ];

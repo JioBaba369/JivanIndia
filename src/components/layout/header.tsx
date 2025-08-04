@@ -21,7 +21,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const navLinks = [
-  { href: "/", label: "What's On" },
+  { href: "/events", label: "What's On" },
   { href: "/communities", label: "Communities" },
   { href: "/movies", label: "Movies" },
   { href: "/deals", label: "Deals" },

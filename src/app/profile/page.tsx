@@ -235,7 +235,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
+                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/events/${event.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
+                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/c/${org.slug}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -313,7 +313,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
+                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/deals/${deal.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
+                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/providers/${provider.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'}>{sponsor.tier}</Badge></div>
                                             </div>
                                         </div>
-                                        <div className="flex w-full items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
+                                        <div className="flex w-full shrink-0 items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
                                             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/sponsors/${sponsor.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -457,3 +457,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+
