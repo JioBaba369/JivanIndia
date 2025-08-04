@@ -14,7 +14,6 @@ import {
 import { Calendar, MapPin, Search, Ticket, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { deals } from "@/data/deals";
@@ -35,6 +34,7 @@ export default function HomePage() {
                 fill
                 className="object-cover opacity-20"
                 priority
+                data-ai-hint="festival crowd"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
@@ -78,100 +78,98 @@ export default function HomePage() {
       </section>
 
       <section className="container mx-auto px-4 py-16">
-        <Tabs defaultValue="events" className="w-full">
-          <div className="mb-10 flex justify-center">
-            <TabsList className="grid w-full max-w-lg grid-cols-2">
-              <TabsTrigger value="events">Upcoming Events</TabsTrigger>
-              <TabsTrigger value="deals">Community Deals</TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="events">
-             {latestEvents.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {latestEvents.map((event) => (
-                <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
-                  <Link href={`/events/${event.id}`} className="flex h-full flex-col">
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={event.imageUrl}
-                        alt={event.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                      />
-                      <Badge variant="secondary" className="absolute top-3 right-3">{event.eventType}</Badge>
-                    </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
-                      <h3 className="font-headline flex-grow text-xl font-semibold group-hover:text-primary">{event.title}</h3>
-                      <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
+        <div className="space-y-16">
+          <div>
+            <h2 className="font-headline text-3xl font-bold text-center mb-10">Upcoming Events</h2>
+            {latestEvents.length > 0 ? (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {latestEvents.map((event) => (
+                    <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                      <Link href={`/events/${event.id}`} className="flex h-full flex-col">
+                        <div className="relative h-48 w-full">
+                          <Image
+                            src={event.imageUrl}
+                            alt={event.title}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                          />
+                          <Badge variant="secondary" className="absolute top-3 right-3">{event.eventType}</Badge>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          <span>{event.location.venueName}</span>
-                        </div>
-                      </div>
-                      <Button variant="outline" className="mt-6 w-full">
-                        <Ticket className="mr-2 h-4 w-4" />
-                        View Event
-                      </Button>
-                    </CardContent>
-                  </Link>
-                </Card>
-              ))}
-            </div> : (
-                 <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
-                    <p className="text-muted-foreground">No upcoming events right now. Check back soon!</p>
+                        <CardContent className="flex flex-grow flex-col p-6">
+                          <h3 className="font-headline flex-grow text-xl font-semibold group-hover:text-primary">{event.title}</h3>
+                          <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4" />
+                              <span>{event.location.venueName}</span>
+                            </div>
+                          </div>
+                          <Button variant="outline" className="mt-6 w-full">
+                            <Ticket className="mr-2 h-4 w-4" />
+                            View Event
+                          </Button>
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  ))}
                 </div>
-            )}
-             <div className="mt-12 text-center">
-                <Button asChild>
-                    <Link href="/events">View All Events</Link>
-                </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="deals">
-             {latestDeals.length > 0 ? <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {latestDeals.map((deal) => (
-                <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
-                  <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={deal.imageUrl}
-                        alt={deal.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                      />
-                       <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
-                    </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
-                      <h3 className="font-headline mt-2 flex-grow text-xl font-semibold group-hover:text-primary">{deal.title}</h3>
-                      <div className="mt-4 flex items-center gap-2 text-muted-foreground">
-                          <span className="text-sm">{deal.business}</span>
-                      </div>
-                        <Button variant="outline" className="mt-6 w-full">
-                          <Tag className="mr-2 h-4 w-4" />
-                          View Deal
-                        </Button>
-                    </CardContent>
-                  </Link>
-                </Card>
-              ))}
-            </div> : (
+            ) : (
                 <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
-                    <p className="text-muted-foreground">No active deals right now. Check back soon!</p>
+                  <p className="text-muted-foreground">No upcoming events right now. Check back soon!</p>
                 </div>
             )}
-             <div className="mt-12 text-center">
+            <div className="mt-12 text-center">
+              <Button asChild>
+                <Link href="/events">View All Events</Link>
+              </Button>
+            </div>
+          </div>
+          
+          <div className="border-t pt-16">
+             <h2 className="font-headline text-3xl font-bold text-center mb-10">Latest Community Deals</h2>
+             {latestDeals.length > 0 ? (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {latestDeals.map((deal) => (
+                    <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                      <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
+                        <div className="relative h-48 w-full">
+                          <Image
+                            src={deal.imageUrl}
+                            alt={deal.title}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                          />
+                          <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
+                        </div>
+                        <CardContent className="flex flex-grow flex-col p-6">
+                          <h3 className="font-headline mt-2 flex-grow text-xl font-semibold group-hover:text-primary">{deal.title}</h3>
+                          <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+                            <span className="text-sm">{deal.business}</span>
+                          </div>
+                          <Button variant="outline" className="mt-6 w-full">
+                            <Tag className="mr-2 h-4 w-4" />
+                            View Deal
+                          </Button>
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
+                  <p className="text-muted-foreground">No active deals right now. Check back soon!</p>
+                </div>
+              )}
+            <div className="mt-12 text-center">
                 <Button asChild>
                     <Link href="/deals">View All Deals</Link>
                 </Button>
             </div>
-          </TabsContent>
-          
-        </Tabs>
+          </div>
+        </div>
       </section>
     </div>
   );
