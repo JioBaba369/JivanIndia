@@ -232,7 +232,7 @@ export default function NewCommunityPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
+      <Card className="mx-auto max-w-3xl">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Establish Your Community's Presence</CardTitle>
           <CardDescription>
@@ -297,7 +297,17 @@ export default function NewCommunityPage() {
                       <FormItem>
                         <FormLabel>Community Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Bay Area Tamil Sangam" {...field} />
+                          <Input 
+                            placeholder="e.g., Bay Area Tamil Sangam" 
+                            {...field} 
+                            onChange={(e) => {
+                                field.onChange(e);
+                                if (!slugManuallyEdited) {
+                                    const newSlug = generateSlug(e.target.value);
+                                    form.setValue('slug', newSlug, { shouldValidate: true });
+                                }
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -314,7 +324,6 @@ export default function NewCommunityPage() {
                             <Input
                               placeholder="e.g., bay-area-tamil-sangam"
                               {...field}
-                              onFocus={() => setSlugManuallyEdited(true)}
                               onChange={(e) => {
                                 setSlugManuallyEdited(true);
                                 field.onChange(generateSlug(e.target.value));

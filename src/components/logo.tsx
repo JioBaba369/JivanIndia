@@ -2,9 +2,8 @@
 import { Heart } from "lucide-react";
 import React from 'react';
 
-interface LogoProps {
+interface LogoProps extends React.HTMLAttributes<HTMLElement> {
     as?: React.ElementType;
-    [key: string]: any; 
 }
 
 export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
@@ -15,4 +14,3 @@ export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
     </Component>
   );
 }
-

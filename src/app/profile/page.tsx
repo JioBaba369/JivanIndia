@@ -119,7 +119,8 @@ export default function ProfilePage() {
                             <Link href="/profile/edit">Edit Profile</Link>
                          </Button>
                     </CardHeader>
-                    {user.affiliation && affiliatedCommunity && <CardContent className="px-6 pb-6">
+                    {user.affiliation && affiliatedCommunity && (
+                    <CardContent className="px-6 pb-6">
                         <Card className="bg-muted">
                             <CardHeader className="p-4">
                                 <CardTitle className="font-headline flex items-center justify-center gap-2 text-lg">
@@ -127,21 +128,21 @@ export default function ProfilePage() {
                                     Affiliation
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-4 pt-0 text-center">
+                            <CardContent className="text-center">
                                 <p className="text-sm">You are affiliated with:</p>
                                 <Button variant="link" asChild className="h-auto p-0 font-semibold text-base">
                                     <Link href={`/c/${affiliatedCommunity.slug}`}>{user.affiliation.orgName}</Link>
                                 </Button>
                             </CardContent>
                         </Card>
-                    </CardContent>}
+                    </CardContent>)}
                 </Card>
                 
                  <Card>
-                    <CardHeader className="p-6">
+                    <CardHeader>
                         <CardTitle className="font-headline text-xl">Details</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6 p-6 pt-0">
+                    <CardContent className="space-y-6">
                         {(user.languagesSpoken && user.languagesSpoken.length > 0) && (
                             <div className="space-y-2">
                                 <h4 className="flex items-center gap-2 text-sm font-semibold"><Languages className="h-4 w-4"/> Languages</h4>
@@ -176,9 +177,18 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                             )}
-                             {user.currentLocation?.city && (
+                            {user.website && (
                                 <div className="flex items-start gap-4">
                                     <Globe className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
+                                    <div>
+                                        <p className="text-sm font-semibold">Website</p>
+                                        <p className="text-sm text-muted-foreground truncate hover:text-primary"><a href={user.website} target="_blank" rel="noopener noreferrer">{user.website}</a></p>
+                                    </div>
+                                </div>
+                            )}
+                             {user.currentLocation?.city && (
+                                <div className="flex items-start gap-4">
+                                    <MapPin className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                                     <div>
                                         <p className="text-sm font-semibold">Current Location</p>
                                         <p className="text-sm text-muted-foreground">{`${user.currentLocation.city}, ${user.currentLocation.state}, ${user.currentLocation.country}`}</p>
