@@ -59,13 +59,12 @@ export default function ImageCropper({
     
     setIsProcessing(true);
     
-    // Use a temporary canvas to draw the cropped image
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+    canvas.width = Math.floor(crop.width * scaleX);
+    canvas.height = Math.floor(crop.height * scaleY);
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -81,12 +80,11 @@ export default function ImageCropper({
       crop.height * scaleY,
       0,
       0,
-      crop.width,
-      crop.height
+      canvas.width,
+      canvas.height
     );
     
-    // Get the data URL with specified quality
-    const base64Image = canvas.toDataURL('image/jpeg', 0.9); // 90% quality
+    const base64Image = canvas.toDataURL('image/jpeg', 0.9);
     onSave(base64Image);
     setIsProcessing(false);
   };

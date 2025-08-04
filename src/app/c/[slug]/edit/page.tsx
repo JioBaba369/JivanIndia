@@ -15,11 +15,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Image from 'next/image';
-import { ImageUp, Loader2, CheckCircle, UploadCloud, Twitter, Linkedin, Facebook, Edit } from 'lucide-react';
-import ImageCropper from '@/components/feature/image-cropper';
+import { Loader2, Twitter, Linkedin, Facebook, Edit } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,11 +31,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import ImageUpload from '@/components/feature/image-upload';
 
 const NAME_MAX_LENGTH = 100;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
-const IMAGE_MAX_SIZE_MB = 4;
 
 const formSchema = z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
@@ -74,16 +72,6 @@ export default function EditCommunityPage() {
   const [isPending, startTransition] = useTransition();
   const [community, setCommunity] = useState<Community | null>(null);
   
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [isCropperOpen, setIsCropperOpen] = useState(false);
-  const [cropperConfig, setCropperConfig] = useState({ 
-    aspectRatio: 16/9, 
-    onSave: (img: string) => {},
-  });
-  
-  const bannerInputRef = useRef<HTMLInputElement>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
-
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -150,33 +138,6 @@ export default function EditCommunityPage() {
     );
   }
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: 'bannerUrl' | 'logoUrl',
-    aspectRatio: number,
-  ) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (file.size > IMAGE_MAX_SIZE_MB * 1024 * 1024) { 
-          toast({ title: 'Image Too Large', description: `Please select an image smaller than ${IMAGE_MAX_SIZE_MB}MB.`, variant: 'destructive'});
-          return;
-      }
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        setImageSrc(reader.result?.toString() || '');
-        setCropperConfig({ 
-            onSave: (url) => {
-                form.setValue(field, url, { shouldValidate: true, shouldDirty: true });
-                toast({ title: 'Image Uploaded!', icon: <CheckCircle className="h-5 w-5 text-green-500" /> });
-            }, 
-            aspectRatio,
-        });
-        setIsCropperOpen(true);
-        if (e.target) e.target.value = '';
-      });
-      reader.readAsDataURL(file);
-    }
-  };
 
   const onSubmit = async (values: CommunityFormValues) => {
     if (!community) return;
@@ -224,18 +185,6 @@ export default function EditCommunityPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      {imageSrc && (
-        <ImageCropper
-          isOpen={isCropperOpen}
-          onClose={() => setIsCropperOpen(false)}
-          imageSrc={imageSrc}
-          onSave={(img) => {
-            cropperConfig.onSave(img);
-            setIsCropperOpen(false);
-          }}
-          aspectRatio={cropperConfig.aspectRatio}
-        />
-      )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Edit Your Community</CardTitle>
@@ -249,40 +198,21 @@ export default function EditCommunityPage() {
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="logoUrl"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem>
                         <FormLabel>Community Logo (1:1 Ratio) *</FormLabel>
                         <FormControl>
-                          <Card 
-                            role="button"
-                            aria-label="Upload logo image"
-                            tabIndex={0}
-                            className="relative flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                            onClick={() => logoInputRef.current?.click()}
-                            onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
-                          >
-                            {field.value ? (
-                              <Image src={field.value} alt="Logo preview" fill className="object-cover rounded-lg"/>
-                            ) : (
-                              <div className="text-center">
-                                <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />
-                                <span className="text-muted-foreground text-sm">Upload Community Logo</span>
-                              </div>
-                            )}
-                          </Card>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            aspectRatio={1}
+                            toast={toast}
+                          />
                         </FormControl>
                         <FormMessage />
-                         <Input 
-                          id="community-logo-input" 
-                          type="file" 
-                          className="hidden"
-                          ref={logoInputRef}
-                          onChange={(e) => handleFileChange(e, 'logoUrl', 1)}
-                          accept="image/png, image/jpeg, image/webp"
-                        />
                       </FormItem>
                     )}
                   />
@@ -290,36 +220,17 @@ export default function EditCommunityPage() {
                     control={form.control}
                     name="bannerUrl"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem>
                         <FormLabel>Community Banner (16:9 Ratio) *</FormLabel>
                         <FormControl>
-                          <Card 
-                            role="button"
-                            aria-label="Upload banner image"
-                            tabIndex={0}
-                            className="relative flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                            onClick={() => bannerInputRef.current?.click()}
-                            onKeyDown={(e) => e.key === 'Enter' && bannerInputRef.current?.click()}
-                          >
-                            {field.value ? (
-                              <Image src={field.value} alt="Banner preview" fill className="object-cover rounded-lg"/>
-                            ) : (
-                              <div className="text-center">
-                                <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />
-                                <span className="text-muted-foreground text-sm">Upload Banner Image</span>
-                              </div>
-                            )}
-                          </Card>
+                           <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            aspectRatio={16/9}
+                            toast={toast}
+                          />
                         </FormControl>
                         <FormMessage />
-                         <Input 
-                          id="community-banner-input" 
-                          type="file" 
-                          className="hidden"
-                          ref={bannerInputRef}
-                          onChange={(e) => handleFileChange(e, 'bannerUrl', 16/9)}
-                          accept="image/png, image/jpeg, image/webp"
-                        />
                       </FormItem>
                     )}
                   />
@@ -476,5 +387,3 @@ export default function EditCommunityPage() {
     </div>
   );
 }
-
-    
