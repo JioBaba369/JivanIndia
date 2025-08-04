@@ -114,51 +114,53 @@ export default function CommunitiesPage() {
         </div>
       </section>
 
-      {featuredCommunities.length > 0 && <section className="container mx-auto px-4 pb-12">
-        <h2 className="font-headline mb-8 text-3xl font-bold">Featured Communities</h2>
-         <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full"
-        >
-          <CarouselContent>
-            {featuredCommunities.map((org) => (
-              <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
-                 <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
-                    <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
-                        <div className="relative h-48 w-full">
-                            <Image
-                            src={org.imageUrl}
-                            alt={org.name}
-                            fill
-                            className="object-cover"
-                            priority
-                            data-ai-hint="community photo"
-                            />
-                        </div>
-                        <CardContent className="flex flex-grow flex-col p-4">
-                             <div className="flex items-center gap-2">
-                                <h3 className="font-headline text-xl font-bold">{org.name}</h3>
-                                {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
-                            </div>
-                            <p className="font-semibold text-primary">{org.type}</p>
-                            <p className="mt-2 flex-grow text-sm text-muted-foreground">{org.description}</p>
-                             <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="h-4 w-4" />
-                                <span>{org.region}</span>
-                            </div>
-                        </CardContent>
-                    </Link>
-                </Card>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext  className="hidden sm:flex" />
-        </Carousel>
-      </section>}
+      {featuredCommunities && featuredCommunities.length > 0 && (
+        <section className="container mx-auto px-4 pb-12">
+          <h2 className="font-headline mb-8 text-3xl font-bold">Featured Communities</h2>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {featuredCommunities.map((org) => (
+                <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
+                  <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
+                      <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
+                          <div className="relative h-48 w-full">
+                              <Image
+                              src={org.imageUrl}
+                              alt={org.name}
+                              fill
+                              className="object-cover"
+                              priority
+                              data-ai-hint="community photo"
+                              />
+                          </div>
+                          <CardContent className="flex flex-grow flex-col p-4">
+                              <div className="flex items-center gap-2">
+                                  <h3 className="font-headline text-xl font-bold">{org.name}</h3>
+                                  {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
+                              </div>
+                              <p className="font-semibold text-primary">{org.type}</p>
+                              <p className="mt-2 flex-grow text-sm text-muted-foreground">{org.description}</p>
+                              <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{org.region}</span>
+                              </div>
+                          </CardContent>
+                      </Link>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext  className="hidden sm:flex" />
+          </Carousel>
+        </section>
+      )}
 
       <div className="sticky top-[65px] z-30 border-t bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
