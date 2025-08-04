@@ -130,7 +130,7 @@ export default function ProviderDetailPage() {
                    </h3>
                    <Card>
                        <CardContent className="p-4">
-                            <Link href={`/communities/${associatedCommunity.id}`} className="group">
+                            <Link href={`/c/${associatedCommunity.slug}`} className="group">
                                <p className="font-semibold group-hover:text-primary">{associatedCommunity.name}</p>
                                <p className="text-sm text-muted-foreground">View community profile</p>
                             </Link>
@@ -208,3 +208,5 @@ export default function ProviderDetailPage() {
     </div>
   );
 }
+
+    
