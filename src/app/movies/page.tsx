@@ -15,51 +15,7 @@ import { Film, MapPin, Search, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
-
-export const movies: any[] = [
-    {
-    id: '1',
-    title: 'Jawan',
-    genre: 'Action/Thriller',
-    rating: '4.5',
-    imageUrl: 'https://images.unsplash.com/photo-1695126839049-b5413149884e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    details: {
-      synopsis: 'A man is driven by a personal vendetta to rectify the wrongs in society, while keeping a promise made years ago. He comes up against a monstrous outlaw with no fear, who has caused extreme suffering to many.',
-      duration: '2h 49m',
-      cast: ['Shah Rukh Khan', 'Nayanthara', 'Vijay Sethupathi'],
-      distributor: 'Yash Raj Films',
-      distributorId: '7',
-      backdropUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      trailerUrl: 'https://www.youtube.com/embed/COv52Qyctws',
-      theaters: [
-        { name: 'AMC Mercado 20', location: 'Santa Clara, CA', showtimes: ['1:00 PM', '4:15 PM', '7:30 PM'] },
-        { name: 'Cinemark Century 20', location: 'Redwood City, CA', showtimes: ['2:30 PM', '6:00 PM', '9:15 PM'] },
-      ],
-    },
-    postedAt: '2024-07-28T10:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'RRR',
-    genre: 'Action/Drama',
-    rating: '4.8',
-    imageUrl: 'https://images.unsplash.com/photo-1695126839049-b5413149884e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    details: {
-      synopsis: 'A fictitious story about two legendary revolutionaries and their journey away from home before they started fighting for their country in the 1920s.',
-      duration: '3h 7m',
-      cast: ['N. T. Rama Rao Jr.', 'Ram Charan', 'Alia Bhatt'],
-      distributor: 'Yash Raj Films',
-      distributorId: '7',
-      backdropUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      trailerUrl: 'https://www.youtube.com/embed/gyNEIpmA2-A',
-      theaters: [
-        { name: 'Regal Edwards', location: 'Houston, TX', showtimes: ['12:00 PM', '3:45 PM', '7:30 PM'] },
-      ],
-    },
-    postedAt: '2024-07-25T14:30:00Z',
-  },
-];
-
+import { movies } from "@/data/movies";
 
 export default function MoviesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,19 +55,19 @@ export default function MoviesPage() {
       <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
         <div className="container mx-auto px-4">
           <Card>
-            <CardContent>
+            <CardContent className="p-4">
                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="relative md:col-span-2">
                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Search for a movie..."
-                    className="pl-10"
+                    className="pl-10 text-base"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Select value={location} onValueChange={setLocation}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-base">
                     <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <SelectValue placeholder="Select Location" />
@@ -144,7 +100,7 @@ export default function MoviesPage() {
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 </div>
-                <CardContent>
+                <CardContent className="p-4">
                   <h3 className="font-headline truncate text-lg font-bold group-hover:text-primary">{movie.title}</h3>
                   <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { useState, useEffect } from 'react';
 import { useParams } from "next/navigation";
-import { movies } from "../page";
+import { movies } from "@/data/movies";
 
 export default function MovieDetailPage() {
   const params = useParams();
