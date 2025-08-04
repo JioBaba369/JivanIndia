@@ -95,7 +95,7 @@ export default function AboutUsPage() {
                     <Card key={member.name} className="border-none shadow-none text-center">
                         <CardContent className="flex flex-col items-center">
                            <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
-                                <AvatarImage src={member.avatarUrl} alt={member.name} data-ai-hint="portrait person" />
+                                <AvatarImage src={member.avatarUrl} alt={`${member.name}, ${member.role}`} data-ai-hint="portrait person" />
                                 <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                             </Avatar>
                             <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>

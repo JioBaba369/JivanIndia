@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { PT_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -26,7 +27,29 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "JivanIndia.co - The Heartbeat of the Indian Community",
   description:
-    "Your guide to what's on, organizations, providers, sponsors, movies, deals, and careers in the Indian community.",
+    "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
+  openGraph: {
+    title: "JivanIndia.co - The Heartbeat of the Indian Community",
+    description: "Your one-stop destination for community events, organizations, deals, and more.",
+    url: "https://jivanindia.co",
+    siteName: "JivanIndia.co",
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1594917409245-8a245973c8b4?w=1200&h=630&fit=crop', // A representative image
+        width: 1200,
+        height: 630,
+        alt: 'A vibrant Indian community festival',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+   twitter: {
+    card: 'summary_large_image',
+    title: 'JivanIndia.co - The Heartbeat of the Indian Community',
+    description: 'Your one-stop destination for community events, organizations, deals, and more.',
+    images: ['https://images.unsplash.com/photo-1594917409245-8a245973c8b4?w=1200&h=630&fit=crop'],
+  },
 };
 
 export default function RootLayout({

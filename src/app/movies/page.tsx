@@ -42,6 +42,7 @@ export default function MoviesPage() {
                 fill
                 className="object-cover opacity-20"
                 priority
+                data-ai-hint="movie posters collage"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         </div>
