@@ -170,7 +170,7 @@ export default function EventsPage() {
                  <Card key={event.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                   <Link href={`/events/${event.id}`}>
                     <div className="flex flex-col sm:flex-row">
-                      <div className="relative h-48 w-full sm:h-auto sm:w-64 flex-shrink-0">
+                      <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0">
                         <Image
                           src={event.imageUrl}
                           alt={event.title}
@@ -179,7 +179,7 @@ export default function EventsPage() {
                         />
                          <Badge variant="secondary" className="absolute top-2 right-2 sm:hidden">{event.eventType}</Badge>
                       </div>
-                      <CardContent className="flex flex-grow flex-col justify-center p-6">
+                      <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                          <Badge variant="secondary" className="hidden sm:inline-flex w-fit">{event.eventType}</Badge>
                          <h3 className="font-headline mt-2 text-xl font-bold group-hover:text-primary">{event.title}</h3>
                          <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
@@ -194,7 +194,7 @@ export default function EventsPage() {
                          </div>
                          <p className="text-sm mt-2 text-muted-foreground line-clamp-2">{event.organizerName}</p>
                       </CardContent>
-                       <div className="flex items-center p-6 border-t sm:border-t-0 sm:border-l">
+                       <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                         <Button variant="outline" className="w-full sm:w-auto">
                             <Ticket className="mr-2 h-4 w-4" />
                             View Event

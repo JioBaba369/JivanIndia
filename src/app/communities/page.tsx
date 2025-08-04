@@ -135,6 +135,7 @@ export default function CommunitiesPage() {
                             fill
                             className="object-cover"
                             priority
+                            data-ai-hint="community photo"
                             />
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4">
@@ -265,7 +266,7 @@ export default function CommunitiesPage() {
                 <Card key={org.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                    <Link href={`/c/${org.slug}`}>
                     <div className="flex flex-col sm:flex-row">
-                        <div className="relative h-full w-full sm:h-auto sm:w-48 sm:aspect-square flex-shrink-0">
+                        <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">
                            <Image
                                 src={org.imageUrl}
                                 alt={org.name}
@@ -273,7 +274,7 @@ export default function CommunitiesPage() {
                                 className="object-cover transition-transform group-hover:scale-105"
                             />
                         </div>
-                        <CardContent className="flex flex-grow flex-col p-4">
+                        <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                             <p className="font-semibold text-primary">{org.type}</p>
                             <div className="mt-1 flex items-center gap-2">
                                 <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
@@ -291,7 +292,7 @@ export default function CommunitiesPage() {
                                 </div>
                             </div>
                         </CardContent>
-                         <div className="flex flex-col justify-center gap-2 p-4 border-t sm:border-t-0 sm:border-l">
+                         <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                             <Button className="w-full sm:w-auto">View</Button>
                              <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                                 <Bookmark className="mr-2 h-4 w-4" />

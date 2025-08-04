@@ -224,8 +224,8 @@ export default function ProfilePage() {
 
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex items-start gap-4 p-4">
-                                        <div className="aspect-square w-16 shrink-0 relative">
+                                    <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                                        <div className="aspect-square w-24 shrink-0 relative">
                                             <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
@@ -235,7 +235,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{event.location.venueName}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                        <div className="flex flex-col items-stretch gap-2 self-stretch sm:items-center sm:flex-row sm:ml-auto w-full sm:w-auto">
                                             <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/events/${event.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -263,8 +263,8 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userJoinedCommunities.map((org) => (
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex items-start gap-4 p-4">
-                                        <div className="aspect-square w-16 shrink-0 relative">
+                                    <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                                        <div className="aspect-square w-24 shrink-0 relative">
                                             <Image src={org.imageUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                        <div className="flex flex-col items-stretch gap-2 self-stretch sm:items-center sm:flex-row sm:ml-auto w-full sm:w-auto">
                                             <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/c/${org.slug}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -302,8 +302,8 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedDeals.map((deal) => (
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex items-start gap-4 p-4">
-                                        <div className="aspect-square w-16 shrink-0 relative">
+                                    <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                                        <div className="aspect-square w-24 shrink-0 relative">
                                             <Image src={deal.imageUrl} alt={deal.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
@@ -313,7 +313,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                        <div className="flex flex-col items-stretch gap-2 self-stretch sm:items-center sm:flex-row sm:ml-auto w-full sm:w-auto">
                                             <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/deals/${deal.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -341,8 +341,8 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedProviders.map((provider) => (
                                 <Card key={provider.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex items-start gap-4 p-4">
-                                        <div className="aspect-square w-16 shrink-0 relative">
+                                    <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                                        <div className="aspect-square w-24 shrink-0 relative">
                                             <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)}</span></div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                        <div className="flex flex-col items-stretch gap-2 self-stretch sm:items-center sm:flex-row sm:ml-auto w-full sm:w-auto">
                                             <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/providers/${provider.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -380,8 +380,8 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                             {userSavedSponsors.map((sponsor) => (
                                 <Card key={sponsor.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex items-start gap-4 p-4">
-                                        <div className="aspect-square w-16 shrink-0 relative">
+                                    <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                                        <div className="aspect-square w-24 shrink-0 relative">
                                             <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-1" />
                                         </div>
                                         <div className="flex-grow">
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                                                 <div className="flex items-center gap-2"><Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'}>{sponsor.tier}</Badge></div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:ml-auto">
+                                        <div className="flex flex-col items-stretch gap-2 self-stretch sm:items-center sm:flex-row sm:ml-auto w-full sm:w-auto">
                                             <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/sponsors/${sponsor.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -424,8 +424,8 @@ export default function ProfilePage() {
 
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
-                                    <CardContent className="flex items-start gap-4 p-4">
-                                        <div className="aspect-square w-16 shrink-0 relative">
+                                    <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                                        <div className="aspect-square w-24 shrink-0 relative">
                                           <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
@@ -457,4 +457,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

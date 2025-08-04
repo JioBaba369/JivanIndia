@@ -133,7 +133,7 @@ export default function SponsorsPage() {
                  <Card key={sponsor.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                     <Link href={`/sponsors/${sponsor.id}`}>
                         <div className="flex flex-col sm:flex-row">
-                            <div className="relative h-48 w-full sm:h-auto sm:w-64 flex-shrink-0 bg-muted flex items-center justify-center p-4">
+                            <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 bg-muted flex items-center justify-center p-4">
                                <Image
                                     src={sponsor.logoUrl}
                                     alt={`${sponsor.name} logo`}
@@ -142,13 +142,13 @@ export default function SponsorsPage() {
                                     className="object-contain transition-transform group-hover:scale-105"
                                 />
                             </div>
-                            <CardContent className="flex-grow p-4">
+                            <CardContent className="flex-grow p-4 sm:p-6">
                                 <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="w-fit">{sponsor.tier}</Badge>
                                 <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-2">{sponsor.name}</h3>
                                 <p className="font-semibold text-primary">{sponsor.industry}</p>
                                 <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{sponsor.description}</p>
                             </CardContent>
-                             <div className="flex items-center p-4 border-t sm:border-t-0 sm:border-l">
+                             <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                                 <Button variant="outline" className="w-full sm:w-auto">
                                     <Handshake className="mr-2 h-4 w-4" />
                                     View

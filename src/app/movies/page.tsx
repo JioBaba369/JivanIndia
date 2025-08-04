@@ -146,7 +146,7 @@ export default function MoviesPage() {
                 <Card key={movie.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                     <Link href={`/movies/${movie.id}`}>
                     <div className="flex">
-                        <div className="relative aspect-[2/3] h-48 flex-shrink-0">
+                        <div className="relative aspect-[2/3] h-40 sm:h-48 flex-shrink-0">
                             <Image
                                 src={movie.imageUrl}
                                 alt={movie.title}
@@ -154,7 +154,7 @@ export default function MoviesPage() {
                                 className="object-cover"
                             />
                         </div>
-                        <CardContent className="flex-grow p-4">
+                        <CardContent className="flex-grow p-4 sm:p-6">
                             <h3 className="font-headline text-xl font-bold group-hover:text-primary">{movie.title}</h3>
                              <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
@@ -170,7 +170,7 @@ export default function MoviesPage() {
                                 </div>
                             </div>
                         </CardContent>
-                        <div className="flex items-center p-4 border-l">
+                        <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                             <Button variant="outline">View Details</Button>
                         </div>
                     </div>

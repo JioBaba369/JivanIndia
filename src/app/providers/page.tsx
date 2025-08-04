@@ -196,7 +196,7 @@ export default function ProvidersPage() {
                 <Card key={provider.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                    <Link href={`/providers/${provider.id}`}>
                     <div className="flex flex-col sm:flex-row">
-                        <div className="relative h-48 w-full sm:h-auto sm:w-64 flex-shrink-0">
+                        <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0">
                            <Image
                                 src={provider.imageUrl}
                                 alt={provider.name}
@@ -204,7 +204,7 @@ export default function ProvidersPage() {
                                 className="object-cover transition-transform group-hover:scale-105"
                             />
                         </div>
-                        <CardContent className="flex flex-grow flex-col p-4">
+                        <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                             <p className="font-semibold text-primary">{provider.category}</p>
                             <div className="mt-1 flex items-center gap-2">
                                 <h3 className="font-headline text-xl font-bold group-hover:text-primary">{provider.name}</h3>
@@ -222,7 +222,7 @@ export default function ProvidersPage() {
                                 </div>
                             </div>
                         </CardContent>
-                         <div className="flex flex-col justify-center gap-2 p-4 border-t sm:border-t-0 sm:border-l">
+                         <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                             <Button className="w-full sm:w-auto">View</Button>
                              <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleSave(e, provider.name, provider.id)} disabled={isProviderSaved(provider.id)}>
                                 {isProviderSaved(provider.id) ? "Saved" : "Save"}

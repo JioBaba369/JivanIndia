@@ -135,7 +135,7 @@ export default function DealsPage() {
                 <Card key={deal.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                   <Link href={`/deals/${deal.id}`}>
                     <div className="flex flex-col sm:flex-row">
-                      <div className="relative h-48 w-full sm:h-auto sm:w-64 flex-shrink-0">
+                      <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0">
                         <Image
                           src={deal.imageUrl}
                           alt={deal.title}
@@ -143,7 +143,7 @@ export default function DealsPage() {
                           className="object-cover transition-transform group-hover:scale-105"
                         />
                       </div>
-                      <CardContent className="flex flex-grow flex-col justify-center p-6">
+                      <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                         <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
                         <h3 className="font-headline mt-2 text-xl font-bold group-hover:text-primary">{deal.title}</h3>
                         <div className="mt-2 flex items-center gap-2 text-muted-foreground">
@@ -154,7 +154,7 @@ export default function DealsPage() {
                             <span>Expires: {deal.expires}</span>
                         </div>
                       </CardContent>
-                      <div className="flex items-center p-6 border-t sm:border-t-0 sm:border-l">
+                      <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                         <Button variant="outline" className="w-full sm:w-auto">
                             <Tag className="mr-2 h-4 w-4" />
                             View Deal
