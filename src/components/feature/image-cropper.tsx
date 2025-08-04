@@ -64,8 +64,8 @@ export default function ImageCropper({
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     
-    canvas.width = Math.floor(crop.width * scaleX);
-    canvas.height = Math.floor(crop.height * scaleY);
+    canvas.width = crop.width;
+    canvas.height = crop.height;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -81,8 +81,8 @@ export default function ImageCropper({
       crop.height * scaleY,
       0,
       0,
-      canvas.width,
-      canvas.height
+      crop.width,
+      crop.height
     );
     
     // Get the data URL with specified quality
@@ -119,5 +119,3 @@ export default function ImageCropper({
     </Dialog>
   );
 }
-
-    
