@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { type Community, useCommunities } from '@/hooks/use-communities';
 
-interface User {
+export interface User {
   uid: string;
   name: string;
   username?: string;

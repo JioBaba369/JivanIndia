@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEvents } from '@/hooks/use-events';
 import { Badge } from '@/components/ui/badge';
 import { format, isValid } from 'date-fns';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useCommunities } from '@/hooks/use-communities';
@@ -108,13 +108,9 @@ export default function ProfilePage() {
                 <Card>
                     <CardHeader className="items-center text-center p-6">
                         <Avatar className="h-24 w-24 border-4 border-primary">
-                           {profileImageUrl ? <Image
-                            src={profileImageUrl}
-                            alt={user.name}
-                            width={96}
-                            height={96}
-                            className="rounded-full object-cover"
-                           /> : <AvatarFallback className="font-headline text-3xl">{getInitials(user.name)}</AvatarFallback>}
+                           {profileImageUrl ? (
+                            <AvatarImage src={profileImageUrl} alt={user.name} />
+                           ) : <AvatarFallback className="font-headline text-3xl">{getInitials(user.name)}</AvatarFallback>}
                         </Avatar>
                         <CardTitle className="font-headline pt-2 text-2xl">{user.name}</CardTitle>
                         <CardDescription>{user.email}</CardDescription>

@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities } from '@/hooks/use-communities';
+import { type User } from '@/hooks/use-auth';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -36,7 +37,7 @@ export default function UserPublicProfilePage() {
     const { getCommunityById } = useCommunities();
 
 
-    const [profileUser, setProfileUser] = useState<any | null>(null);
+    const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
     const [pageUrl, setPageUrl] = useState('');
 
     useEffect(() => {
@@ -49,6 +50,32 @@ export default function UserPublicProfilePage() {
         }
     }, [username, getUserByUsername]);
 
+    if (profileUser === undefined) {
+      return (
+        <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    if (!profileUser) {
+        return (
+            <div className="container mx-auto px-4 py-12 text-center">
+                <Card className="mx-auto max-w-md">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-3xl">User Not Found</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>The user profile you are looking for does not exist.</p>
+                        <Button asChild className="mt-6">
+                            <Link href="/">Back to Home</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+    
     const affiliatedCommunity = profileUser?.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null;
 
     const userAffiliatedEvents = affiliatedCommunity
@@ -72,23 +99,6 @@ export default function UserPublicProfilePage() {
     };
 
 
-    if (!profileUser) {
-        return (
-            <div className="container mx-auto px-4 py-12 text-center">
-                <Card className="mx-auto max-w-md">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-3xl">User Not Found</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p>The user profile you are looking for does not exist.</p>
-                        <Button asChild className="mt-6">
-                            <Link href="/">Back to Home</Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
     
     const CountryFlag = ({ countryCode }: { countryCode: string }) => {
         if (!countryCode) return null;

@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -14,14 +14,26 @@ import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatUrl } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import type { Community } from "@/hooks/use-communities";
 
 export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = typeof params.slug === 'string' ? params.slug : '';
   const { getCommunityBySlug, getInitials } = useCommunities();
-  const community = getCommunityBySlug(slug);
+  
+  const [community, setCommunity] = useState<Community | null | undefined>(undefined);
+  
   const { events } = useEvents();
+
+  useEffect(() => {
+    if (slug) {
+        const foundCommunity = getCommunityBySlug(slug);
+        setCommunity(foundCommunity);
+    }
+  }, [slug, getCommunityBySlug]);
+
 
   const relatedEvents = community ? events.filter(event => event.organizerId === community.id && event.status === 'Approved').slice(0, 3) : [];
   
@@ -61,6 +73,14 @@ export default function CommunityDetailPage() {
             description: `You have successfully joined ${community.name}.`,
         });
     }
+  }
+
+  if (community === undefined) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (!community) {
@@ -161,7 +181,7 @@ export default function CommunityDetailPage() {
                         </Button>
                     )}
                     {!isFounder && (
-                        <Button size="lg" variant={orgIsJoined ? "destructive" : "default"} className="w-full" onClick={handleJoinToggle}>
+                        <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
                             <Bookmark className="mr-2 h-4 w-4"/>
                             {orgIsJoined ? "Leave Community" : "Join Community"}
                         </Button>
