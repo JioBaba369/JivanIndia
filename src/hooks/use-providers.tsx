@@ -39,6 +39,8 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
   const [providers, setProviders] = useState<Provider[]>(initialProviders);
 
   useEffect(() => {
+    // This is a placeholder for fetching data from a real backend.
+    // In a real app, you would make an API call here.
     setProviders(initialProviders);
   }, []);
 

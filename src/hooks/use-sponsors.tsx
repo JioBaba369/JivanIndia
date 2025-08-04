@@ -37,6 +37,7 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors);
 
   useEffect(() => {
+    // In a real application, you would fetch this data from an API.
     setSponsors(initialSponsors);
   }, []);
 
