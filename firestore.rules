@@ -1,80 +1,65 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Default deny all access.
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    // By default, deny all reads and writes.
+    // We will explicitly grant access to specific collections below.
 
-    //-------------------------------------------------------------------------
-    // Functions
-    //-------------------------------------------------------------------------
+    // --- Validation Functions ---
+
+    // Validates the data for a new or updated community.
+    function isCommunityDataValid(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+          && data.slug is string && data.slug.size() > 0 && data.slug.size() <= 50
+          && data.type is string
+          && data.description is string && data.description.size() > 0 && data.description.size() <= 160
+          && data.fullDescription is string && data.fullDescription.size() > 0 && data.fullDescription.size() <= 2000
+          && data.region is string && data.region.size() > 0
+          && data.logoUrl is string && data.logoUrl.size() > 0
+          && data.imageUrl is string && data.imageUrl.size() > 0
+          && data.contactEmail is string;
+    }
     
-    function isAuthOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+    // Validates that only allowed fields can be updated for a community.
+    function canUpdateCommunityFields(data) {
+      let allowedFields = ['name', 'type', 'description', 'fullDescription', 'region', 'imageUrl', 'logoUrl', 'tags', 'address', 'phone', 'contactEmail', 'website', 'founded', 'socialMedia', 'updatedAt', 'isVerified'];
+      return data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
     }
     
-    function isAuthAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    // Validates that the founder is not being changed.
+    function isFounderUnchanged() {
+      return request.resource.data.founderUid == resource.data.founderUid;
     }
 
-    function isAuth() {
-        return request.auth != null;
-    }
+    // --- Collection Rules ---
 
-    //-------------------------------------------------------------------------
-    // Collections
-    //-------------------------------------------------------------------------
-
+    // Users: Public read access for profiles. Users can only write to their own document.
     match /users/{userId} {
       allow read: if true;
-      allow create: if isAuthOwner(userId)
-                    && request.resource.data.name is string
-                    && request.resource.data.email == request.auth.token.email;
-      allow update: if isAuthOwner(userId);
-      allow delete: if isAuthAdmin(); // Only admins can delete users
+      allow write: if request.auth.uid == userId;
     }
 
+    // Communities: Public read. Only authenticated users can create. Only founders or admins can update/delete.
     match /communities/{communityId} {
       allow read: if true;
-      
-      allow create: if isAuth()
-                    && request.resource.data.name is string
-                    && request.resource.data.name.size() > 0
-                    && request.resource.data.slug is string
-                    && request.resource.data.founderUid == request.auth.uid;
-                    
-      allow update: if isAuthOwner(resource.data.founderUid)
-                    // Prevent founder from changing ownership or creation date
-                    && request.resource.data.founderUid == resource.data.founderUid
-                    && request.resource.data.createdAt == resource.data.createdAt;
-
-      allow delete: if isAuthOwner(resource.data.founderUid) || isAuthAdmin();
+      allow create: if request.auth != null && isCommunityDataValid(request.resource.data);
+      allow update: if (request.auth.uid == resource.data.founderUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+                      && canUpdateCommunityFields(request.resource.data)
+                      && isFounderUnchanged();
+      allow delete: if request.auth.uid == resource.data.founderUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
     
+    // Events: Public read. Authenticated users can create. Submitter or admin can update/delete.
     match /events/{eventId} {
       allow read: if true;
-      
-      allow create: if isAuth()
-                    && request.resource.data.title is string
-                    && request.resource.data.title.size() > 0
-                    && request.resource.data.submittedByUid == request.auth.uid;
-
-      // Allow event owner or an admin to update.
-      // Allow admin to change status (approve/archive).
-      allow update: if isAuthOwner(resource.data.submittedByUid) || isAuthAdmin();
-
-      // Allow event owner or an admin to delete.
-      allow delete: if isAuthOwner(resource.data.submittedByUid) || isAuthAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    // About Page: Public read. Only admins can write.
     match /about/singleton {
       allow read: if true;
-      // Only admins can write to the 'about' page content.
-      allow write: if isAuthAdmin();
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
   }
 }
