@@ -87,6 +87,24 @@ export default function EditCommunityPage() {
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
+    defaultValues: {
+      name: '',
+      type: 'Other',
+      description: '',
+      fullDescription: '',
+      region: '',
+      founded: '',
+      tags: '',
+      logoUrl: '',
+      bannerUrl: '',
+      website: '',
+      contactEmail: '',
+      phone: '',
+      address: '',
+      socialTwitter: '',
+      socialFacebook: '',
+      socialLinkedin: '',
+    },
   });
 
   useEffect(() => {
