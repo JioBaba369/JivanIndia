@@ -4,36 +4,77 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Default deny all
+    // Default deny all access.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Users: Allow public read, but only the user can write their own document.
-    match /users/{userId} {
-      allow read: if true;
-      allow write: if request.auth.uid == userId;
+    //-------------------------------------------------------------------------
+    // Functions
+    //-------------------------------------------------------------------------
+    
+    function isAuthOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    function isAuthAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    // Communities, Events, About: Allow public read.
-    // Write access is managed through application logic (backend/admin roles).
-    // For this app, we assume admin actions handle writes, so we can be broad here for now.
-    // In a production app, you might add more specific roles/permissions.
+    function isAuth() {
+        return request.auth != null;
+    }
+
+    //-------------------------------------------------------------------------
+    // Collections
+    //-------------------------------------------------------------------------
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isAuthOwner(userId)
+                    && request.resource.data.name is string
+                    && request.resource.data.email == request.auth.token.email;
+      allow update: if isAuthOwner(userId);
+      allow delete: if isAuthAdmin(); // Only admins can delete users
+    }
+
     match /communities/{communityId} {
       allow read: if true;
-      allow create: if request.auth != null; // Any logged-in user can create
-      allow update: if request.auth.uid == resource.data.founderUid; // Only founder can update
+      
+      allow create: if isAuth()
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.slug is string
+                    && request.resource.data.founderUid == request.auth.uid;
+                    
+      allow update: if isAuthOwner(resource.data.founderUid)
+                    // Prevent founder from changing ownership or creation date
+                    && request.resource.data.founderUid == resource.data.founderUid
+                    && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isAuthOwner(resource.data.founderUid) || isAuthAdmin();
     }
     
     match /events/{eventId} {
       allow read: if true;
-      allow create: if request.auth != null; // Any logged-in user can create
-      allow update: if request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true; // Submitter or admin
+      
+      allow create: if isAuth()
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.submittedByUid == request.auth.uid;
+
+      // Allow event owner or an admin to update.
+      // Allow admin to change status (approve/archive).
+      allow update: if isAuthOwner(resource.data.submittedByUid) || isAuthAdmin();
+
+      // Allow event owner or an admin to delete.
+      allow delete: if isAuthOwner(resource.data.submittedByUid) || isAuthAdmin();
     }
 
     match /about/singleton {
       allow read: if true;
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true; // Only admin
+      // Only admins can write to the 'about' page content.
+      allow write: if isAuthAdmin();
     }
   }
 }
