@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, Twitter, Linkedin, Facebook, Edit } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -110,7 +110,7 @@ export default function CommunityDetailPage() {
                     </div>
                      <p className="text-muted-foreground mt-2">{community.description}</p>
                      <div className="mt-4 flex justify-center md:justify-start items-center gap-2">
-                        {community.socialMedia?.twitter && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.twitter} target="_blank"><Twitter/></Link></Button>}
+                        {community.socialMedia?.twitter && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.twitter} target="_blank"><X className="h-4 w-4"/></Link></Button>}
                         {community.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
                         {community.socialMedia?.facebook && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.facebook} target="_blank"><Facebook/></Link></Button>}
                     </div>
