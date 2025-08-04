@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock, Users, History } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users, History, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -95,7 +95,7 @@ export default function MovieDetailPage() {
                 <div className="mt-8">
                     <Card>
                         <CardContent className="p-6">
-                            <h2 className="font-headline text-2xl font-semibold">Synopsis</h2>
+                            <h2 className="font-headline text-2xl font-semibold border-b pb-2">Synopsis</h2>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground my-4">
                                 <History className="h-4 w-4" />
                                 <span>Posted {postedAt}</span>
@@ -106,20 +106,24 @@ export default function MovieDetailPage() {
                                 {movie.details.cast.map(actor => <Badge key={actor} variant="secondary">{actor}</Badge>)}
                             </div>
                              <div className="mt-6">
-                               <h3 className="font-headline text-lg font-semibold mb-3">
+                               <h3 className="font-headline text-lg font-semibold mb-3 border-b pb-2">
                                  Distributed By
                                </h3>
-                               <div className="flex items-center gap-4">
-                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                                   <Users className="h-6 w-6 text-secondary-foreground" />
-                                 </div>
-                                 <div>
-                                   <p className="font-semibold">{movie.details.distributor}</p>
-                                   <Link href={`/communities/${movie.details.distributorId}`} className="text-sm text-primary hover:underline">
-                                     View Distributor
+                               <Card>
+                                 <CardContent className="p-4">
+                                   <Link href={`/c/${movie.details.distributorId}`} className="group flex items-center gap-4">
+                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                                       <Building className="h-6 w-6 text-muted-foreground" />
+                                     </div>
+                                     <div>
+                                       <p className="font-semibold group-hover:text-primary">{movie.details.distributor}</p>
+                                       <p className="text-sm text-muted-foreground">
+                                         View Distributor Profile
+                                       </p>
+                                     </div>
                                    </Link>
-                                 </div>
-                               </div>
+                                 </CardContent>
+                               </Card>
                             </div>
                         </CardContent>
                     </Card>

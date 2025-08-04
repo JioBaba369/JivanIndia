@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { formatDistanceToNow, isValid } from 'date-fns';
 import { useState, useEffect } from 'react';
-import { deals } from "../page";
+import { deals } from "@/data/deals";
 
 export default function DealDetailPage() {
   const params = useParams();
@@ -151,7 +151,7 @@ export default function DealDetailPage() {
                         <div className="flex items-start gap-4">
                             <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
-                                <Link href={`/communities/${deal.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
+                                <Link href={`/c/${deal.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
                                 <p className="text-sm text-muted-foreground">Visit the business profile for more information.</p>
                             </div>
                         </div>

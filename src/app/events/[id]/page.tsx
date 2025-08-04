@@ -157,9 +157,9 @@ export default function EventDetailPage() {
             </div>
           </div>
           <CardContent className="p-6 md:p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2">
-                <h2 className="font-headline text-2xl font-semibold mb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <h2 className="font-headline text-2xl font-semibold mb-4 border-b pb-2">
                   About this event
                 </h2>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -180,20 +180,24 @@ export default function EventDetailPage() {
                 )}
 
                 <section className="mt-8">
-                   <h3 className="font-headline text-xl font-semibold mb-4">
+                   <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">
                      Organized by
                    </h3>
-                   <div className="flex items-center gap-4">
-                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-                       <Users className="h-6 w-6 text-secondary-foreground" />
-                     </div>
-                     <div>
-                       <p className="font-semibold">{event.organizerName}</p>
-                       <Link href={`/communities/${event.organizerId}`} className="text-sm text-primary hover:underline">
-                         View Community
-                       </Link>
-                     </div>
-                   </div>
+                   <Card>
+                       <CardContent className="p-4">
+                           <Link href={`/c/${event.organizerId}`} className="group flex items-center gap-4">
+                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                               <Users className="h-6 w-6 text-muted-foreground" />
+                             </div>
+                             <div>
+                               <p className="font-semibold group-hover:text-primary">{event.organizerName}</p>
+                               <p className="text-sm text-muted-foreground">
+                                 View Community Profile
+                               </p>
+                             </div>
+                           </Link>
+                       </CardContent>
+                   </Card>
                 </section>
               </div>
               <div className="space-y-6">

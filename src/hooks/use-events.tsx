@@ -61,7 +61,7 @@ const initialEvents: Event[] = [
     eventType: 'Festival',
     ticketLink: '#',
     imageUrl: 'https://images.unsplash.com/photo-1604207863532-a7d56fed6e23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaXdhbGklMjBmZXN0aXZhbHxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    organizerId: '1',
+    organizerId: 'saffron-restaurant-group',
     organizerName: 'Saffron Restaurant Group',
     status: 'Approved',
     submittedByUid: 'admin-saffron-uid',
@@ -81,7 +81,7 @@ const initialEvents: Event[] = [
     eventType: 'Professional',
     ticketLink: '#',
     imageUrl: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGNvbmZlcmVuY2V8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    organizerId: '2',
+    organizerId: 'india-cultural-center',
     organizerName: 'India Cultural Center',
     status: 'Approved',
     submittedByUid: 'admin-icc-uid',
@@ -101,7 +101,7 @@ const initialEvents: Event[] = [
     eventType: 'Festival',
     isFree: true,
     imageUrl: 'https://images.unsplash.com/photo-1616424232339-01b5a59663e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxIb2xpJTIwZmVzdGl2YWx8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    organizerId: '2',
+    organizerId: 'india-cultural-center',
     organizerName: 'India Cultural Center',
     status: 'Approved',
     submittedByUid: 'admin-icc-uid',
@@ -113,7 +113,7 @@ const STORAGE_KEY = 'jivanindia-events';
 
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
-  const { getCommunityById } = useCommunities();
+  const { getCommunityBySlug } = useCommunities();
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -146,7 +146,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   };
 
   const addEvent = useCallback((eventData: NewEventInput) => {
-    const affiliatedCommunity = getCommunityById(eventData.organizerId);
+    const affiliatedCommunity = getCommunityBySlug(eventData.organizerId);
     const status = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
 
     const newEvent: Event = {
@@ -156,7 +156,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       status: status,
     };
     persistEvents([...events, newEvent]);
-  }, [events, getCommunityById]);
+  }, [events, getCommunityBySlug]);
 
 
   const getEventById = useCallback((id: string) => {

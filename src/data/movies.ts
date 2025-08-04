@@ -10,7 +10,7 @@ export const movies: any[] = [
       duration: '2h 49m',
       cast: ['Shah Rukh Khan', 'Nayanthara', 'Vijay Sethupathi'],
       distributor: 'Yash Raj Films',
-      distributorId: '7',
+      distributorId: 'yash-raj-films',
       backdropUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
       trailerUrl: 'https://www.youtube.com/embed/COv52Qyctws',
       theaters: [
@@ -31,7 +31,7 @@ export const movies: any[] = [
       duration: '3h 7m',
       cast: ['N. T. Rama Rao Jr.', 'Ram Charan', 'Alia Bhatt'],
       distributor: 'Yash Raj Films',
-      distributorId: '7',
+      distributorId: 'yash-raj-films',
       backdropUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
       trailerUrl: 'https://www.youtube.com/embed/gyNEIpmA2-A',
       theaters: [
