@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
@@ -23,6 +23,11 @@ interface ImageUploadProps {
 
 const IMAGE_MAX_SIZE_MB = 5;
 
+const ICONS = {
+    banner: { component: <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Banner Image' },
+    logo: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Logo' }
+};
+
 export default function ImageUpload({
   value,
   onChange,
@@ -35,8 +40,10 @@ export default function ImageUpload({
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadState, setUploadState] = useState({
+      isUploading: false,
+      progress: 0,
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -47,13 +54,13 @@ export default function ImageUpload({
           description: `Please select an image smaller than ${IMAGE_MAX_SIZE_MB}MB.`,
           variant: 'destructive',
         });
-        return;
+        return; // Do not clear the input if the file is too large
       }
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         setImageSrc(reader.result?.toString() || '');
         setIsCropperOpen(true);
-        if (e.target) e.target.value = '';
+        if (e.target) e.target.value = ''; // Reset here, after successful processing
       });
       reader.readAsDataURL(file);
     }
@@ -61,8 +68,7 @@ export default function ImageUpload({
 
   const handleSave = async (blob: Blob) => {
     setIsCropperOpen(false);
-    setIsUploading(true);
-    setUploadProgress(0);
+    setUploadState({ isUploading: true, progress: 0 });
 
     const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
     const storageRef = ref(storage, fileName);
@@ -72,10 +78,10 @@ export default function ImageUpload({
     uploadTask.on('state_changed',
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
+        setUploadState(prevState => ({ ...prevState, progress }));
       },
       (error) => {
-        setIsUploading(false);
+        setUploadState({ isUploading: false, progress: 0 });
         toast({
           title: "Upload Failed",
           description: "There was an error uploading your image. Please try again.",
@@ -86,7 +92,7 @@ export default function ImageUpload({
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           onChange(downloadURL);
-          setIsUploading(false);
+          setUploadState({ isUploading: false, progress: 0 });
           toast({
             title: 'Image Uploaded!',
             icon: <CheckCircle className="h-5 w-5 text-green-500" />,
@@ -96,9 +102,7 @@ export default function ImageUpload({
     );
   };
 
-  const icon = iconType === 'banner'
-    ? { component: <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Banner Image' }
-    : { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Logo' };
+  const icon = ICONS[iconType];
 
   return (
     <>
@@ -117,16 +121,16 @@ export default function ImageUpload({
         tabIndex={0}
         className="relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80"
         style={{ aspectRatio: `${aspectRatio}` }}
-        onClick={() => !isUploading && fileInputRef.current?.click()}
-        onKeyDown={(e) => e.key === 'Enter' && !isUploading && fileInputRef.current?.click()}
+        onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
+        onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
       >
-        {value && !isUploading ? (
+        {value && !uploadState.isUploading ? (
           <Image src={value} alt="Preview" fill className="object-cover rounded-lg" />
-        ) : isUploading ? (
+        ) : uploadState.isUploading ? (
             <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                 <p className="text-sm text-muted-foreground">Uploading...</p>
-                <Progress value={uploadProgress} className="w-3/4" />
+                <Progress value={uploadState.progress} className="w-3/4" />
             </div>
         ) : (
           <div className="text-center p-4">
@@ -143,7 +147,7 @@ export default function ImageUpload({
         ref={fileInputRef}
         onChange={handleFileChange}
         accept="image/png, image/jpeg, image/webp"
-        disabled={isUploading}
+        disabled={uploadState.isUploading}
       />
     </>
   );
