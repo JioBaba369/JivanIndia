@@ -1,100 +1,86 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // =================================================================
-    // Helper Functions
-    // =================================================================
     
-    function isAuthenticated() {
+    // Global helper functions
+    function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
-
+    
     function isAdmin() {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-    }
-    
-    function isCommunityFounder(communityId) {
-       return isAuthenticated() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
-    }
-    
-    function isEventSubmitter(eventId) {
-       return isAuthenticated() && get(/databases/$(database)/documents/events/$(eventId)).data.submittedByUid == request.auth.uid;
+      // Check the existing resource in database, not the incoming one
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    // =================================================================
+    function isCommunityFounder(communityId) {
+        return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    }
+
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Collections ---
+    
     // Users Collection
-    // =================================================================
     match /users/{userId} {
-      // Allow public read for profile pages
+      // Anyone can read a user profile (for public profile pages)
       allow read: if true;
       
-      // Allow user to create their own account document on signup
+      // Only the owner can create their own document
       allow create: if isOwner(userId);
       
-      // Allow user to update their own data
-      allow update: if isOwner(userId);
+      // Users can update their own profile, but cannot change their isAdmin status
+      allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
       
-      // Disallow deleting user accounts from the client
-      allow delete: if false;
+      // Users can delete their own account
+      allow delete: if isOwner(userId);
     }
-
-    // =================================================================
+    
     // Communities Collection
-    // =================================================================
     match /communities/{communityId} {
-      // Allow public read for community lists and detail pages
+      // Anyone can read community data
       allow read: if true;
-
-      // Allow any logged-in user to create a community
-      allow create: if isAuthenticated();
-
-      // Allow founder or an admin to update
+      
+      // Any signed-in user can create a community
+      allow create: if isSignedIn();
+      
+      // Only the founder or an admin can update a community
       allow update: if isCommunityFounder(communityId) || isAdmin();
       
-      // Allow founder or an admin to delete
+      // Only the founder or an admin can delete a community
       allow delete: if isCommunityFounder(communityId) || isAdmin();
     }
     
-    // =================================================================
     // Events Collection
-    // =================================================================
     match /events/{eventId} {
-      // Allow public read for event lists and detail pages
+      // Anyone can read event data
       allow read: if true;
-
-      // Allow any logged-in user to create an event
-      allow create: if isAuthenticated();
       
-      // Allow the user who submitted it or an admin to update
-      allow update: if isEventSubmitter(eventId) || isAdmin();
+      // Any signed-in user can create an event
+      allow create: if isSignedIn();
       
-      // Allow the user who submitted it or an admin to delete
-      allow delete: if isEventSubmitter(eventId) || isAdmin();
+      // Only the user who submitted the event or an admin can update it
+      allow update: if request.auth.uid == resource.data.submittedByUid || isAdmin();
+      
+      // Only the user who submitted the event or an admin can delete it
+      allow delete: if request.auth.uid == resource.data.submittedByUid || isAdmin();
     }
     
-    // =================================================================
-    // About Collection
-    // =================================================================
+    // About Collection (Singleton Document)
     match /about/singleton {
-      // Allow public read for the About Us page
+       // Anyone can read the about page content
       allow read: if true;
       
-      // Only admins can write/update the about content
+      // Only admins can write to the about page
       allow write: if isAdmin();
-    }
-
-    // =================================================================
-    // Default Deny
-    // Catch-all rule to deny access to any other path
-    // =================================================================
-    match /{document=**} {
-      allow read, write: if false;
     }
   }
 }

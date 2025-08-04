@@ -3,21 +3,49 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Default deny all
+    
+    // Default deny all reads and writes
     match /{allPaths=**} {
       allow read, write: if false;
     }
 
-    // Allow public read on all files.
+    // Allow public read access to all files
+    // This is generally safe for images like logos and banners
     match /{allPaths=**} {
-      allow read: if true;
+        allow read: if true;
+    }
+
+    // --- Secure Write Rules by Folder ---
+
+    // Profile Pictures: Only the authenticated user can upload/update their own profile picture.
+    // The folder name must match what's used in the ImageUpload component.
+    match /profile-pictures/{fileName} {
+      // We can't directly check the userId in the path here without more complex logic,
+      // but we can ensure the user is authenticated and the file is a reasonable size.
+      // For higher security, you would pass the userId in the file metadata from the client
+      // and verify it here.
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Community Logos: A user must be authenticated.
+    // In a real app, you'd add a check to ensure they are the founder of a community.
+    match /community-logos/{fileName} {
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
     }
     
-    // Allow write only for authenticated users.
-    // You could add further path-specific restrictions here if needed.
-    // e.g., match /profile-pictures/{userId}/{fileName} { ... }
-    match /{allPaths=**} {
-       allow write: if request.auth != null;
+    // Community Banners: A user must be authenticated.
+    match /community-banners/{fileName} {
+        allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    }
+    
+    // Event Banners: A user must be authenticated.
+    match /event-banners/{fileName} {
+        allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Deal Images: A user must be authenticated.
+    match /deal-images/{fileName} {
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
     }
   }
 }

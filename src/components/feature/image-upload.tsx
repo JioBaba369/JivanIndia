@@ -130,7 +130,7 @@ export default function ImageUpload({
             <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                 <p className="text-sm text-muted-foreground">Uploading...</p>
-                <Progress value={uploadState.progress} className="w-3/4" />
+                <Progress value={uploadState.progress} className="w-full" />
             </div>
         ) : (
           <div className="text-center p-4">
