@@ -24,7 +24,7 @@ import {
 import { type MouseEvent, useState, useMemo } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCommunities } from "@/hooks/use-communities";
 import { cn } from "@/lib/utils";
 
@@ -33,8 +33,10 @@ export default function CommunitiesPage() {
     const { user, joinCommunity, leaveCommunity, joinedCommunities } = useAuth();
     const router = useRouter();
     const { communities } = useCommunities();
+    const searchParams = useSearchParams();
+    const initialSearch = searchParams.get('q') || '';
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [locationQuery, setLocationQuery] = useState('');
     const [category, setCategory] = useState('all');
     const [view, setView] = useState<'grid' | 'list'>('grid');

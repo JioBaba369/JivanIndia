@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -18,11 +17,25 @@ import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { deals } from "@/data/deals";
 import { format } from "date-fns";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const { events } = useEvents();
   const latestEvents = events.filter(e => e.status === 'Approved').slice(0, 3);
   const latestDeals = deals.slice(0, 3);
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchCategory, setSearchCategory] = useState('events');
+
+  const handleSearch = () => {
+    if (!searchQuery) {
+      router.push(`/${searchCategory}`);
+    } else {
+      router.push(`/${searchCategory}?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
 
   return (
     <div className="flex flex-col">
@@ -52,9 +65,12 @@ export default function HomePage() {
                 <Input
                     placeholder="Search for events, communities, deals..."
                     className="h-12 rounded-lg border-input pl-12 text-base focus:ring-2 focus:ring-primary"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
               </div>
-              <Select>
+              <Select value={searchCategory} onValueChange={setSearchCategory}>
                 <SelectTrigger className="h-12 rounded-lg border-input text-base focus:ring-2 focus:ring-primary">
                     <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
@@ -64,7 +80,7 @@ export default function HomePage() {
                     <SelectItem value="deals">Deals</SelectItem>
                 </SelectContent>
               </Select>
-              <Button size="lg" className="h-12 w-full text-base">
+              <Button size="lg" className="h-12 w-full text-base" onClick={handleSearch}>
                   Search
               </Button>
             </div>

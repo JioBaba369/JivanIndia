@@ -11,9 +11,12 @@ import Link from "next/link";
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { jobs } from "@/data/jobs";
+import { useSearchParams } from "next/navigation";
 
 export default function CareersPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [locationQuery, setLocationQuery] = useState('');
   const [jobType, setJobType] = useState('all');
 

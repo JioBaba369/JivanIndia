@@ -16,13 +16,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { format } from 'date-fns';
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 export default function EventsPage() {
   const { events } = useEvents();
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('q') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [locationQuery, setLocationQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [view, setView] = useState<'grid' | 'list'>('grid');

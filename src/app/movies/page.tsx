@@ -17,9 +17,12 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { movies } from "@/data/movies";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 export default function MoviesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [location, setLocation] = useState('all');
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
