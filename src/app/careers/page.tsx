@@ -127,7 +127,8 @@ export default function CareersPage() {
             </Card>
           )) : (
              <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <p className="text-muted-foreground">No jobs found that match your criteria. Check back soon!</p>
+                <h3 className="font-headline text-xl font-semibold">No Matching Jobs Found</h3>
+                <p className="text-muted-foreground mt-2">No jobs found that match your criteria. Check back soon or adjust your filters.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');

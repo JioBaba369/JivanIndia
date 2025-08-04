@@ -115,8 +115,8 @@ export default function CommunitiesPage() {
       </section>
 
       {featuredCommunities && featuredCommunities.length > 0 && (
-        <section className="container mx-auto px-4 pb-12">
-          <h2 className="font-headline mb-8 text-3xl font-bold">Featured Communities</h2>
+        <section className="container mx-auto px-4 py-16">
+          <h2 className="font-headline mb-8 text-3xl font-bold text-center">Featured Communities</h2>
           <Carousel
             opts={{
               align: "start",
@@ -308,8 +308,9 @@ export default function CommunitiesPage() {
             })}
             </div>
         ) : (
-            <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-2 lg:col-span-3">
-                <p className="text-muted-foreground">No communities found that match your criteria.</p>
+            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                <h3 className="font-headline text-xl font-semibold">No Communities Found</h3>
+                <p className="text-muted-foreground mt-2">No communities match your criteria. Try adjusting your search or check back later.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');

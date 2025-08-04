@@ -14,13 +14,6 @@ export default function AboutUsPage() {
   const { aboutContent, getInitials } = useAbout();
   const { story, teamMembers } = aboutContent;
 
-  // Metadata can't be dynamic in a client component this way,
-  // but we'll leave it for structure. A Head component would be needed for dynamic updates.
-  // export const metadata: Metadata = {
-  //   title: "About Us | JivanIndia.co",
-  //   description: "Learn about the mission, vision, and team behind JivanIndia.co, the central hub for the Indian community.",
-  // };
-
   return (
     <div className="bg-background">
       {/* Hero Section */}
@@ -87,26 +80,28 @@ export default function AboutUsPage() {
       </section>
 
        {/* Meet the Team Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-            <h2 className="font-headline text-3xl font-bold text-center mb-12">Meet the Team</h2>
-            <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
-                {teamMembers.map((member) => (
-                    <Card key={member.name} className="border-none shadow-none text-center">
-                        <CardContent className="flex flex-col items-center">
-                           <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
-                                <AvatarImage src={member.avatarUrl} alt={`Portrait of ${member.name}, ${member.role}`} data-ai-hint="portrait person" />
-                                <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
-                            </Avatar>
-                            <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>
-                            <p className="font-semibold text-primary">{member.role}</p>
-                            <p className="text-muted-foreground mt-2">{member.bio}</p>
-                        </CardContent>
-                    </Card>
-                ))}
+       {teamMembers && teamMembers.length > 0 && (
+        <section className="py-16 md:py-24">
+            <div className="container mx-auto px-4">
+                <h2 className="font-headline text-3xl font-bold text-center mb-12">Meet the Team</h2>
+                <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
+                    {teamMembers.map((member) => (
+                        <Card key={member.name} className="border-none shadow-none text-center">
+                            <CardContent className="flex flex-col items-center">
+                            <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
+                                    <AvatarImage src={member.avatarUrl} alt={`Portrait of ${member.name}, ${member.role}`} data-ai-hint="portrait person" />
+                                    <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
+                                </Avatar>
+                                <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>
+                                <p className="font-semibold text-primary">{member.role}</p>
+                                <p className="text-muted-foreground mt-2">{member.bio}</p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
-        </div>
-      </section>
+        </section>
+       )}
       
        {/* CTA Section */}
       <section className="bg-primary/10 py-16 md:py-24">

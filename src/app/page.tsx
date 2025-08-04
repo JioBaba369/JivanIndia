@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,8 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('events');
 
-  const handleSearch = () => {
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!searchQuery) {
       router.push(`/${searchCategory}`);
     } else {
@@ -59,31 +61,32 @@ export default function HomePage() {
             The heart of the Indian community, all in one place. Explore events, connect with organizations, and find what you need.
           </p>
           <div className="mt-10 max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto] p-4 rounded-lg bg-background/80 backdrop-blur-sm border border-border">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                    placeholder="Search for events, communities, deals..."
-                    className="h-12 rounded-lg border-input pl-12 text-base focus:ring-2 focus:ring-primary"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                />
+            <form onSubmit={handleSearch}>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto] p-4 rounded-lg bg-background/80 backdrop-blur-sm border border-border">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                      placeholder="Search for events, communities, deals..."
+                      className="h-12 rounded-lg border-input pl-12 text-base focus:ring-2 focus:ring-primary"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={searchCategory} onValueChange={setSearchCategory}>
+                  <SelectTrigger className="h-12 rounded-lg border-input text-base focus:ring-2 focus:ring-primary">
+                      <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="events">Events</SelectItem>
+                      <SelectItem value="communities">Communities</SelectItem>
+                      <SelectItem value="deals">Deals</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button type="submit" size="lg" className="h-12 w-full text-base">
+                    Search
+                </Button>
               </div>
-              <Select value={searchCategory} onValueChange={setSearchCategory}>
-                <SelectTrigger className="h-12 rounded-lg border-input text-base focus:ring-2 focus:ring-primary">
-                    <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="events">Events</SelectItem>
-                    <SelectItem value="communities">Communities</SelectItem>
-                    <SelectItem value="deals">Deals</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button size="lg" className="h-12 w-full text-base" onClick={handleSearch}>
-                  Search
-              </Button>
-            </div>
+            </form>
           </div>
         </div>
       </section>
@@ -129,7 +132,8 @@ export default function HomePage() {
                 </div>
             ) : (
                 <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
-                  <p className="text-muted-foreground">No upcoming events right now. Check back soon!</p>
+                  <h3 className="font-headline text-xl font-semibold">No Events Yet</h3>
+                  <p className="text-muted-foreground mt-2">No upcoming events right now. Check back soon or be the first to post one!</p>
                 </div>
             )}
             <div className="mt-12 text-center">
@@ -171,7 +175,8 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
-                  <p className="text-muted-foreground">No active deals right now. Check back soon!</p>
+                  <h3 className="font-headline text-xl font-semibold">No Deals Available</h3>
+                  <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or post a deal for your business!</p>
                 </div>
               )}
             <div className="mt-12 text-center">

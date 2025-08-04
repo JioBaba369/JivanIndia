@@ -207,8 +207,9 @@ export default function EventsPage() {
             })}
            </div>
         ) : (
-             <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-2 lg:col-span-3">
-                <p className="text-muted-foreground">No events found. Please check back later!</p>
+             <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                <h3 className="font-headline text-xl font-semibold">No Events Found</h3>
+                <p className="text-muted-foreground mt-2">No events match your criteria. Try adjusting your search or check back later.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');

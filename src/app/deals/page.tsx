@@ -167,8 +167,9 @@ export default function DealsPage() {
             ))}
           </div>
         ) : (
-            <div className="col-span-full rounded-lg border-2 border-dashed py-12 text-center">
-                <p className="text-muted-foreground">No deals found. Please check back later!</p>
+            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                <h3 className="font-headline text-xl font-semibold">No Deals Found</h3>
+                <p className="text-muted-foreground mt-2">No deals match your criteria. Please check back later or adjust your filters.</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
           )}
