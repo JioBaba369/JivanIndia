@@ -1,50 +1,34 @@
 
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper function to check if a user is authenticated
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // Helper function to check if the user is the owner of the document
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-    
-    // Helper function to check if the user is an admin
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-    }
-
-    // Users collection rules
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      // Public profiles are readable by anyone.
+      allow read;
+      // Only the authenticated user can write to their own profile.
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Communities collection rules
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && (isOwner(resource.data.founderUid) || isAdmin());
-      allow delete: if isAuthenticated() && (isOwner(resource.data.founderUid) || isAdmin());
-    }
-    
-    // Events collection rules
     match /events/{eventId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      // Only the event submitter or an admin can update/delete
-      allow update, delete: if isAuthenticated() && (isOwner(resource.data.submittedByUid) || isAdmin());
+      // Events are publicly readable.
+      allow read;
+      // Any authenticated user can create an event.
+      allow create: if request.auth != null;
+      // Only the user who submitted the event or an admin can update/delete it.
+      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
     }
-    
-    // About page content rules
-    match /about/singleton {
-    	allow read: if true;
-      allow write: if isAuthenticated() && isAdmin();
+    match /communities/{communityId} {
+        // Communities are publicly readable.
+        allow read;
+        // Any authenticated user can create a community.
+        allow create: if request.auth != null;
+        // Only the founder of the community or an admin can update/delete it.
+        allow update, delete: if request.auth != null && (request.auth.uid == resource.data.founderUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    }
+     match /about/singleton {
+      // The about page content is publicly readable.
+      allow read;
+      // Only an admin can write to the about page.
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
   }
 }
