@@ -88,7 +88,7 @@ type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
 
 const XIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
 );
 
 
@@ -174,8 +174,8 @@ export default function NewCommunityPage() {
         };
 
         try {
-          const addedCommunity = addCommunity(newCommunity, user.email);
-          setAffiliation(addedCommunity.id, addedCommunity.name);
+          const addedCommunity = await addCommunity(newCommunity, user.email);
+          await setAffiliation(addedCommunity.id, addedCommunity.name);
           toast({
             title: 'Community Submitted!',
             description: `Your community "${values.name}" has been submitted for review.`,
@@ -257,6 +257,7 @@ export default function NewCommunityPage() {
                             onChange={field.onChange}
                             aspectRatio={1}
                             toast={toast}
+                            folderName="community-logos"
                           />
                         </FormControl>
                         <FormMessage />
@@ -275,6 +276,8 @@ export default function NewCommunityPage() {
                             onChange={field.onChange}
                             aspectRatio={16/9}
                             toast={toast}
+                            folderName="community-banners"
+                            iconType="banner"
                           />
                         </FormControl>
                         <FormMessage />

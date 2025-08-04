@@ -2,7 +2,9 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { useCommunities } from '@/hooks/use-communities';
+import { collection, addDoc, getDocs, doc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
+import { firestore } from '@/lib/firebase';
+import { useCommunities } from './use-communities';
 
 export interface Event {
   id: string;
@@ -12,105 +14,86 @@ export interface Event {
   location: {
     venueName: string;
     address: string;
-    coordinates?: { lat: number; lng: number };
   };
-  timezone?: string;
-  startDateTime: string; // ISO 8601
-  endDateTime: string; // ISO 8601
-  country?: string;
-  city?: string;
-  stateProvince?: string;
-  originFocus?: string;
+  startDateTime: string; 
+  endDateTime: string;
   eventType: 'Cultural' | 'Religious' | 'Professional' | 'Sports' | 'Festival' | 'Workshop' | 'Food' | 'Other';
-  isFree?: boolean;
   ticketLink?: string;
-  price?: number;
   imageUrl: string;
   organizerId: string;
   organizerName: string;
   status: 'Pending' | 'Approved' | 'Archived';
   submittedByUid?: string;
-  attendeeCount?: number;
-  createdAt: string; // ISO 8601
-  updatedAt?: string; // ISO 8601
+  createdAt: string; 
+  updatedAt?: string; 
 }
 
 export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'status'>;
 
 interface EventsContextType {
   events: Event[];
-  addEvent: (event: NewEventInput) => void;
+  isLoading: boolean;
+  addEvent: (event: NewEventInput) => Promise<void>;
   getEventById: (id: string) => Event | undefined;
-  updateEventStatus: (eventId: string, status: Event['status']) => void;
+  updateEventStatus: (eventId: string, status: Event['status']) => Promise<void>;
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
-const initialEvents: Event[] = [];
-
-const STORAGE_KEY = 'jivanindia-events';
+const eventsCollectionRef = collection(firestore, 'events');
 
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
-  const { getCommunityBySlug } = useCommunities();
+  const [isLoading, setIsLoading] = useState(true);
+  const { getCommunityById } = useCommunities();
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-        setEvents(initialEvents);
-        return;
-    }
+  const fetchEvents = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const storedEvents = window.localStorage.getItem(STORAGE_KEY);
-      if (storedEvents) {
-        setEvents(JSON.parse(storedEvents));
-      } else {
-        setEvents(initialEvents);
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialEvents));
-      }
+      const querySnapshot = await getDocs(eventsCollectionRef);
+      const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+      setEvents(eventsData);
     } catch (error) {
-      console.error("Failed to access localStorage for events", error);
-      setEvents(initialEvents);
+      console.error("Failed to fetch events from Firestore", error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  const persistEvents = (updatedEvents: Event[]) => {
-    setEvents(updatedEvents);
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEvents));
-      } catch (error) {
-        console.error("Failed to save events to localStorage", error);
-      }
-    }
-  };
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
-  const addEvent = useCallback((eventData: NewEventInput) => {
-    const affiliatedCommunity = getCommunityBySlug(eventData.organizerId);
-    const status = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
+  const addEvent = async (eventData: NewEventInput) => {
+    const affiliatedCommunity = getCommunityById(eventData.organizerId);
+    const status: Event['status'] = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
 
-    const newEvent: Event = {
+    const newEventData = {
       ...eventData,
-      id: new Date().getTime().toString(),
       createdAt: new Date().toISOString(),
       status: status,
     };
-    persistEvents([...events, newEvent]);
-  }, [events, getCommunityBySlug]);
-
+    
+    const docRef = await addDoc(eventsCollectionRef, newEventData);
+    setEvents(prev => [...prev, { id: docRef.id, ...newEventData }]);
+  };
 
   const getEventById = useCallback((id: string) => {
     return events.find(event => event.id === id);
   }, [events]);
 
-  const updateEventStatus = useCallback((eventId: string, status: Event['status']) => {
-    const updatedEvents = events.map(event => 
-      event.id === eventId ? { ...event, status, updatedAt: new Date().toISOString() } : event
-    );
-    persistEvents(updatedEvents);
-  }, [events]);
+  const updateEventStatus = async (eventId: string, status: Event['status']) => {
+    const eventDocRef = doc(firestore, 'events', eventId);
+    const updatedData = { status, updatedAt: new Date().toISOString() };
+    await updateDoc(eventDocRef, updatedData);
+    setEvents(prev => prev.map(event =>
+      event.id === eventId ? { ...event, ...updatedData } : event
+    ));
+  };
 
   const value = {
     events,
+    isLoading,
     addEvent,
     getEventById,
     updateEventStatus,

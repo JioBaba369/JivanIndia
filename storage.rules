@@ -4,47 +4,31 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
   
-    // Helper function to check if a user is authenticated
-    function isSignedIn() {
+    // Helper function for auth
+    function isAuthenticated() {
       return request.auth != null;
     }
-    
-    // PUBLIC: Images are publicly readable by anyone.
-    // This allows event banners, community logos, etc., to be displayed in the app.
-    match /images/{allPaths=**} {
+  
+    // Allow read access to all files for everyone
+    match /{allPaths=**} {
       allow read: if true;
     }
     
-    // USER UPLOADS: Users can only upload their own profile picture.
-    // They can only write to a path that matches their user ID.
-    // - Limit file size to 5MB.
-    // - Only allow image content types.
-    match /images/users/{userId}/{allPaths=**} {
-      allow write: if isSignedIn() && request.auth.uid == userId
-                   && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+    // Allow write access only for authenticated users
+    match /profile-pictures/{userId}/{fileName} {
+      allow write: if isAuthenticated() && request.auth.uid == userId;
     }
     
-    // COMMUNITY UPLOADS: Community founders can upload images for their community.
-    // - Verifies the user is the founder of the community they are uploading for.
-    match /images/communities/{communityId}/{allPaths=**} {
-        function isCommunityFounder() {
-            return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
-        }
-    
-        allow write: if isSignedIn() && isCommunityFounder()
-                     && request.resource.size < 5 * 1024 * 1024
-                     && request.resource.contentType.matches('image/.*');
+    match /community-logos/{fileName} {
+      allow write: if isAuthenticated();
     }
     
-     // EVENT UPLOADS: Event submitters or community founders can upload images.
-    match /images/events/{eventId}/{allPaths=**} {
-        // Since we don't have the event document at this path, we rely on client-side logic
-        // to generate a secure path, but we can still enforce general rules.
-        allow write: if isSignedIn()
-                     && request.resource.size < 5 * 1024 * 1024
-                     && request.resource.contentType.matches('image/.*');
+    match /community-banners/{fileName} {
+       allow write: if isAuthenticated();
     }
-
+    
+     match /event-banners/{fileName} {
+       allow write: if isAuthenticated();
+    }
   }
 }

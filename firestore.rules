@@ -4,48 +4,47 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Default deny all reads and writes
-    match /{document=**} {
-      allow read, write: if false;
-    }
-    
-    // Users: Can read/write their own data, but not others'
-    match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
+    // Helper function to check if a user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // Public Collections: Anyone can read, only authenticated can create
+    // Helper function to check if the user is the owner of the document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+    
+    // Communities collection rules
     match /communities/{communityId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      // Only the founder can update/delete
-      allow update, delete: if request.auth != null && resource.data.founderUid == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(resource.data.founderUid) || isAdmin());
+      allow delete: if isAuthenticated() && (isOwner(resource.data.founderUid) || isAdmin());
     }
     
+    // Events collection rules
     match /events/{eventId} {
       allow read: if true;
-      allow create: if request.auth != null;
-       // Only the original submitter or an admin can update/delete
-      allow update, delete: if request.auth != null && resource.data.submittedByUid == request.auth.uid;
+      allow create: if isAuthenticated();
+      // Only the event submitter or an admin can update/delete
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.submittedByUid) || isAdmin());
     }
     
-    // Read-only public collections
-    match /movies/{movieId} {
-      allow read: if true;
+    // About page content rules
+    match /about/singleton {
+    	allow read: if true;
+      allow write: if isAuthenticated() && isAdmin();
     }
-    
-    match /deals/{dealId} {
-       allow read: if true;
-       allow create: if request.auth != null;
-    }
-    
-     match /careers/{jobId} {
-       allow read: if true;
-       allow create: if request.auth != null;
-    }
-
-    // Add other collections as needed (e.g., providers, sponsors)
-    // with similar read/write rules.
   }
 }

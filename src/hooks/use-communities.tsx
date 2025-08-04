@@ -2,6 +2,8 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where } from 'firebase/firestore';
+import { firestore } from '@/lib/firebase';
 
 export interface Community {
   id: string;
@@ -34,111 +36,102 @@ export interface Community {
 
 export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'>;
 
-
 interface CommunitiesContextType {
   communities: Community[];
-  addCommunity: (community: NewCommunityInput, founderEmail: string) => Community;
+  isLoading: boolean;
+  addCommunity: (community: NewCommunityInput, founderEmail: string) => Promise<Community>;
+  updateCommunity: (id: string, data: Partial<Community>) => Promise<void>;
   getCommunityById: (id: string) => Community | undefined;
   getCommunityBySlug: (slug: string) => Community | undefined;
   isSlugUnique: (slug: string, currentId?: string) => boolean;
-  verifyCommunity: (communityId: string) => void;
+  verifyCommunity: (communityId: string) => Promise<void>;
   getInitials: (name: string) => string;
-  updateCommunity: (id: string, data: Partial<Community>) => void;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'jivanindia-communities';
-
-const initialCommunities: Community[] = [];
+const communitiesCollectionRef = collection(firestore, 'communities');
 
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
-  
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-        try {
-            const stored = window.localStorage.getItem(STORAGE_KEY);
-            // Only set initial communities if local storage is empty
-            if (!stored || JSON.parse(stored).length === 0) {
-                setCommunities(initialCommunities);
-                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialCommunities));
-            } else {
-                 setCommunities(JSON.parse(stored));
-            }
-        } catch (error) {
-            console.error("Failed to load communities from localStorage", error);
-            setCommunities(initialCommunities);
-        }
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchCommunities = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const querySnapshot = await getDocs(communitiesCollectionRef);
+      const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+      setCommunities(communitiesData);
+    } catch (error) {
+      console.error("Failed to fetch communities from Firestore", error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  const persistCommunities = (updatedCommunities: Community[]) => {
-      setCommunities(updatedCommunities);
-      if (typeof window !== 'undefined') {
-          try {
-              window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCommunities));
-          } catch (error) {
-              console.error("Failed to save communities to localStorage", error);
-          }
-      }
-  };
+  useEffect(() => {
+    fetchCommunities();
+  }, [fetchCommunities]);
 
-  const addCommunity = useCallback((communityData: NewCommunityInput, founderEmail: string): Community => {
-    const newCommunity: Community = {
+  const addCommunity = async (communityData: NewCommunityInput, founderEmail: string): Promise<Community> => {
+    const newCommunityData = {
       ...communityData,
-      id: new Date().getTime().toString(),
       createdAt: new Date().toISOString(),
       isVerified: false,
       founderEmail: founderEmail,
     };
-    const updatedCommunities = [...communities, newCommunity];
-    persistCommunities(updatedCommunities);
+    const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
+    const newCommunity = { id: docRef.id, ...newCommunityData };
+    setCommunities(prev => [...prev, newCommunity]);
     return newCommunity;
-  }, [communities]);
-  
-  const updateCommunity = useCallback((id: string, data: Partial<Community>) => {
-      const updatedCommunities = communities.map(c => c.id === id ? { ...c, ...data, updatedAt: new Date().toISOString() } : c);
-      persistCommunities(updatedCommunities);
-  }, [communities]);
+  };
 
-  const getCommunityById = useCallback((id: string): Community | undefined => {
+  const updateCommunity = async (id: string, data: Partial<Community>) => {
+    const communityDocRef = doc(firestore, 'communities', id);
+    const updatedData = { ...data, updatedAt: new Date().toISOString() };
+    await updateDoc(communityDocRef, updatedData);
+    setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } : c));
+  };
+
+  const getCommunityById = (id: string): Community | undefined => {
     return communities.find(c => c.id === id);
-  }, [communities]);
-  
-  const getCommunityBySlug = useCallback((slug: string): Community | undefined => {
-    return communities.find(c => c.slug === slug);
-  }, [communities]);
-  
-  const isSlugUnique = useCallback((slug: string, currentId?: string): boolean => {
-    return !communities.some(c => c.slug === slug && c.id !== currentId);
-  }, [communities]);
+  };
 
-  const verifyCommunity = useCallback((communityId: string): void => {
-    const updatedCommunities = communities.map(c => 
-        c.id === communityId ? { ...c, isVerified: true, updatedAt: new Date().toISOString() } : c
-    );
-    persistCommunities(updatedCommunities);
-  }, [communities]);
+  const getCommunityBySlug = (slug: string): Community | undefined => {
+    return communities.find(c => c.slug === slug);
+  };
+
+  const isSlugUnique = (slug: string, currentId?: string): boolean => {
+    return !communities.some(c => c.slug === slug && c.id !== currentId);
+  };
+
+  const verifyCommunity = async (communityId: string): Promise<void> => {
+    const communityDocRef = doc(firestore, 'communities', communityId);
+    await updateDoc(communityDocRef, { isVerified: true, updatedAt: new Date().toISOString() });
+    setCommunities(prev => prev.map(c => 
+      c.id === communityId ? { ...c, isVerified: true, updatedAt: new Date().toISOString() } : c
+    ));
+  };
 
   const getInitials = useCallback((name: string) => {
     if (!name) return '';
     const names = name.split(' ');
     if (names.length > 1) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
   }, []);
 
   const contextValue = {
     communities,
+    isLoading,
     addCommunity,
+    updateCommunity,
     getCommunityById,
     getCommunityBySlug,
     isSlugUnique,
     verifyCommunity,
     getInitials,
-    updateCommunity,
   };
 
   return (

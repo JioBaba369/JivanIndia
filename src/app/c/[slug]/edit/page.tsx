@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Linkedin, Facebook } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
@@ -66,7 +66,7 @@ const stripBaseUrl = (baseUrl: string, fullUrl?: string) => {
 }
 
 const XIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
 );
 
 
@@ -75,7 +75,7 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, isLoading: isLoadingCommunities } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -106,6 +106,7 @@ export default function EditCommunityPage() {
   });
 
   useEffect(() => {
+      if (isLoadingCommunities) return;
       const foundCommunity = getCommunityBySlug(slug);
       if (foundCommunity) {
           setCommunity(foundCommunity);
@@ -128,7 +129,15 @@ export default function EditCommunityPage() {
               socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundCommunity.socialMedia?.linkedin),
           });
       }
-  }, [slug, getCommunityBySlug, form]);
+  }, [slug, getCommunityBySlug, form, isLoadingCommunities]);
+
+  if (isLoadingCommunities) {
+    return (
+        <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
 
   if (!user || (community && user.uid !== community.founderUid)) {
     return (
@@ -168,20 +177,21 @@ export default function EditCommunityPage() {
           website: values.website || '',
           founded: values.founded,
           socialMedia: {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : undefined,
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : '',
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
           },
         };
 
         try {
-          updateCommunity(community.id, updatedData);
+          await updateCommunity(community.id, updatedData);
           toast({
             title: 'Community Updated!',
             description: `Your community "${values.name}" has been successfully updated.`,
           });
           
           router.push(`/c/${community.slug}`);
+          router.refresh();
 
         } catch (error) {
            toast({
@@ -220,6 +230,7 @@ export default function EditCommunityPage() {
                             onChange={field.onChange}
                             aspectRatio={1}
                             toast={toast}
+                            folderName="community-logos"
                           />
                         </FormControl>
                         <FormMessage />
@@ -238,6 +249,8 @@ export default function EditCommunityPage() {
                             onChange={field.onChange}
                             aspectRatio={16/9}
                             toast={toast}
+                            folderName="community-banners"
+                            iconType="banner"
                           />
                         </FormControl>
                         <FormMessage />

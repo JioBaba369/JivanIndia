@@ -13,11 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
-import { useEvents, type Event } from '@/hooks/use-events';
+import { useEvents, type NewEventInput } from '@/hooks/use-events';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -40,14 +40,14 @@ const eventTypes = ['Cultural', 'Religious', 'Professional', 'Sports', 'Festival
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters.").max(100),
   eventType: z.enum(eventTypes),
-  startDateTime: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid start date is required." }),
-  endDateTime: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid end date is required." }),
+  startDateTime: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid start date is required." }),
+  endDateTime: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid end date is required." }),
   venueName: z.string().min(3, "Venue name is required.").max(100),
   address: z.string().min(10, "A full address is required.").max(200),
   description: z.string().min(50, "Description must be at least 50 characters.").max(2000),
   tags: z.string().optional(),
   ticketLink: z.string().url().optional().or(z.literal('')),
-  imageUrl: z.string().url({ message: "An event banner image is required." }),
+  imageUrl: z.string({ required_error: "An event banner image is required." }).url({ message: "An event banner image is required." }),
 }).refine(data => new Date(data.endDateTime) > new Date(data.startDateTime), {
   message: "End date must be after start date.",
   path: ["endDateTime"], 
@@ -61,7 +61,7 @@ export default function NewEventPage() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(formSchema),
@@ -81,7 +81,7 @@ export default function NewEventPage() {
   });
 
 
-  const handleSubmit = async (values: EventFormValues) => {
+  const onSubmit = async (values: EventFormValues) => {
     if (!user?.affiliation) {
       toast({
         title: 'Affiliation Required',
@@ -99,37 +99,42 @@ export default function NewEventPage() {
         return;
     }
     
-    setIsSubmitting(true);
+    startTransition(async () => {
+        const newEventData: NewEventInput = {
+          title: values.title,
+          eventType: values.eventType,
+          startDateTime: new Date(values.startDateTime).toISOString(),
+          endDateTime: new Date(values.endDateTime).toISOString(),
+          location: {
+            venueName: values.venueName,
+            address: values.address,
+          },
+          description: values.description,
+          organizerName: user.affiliation!.orgName,
+          organizerId: user.affiliation!.orgId,
+          imageUrl: values.imageUrl,
+          tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean),
+          ticketLink: values.ticketLink,
+          submittedByUid: user.uid,
+        };
+        
+        try {
+            await addEvent(newEventData);
 
-    const newEventData = {
-      title: values.title,
-      eventType: values.eventType,
-      startDateTime: values.startDateTime,
-      endDateTime: values.endDateTime,
-      location: {
-        venueName: values.venueName,
-        address: values.address,
-      },
-      description: values.description,
-      organizerName: user.affiliation.orgName,
-      organizerId: user.affiliation.orgId,
-      imageUrl: values.imageUrl,
-      tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean),
-      ticketLink: values.ticketLink,
-      submittedByUid: user.uid,
-    };
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    addEvent(newEventData);
-
-    toast({
-      title: 'Event Submitted!',
-      description: `Your event "${values.title}" has been submitted for review.`,
+            toast({
+              title: 'Event Submitted!',
+              description: `Your event "${values.title}" has been submitted for review.`,
+            });
+            
+            router.push('/events');
+        } catch (error) {
+             toast({
+                title: 'Submission Failed',
+                description: 'An unexpected error occurred. Please try again.',
+                variant: 'destructive',
+            });
+        }
     });
-    
-    setIsSubmitting(false);
-    router.push('/events');
   };
 
   if (!user) {
@@ -180,7 +185,7 @@ export default function NewEventPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Event Media</h3>
                 <FormField
@@ -196,6 +201,7 @@ export default function NewEventPage() {
                                 aspectRatio={16 / 9}
                                 toast={toast}
                                 iconType="banner"
+                                folderName="event-banners"
                             />
                         </FormControl>
                         <FormMessage />
@@ -363,11 +369,11 @@ export default function NewEventPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
-                {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Event"}
+              <Button type="submit" disabled={isPending || !form.formState.isValid}>
+                {isPending ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Event"}
               </Button>
             </div>
           </form>

@@ -20,11 +20,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import ImageCropper from '@/components/feature/image-cropper';
+import ImageUpload from '@/components/feature/image-upload';
 
 export default function EditProfilePage() {
   const { toast } = useToast();
-  const { user, updateUser, getInitials } = useAuth();
+  const { user, updateUser, getInitials, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState('');
@@ -44,45 +44,41 @@ export default function EditProfilePage() {
   const [interests, setInterests] = useState('');
   const [website, setWebsite] = useState('');
   
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
-  const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setUsername(user.username || '');
-      setEmail(user.email || '');
-      setBio(user.bio || '');
-      setPhone(user.phone || '');
-      setWebsite(user.website || '');
-      setCurrentCountry(user.currentLocation?.country || '');
-      setCurrentState(user.currentLocation?.state || '');
-      setCurrentCity(user.currentLocation?.city || '');
-      setOriginState(user.originLocation?.indiaState || '');
-      setOriginDistrict(user.originLocation?.indiaDistrict || '');
-      setLanguages(user.languagesSpoken?.join(', ') || '');
-      setInterests(user.interests?.join(', ') || '');
-      setProfileImageUrl(user.profileImageUrl || '');
-    } else if (!user) {
+    if (isAuthLoading) return;
+    if (!user) {
         router.push('/login');
+        return;
     }
-  }, [user, router]);
+    setName(user.name || '');
+    setUsername(user.username || '');
+    setEmail(user.email || '');
+    setBio(user.bio || '');
+    setPhone(user.phone || '');
+    setWebsite(user.website || '');
+    setCurrentCountry(user.currentLocation?.country || '');
+    setCurrentState(user.currentLocation?.state || '');
+    setCurrentCity(user.currentLocation?.city || '');
+    setOriginState(user.originLocation?.indiaState || '');
+    setOriginDistrict(user.originLocation?.indiaDistrict || '');
+    setLanguages(user.languagesSpoken?.join(', ') || '');
+    setInterests(user.interests?.join(', ') || '');
+    setProfileImageUrl(user.profileImageUrl || '');
+  }, [user, router, isAuthLoading]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setIsSubmitting(true);
 
     try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
         const languagesSpoken = languages.split(',').map(s => s.trim()).filter(Boolean);
         const userInterests = interests.split(',').map(s => s.trim()).filter(Boolean);
 
-        updateUser({ 
+        await updateUser({ 
             name, 
             username,
             email, 
@@ -109,6 +105,7 @@ export default function EditProfilePage() {
         });
 
         router.push('/profile');
+        router.refresh();
 
     } catch (error) {
         console.error("Update failed", error);
@@ -122,38 +119,16 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        setImageSrc(reader.result?.toString() || '');
-        setIsCropperOpen(true);
-      });
-      reader.readAsDataURL(file);
-    }
-  }
-
-  const handleCropSave = (croppedDataUrl: string) => {
-    setProfileImageUrl(croppedDataUrl);
-    setIsCropperOpen(false);
-  };
-
-  if (!user) {
-    return null;
+  if (isAuthLoading || !user) {
+    return (
+         <div className="flex h-[calc(100vh-128px)] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
-        {imageSrc && (
-          <ImageCropper
-            isOpen={isCropperOpen}
-            onClose={() => setIsCropperOpen(false)}
-            imageSrc={imageSrc}
-            onSave={handleCropSave}
-            aspectRatio={1} 
-          />
-        )}
         <Card className="max-w-3xl mx-auto">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Update Your Profile</CardTitle>
@@ -163,31 +138,31 @@ export default function EditProfilePage() {
             </CardHeader>
             <CardContent>
              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="flex flex-col items-center gap-4">
-                    <Avatar className="relative h-24 w-24 border-4 border-primary">
-                        {profileImageUrl ? (
-                            <Image
-                                src={profileImageUrl}
-                                alt="Profile preview"
-                                fill
-                                className="rounded-full object-cover"
-                            />
-                        ) : (
-                            <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
-                        )}
-                    </Avatar>
-                    <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                        <Paperclip className="mr-2 h-4 w-4" />
-                        Change Profile Picture
-                    </Button>
-                    <Input 
-                        id="profile-picture" 
-                        type="file" 
-                        className="hidden"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept="image/png, image/jpeg"
-                    />
+                <div className="space-y-4">
+                    <Label>Profile Picture</Label>
+                    <div className="flex items-center gap-6">
+                        <Avatar className="h-24 w-24 border-4 border-primary">
+                            {profileImageUrl ? (
+                                <Image
+                                    src={profileImageUrl}
+                                    alt="Profile preview"
+                                    fill
+                                    className="rounded-full object-cover"
+                                />
+                            ) : (
+                                <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
+                            )}
+                        </Avatar>
+                        <div className="w-full">
+                           <ImageUpload
+                                value={profileImageUrl}
+                                onChange={setProfileImageUrl}
+                                aspectRatio={1}
+                                toast={toast}
+                                folderName="profile-pictures"
+                           />
+                        </div>
+                    </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -18,7 +18,7 @@ interface ImageCropperProps {
   isOpen: boolean;
   onClose: () => void;
   imageSrc: string;
-  onSave: (croppedImage: string) => void;
+  onSave: (blob: Blob) => void;
   aspectRatio?: number;
 }
 
@@ -51,14 +51,7 @@ export default function ImageCropper({
     setCrop(crop);
   }
 
-  const handleSaveCrop = async () => {
-    const image = imgRef.current;
-    if (!image || !crop || !crop.width || !crop.height) {
-      return;
-    }
-    
-    setIsProcessing(true);
-    
+  const getCroppedImg = (image: HTMLImageElement, crop: Crop): Promise<Blob> => {
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
@@ -68,8 +61,7 @@ export default function ImageCropper({
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      setIsProcessing(false);
-      return;
+      return Promise.reject(new Error("Could not get canvas context"));
     }
 
     ctx.drawImage(
@@ -84,9 +76,37 @@ export default function ImageCropper({
       canvas.height
     );
     
-    const base64Image = canvas.toDataURL('image/jpeg', 0.9);
-    onSave(base64Image);
-    setIsProcessing(false);
+    return new Promise((resolve, reject) => {
+        canvas.toBlob(
+            (blob) => {
+                if (!blob) {
+                    reject(new Error('Canvas is empty'));
+                    return;
+                }
+                resolve(blob);
+            },
+            'image/jpeg',
+            0.95
+        );
+    });
+  };
+
+  const handleSaveCrop = async () => {
+    const image = imgRef.current;
+    if (!image || !crop || !crop.width || !crop.height) {
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+        const blob = await getCroppedImg(image, crop);
+        onSave(blob);
+    } catch(e) {
+        console.error("Cropping failed", e);
+    } finally {
+        setIsProcessing(false);
+    }
   };
 
   return (
@@ -103,7 +123,7 @@ export default function ImageCropper({
                     aspect={aspectRatio}
                     className="max-h-[70vh]"
                 >
-                    <img ref={imgRef} src={imageSrc} alt="Image to crop" onLoad={onImageLoad} />
+                    <img ref={imgRef} src={imageSrc} alt="Image to crop" onLoad={onImageLoad} style={{maxHeight: '70vh'}}/>
                 </ReactCrop>
             )}
         </div>
