@@ -28,7 +28,7 @@ export default function AboutUsPage() {
          <div className="absolute inset-0">
             <Image 
                 src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="Indian festival crowd"
+                alt="A vibrant Indian festival with a large, joyful crowd"
                 fill
                 className="object-cover opacity-10"
                 priority
@@ -95,7 +95,7 @@ export default function AboutUsPage() {
                     <Card key={member.name} className="border-none shadow-none text-center">
                         <CardContent className="flex flex-col items-center">
                            <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
-                                <AvatarImage src={member.avatarUrl} alt={`${member.name}, ${member.role}`} data-ai-hint="portrait person" />
+                                <AvatarImage src={member.avatarUrl} alt={`Portrait of ${member.name}, ${member.role}`} data-ai-hint="portrait person" />
                                 <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                             </Avatar>
                             <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>

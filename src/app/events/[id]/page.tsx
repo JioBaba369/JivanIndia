@@ -244,7 +244,7 @@ export default function EventDetailPage() {
                 </Card>
                  <div className="relative h-48 w-full rounded-lg overflow-hidden">
                     <Image
-                      src={`https://placehold.co/600x400.png?text=${encodeURIComponent(event.location.address)}`}
+                      src={`https://placehold.co/600x400.png`}
                       alt={`Map of ${event.location.address}`}
                       fill
                       className="object-cover"

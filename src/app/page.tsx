@@ -30,7 +30,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
             <Image 
                 src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="Indian festival crowd"
+                alt="A vibrant Indian festival with a large, joyful crowd"
                 fill
                 className="object-cover opacity-20"
                 priority
