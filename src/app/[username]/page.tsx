@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, Globe, Handshake, MapPin, Star, Ticket, Share2, Copy } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -313,5 +313,3 @@ export default function UserPublicProfilePage() {
         </div>
     )
 }
-
-    
