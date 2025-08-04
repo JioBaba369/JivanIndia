@@ -50,7 +50,30 @@ const CommunitiesContext = createContext<CommunitiesContextType | undefined>(und
 
 const STORAGE_KEY = 'jivanindia-communities';
 
-const initialCommunities: Community[] = [];
+const initialCommunities: Community[] = [
+  {
+    id: 'sydney-123',
+    slug: 'sydney',
+    name: 'Sydney Indian Community',
+    type: 'Cultural & Arts',
+    description: 'A vibrant community for Indians in Sydney, celebrating culture, festivals, and connections.',
+    fullDescription: 'The Sydney Indian Community is a non-profit organization dedicated to fostering a sense of belonging among the Indian diaspora in Sydney. We organize various cultural events, workshops, and social gatherings to celebrate our rich heritage and build strong community bonds. Whether you are new to the city or have been here for years, we welcome you to join our family.',
+    imageUrl: 'https://images.unsplash.com/photo-1559132231-deff9205d04e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzeWRuZXklMjBvcmllbnRhbCUyMGNvbW11bml0eXxlbnwwfHx8fDE3NTQxOTc0Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    logoUrl: 'https://placehold.co/200x200.png',
+    region: 'Sydney, Australia',
+    membersCount: 1250,
+    isVerified: true,
+    founded: '2015',
+    tags: ['cultural', 'sydney', 'festivals', 'community'],
+    address: '123 Harbour Bridge Rd, Sydney, NSW 2000',
+    phone: '+61 2 1234 5678',
+    contactEmail: 'contact@sydneyindiancommunity.com',
+    website: 'sydneyindiancommunity.com',
+    founderUid: 'admin-sydney',
+    founderEmail: 'admin@sydney.com',
+    createdAt: new Date().toISOString(),
+  }
+];
 
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -59,11 +82,12 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
         try {
             const stored = window.localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                setCommunities(JSON.parse(stored));
-            } else {
+            // Only set initial communities if local storage is empty
+            if (!stored || JSON.parse(stored).length === 0) {
                 setCommunities(initialCommunities);
                 window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialCommunities));
+            } else {
+                 setCommunities(JSON.parse(stored));
             }
         } catch (error) {
             console.error("Failed to load communities from localStorage", error);
