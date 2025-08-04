@@ -8,5 +8,8 @@
       "**/node_modules/**",
       ".env"
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }
