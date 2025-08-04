@@ -186,7 +186,7 @@ export default function NewDealPage() {
                       <FormLabel>Deal Image *</FormLabel>
                       <FormControl>
                         <Card 
-                          className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                          className="relative flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
                           onClick={() => fileInputRef.current?.click()}
                         >
                           {field.value ? (

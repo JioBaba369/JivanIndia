@@ -166,13 +166,12 @@ export default function EditProfilePage() {
             <CardContent>
              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="flex flex-col items-center gap-4">
-                    <Avatar className="h-24 w-24 border-4 border-primary">
+                    <Avatar className="relative h-24 w-24 border-4 border-primary">
                         {profileImageUrl ? (
                             <Image
                                 src={profileImageUrl}
                                 alt="Profile preview"
-                                width={96}
-                                height={96}
+                                fill
                                 className="rounded-full object-cover"
                             />
                         ) : (

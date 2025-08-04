@@ -259,7 +259,7 @@ export default function NewCommunityPage() {
           <CardContent>
              <p className="font-semibold">{user.affiliation.orgName}</p>
             <Button asChild className="mt-4">
-                <Link href={`/communities/${user.affiliation.orgId}`}>View Your Community</Link>
+                <Link href={`/c/${user.affiliation.orgId}`}>View Your Community</Link>
             </Button>
           </CardContent>
         </Card>
@@ -305,7 +305,7 @@ export default function NewCommunityPage() {
                             role="button"
                             aria-label="Upload logo image"
                             tabIndex={0}
-                            className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                            className="relative flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
                             onClick={() => logoInputRef.current?.click()}
                             onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
                           >
@@ -342,7 +342,7 @@ export default function NewCommunityPage() {
                             role="button"
                             aria-label="Upload banner image"
                             tabIndex={0}
-                            className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                            className="relative flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
                             onClick={() => bannerInputRef.current?.click()}
                             onKeyDown={(e) => e.key === 'Enter' && bannerInputRef.current?.click()}
                           >
