@@ -14,7 +14,9 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
+
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -22,11 +24,14 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ name, email });
-    router.push('/');
+    startTransition(() => {
+      login({ name, email });
+      router.push('/');
+    });
   };
 
 
@@ -50,6 +55,7 @@ export default function SignupPage() {
                   required 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  disabled={isPending}
                 />
               </div>
               <div className="grid gap-2">
@@ -61,6 +67,7 @@ export default function SignupPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isPending}
                 />
               </div>
               <div className="grid gap-2">
@@ -71,12 +78,16 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isPending}
                 />
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex-col">
-            <Button type="submit" className="w-full">Create Account</Button>
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 animate-spin" />}
+              Create Account
+            </Button>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
               <Link href="/login" className="underline">
