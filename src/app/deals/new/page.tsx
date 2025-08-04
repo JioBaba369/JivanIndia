@@ -18,10 +18,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Image from 'next/image';
-import { ImageUp, Loader2 } from 'lucide-react';
-import ImageCropper from '@/components/feature/image-cropper';
-import { useForm, Controller } from 'react-hook-form';
+import { Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -33,6 +31,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import ImageUpload from '@/components/feature/image-upload';
 
 
 const formSchema = z.object({
@@ -55,10 +54,6 @@ export default function NewDealPage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [isCropperOpen, setIsCropperOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const form = useForm<DealFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,23 +66,6 @@ export default function NewDealPage() {
     },
     mode: 'onChange'
   });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        setImageSrc(reader.result?.toString() || '');
-        setIsCropperOpen(true);
-      });
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCropSave = (croppedDataUrl: string) => {
-    form.setValue('imageUrl', croppedDataUrl, { shouldValidate: true, shouldDirty: true });
-    setIsCropperOpen(false);
-  };
 
 
   const handleSubmit = async (values: DealFormValues) => {
@@ -152,15 +130,6 @@ export default function NewDealPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-        {imageSrc && (
-            <ImageCropper
-            isOpen={isCropperOpen}
-            onClose={() => setIsCropperOpen(false)}
-            imageSrc={imageSrc}
-            onSave={handleCropSave}
-            aspectRatio={16 / 9}
-            />
-        )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Create a New Deal</CardTitle>
@@ -173,36 +142,21 @@ export default function NewDealPage() {
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
              <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Deal Media</h3>
-                 <FormField
+                <FormField
                   control={form.control}
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Deal Image *</FormLabel>
-                      <FormControl>
-                        <Card 
-                          className="relative flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          {field.value ? (
-                            <Image src={field.value} alt="Deal image preview" fill className="object-cover rounded-lg"/>
-                          ) : (
-                            <>
-                              <ImageUp className="h-8 w-8 text-muted-foreground" />
-                              <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
-                            </>
-                          )}
-                        </Card>
-                      </FormControl>
-                      <Input 
-                        id="deal-image" 
-                        type="file" 
-                        className="hidden"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept="image/png, image/jpeg, image/webp"
-                      />
-                      <FormMessage />
+                        <FormLabel>Deal Image *</FormLabel>
+                        <FormControl>
+                            <ImageUpload
+                                value={field.value}
+                                onChange={field.onChange}
+                                aspectRatio={16 / 9}
+                                toast={toast}
+                            />
+                        </FormControl>
+                        <FormMessage />
                     </FormItem>
                   )}
                 />
