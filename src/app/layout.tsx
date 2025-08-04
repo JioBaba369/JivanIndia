@@ -14,6 +14,7 @@ import "@/lib/firebase"; // Import to initialize services
 import CookieConsentBanner from "@/components/cookie-consent-banner";
 import { ProvidersProvider } from "@/hooks/use-providers";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
+import MobileNav from "@/components/layout/mobile-nav";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -76,11 +77,12 @@ export default function RootLayout({
                   <SponsorsProvider>
                     <div className="relative flex min-h-screen flex-col">
                       <Header />
-                      <main className="flex-1">{children}</main>
+                      <main className="flex-1 pb-20 md:pb-0">{children}</main>
                       <Footer />
                     </div>
                     <Toaster />
                     <CookieConsentBanner />
+                    <MobileNav />
                   </SponsorsProvider>
                 </ProvidersProvider>
               </EventsProvider>

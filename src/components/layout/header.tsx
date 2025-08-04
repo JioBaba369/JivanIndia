@@ -3,10 +3,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -45,7 +44,7 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
     );
   };
 
-const UserActions = ({ onAction }: { onAction?: () => void }) => {
+const UserActions = () => {
   const { user, logout, getInitials } = useAuth();
   
   if (user) {
@@ -61,11 +60,11 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild onClick={onAction}><Link href="/profile">My Profile</Link></DropdownMenuItem>
-          {user.username && <DropdownMenuItem asChild onClick={onAction}><Link href={`/${user.username}`}>View Public Profile</Link></DropdownMenuItem>}
-          {user.isAdmin && <DropdownMenuItem asChild onClick={onAction}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+          <DropdownMenuItem asChild><Link href="/profile">My Profile</Link></DropdownMenuItem>
+          {user.username && <DropdownMenuItem asChild><Link href={`/${user.username}`}>View Public Profile</Link></DropdownMenuItem>}
+          {user.isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => { logout(); if(onAction) onAction(); }}>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -74,10 +73,10 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
   return (
     <div className="flex items-center space-x-2">
       <Button variant="ghost" asChild>
-        <Link href="/login" onClick={onAction}>Login</Link>
+        <Link href="/login">Login</Link>
       </Button>
       <Button asChild>
-        <Link href="/signup" onClick={onAction}>Sign Up</Link>
+        <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
   );
@@ -85,13 +84,12 @@ const UserActions = ({ onAction }: { onAction?: () => void }) => {
 
 
 export default function Header() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-            <Logo as={Link} href="/" onClick={() => isMobileMenuOpen && setIsMobileMenuOpen(false)} />
+            <Logo as={Link} href="/" />
             <nav className="hidden items-center space-x-6 md:flex">
               {navLinks.map((link) => (
                 <NavLink key={link.href} {...link} />
@@ -100,32 +98,6 @@ export default function Header() {
         </div>
         <div className="hidden items-center space-x-2 md:flex">
           <UserActions />
-        </div>
-        <div className="md:hidden">
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-               <SheetHeader>
-                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                  <Logo as={Link} href="/" onClick={() => setIsMobileMenuOpen(false)} />
-               </SheetHeader>
-              <div className="p-4 pt-0">
-                <nav className="mt-8 flex flex-col space-y-6">
-                  {navLinks.map((link) => (
-                    <NavLink key={link.href} {...link} onClick={() => setIsMobileMenuOpen(false)}/>
-                  ))}
-                </nav>
-                <div className="mt-8 flex flex-col space-y-2 border-t pt-6">
-                   <UserActions onAction={() => setIsMobileMenuOpen(false)} />
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
     </header>
