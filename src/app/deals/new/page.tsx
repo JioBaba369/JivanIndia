@@ -16,29 +16,61 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ImageUp, Loader2 } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+
+const formSchema = z.object({
+  title: z.string().min(5, "Deal title must be at least 5 characters."),
+  description: z.string().min(20, "Description must be at least 20 characters."),
+  terms: z.string().min(10, "Terms must be at least 10 characters."),
+  category: z.enum(['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other']),
+  expires: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format." }),
+  imageUrl: z.string().url({ message: "A deal image is required." }),
+});
+
+type DealFormValues = z.infer<typeof formSchema>;
+
+const dealCategories = ['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other'] as const;
 
 export default function NewDealPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [terms, setTerms] = useState('');
-  const [category, setCategory] = useState('Food & Dining');
-  const [businessName, setBusinessName] = useState(user?.affiliation?.orgName || '');
-  const [expires, setExpires] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const form = useForm<DealFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      terms: '',
+      category: 'Food & Dining',
+      expires: '',
+      imageUrl: undefined,
+    },
+    mode: 'onChange'
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -53,25 +85,16 @@ export default function NewDealPage() {
   };
 
   const handleCropSave = (croppedDataUrl: string) => {
-    setCroppedImage(croppedDataUrl);
+    form.setValue('imageUrl', croppedDataUrl, { shouldValidate: true, shouldDirty: true });
     setIsCropperOpen(false);
   };
 
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (values: DealFormValues) => {
      if (!user?.affiliation) {
       toast({
         title: 'Affiliation Required',
         description: 'You must be affiliated with a registered business to post a deal.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    if (!croppedImage) {
-      toast({
-        title: 'Image Required',
-        description: 'Please upload and crop an image for the deal banner.',
         variant: 'destructive',
       });
       return;
@@ -82,12 +105,13 @@ export default function NewDealPage() {
     // In a real app, this would save to a database.
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log({
-        title, description, terms, category, businessName, expires, imageUrl: croppedImage
+        ...values,
+        businessName: user.affiliation.orgName
     });
 
     toast({
       title: 'Deal Submitted!',
-      description: `Your deal "${title}" has been submitted for review.`,
+      description: `Your deal "${values.title}" has been submitted for review.`,
     });
     
     setIsSubmitting(false);
@@ -146,87 +170,137 @@ export default function NewDealPage() {
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Create a New Deal</CardTitle>
           <CardDescription>
-            Fill out the form below to post a deal for the community.
+            Fill out the form below to post a deal for the community. Fields marked with * are required.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
              <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Deal Media</h3>
-                <div className="space-y-2">
-                    <Label htmlFor="deal-image">Deal Image</Label>
-                    <Card 
-                      className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      {croppedImage ? (
-                        <Image src={croppedImage} alt="Deal image preview" fill className="object-cover rounded-lg"/>
-                      ) : (
-                        <>
-                          <ImageUp className="h-8 w-8 text-muted-foreground" />
-                          <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
-                        </>
-                      )}
-                    </Card>
-                     <Input 
-                      id="deal-image" 
-                      type="file" 
-                      className="hidden"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      accept="image/png, image/jpeg"
-                    />
-                </div>
+                 <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Deal Image *</FormLabel>
+                      <FormControl>
+                        <Card 
+                          className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          {field.value ? (
+                            <Image src={field.value} alt="Deal image preview" fill className="object-cover rounded-lg"/>
+                          ) : (
+                            <>
+                              <ImageUp className="h-8 w-8 text-muted-foreground" />
+                              <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
+                            </>
+                          )}
+                        </Card>
+                      </FormControl>
+                      <Input 
+                        id="deal-image" 
+                        type="file" 
+                        className="hidden"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/png, image/jpeg, image/webp"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
             </div>
             <div className="space-y-4">
               <h3 className="font-headline text-lg font-semibold border-b pb-2">Deal Information</h3>
-              <div className="space-y-2">
-                <Label htmlFor="title">Deal Title</Label>
-                <Input id="title" placeholder="e.g., 20% Off Lunch Special" value={title} onChange={(e) => setTitle(e.target.value)} required />
-              </div>
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Deal Title *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 20% Off Lunch Special" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                <div className="space-y-2">
                 <Label htmlFor="businessName">Business Name</Label>
-                <Input id="businessName" value={businessName} readOnly disabled />
+                <Input id="businessName" value={user.affiliation.orgName} readOnly disabled />
                 <p className="text-xs text-muted-foreground">This is based on your community affiliation.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger id="category">
-                        <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Food & Dining">Food & Dining</SelectItem>
-                        <SelectItem value="Retail & Shopping">Retail & Shopping</SelectItem>
-                        <SelectItem value="Services">Services</SelectItem>
-                        <SelectItem value="Entertainment">Entertainment</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                    </Select>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="expires">Expiration Date</Label>
-                    <Input id="expires" type="date" value={expires} onChange={(e) => setExpires(e.target.value)} required/>
-                 </div>
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category *</FormLabel>
+                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {dealCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="expires"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expiration Date *</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" placeholder="Describe the deal in a few sentences." value={description} onChange={(e) => setDescription(e.target.value)} required rows={3}/>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="terms">Terms & Conditions</Label>
-                <Textarea id="terms" placeholder="Enter any terms, conditions, or restrictions for this deal." value={terms} onChange={(e) => setTerms(e.target.value)} required rows={3}/>
-              </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description *</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Describe the deal in a few sentences." {...field} rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="terms"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Terms & Conditions *</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Enter any terms, conditions, or restrictions for this deal." {...field} rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
                 {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Deal"}
               </Button>
             </div>
           </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

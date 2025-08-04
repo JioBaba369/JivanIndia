@@ -12,31 +12,42 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Wand2, Loader2, Sparkles } from 'lucide-react';
+import { Wand2, Loader2, Sparkles, Copy } from 'lucide-react';
 import { useState } from 'react';
-import { generateEventTitle } from '@/ai/flows/generate-event-title-flow';
-import { Badge } from '@/components/ui/badge';
+import { generateEventTitle, GenerateTitleInputSchema } from '@/ai/flows/generate-event-title-flow';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+type TitleGeneratorFormValues = z.infer<typeof GenerateTitleInputSchema>;
 
 export default function EventTitleToolPage() {
   const { toast } = useToast();
-  const [description, setDescription] = useState('');
-  const [keywords, setKeywords] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const form = useForm<TitleGeneratorFormValues>({
+    resolver: zodResolver(GenerateTitleInputSchema),
+    defaultValues: {
+      description: '',
+      keywords: '',
+    },
+    mode: 'onChange',
+  });
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!description) {
-        toast({ title: "Description needed", description: "Please enter an event description.", variant: 'destructive'});
-        return;
-    }
+  const handleSubmit = async (values: TitleGeneratorFormValues) => {
     setIsLoading(true);
     setSuggestions([]);
     try {
-        const result = await generateEventTitle({
-            description,
-            keywords,
-        });
+        const result = await generateEventTitle(values);
         setSuggestions(result.titles);
     } catch(error) {
         console.error(error);
@@ -55,6 +66,7 @@ export default function EventTitleToolPage() {
     toast({
         title: "Title Copied!",
         description: `"${title}" copied to clipboard.`,
+        icon: <Copy className="h-5 w-5"/>
     });
   }
 
@@ -74,34 +86,49 @@ export default function EventTitleToolPage() {
                     <CardTitle>Describe Your Event</CardTitle>
                 </CardHeader>
                 <CardContent>
-                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="description">Event Description</Label>
-                            <Textarea 
-                                id="description"
-                                placeholder="e.g., A vibrant celebration of spring with colorful powders, music, dancing, and Indian street food. Family-friendly and open to all."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                required
-                                rows={5}
-                            />
-                            <p className="text-xs text-muted-foreground">The more detail you provide, the better the suggestions will be.</p>
-                        </div>
-                         <div className="grid gap-2">
-                            <Label htmlFor="keywords">Keywords (Optional)</Label>
-                            <Textarea 
-                                id="keywords"
-                                placeholder="e.g., Holi, festival, colors, family, food, music"
-                                value={keywords}
-                                onChange={(e) => setKeywords(e.target.value)}
-                                rows={2}
-                            />
-                            <p className="text-xs text-muted-foreground">Add some keywords (comma-separated) to guide the AI, like the event type, tone, or key features.</p>
-                        </div>
-                        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                     <Form {...form}>
+                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Event Description</FormLabel>
+                                    <FormControl>
+                                    <Textarea 
+                                        placeholder="e.g., A vibrant celebration of spring with colorful powders, music, dancing, and Indian street food. Family-friendly and open to all."
+                                        rows={5}
+                                        {...field}
+                                    />
+                                    </FormControl>
+                                    <p className="text-xs text-muted-foreground">The more detail you provide, the better the suggestions will be.</p>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                         />
+                         <FormField
+                            control={form.control}
+                            name="keywords"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Keywords (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Textarea 
+                                            placeholder="e.g., Holi, festival, colors, family, food, music"
+                                            rows={2}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <p className="text-xs text-muted-foreground">Add some keywords (comma-separated) to guide the AI, like the event type, tone, or key features.</p>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                         />
+                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || !form.formState.isValid}>
                            {isLoading ? <><Loader2 className="mr-2 animate-spin" />Generating Titles...</> : <><Sparkles className="mr-2" />Generate Titles</>}
                         </Button>
                     </form>
+                    </Form>
                 </CardContent>
             </Card>
 

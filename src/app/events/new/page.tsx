@@ -17,11 +17,44 @@ import { useEvents, type Event } from '@/hooks/use-events';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ImageUp, Loader2 } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+
+const eventTypes = ['Cultural', 'Religious', 'Professional', 'Sports', 'Festival', 'Workshop', 'Food', 'Other'] as const;
+
+const formSchema = z.object({
+  title: z.string().min(5, "Title must be at least 5 characters."),
+  eventType: z.enum(eventTypes),
+  startDateTime: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid start date is required." }),
+  endDateTime: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid end date is required." }),
+  venueName: z.string().min(3, "Venue name is required."),
+  address: z.string().min(10, "A full address is required."),
+  description: z.string().min(50, "Description must be at least 50 characters."),
+  tags: z.string().optional(),
+  ticketLink: z.string().url().optional().or(z.literal('')),
+  imageUrl: z.string().url({ message: "An event banner image is required." }),
+}).refine(data => new Date(data.endDateTime) > new Date(data.startDateTime), {
+  message: "End date must be after start date.",
+  path: ["endDateTime"], 
+});
+
+type EventFormValues = z.infer<typeof formSchema>;
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -29,22 +62,28 @@ export default function NewEventPage() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const [title, setTitle] = useState('');
-  const [eventType, setEventType] = useState<Event['eventType']>('Other');
-  const [startDateTime, setStartDateTime] = useState('');
-  const [endDateTime, setEndDateTime] = useState('');
-  const [venueName, setVenueName] = useState('');
-  const [address, setAddress] = useState('');
-  const [description, setDescription] = useState('');
-  const [organizerName, setOrganizerName] = useState(user?.affiliation?.orgName || '');
-  const [tags, setTags] = useState('');
-  const [ticketLink, setTicketLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const form = useForm<EventFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      eventType: 'Other',
+      startDateTime: '',
+      endDateTime: '',
+      venueName: '',
+      address: '',
+      description: '',
+      tags: '',
+      ticketLink: '',
+      imageUrl: undefined
+    },
+    mode: 'onChange'
+  });
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,12 +99,11 @@ export default function NewEventPage() {
   };
 
   const handleCropSave = (croppedDataUrl: string) => {
-    setCroppedImage(croppedDataUrl);
+    form.setValue('imageUrl', croppedDataUrl, { shouldValidate: true, shouldDirty: true });
     setIsCropperOpen(false);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (values: EventFormValues) => {
     if (!user?.affiliation) {
       toast({
         title: 'Affiliation Required',
@@ -82,32 +120,24 @@ export default function NewEventPage() {
         });
         return;
     }
-     if (!croppedImage) {
-      toast({
-        title: 'Image Required',
-        description: 'Please upload and crop an image for the event banner.',
-        variant: 'destructive',
-      });
-      return;
-    }
     
     setIsSubmitting(true);
 
     const newEventData = {
-      title,
-      eventType,
-      startDateTime,
-      endDateTime,
+      title: values.title,
+      eventType: values.eventType,
+      startDateTime: values.startDateTime,
+      endDateTime: values.endDateTime,
       location: {
-        venueName,
-        address,
+        venueName: values.venueName,
+        address: values.address,
       },
-      description,
+      description: values.description,
       organizerName: user.affiliation.orgName,
       organizerId: user.affiliation.orgId,
-      imageUrl: croppedImage,
-      tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      ticketLink,
+      imageUrl: values.imageUrl,
+      tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean),
+      ticketLink: values.ticketLink,
       submittedByUid: user.uid,
     };
     
@@ -118,7 +148,7 @@ export default function NewEventPage() {
 
     toast({
       title: 'Event Submitted!',
-      description: `Your event "${title}" has been submitted for review.`,
+      description: `Your event "${values.title}" has been submitted for review.`,
     });
     
     setIsSubmitting(false);
@@ -177,130 +207,161 @@ export default function NewEventPage() {
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Share Your Event</CardTitle>
           <CardDescription>
-            Fill out the form below to post your event on the JivanIndia.co community calendar.
+            Fill out the form below to post your event on the JivanIndia.co community calendar. Fields marked with * are required.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Event Media</h3>
-                <div className="space-y-2">
-                    <Label htmlFor="event-image">Event Banner Image</Label>
-                    <Card 
-                      className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      {croppedImage ? (
-                        <Image src={croppedImage} alt="Event banner preview" fill className="object-cover rounded-lg"/>
-                      ) : (
-                        <>
-                          <ImageUp className="h-8 w-8 text-muted-foreground" />
-                          <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
-                        </>
-                      )}
-                    </Card>
-                     <Input 
-                      id="event-image" 
-                      type="file" 
-                      className="hidden"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      accept="image/png, image/jpeg"
-                    />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Event Banner Image *</FormLabel>
+                        <FormControl>
+                          <Card 
+                            className="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            {field.value ? (
+                              <Image src={field.value} alt="Event banner preview" fill className="object-cover rounded-lg"/>
+                            ) : (
+                              <>
+                                <ImageUp className="h-8 w-8 text-muted-foreground" />
+                                <span className="text-muted-foreground">Click to upload image (16:9 ratio recommended)</span>
+                              </>
+                            )}
+                          </Card>
+                        </FormControl>
+                         <Input 
+                          id="event-image" 
+                          type="file" 
+                          className="hidden"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept="image/png, image/jpeg, image/webp"
+                        />
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
             </div>
 
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Core Details</h3>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Event Title</Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g., Annual Diwali Gala"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      required
+                   <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Event Title *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., Annual Diwali Gala" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="eventType">Category</Label>
-                     <Select value={eventType} onValueChange={(value) => setEventType(value as any)} required>
-                        <SelectTrigger id="eventType">
-                            <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Cultural">Cultural</SelectItem>
-                            <SelectItem value="Religious">Religious</SelectItem>
-                            <SelectItem value="Professional">Professional</SelectItem>
-                            <SelectItem value="Sports">Sports</SelectItem>
-                            <SelectItem value="Festival">Festival</SelectItem>
-                            <SelectItem value="Workshop">Workshop</SelectItem>
-                            <SelectItem value="Food">Food</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                  </div>
+                   <FormField
+                      control={form.control}
+                      name="eventType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {eventTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Event Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Tell us more about the event, its purpose, and who should attend."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                    rows={5}
+                 <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Description *</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Tell us more about the event, its purpose, and who should attend."
+                            {...field}
+                            rows={5}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
             </div>
             
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Date, Time & Location</h3>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDateTime">Start Date & Time</Label>
-                    <Input
-                      id="startDateTime"
-                      type="datetime-local"
-                      value={startDateTime}
-                      onChange={(e) => setStartDateTime(e.target.value)}
-                      required
+                   <FormField
+                      control={form.control}
+                      name="startDateTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date & Time *</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endDateTime">End Date & Time</Label>
-                    <Input
-                      id="endDateTime"
-                      type="datetime-local"
-                      value={endDateTime}
-                      onChange={(e) => setEndDateTime(e.target.value)}
-                      required
+                  <FormField
+                      control={form.control}
+                      name="endDateTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Date & Time *</FormLabel>
+                          <FormControl>
+                            <Input type="datetime-local" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
                 </div>
                 
-                <div className="space-y-2">
-                    <Label htmlFor="venueName">Location / Venue Name</Label>
-                    <Input
-                    id="venueName"
-                    placeholder="e.g., Grand Park, Downtown LA"
-                    value={venueName}
-                    onChange={(e) => setVenueName(e.target.value)}
-                    required
-                    />
-                </div>
+                <FormField
+                    control={form.control}
+                    name="venueName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location / Venue Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Grand Park, Downtown LA" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                 <div className="space-y-2">
-                    <Label htmlFor="address">Full Address</Label>
-                    <Input
-                    id="address"
-                    placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                    />
-                </div>
+                 <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Address *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
             </div>
             
             <div className="space-y-4">
@@ -309,45 +370,54 @@ export default function NewEventPage() {
                     <Label htmlFor="organizerName">Organizer</Label>
                     <Input
                         id="organizerName"
-                        value={organizerName}
+                        value={user.affiliation.orgName}
                         disabled
                         readOnly
                     />
                     <p className="text-xs text-muted-foreground">This is based on your community affiliation.</p>
                 </div>
                 
-                <div className="space-y-2">
-                    <Label htmlFor="tags">Tags / Keywords</Label>
-                    <Input
-                        id="tags"
-                        placeholder="e.g., family-friendly, diwali, free-entry, networking"
-                        value={tags}
-                        onChange={(e) => setTags(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">Separate keywords with a comma to help users discover your event.</p>
-                </div>
+                <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags / Keywords</FormLabel>
+                        <FormControl>
+                           <Input placeholder="e.g., family-friendly, diwali, free-entry, networking" {...field} />
+                        </FormControl>
+                         <FormDescription>Separate keywords with a comma to help users discover your event.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                 <div className="space-y-2">
-                    <Label htmlFor="ticketLink">Ticket / Registration URL (Optional)</Label>
-                    <Input
-                        id="ticketLink"
-                        placeholder="e.g., https://www.eventbrite.com/..."
-                        value={ticketLink}
-                        onChange={(e) => setTicketLink(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">Link to an external page for tickets or registration.</p>
-                </div>
+                 <FormField
+                    control={form.control}
+                    name="ticketLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ticket / Registration URL (Optional)</FormLabel>
+                        <FormControl>
+                           <Input placeholder="e.g., https://www.eventbrite.com/..." {...field} />
+                        </FormControl>
+                        <FormDescription>Link to an external page for tickets or registration.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
                 {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Event"}
               </Button>
             </div>
           </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

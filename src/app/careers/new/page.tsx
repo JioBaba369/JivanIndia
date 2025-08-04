@@ -16,27 +16,58 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+
+const formSchema = z.object({
+  title: z.string().min(5, "Job title must be at least 5 characters."),
+  location: z.string().min(2, "Location is required."),
+  type: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship']),
+  salary: z.string().optional(),
+  description: z.string().min(50, "Description must be at least 50 characters."),
+  applicationUrl: z.string().url("Please enter a valid URL for the application."),
+});
+
+type JobFormValues = z.infer<typeof formSchema>;
+
+const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship'] as const;
 
 export default function NewJobPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const [title, setTitle] = useState('');
-  const [companyName, setCompanyName] = useState(user?.affiliation?.orgName || '');
-  const [location, setLocation] = useState('');
-  const [type, setType] = useState('Full-time');
-  const [salary, setSalary] = useState('');
-  const [description, setDescription] = useState('');
-  const [applicationUrl, setApplicationUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const form = useForm<JobFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      location: '',
+      type: 'Full-time',
+      salary: '',
+      description: '',
+      applicationUrl: '',
+    },
+    mode: 'onChange',
+  });
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+
+  const handleSubmit = async (values: JobFormValues) => {
     if (!user?.affiliation) {
       toast({
         title: 'Affiliation Required',
@@ -51,18 +82,13 @@ export default function NewJobPage() {
     // In a real app, you would save this data to your database
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log({
-      title,
-      companyName,
-      location,
-      type,
-      salary,
-      description,
-      applicationUrl,
+      ...values,
+      companyName: user.affiliation.orgName,
     });
 
     toast({
       title: 'Job Submitted!',
-      description: `Your job posting for "${title}" has been submitted for review.`,
+      description: `Your job posting for "${values.title}" has been submitted for review.`,
     });
     
     setIsSubmitting(false);
@@ -112,91 +138,112 @@ export default function NewJobPage() {
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Post a New Job Opening</CardTitle>
           <CardDescription>
-            Fill out the form below to share a career opportunity with the community.
+            Fill out the form below to share a career opportunity with the community. Fields marked with * are required.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Job Details</h3>
-                <div className="space-y-2">
-                    <Label htmlFor="title">Job Title</Label>
-                    <Input
-                        id="title"
-                        placeholder="e.g., Software Engineer, Marketing Manager"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                    />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Job Title *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Software Engineer, Marketing Manager" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
                     <Input
                         id="companyName"
-                        value={companyName}
+                        value={user.affiliation.orgName}
                         disabled
                         readOnly
                     />
                      <p className="text-xs text-muted-foreground">This is based on your community affiliation.</p>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                            id="location"
-                            placeholder="e.g., San Francisco, CA or Remote"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            required
-                        />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="type">Employment Type</Label>
-                         <Select value={type} onValueChange={setType} required>
-                            <SelectTrigger id="type">
-                                <SelectValue placeholder="Select a type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Full-time">Full-time</SelectItem>
-                                <SelectItem value="Part-time">Part-time</SelectItem>
-                                <SelectItem value="Contract">Contract</SelectItem>
-                                <SelectItem value="Internship">Internship</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., San Francisco, CA or Remote" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Employment Type *</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger><SelectValue placeholder="Select a type" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {jobTypes.map(type => (
+                                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                  </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="salary">Salary Range (Optional)</Label>
-                    <Input
-                        id="salary"
-                        placeholder="e.g., $120,000 - $150,000 per year"
-                        value={salary}
-                        onChange={(e) => setSalary(e.target.value)}
-                    />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="description">Job Description</Label>
-                    <Textarea
-                        id="description"
-                        placeholder="Provide details about the role, responsibilities, and qualifications."
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        required
-                        rows={8}
-                    />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="applicationUrl">Application URL</Label>
-                    <Input
-                        id="applicationUrl"
-                        type="url"
-                        placeholder="e.g., https://yourcompany.com/careers/apply"
-                        value={applicationUrl}
-                        onChange={(e) => setApplicationUrl(e.target.value)}
-                        required
-                    />
-                     <p className="text-xs text-muted-foreground">Link to the job posting or application form.</p>
-                </div>
+                 <FormField
+                    control={form.control}
+                    name="salary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Salary Range (Optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., $120,000 - $150,000 per year" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                 <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Job Description *</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Provide details about the role, responsibilities, and qualifications." {...field} rows={8}/>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                 <FormField
+                    control={form.control}
+                    name="applicationUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Application URL *</FormLabel>
+                        <FormControl>
+                          <Input type="url" placeholder="e.g., https://yourcompany.com/careers/apply" {...field} />
+                        </FormControl>
+                         <FormDescription>Link to the job posting or application form.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
             </div>
 
@@ -204,11 +251,12 @@ export default function NewJobPage() {
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
                 {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Submitting...</> : "Post Job"}
               </Button>
             </div>
           </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
