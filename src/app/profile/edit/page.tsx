@@ -66,9 +66,7 @@ export default function EditProfilePage() {
       setOriginDistrict(user.originLocation?.indiaDistrict || '');
       setLanguages(user.languagesSpoken?.join(', ') || '');
       setInterests(user.interests?.join(', ') || '');
-      if (user.profileImageUrl) {
-        setProfileImageUrl(user.profileImageUrl);
-      }
+      setProfileImageUrl(user.profileImageUrl || '');
     } else if (!user) {
         router.push('/login');
     }
