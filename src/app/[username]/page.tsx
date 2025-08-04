@@ -166,7 +166,7 @@ export default function UserPublicProfilePage() {
                         </div>
 
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
-                            {affiliatedCommunity && (
+                            {affiliatedCommunity && profileUser.affiliation && (
                                 <Button asChild>
                                     <Link href={`/c/${affiliatedCommunity.slug}`}>
                                         <Building className="mr-2"/> View {profileUser.affiliation.orgName}
