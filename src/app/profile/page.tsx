@@ -31,7 +31,7 @@ export default function ProfilePage() {
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
-  const { communities: allCommunities } = useCommunities();
+  const { communities: allCommunities, getCommunityById } = useCommunities();
   const { providers: allProviders } = useProviders();
   const { sponsors: allSponsors } = useSponsors();
 
@@ -97,6 +97,7 @@ export default function ProfilePage() {
   }
 
   const profileImageUrl = user.profileImageUrl;
+  const affiliatedCommunity = user.affiliation ? getCommunityById(user.affiliation.orgId) : null;
 
   return (
     <div className="min-h-[calc(100vh-128px)] bg-muted/40">
@@ -122,7 +123,7 @@ export default function ProfilePage() {
                             <Link href="/profile/edit">Edit Profile</Link>
                          </Button>
                     </CardHeader>
-                    {user.affiliation && <CardContent className="px-6 pb-6">
+                    {user.affiliation && affiliatedCommunity && <CardContent className="px-6 pb-6">
                         <Card className="bg-muted">
                             <CardHeader className="p-4">
                                 <CardTitle className="font-headline flex items-center justify-center gap-2 text-lg">
@@ -133,7 +134,7 @@ export default function ProfilePage() {
                             <CardContent className="p-4 pt-0 text-center">
                                 <p className="text-sm">You are affiliated with:</p>
                                 <Button variant="link" asChild className="h-auto p-0 font-semibold text-base">
-                                    <Link href={`/communities/${user.affiliation.orgId}`}>{user.affiliation.orgName}</Link>
+                                    <Link href={`/c/${affiliatedCommunity.slug}`}>{user.affiliation.orgName}</Link>
                                 </Button>
                             </CardContent>
                         </Card>
@@ -224,8 +225,8 @@ export default function ProfilePage() {
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square">
-                                            <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="h-full w-full rounded-lg border bg-background object-cover" />
+                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                            <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
@@ -263,18 +264,18 @@ export default function ProfilePage() {
                             {userJoinedCommunities.map((org) => (
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square">
-                                            <Image src={org.imageUrl} alt={org.name} width={80} height={80} className="h-full w-full rounded-lg border bg-background object-cover" />
+                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                            <Image src={org.imageUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/communities/${org.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
+                                            <Link href={`/c/${org.slug}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
                                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Users className="h-4 w-4" /><span>{org.type}</span></div>
                                                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span>{org.region}</span></div>
                                             </div>
                                         </div>
                                         <div className="flex w-full items-center gap-2 pt-2 sm:w-auto sm:ml-auto sm:pt-0">
-                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/communities/${org.id}`}>View</Link></Button>
+                                            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-initial"><Link href={`/c/${org.slug}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('community', org.id, org.name)}><Trash2 className="h-4 w-4" /></Button>
@@ -302,8 +303,8 @@ export default function ProfilePage() {
                             {userSavedDeals.map((deal) => (
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square">
-                                            <Image src={deal.imageUrl} alt={deal.title} width={80} height={80} className="h-full w-full rounded-lg border bg-background object-cover" />
+                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                            <Image src={deal.imageUrl} alt={deal.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{deal.title}</CardTitle></Link>
@@ -341,8 +342,8 @@ export default function ProfilePage() {
                             {userSavedProviders.map((provider) => (
                                 <Card key={provider.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square">
-                                            <Image src={provider.imageUrl} alt={provider.name} width={80} height={80} className="h-full w-full rounded-lg border bg-background object-cover" />
+                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                            <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/providers/${provider.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
@@ -380,8 +381,8 @@ export default function ProfilePage() {
                             {userSavedSponsors.map((sponsor) => (
                                 <Card key={sponsor.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square">
-                                            <Image src={sponsor.logoUrl} alt={sponsor.name} width={80} height={80} className="h-full w-full rounded-lg border bg-background object-contain p-2" />
+                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                            <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-2" />
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/sponsors/${sponsor.id}`} className="group"><CardTitle className="font-headline text-xl transition-colors group-hover:text-primary">{sponsor.name}</CardTitle></Link>
@@ -424,8 +425,8 @@ export default function ProfilePage() {
                                 return (
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col items-start gap-4 p-4 sm:flex-row">
-                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square">
-                                          <Image src={event.imageUrl} alt={event.title} width={80} height={80} className="h-full w-full rounded-lg border bg-background object-cover" />
+                                        <div className="aspect-video w-full shrink-0 sm:w-20 sm:aspect-square relative">
+                                          <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
                                         </div>
                                         <div className="flex-grow">
                                             <div className="flex items-start justify-between">

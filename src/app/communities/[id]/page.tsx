@@ -15,10 +15,14 @@ export default function LegacyCommunityDetailPage() {
   useEffect(() => {
     if (community?.slug) {
       router.replace(`/c/${community.slug}`);
-    } else if (!community) {
-      // Optional: handle case where community is not found after a delay
+    } else if (id) {
+      // Small delay to allow communities to load, then redirect if still not found
+      const timer = setTimeout(() => {
+          router.replace('/communities');
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [community, router]);
+  }, [community, router, id]);
 
   // Render a loading state or nothing while redirecting
   return (

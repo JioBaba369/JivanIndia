@@ -14,13 +14,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { ImageUp, Loader2, CheckCircle, UploadCloud, Twitter, Linkedin, Facebook } from 'lucide-react';
 import ImageCropper from '@/components/feature/image-cropper';
-import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
+import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -33,41 +33,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
-const generateSlug = (value: string) => {
-  return value
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-};
 
 const NAME_MAX_LENGTH = 100;
-const SLUG_MAX_LENGTH = 50;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
 const IMAGE_MAX_SIZE_MB = 4;
 
-const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
+const formSchema = z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
-  slug: z.string().min(3, "URL must be at least 3 characters.").max(SLUG_MAX_LENGTH)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces.")
-    .refine(isSlugUnique, {
-      message: "This URL is already taken.",
-    }),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
   fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(FULL_DESC_MAX_LENGTH, `Full description must be ${FULL_DESC_MAX_LENGTH} characters or less.`),
@@ -85,18 +58,21 @@ const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
   socialLinkedin: z.string().url().optional().or(z.literal('')),
 });
 
-type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
+type CommunityFormValues = z.infer<typeof formSchema>;
 
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
 
-export default function NewCommunityPage() {
+export default function EditCommunityPage() {
   const router = useRouter();
-  const { addCommunity, isSlugUnique } = useCommunities();
+  const params = useParams();
+  const slug = typeof params.slug === 'string' ? params.slug : '';
+
+  const { getCommunityBySlug, updateCommunity } = useCommunities();
   const { toast } = useToast();
-  const { user, setAffiliation } = useAuth();
+  const { user } = useAuth();
   
   const [isPending, startTransition] = useTransition();
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [community, setCommunity] = useState<Community | null>(null);
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
@@ -108,46 +84,53 @@ export default function NewCommunityPage() {
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const memoizedIsSlugUnique = useCallback((slug: string) => {
-    if (slug.length < 3) return true; // Don't validate until it's a valid length
-    return isSlugUnique(slug);
-  }, [isSlugUnique]);
-
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
-    defaultValues: {
-      name: '',
-      slug: '',
-      type: 'Other',
-      description: '',
-      fullDescription: '',
-      region: '',
-      founded: '',
-      tags: '',
-      logoUrl: undefined,
-      bannerUrl: undefined,
-      website: '',
-      contactEmail: user?.email || '',
-      phone: '',
-      address: '',
-      socialTwitter: '',
-      socialFacebook: '',
-      socialLinkedin: '',
-    },
+    resolver: zodResolver(formSchema),
     mode: 'onChange',
   });
 
-  const nameValue = form.watch('name');
-  const slugValue = form.watch('slug');
-  const isSlugChecking = form.formState.isValidating && form.getFieldState('slug').isDirty;
-
   useEffect(() => {
-    if (!slugManuallyEdited && nameValue) {
-      const newSlug = generateSlug(nameValue);
-      form.setValue('slug', newSlug, { shouldValidate: true });
-    }
-  }, [nameValue, slugManuallyEdited, form]);
+      const foundCommunity = getCommunityBySlug(slug);
+      if (foundCommunity) {
+          setCommunity(foundCommunity);
+          form.reset({
+              name: foundCommunity.name,
+              type: foundCommunity.type,
+              description: foundCommunity.description,
+              fullDescription: foundCommunity.fullDescription,
+              region: foundCommunity.region,
+              founded: foundCommunity.founded,
+              tags: foundCommunity.tags.join(', '),
+              logoUrl: foundCommunity.logoUrl,
+              bannerUrl: foundCommunity.imageUrl,
+              website: foundCommunity.website,
+              contactEmail: foundCommunity.contactEmail,
+              phone: foundCommunity.phone,
+              address: foundCommunity.address,
+              socialTwitter: foundCommunity.socialMedia?.twitter || '',
+              socialFacebook: foundCommunity.socialMedia?.facebook || '',
+              socialLinkedin: foundCommunity.socialMedia?.linkedin || '',
+          });
+      }
+  }, [slug, getCommunityBySlug, form]);
 
+  if (!user || (community && user.uid !== community.founderUid)) {
+    return (
+       <div className="container mx-auto px-4 py-12 text-center">
+        <Card className="mx-auto max-w-md">
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
+                <CardDescription>You do not have permission to edit this community.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="mt-2">
+                    <Link href={`/c/${slug}`}>Back to Community</Link>
+                </Button>
+            </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -178,15 +161,11 @@ export default function NewCommunityPage() {
   };
 
   const onSubmit = async (values: CommunityFormValues) => {
-    if (!user) {
-        toast({ title: 'Authentication Error', description: 'You must be logged in to create a community.', variant: 'destructive' });
-        return;
-    }
+    if (!community) return;
     
     startTransition(async () => {
-        const newCommunity: NewCommunityInput = {
+        const updatedData: Partial<Community> = {
           name: values.name,
-          slug: values.slug,
           type: values.type,
           description: values.description,
           fullDescription: values.fullDescription,
@@ -194,76 +173,36 @@ export default function NewCommunityPage() {
           imageUrl: values.bannerUrl,
           logoUrl: values.logoUrl,
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
-          membersCount: 1,
           address: values.address || '',
           phone: values.phone || '',
           contactEmail: values.contactEmail,
           website: values.website || '',
+          founded: values.founded,
           socialMedia: {
             twitter: values.socialTwitter,
             linkedin: values.socialLinkedin,
             facebook: values.socialFacebook,
           },
-          founded: values.founded,
-          founderUid: user.uid,
         };
 
         try {
-          const addedCommunity = addCommunity(newCommunity, user.email);
-          setAffiliation(addedCommunity.id, addedCommunity.name);
+          updateCommunity(community.id, updatedData);
           toast({
-            title: 'Community Submitted!',
-            description: `Your community "${values.name}" has been submitted for review.`,
+            title: 'Community Updated!',
+            description: `Your community "${values.name}" has been successfully updated.`,
           });
           
-          router.push(`/c/${addedCommunity.slug}`);
+          router.push(`/c/${community.slug}`);
 
         } catch (error) {
            toast({
-            title: 'Submission Failed',
+            title: 'Update Failed',
             description: 'An unexpected error occurred. Please try again.',
             variant: 'destructive',
           });
         }
     });
   };
-  
-  if (!user) {
-    return (
-       <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="mx-auto max-w-md">
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
-                <CardDescription>You must be logged in to create a community. Please log in to continue.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button asChild className="mt-2">
-                    <Link href="/login">Login</Link>
-                </Button>
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
-  
-  if (user.affiliation) {
-    return (
-      <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="mx-auto max-w-md">
-          <CardHeader>
-            <CardTitle className="font-headline text-3xl">Already Affiliated</CardTitle>
-            <CardDescription>You are already affiliated with a community and cannot create a new one.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <p className="font-semibold">{user.affiliation.orgName}</p>
-            <Button asChild className="mt-4">
-                <Link href={`/c/${user.affiliation.orgId}`}>View Your Community</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -281,9 +220,9 @@ export default function NewCommunityPage() {
       )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Establish Your Community's Presence</CardTitle>
+          <CardTitle className="font-headline text-3xl">Edit Your Community</CardTitle>
           <CardDescription>
-            Fill out the form below to add your organization to the JivanIndia.co community hub. Fields marked with an asterisk (*) are required.
+            Update your community's information below. Changes will be reflected publicly once you save.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -371,8 +310,7 @@ export default function NewCommunityPage() {
 
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <FormField
+                 <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
@@ -385,32 +323,6 @@ export default function NewCommunityPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community URL *</FormLabel>
-                        <div className="relative">
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., bay-area-tamil-sangam"
-                              {...field}
-                              onFocus={() => setSlugManuallyEdited(true)}
-                              onChange={(e) => {
-                                setSlugManuallyEdited(true);
-                                field.onChange(generateSlug(e.target.value));
-                              }}
-                            />
-                          </FormControl>
-                          {isSlugChecking && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
-                        </div>
-                        <FormDescription>jivanindia.co/c/{slugValue || 'your-url'}</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
               
               <div className="space-y-6">
@@ -450,21 +362,21 @@ export default function NewCommunityPage() {
                           )}
                       />
                   </div>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <FormField
-                        control={form.control}
-                        name="founded"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Year Founded *</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g., 2010" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                  </div>
+                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                            control={form.control}
+                            name="founded"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Year Founded *</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., 2010" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                   </div>
                   <FormField
                       control={form.control}
                       name="description"
@@ -531,30 +443,13 @@ export default function NewCommunityPage() {
                 </div>
               </div>
 
-
               <div className="flex justify-end gap-4 pt-4">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button type="button" variant="outline" disabled={isPending}>
-                      Cancel
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Any unsaved changes on this form will be lost.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Continue Editing</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => router.back()}>Leave Page</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
+                    Cancel
+                </Button>
 
-                <Button type="submit" disabled={!form.formState.isValid || isPending || isSlugChecking}>
-                  {isPending ? <><Loader2 className="mr-2 animate-spin" /> Submitting...</> : 'Create Community'}
+                <Button type="submit" disabled={!form.formState.isValid || isPending}>
+                  {isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}
                 </Button>
               </div>
             </form>

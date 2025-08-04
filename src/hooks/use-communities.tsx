@@ -40,9 +40,10 @@ interface CommunitiesContextType {
   addCommunity: (community: NewCommunityInput, founderEmail: string) => Community;
   getCommunityById: (id: string) => Community | undefined;
   getCommunityBySlug: (slug: string) => Community | undefined;
-  isSlugUnique: (slug: string) => boolean;
+  isSlugUnique: (slug: string, currentId?: string) => boolean;
   verifyCommunity: (communityId: string) => void;
   getInitials: (name: string) => string;
+  updateCommunity: (id: string, data: Partial<Community>) => void;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
@@ -175,6 +176,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     persistCommunities(updatedCommunities);
     return newCommunity;
   }, [communities]);
+  
+  const updateCommunity = useCallback((id: string, data: Partial<Community>) => {
+      const updatedCommunities = communities.map(c => c.id === id ? { ...c, ...data, updatedAt: new Date().toISOString() } : c);
+      persistCommunities(updatedCommunities);
+  }, [communities]);
 
   const getCommunityById = useCallback((id: string): Community | undefined => {
     return communities.find(c => c.id === id);
@@ -184,8 +190,8 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     return communities.find(c => c.slug === slug);
   }, [communities]);
   
-  const isSlugUnique = useCallback((slug: string): boolean => {
-    return !communities.some(c => c.slug === slug);
+  const isSlugUnique = useCallback((slug: string, currentId?: string): boolean => {
+    return !communities.some(c => c.slug === slug && c.id !== currentId);
   }, [communities]);
 
   const verifyCommunity = useCallback((communityId: string): void => {
@@ -212,6 +218,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     isSlugUnique,
     verifyCommunity,
     getInitials,
+    updateCommunity,
   };
 
   return (

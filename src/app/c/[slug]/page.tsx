@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, Twitter, Linkedin, Facebook } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, Twitter, Linkedin, Facebook, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +75,7 @@ export default function CommunityDetailPage() {
   }
 
   const orgIsJoined = user ? isCommunityJoined(community.id) : false;
+  const isFounder = user?.uid === community.founderUid;
 
   return (
     <div className="bg-background">
@@ -94,7 +95,7 @@ export default function CommunityDetailPage() {
            <CardContent className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 text-center md:text-left">
-                     <Avatar className="h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
+                     <Avatar className="relative h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
                         <AvatarImage src={community.logoUrl} alt={community.name} />
                         <AvatarFallback className="text-4xl font-headline">{getInitials(community.name)}</AvatarFallback>
                     </Avatar>
@@ -150,10 +151,20 @@ export default function CommunityDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" variant={orgIsJoined ? "destructive" : "default"} className="w-full" onClick={handleJoinToggle}>
-                        <Bookmark className="mr-2 h-4 w-4"/>
-                        {orgIsJoined ? "Leave Community" : "Join Community"}
-                    </Button>
+                    {isFounder && (
+                        <Button size="lg" asChild>
+                            <Link href={`/c/${community.slug}/edit`}>
+                                <Edit className="mr-2 h-4 w-4"/>
+                                Edit Community
+                            </Link>
+                        </Button>
+                    )}
+                    {!isFounder && (
+                        <Button size="lg" variant={orgIsJoined ? "destructive" : "default"} className="w-full" onClick={handleJoinToggle}>
+                            <Bookmark className="mr-2 h-4 w-4"/>
+                            {orgIsJoined ? "Leave Community" : "Join Community"}
+                        </Button>
+                    )}
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2 h-4 w-4"/>
                         Share Profile
