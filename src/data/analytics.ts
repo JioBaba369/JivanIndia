@@ -1,24 +1,32 @@
 
-export const memberData = [
-    { month: "January", members: 186 },
-    { month: "February", members: 305 },
-    { month: "March", members: 237 },
-    { month: "April", members: 273 },
-    { month: "May", members: 209 },
-    { month: "June", members: 214 },
-];
+const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-export const eventPerformanceData = [
-  { name: 'Diwali Gala', registrations: 500, attendance: 450 },
-  { name: 'Holi Fest', registrations: 700, attendance: 620 },
-  { name: 'Startup Meet', registrations: 150, attendance: 120 },
-  { name: 'Yoga Day', registrations: 200, attendance: 180 },
-  { name: 'Food Fest', registrations: 400, attendance: 380 },
-];
+const generateMemberData = () => {
+    const data = [];
+    const months = ["January", "February", "March", "April", "May", "June"];
+    for (const month of months) {
+        data.push({ month, members: random(150, 350) });
+    }
+    return data;
+};
 
-export const topReferrersData = [
-    { source: 'Facebook', count: 102, percentage: 45 },
-    { source: 'Instagram', count: 68, percentage: 30 },
-    { source: 'Google Search', count: 34, percentage: 15 },
-    { source: 'Word of Mouth', count: 22, percentage: 10 },
-];
+const generateEventPerformanceData = () => {
+    const events = ['Diwali Gala', 'Holi Fest', 'Startup Meet', 'Yoga Day', 'Food Fest'];
+    return events.map(name => {
+        const registrations = random(100, 800);
+        const attendance = Math.floor(registrations * (random(75, 95) / 100));
+        return { name, registrations, attendance };
+    });
+};
+
+const generateTopReferrersData = () => {
+    const sources = ['Facebook', 'Instagram', 'Google Search', 'Word of Mouth'];
+    const data = sources.map(source => ({ source, count: random(20, 120) }));
+    const total = data.reduce((acc, item) => acc + item.count, 0);
+    return data.map(item => ({ ...item, percentage: Math.round((item.count / total) * 100) }));
+};
+
+
+export const memberData = generateMemberData();
+export const eventPerformanceData = generateEventPerformanceData();
+export const topReferrersData = generateTopReferrersData();
