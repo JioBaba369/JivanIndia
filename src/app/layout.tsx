@@ -10,6 +10,7 @@ import { EventsProvider } from "@/hooks/use-events";
 import { ProvidersProvider } from "@/hooks/use-providers";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
 import { CommunitiesProvider } from "@/hooks/use-communities";
+import { AboutProvider } from "@/hooks/use-about";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -43,20 +44,22 @@ export default function RootLayout({
         )}
       >
         <AuthProvider>
-          <CommunitiesProvider>
-            <SponsorsProvider>
-              <ProvidersProvider>
-                <EventsProvider>
-                  <div className="relative flex min-h-screen flex-col">
-                    <Header />
-                    <main className="flex-1">{children}</main>
-                    <Footer />
-                  </div>
-                  <Toaster />
-                </EventsProvider>
-              </ProvidersProvider>
-            </SponsorsProvider>
-          </CommunitiesProvider>
+          <AboutProvider>
+            <CommunitiesProvider>
+              <SponsorsProvider>
+                <ProvidersProvider>
+                  <EventsProvider>
+                    <div className="relative flex min-h-screen flex-col">
+                      <Header />
+                      <main className="flex-1">{children}</main>
+                      <Footer />
+                    </div>
+                    <Toaster />
+                  </EventsProvider>
+                </ProvidersProvider>
+              </SponsorsProvider>
+            </CommunitiesProvider>
+          </AboutProvider>
         </AuthProvider>
       </body>
     </html>

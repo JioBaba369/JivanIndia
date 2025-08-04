@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents, type Event } from '@/hooks/use-events';
@@ -12,22 +12,111 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Building, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, PlusCircle, UserPlus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
+import { useAbout, type TeamMember } from '@/hooks/use-about';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
+
+const TeamMemberDialog = ({
+  member,
+  onSave,
+  getInitials,
+  children
+}: {
+  member?: TeamMember | null,
+  onSave: (data: Omit<TeamMember, 'id' | 'initials'>) => void,
+  getInitials: (name: string) => string,
+  children: React.ReactNode
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState(member?.name || '');
+  const [role, setRole] = useState(member?.role || '');
+  const [bio, setBio] = useState(member?.bio || '');
+  const [avatarUrl, setAvatarUrl] = useState(member?.avatarUrl || '');
+
+  useEffect(() => {
+    if (isOpen) {
+      setName(member?.name || '');
+      setRole(member?.role || '');
+      setBio(member?.bio || '');
+      setAvatarUrl(member?.avatarUrl || '');
+    }
+  }, [isOpen, member]);
+
+  const handleSave = () => {
+    onSave({ name, role, bio, avatarUrl });
+    setIsOpen(false);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{member ? 'Edit Team Member' : 'Add Team Member'}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="flex items-center justify-center">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={avatarUrl} alt={name} />
+              <AvatarFallback>{getInitials(name)}</AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="avatarUrl">Avatar URL</Label>
+            <Input id="avatarUrl" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button onClick={handleSave}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const { events, updateEventStatus } = useEvents();
   const { communities, verifyCommunity } = useCommunities();
+  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, getInitials } = useAbout();
   const { toast } = useToast();
+
+  const [story, setStory] = useState(aboutContent.story);
 
   useEffect(() => {
     if (!isLoading && !user?.isAdmin) {
       router.push('/');
     }
   }, [user, isLoading, router]);
+
+  useEffect(() => {
+    setStory(aboutContent.story);
+  }, [aboutContent.story]);
 
   const handleEventStatusChange = (eventId: string, newStatus: Event['status']) => {
     updateEventStatus(eventId, newStatus);
@@ -44,6 +133,26 @@ export default function AdminDashboardPage() {
         description: "The community has been marked as verified.",
     });
   };
+
+  const handleStorySave = () => {
+    updateStory(story);
+    toast({ title: 'About Page Updated', description: '"Our Story" has been saved.' });
+  }
+
+  const handleAddTeamMember = (data: Omit<TeamMember, 'id' | 'initials'>) => {
+    addTeamMember(data);
+    toast({ title: 'Team Member Added', description: `${data.name} has been added to the team.` });
+  }
+
+  const handleUpdateTeamMember = (id: string, data: Omit<TeamMember, 'id' | 'initials'>) => {
+    updateTeamMember(id, data);
+    toast({ title: 'Team Member Updated', description: `${data.name}'s information has been updated.` });
+  }
+  
+  const handleDeleteTeamMember = (id: string) => {
+    deleteTeamMember(id);
+    toast({ title: 'Team Member Removed', description: 'The team member has been removed.' });
+  }
 
   const getEventStatusVariant = (status: Event['status']) => {
     switch (status) {
@@ -77,10 +186,11 @@ export default function AdminDashboardPage() {
           <CardDescription>Manage all submitted content on the platform.</CardDescription>
         </CardHeader>
         <CardContent>
-            <Tabs defaultValue="events">
-                <TabsList className="grid w-full grid-cols-2">
+            <Tabs defaultValue="events" className="w-full">
+                <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
                     <TabsTrigger value="events">Events ({sortedEvents.length})</TabsTrigger>
                     <TabsTrigger value="communities">Communities ({sortedCommunities.length})</TabsTrigger>
+                    <TabsTrigger value="about">About Page</TabsTrigger>
                 </TabsList>
                 <TabsContent value="events" className="mt-6">
                     <div className="w-full overflow-x-auto">
@@ -167,6 +277,94 @@ export default function AdminDashboardPage() {
                             <p>No communities have been created yet.</p>
                         </div>
                     )}
+                </TabsContent>
+                <TabsContent value="about" className="mt-6">
+                    <div className="space-y-8">
+                        {/* Story Section */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Our Story</CardTitle>
+                                <CardDescription>Edit the story section that appears on the "About Us" page.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <Textarea 
+                                    value={story}
+                                    onChange={(e) => setStory(e.target.value)}
+                                    rows={10}
+                                    className="whitespace-pre-line"
+                                />
+                                <Button onClick={handleStorySave}>Save Story</Button>
+                            </CardContent>
+                        </Card>
+
+                        {/* Team Members Section */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <CardTitle>Meet the Team</CardTitle>
+                                        <CardDescription>Manage the team members displayed on the "About Us" page.</CardDescription>
+                                    </div>
+                                    <TeamMemberDialog onSave={handleAddTeamMember} getInitials={getInitials}>
+                                        <Button><UserPlus className="mr-2 h-4 w-4" /> Add Member</Button>
+                                    </TeamMemberDialog>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Avatar</TableHead>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>Role</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {aboutContent.teamMembers.map(member => (
+                                            <TableRow key={member.id}>
+                                                <TableCell>
+                                                    <Avatar>
+                                                        <AvatarImage src={member.avatarUrl} alt={member.name} />
+                                                        <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
+                                                    </Avatar>
+                                                </TableCell>
+                                                <TableCell className="font-medium">{member.name}</TableCell>
+                                                <TableCell>{member.role}</TableCell>
+                                                <TableCell className="text-right space-x-2">
+                                                    <TeamMemberDialog member={member} onSave={(data) => handleUpdateTeamMember(member.id, data)} getInitials={getInitials}>
+                                                      <Button variant="outline" size="icon"><Edit className="h-4 w-4" /></Button>
+                                                    </TeamMemberDialog>
+                                                    <AlertDialog>
+                                                      <AlertDialogTrigger asChild>
+                                                        <Button variant="destructive" size="icon"><Trash2 className="h-4 w-4" /></Button>
+                                                      </AlertDialogTrigger>
+                                                      <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                          <AlertDialogDescription>
+                                                            This will permanently delete {member.name} from the team. This action cannot be undone.
+                                                          </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                          <AlertDialogAction onClick={() => handleDeleteTeamMember(member.id)}>Delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                      </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                {aboutContent.teamMembers.length === 0 && (
+                                    <div className="text-center py-12 text-muted-foreground">
+                                        <p>No team members have been added yet.</p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
                 </TabsContent>
             </Tabs>
         </CardContent>

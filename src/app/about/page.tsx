@@ -1,4 +1,6 @@
 
+'use client';
+
 import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, Target, Sprout, Handshake, Link as LinkIcon } from "lucide-react";
@@ -6,30 +8,19 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-export const metadata: Metadata = {
-  title: "About Us | JivanIndia.co",
-  description: "Learn about the mission, vision, and team behind JivanIndia.co, the central hub for the Indian community.",
-};
-
-const teamMembers = [
-    {
-        name: "Priya Sharma",
-        role: "Co-Founder & Community Lead",
-        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMHdvbWFufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=200",
-        initials: "PS",
-        bio: "With a background in community organizing, Priya is passionate about creating spaces where people feel they belong."
-    },
-    {
-        name: "Rohan Gupta",
-        role: "Co-Founder & Tech Lead",
-        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMG1hbnxlbnwwfHx8fDE3NTQxOTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=200",
-        initials: "RG",
-        bio: "Rohan is a software architect dedicated to building technology that empowers and connects communities."
-    }
-]
+import { useAbout } from "@/hooks/use-about";
 
 export default function AboutUsPage() {
+  const { aboutContent, getInitials } = useAbout();
+  const { story, teamMembers } = aboutContent;
+
+  // Metadata can't be dynamic in a client component this way,
+  // but we'll leave it for structure. A Head component would be needed for dynamic updates.
+  // export const metadata: Metadata = {
+  //   title: "About Us | JivanIndia.co",
+  //   description: "Learn about the mission, vision, and team behind JivanIndia.co, the central hub for the Indian community.",
+  // };
+
   return (
     <div className="bg-background">
       {/* Hero Section */}
@@ -60,9 +51,8 @@ export default function AboutUsPage() {
         <div className="max-w-4xl mx-auto">
             <h2 className="font-headline text-3xl font-bold text-center mb-4">Our Story</h2>
             <p className="text-center text-muted-foreground text-lg mb-10">JivanIndia.co was born from a simple idea: to bridge the gap between finding information and feeling connected.</p>
-            <div className="text-lg text-foreground/80 leading-relaxed space-y-4 text-left md:text-justify">
-                <p>In our daily lives, we saw how challenging it could be to keep track of cultural events, find trusted local businesses, or connect with community organizations. Information was scattered across social media groups, outdated websites, and word-of-mouth, making it difficult to feel truly tapped into the pulse of the community.</p>
-                <p>We envisioned a single, reliable, and beautiful platform where all this information could live, breathe, and be easily accessible to everyone. Our platform is more than just a directory; it's a dynamic ecosystem designed to empower every member of the Indian community. Whether you're looking to attend a local Diwali celebration, find a new job, support an Indian-owned business, or join a cultural group, JivanIndia.co is your starting point.</p>
+            <div className="text-lg text-foreground/80 leading-relaxed space-y-4 text-left md:text-justify whitespace-pre-line">
+              {story}
             </div>
         </div>
       </section>
@@ -106,7 +96,7 @@ export default function AboutUsPage() {
                         <CardContent className="flex flex-col items-center">
                            <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
                                 <AvatarImage src={member.avatarUrl} alt={member.name} data-ai-hint="portrait person" />
-                                <AvatarFallback>{member.initials}</AvatarFallback>
+                                <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                             </Avatar>
                             <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>
                             <p className="font-semibold text-primary">{member.role}</p>
