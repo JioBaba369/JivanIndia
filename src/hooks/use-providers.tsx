@@ -2,29 +2,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { initialProviders as data, type Provider as ProviderType } from '@/data/providers';
 
-export interface Provider {
-  id: string;
-  name: string;
-  category: 'Legal' | 'Health' | 'Finance' | 'Real Estate' | 'Education' | 'Other';
-  services: string[];
-  description: string;
-  fullDescription: string;
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  isVerified: boolean;
-  contact: {
-    phone: string;
-    email: string;
-    website: string;
-    address: string;
-  };
-  region: string;
-  tags: string[];
-  associatedCommunityId?: string;
-  associatedCommunityName?: string;
-}
+export type Provider = ProviderType;
+export const initialProviders = data;
 
 interface ProvidersContextType {
   providers: Provider[];
@@ -33,16 +14,8 @@ interface ProvidersContextType {
 
 const ProvidersContext = createContext<ProvidersContextType | undefined>(undefined);
 
-const initialProviders: Provider[] = [];
-
 export function ProvidersProvider({ children }: { children: ReactNode }) {
-  const [providers, setProviders] = useState<Provider[]>(initialProviders);
-
-  useEffect(() => {
-    // This is a placeholder for fetching data from a real backend.
-    // In a real app, you would make an API call here.
-    setProviders(initialProviders);
-  }, []);
+  const [providers] = useState<Provider[]>(initialProviders);
 
   const getProviderById = (id: string) => {
     return providers.find(provider => provider.id === id);

@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,16 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Handshake, Search, Building, LayoutGrid, List } from "lucide-react";
+import { Handshake, Search, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useState, useMemo } from 'react';
-import { useSponsors } from "@/hooks/use-sponsors";
 import { cn } from "@/lib/utils";
+import { type Sponsor, initialSponsors } from "@/data/sponsors";
 
 export default function SponsorsPage() {
-    const { sponsors } = useSponsors();
+    const [sponsors] = useState<Sponsor[]>(initialSponsors);
     const [searchQuery, setSearchQuery] = useState('');
     const [industry, setIndustry] = useState('all');
     const [view, setView] = useState<'grid' | 'list'>('grid');

@@ -4,24 +4,31 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Briefcase } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useParams, useRouter } from "next/navigation";
-import { useProviders } from "@/hooks/use-providers";
 import { useEvents } from "@/hooks/use-events";
 import { useCommunities } from "@/hooks/use-communities";
+import { useState, useEffect } from "react";
+import { initialProviders, type Provider } from "@/data/providers";
 
 export default function ProviderDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { getProviderById } = useProviders();
   const id = typeof params.id === 'string' ? params.id : '';
-  const provider = getProviderById(id);
+  const [provider, setProvider] = useState<Provider | null | undefined>(undefined);
+  
+  const [providers] = useState<Provider[]>(initialProviders);
   const { events } = useEvents();
   const { getCommunityById } = useCommunities();
+
+  useEffect(() => {
+    const foundProvider = providers.find(p => p.id === id);
+    setProvider(foundProvider);
+  }, [id, providers]);
 
   const associatedCommunity = provider?.associatedCommunityId ? getCommunityById(provider.associatedCommunityId) : null;
   

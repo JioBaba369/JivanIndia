@@ -1,62 +1,81 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default: Deny all reads and writes to prevent unauthorized access to new collections.
-    match /{document=**} {
-      allow read, write: if false;
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Users can read their own data and update it. Public cannot read user profiles.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isCommunityFounder(communityId) {
+        return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    }
+    
+    function isAdmin() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // USERS: Can only read/write their own user document.
     match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-      // Allow create for any new user signing up
-      allow create: if request.auth != null;
+      allow read, update: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn();
+    }
+    
+    // ABOUT: Anyone can read, only admins can write.
+    match /about/{docId} {
+        allow read: if true;
+        allow write: if isSignedIn() && isAdmin();
     }
 
-    // Communities can be read by anyone.
-    // Creation is allowed for any authenticated user.
-    // Updates are restricted to the original founder.
+    // COMMUNITIES: Publicly readable, but only founders or admins can modify.
+    // Creating requires being signed in.
     match /communities/{communityId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid == resource.data.founderUid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isCommunityFounder(communityId) || isAdmin());
+      // Deleting communities is restricted to admins for safety.
+      allow delete: if isSignedIn() && isAdmin();
     }
     
-    // Events can be read by anyone.
-    // Creation requires an authenticated user.
-    // Updates are restricted to the user who submitted the event.
+    // EVENTS: Publicly readable. Creation requires being a founder of the organizing community.
+    // Updates are restricted to the event submitter, community founder, or an admin.
     match /events/{eventId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid == resource.data.submittedByUid;
-    }
-
-    // Careers, Deals, Movies can be read by anyone.
-    // Writes are disallowed for now to maintain data integrity until
-    // a proper admin/submission process is defined.
-    match /careers/{jobId} {
-      allow read: if true;
-      allow write: if false; // Or implement owner-based write rules
-    }
-    
-    match /deals/{dealId} {
-      allow read: if true;
-      allow write: if false; // Or implement owner-based write rules
-    }
-
-    match /movies/{movieId} {
-      allow read: if true;
-      allow write: if false; // Or implement owner-based write rules
-    }
-
-    match /providers/{providerId} {
         allow read: if true;
-        allow write: if false;
+        allow create: if isSignedIn() && isCommunityFounder(resource.data.organizerId);
+        allow update: if isSignedIn() && (isOwner(resource.data.submittedByUid) || isCommunityFounder(resource.data.organizerId) || isAdmin());
+        // Deleting events is restricted to admins.
+        allow delete: if isSignedIn() && isAdmin();
+    }
+
+    // The following are placeholders for future features. They are publicly readable.
+    // Write access is disabled for now.
+    match /providers/{providerId} {
+      allow read: if true;
+      allow write: if false; 
     }
 
     match /sponsors/{sponsorId} {
+      allow read: if true;
+      allow write: if false; 
+    }
+    
+    match /deals/{dealId} {
+        allow read: if true;
+        allow write: if false;
+    }
+    
+    match /careers/{jobId} {
+        allow read: if true;
+        allow write: if false;
+    }
+    
+    match /movies/{movieId} {
         allow read: if true;
         allow write: if false;
     }

@@ -8,8 +8,6 @@ import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/use-auth";
 import { EventsProvider } from "@/hooks/use-events";
-import { ProvidersProvider } from "@/hooks/use-providers";
-import { SponsorsProvider } from "@/hooks/use-sponsors";
 import { CommunitiesProvider } from "@/hooks/use-communities";
 import { AboutProvider } from "@/hooks/use-about";
 import { initializeFirebase } from "@/lib/firebase";
@@ -74,19 +72,15 @@ export default function RootLayout({
         <AuthProvider>
           <AboutProvider>
             <CommunitiesProvider>
-              <SponsorsProvider>
-                <ProvidersProvider>
-                  <EventsProvider>
-                    <div className="relative flex min-h-screen flex-col">
-                      <Header />
-                      <main className="flex-1">{children}</main>
-                      <Footer />
-                    </div>
-                    <Toaster />
-                    <CookieConsentBanner />
-                  </EventsProvider>
-                </ProvidersProvider>
-              </SponsorsProvider>
+              <EventsProvider>
+                <div className="relative flex min-h-screen flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+                <Toaster />
+                <CookieConsentBanner />
+              </EventsProvider>
             </CommunitiesProvider>
           </AboutProvider>
         </AuthProvider>

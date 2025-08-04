@@ -2,27 +2,11 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { initialSponsors as data, type Sponsor as SponsorType } from '@/data/sponsors';
 
-export interface Sponsor {
-  id: string;
-  name: string;
-  industry: string;
-  tier: 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
-  logoUrl: string;
-  website: string;
-  description: string;
-  fullDescription: string;
-  contactEmail: string;
-  contactPhone: string;
-  address: string;
-  socialMedia: {
-    twitter?: string;
-    linkedin?: string;
-    facebook?: string;
-  };
-  region: string;
-  eventsSponsored: Array<{ eventId: string, eventName: string }>;
-}
+export type Sponsor = SponsorType;
+export const initialSponsors = data;
+
 
 interface SponsorsContextType {
   sponsors: Sponsor[];
@@ -31,15 +15,10 @@ interface SponsorsContextType {
 
 const SponsorsContext = createContext<SponsorsContextType | undefined>(undefined);
 
-const initialSponsors: Sponsor[] = [];
 
 export function SponsorsProvider({ children }: { children: ReactNode }) {
-  const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors);
+  const [sponsors] = useState<Sponsor[]>(initialSponsors);
 
-  useEffect(() => {
-    // In a real application, you would fetch this data from an API.
-    setSponsors(initialSponsors);
-  }, []);
 
   const getSponsorById = (id: string) => {
     return sponsors.find(sponsor => sponsor.id === id);

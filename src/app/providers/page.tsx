@@ -15,14 +15,14 @@ import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List } from "lucide-react
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, type MouseEvent } from "react";
-import { useProviders } from "@/hooks/use-providers";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { type Provider, initialProviders } from "@/data/providers";
 
 export default function ProvidersPage() {
-    const { providers } = useProviders();
+    const [providers] = useState<Provider[]>(initialProviders);
     const { user, saveProvider, isProviderSaved } = useAuth();
     const { toast } = useToast();
     const router = useRouter();

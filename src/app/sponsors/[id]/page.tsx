@@ -4,22 +4,28 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Handshake, Building, X, Linkedin, Facebook } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Handshake, X, Linkedin, Facebook } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
-import { useParams, useRouter } from "next/navigation";
-import { useSponsors } from "@/hooks/use-sponsors";
+import { useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
+import { useState, useEffect } from "react";
+import { initialSponsors, type Sponsor } from "@/data/sponsors";
+
 
 export default function SponsorDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const { getSponsorById } = useSponsors();
   const id = typeof params.id === 'string' ? params.id : '';
-  const sponsor = getSponsorById(id);
+  const [sponsor, setSponsor] = useState<Sponsor | null | undefined>(undefined);
+  const [sponsors] = useState<Sponsor[]>(initialSponsors);
+
   const { events } = useEvents();
+
+  useEffect(() => {
+    const foundSponsor = sponsors.find(s => s.id === id);
+    setSponsor(foundSponsor);
+  }, [id, sponsors]);
 
   const sponsoredEvents = events.filter(event => sponsor?.eventsSponsored.some(e => e.eventId === event.id) && event.status === 'Approved');
 
