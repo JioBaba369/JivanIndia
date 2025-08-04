@@ -8,13 +8,15 @@ export default function Footer() {
   return (
     <footer className="border-t bg-background">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
-          <div className="md:col-span-2">
-            <Logo as={Link} href="/" />
-            <p className="mt-4 max-w-sm text-muted-foreground">
+        <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-3 md:text-left">
+          <div className="md:col-span-1">
+            <div className="flex justify-center md:justify-start">
+              <Logo as={Link} href="/" />
+            </div>
+            <p className="mt-4 max-w-sm text-muted-foreground mx-auto md:mx-0">
               The heart of the Indian community, all in one place. Discover events, connect with organizations, and find local deals.
             </p>
-            <div className="mt-4 flex space-x-2">
+            <div className="mt-4 flex space-x-2 justify-center md:justify-start">
               <Button variant="ghost" size="icon" asChild>
                 <Link href="https://twitter.com/jivanindia" target="_blank" aria-label="JivanIndia on Twitter"><Twitter /></Link>
               </Button>
@@ -29,20 +31,25 @@ export default function Footer() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-8 md:col-span-2">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 md:col-span-2">
             <div>
-              <h4 className="font-headline font-semibold">Explore</h4>
+              <h4 className="font-headline font-semibold">For You</h4>
               <ul className="mt-4 space-y-2">
                 <li><Link href="/events" className="text-muted-foreground hover:text-primary">What's On</Link></li>
-                <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
-                <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
                 <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
-                <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
                 <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
               </ul>
             </div>
             <div>
+              <h4 className="font-headline font-semibold">For Business</h4>
+              <ul className="mt-4 space-y-2">
+                <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
+                <li><Link href="/providers" className="text-muted-foreground hover:text-primary">Providers</Link></li>
+                <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
+              </ul>
+            </div>
+             <div>
               <h4 className="font-headline font-semibold">Resources</h4>
               <ul className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
