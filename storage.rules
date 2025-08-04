@@ -1,51 +1,53 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // Helper functions
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
     
-    // Default deny all reads and writes
+    function isCommunityFounder(communityId) {
+       return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    }
+
+    // Allow public read access to all files.
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read: if true;
     }
 
-    // Allow public read access to all files
-    // This is generally safe for images like logos and banners
-    match /{allPaths=**} {
-        allow read: if true;
+    // Users can only write to their own profile picture folder.
+    // Limit file size to 5MB.
+    match /profile-pictures/{userId}/{fileName} {
+      allow write: if isOwner(userId) && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
 
-    // --- Secure Write Rules by Folder ---
-
-    // Profile Pictures: Only the authenticated user can upload/update their own profile picture.
-    // The folder name must match what's used in the ImageUpload component.
-    match /profile-pictures/{fileName} {
-      // We can't directly check the userId in the path here without more complex logic,
-      // but we can ensure the user is authenticated and the file is a reasonable size.
-      // For higher security, you would pass the userId in the file metadata from the client
-      // and verify it here.
-      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    // Users can only upload community logos/banners if they are the community founder.
+    // Limit file size to 5MB.
+    match /community-logos/{communityId}/{fileName} {
+      allow write: if isCommunityFounder(communityId) && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    match /community-banners/{communityId}/{fileName} {
+      allow write: if isCommunityFounder(communityId) && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
 
-    // Community Logos: A user must be authenticated.
-    // In a real app, you'd add a check to ensure they are the founder of a community.
-    match /community-logos/{fileName} {
-      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    // Users can only upload event banners if they are the founder of the organizing community.
+    // Limit file size to 5MB.
+    // Note: This requires the event document to exist first or a more complex setup.
+    // For simplicity, we can check affiliation. A better approach might use custom claims.
+    match /event-banners/{organizerId}/{fileName} {
+       allow write: if isCommunityFounder(organizerId) && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
     
-    // Community Banners: A user must be authenticated.
-    match /community-banners/{fileName} {
-        allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
-    }
-    
-    // Event Banners: A user must be authenticated.
-    match /event-banners/{fileName} {
-        allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
-    }
-
-    // Deal Images: A user must be authenticated.
-    match /deal-images/{fileName} {
-      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    // Deals and other business-related images follow a similar pattern.
+    match /deal-images/{organizerId}/{fileName} {
+       allow write: if isCommunityFounder(organizerId) && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
   }
 }
