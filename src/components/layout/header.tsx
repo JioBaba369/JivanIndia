@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Menu, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
@@ -108,8 +108,11 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
-              <div className="p-4">
-                <Logo as={Link} href="/" onClick={() => setIsMobileMenuOpen(false)} />
+               <SheetHeader>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <Logo as={Link} href="/" onClick={() => setIsMobileMenuOpen(false)} />
+               </SheetHeader>
+              <div className="p-4 pt-0">
                 <nav className="mt-8 flex flex-col space-y-6">
                   {navLinks.map((link) => (
                     <NavLink key={link.href} {...link} onClick={() => setIsMobileMenuOpen(false)}/>
