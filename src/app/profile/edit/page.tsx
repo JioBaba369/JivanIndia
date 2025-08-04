@@ -53,9 +53,9 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (user) {
-      setName(user.name);
+      setName(user.name || '');
       setUsername(user.username || '');
-      setEmail(user.email);
+      setEmail(user.email || '');
       setBio(user.bio || '');
       setPhone(user.phone || '');
       setWebsite(user.website || '');
