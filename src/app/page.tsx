@@ -20,9 +20,10 @@ import { deals } from "@/data/deals";
 import { format } from "date-fns";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
-  const { events } = useEvents();
+  const { events, isLoading: isLoadingEvents } = useEvents();
   const latestEvents = events.filter(e => e.status === 'Approved').slice(0, 3);
   const latestDeals = deals.slice(0, 3);
   const router = useRouter();
@@ -37,6 +38,37 @@ export default function HomePage() {
       router.push(`/${searchCategory}?q=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  const EventSkeletons = () => (
+    Array.from({ length: 3 }).map((_, i) => (
+      <Card key={i} className="flex flex-col overflow-hidden">
+        <Skeleton className="h-56 w-full" />
+        <CardContent className="flex flex-grow flex-col p-6">
+          <Skeleton className="h-5 w-1/4 mb-4" />
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-6 w-1/2" />
+          <div className="mt-4 space-y-3">
+             <Skeleton className="h-4 w-full" />
+             <Skeleton className="h-4 w-5/6" />
+          </div>
+        </CardContent>
+      </Card>
+    ))
+  );
+
+  const DealSkeletons = () => (
+    Array.from({ length: 3 }).map((_, i) => (
+       <Card key={i} className="flex flex-col overflow-hidden">
+        <Skeleton className="h-56 w-full" />
+        <CardContent className="flex flex-grow flex-col p-6">
+          <Skeleton className="h-5 w-1/4 mb-4" />
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2 flex-grow mt-2" />
+          <Skeleton className="h-10 w-full mt-6" />
+        </CardContent>
+      </Card>
+    ))
+  );
 
 
   return (
@@ -90,43 +122,45 @@ export default function HomePage() {
                     <Link href="/events">View All <ArrowRight className="ml-2" /></Link>
                 </Button>
             </div>
-            {latestEvents.length > 0 ? (
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                  {latestEvents.map((event) => (
-                    <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl">
-                      <Link href={`/events/${event.id}`} className="flex h-full flex-col">
-                        <div className="relative h-56 w-full">
-                          <Image
-                            src={event.imageUrl}
-                            alt={event.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        </div>
-                        <CardContent className="flex flex-grow flex-col p-6">
-                          <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
-                          <h3 className="font-headline flex-grow text-xl font-semibold mt-4 group-hover:text-primary">{event.title}</h3>
-                          <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              <span>{event.location.venueName}</span>
-                            </div>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {isLoadingEvents ? <EventSkeletons /> : (
+                latestEvents.length > 0 ? (
+                    latestEvents.map((event) => (
+                      <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl">
+                        <Link href={`/events/${event.id}`} className="flex h-full flex-col">
+                          <div className="relative h-56 w-full">
+                            <Image
+                              src={event.imageUrl}
+                              alt={event.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
                           </div>
-                        </CardContent>
-                      </Link>
-                    </Card>
-                  ))}
-                </div>
-            ) : (
-                <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
-                  <h3 className="font-headline text-xl font-semibold">No Events Yet</h3>
-                  <p className="text-muted-foreground mt-2">No upcoming events right now. Check back soon or be the first to post one!</p>
-                </div>
-            )}
+                          <CardContent className="flex flex-grow flex-col p-6">
+                            <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
+                            <h3 className="font-headline flex-grow text-xl font-semibold mt-4 group-hover:text-primary">{event.title}</h3>
+                            <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                <span>{format(new Date(event.startDateTime), 'eee, MMM d, p')}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4" />
+                                <span>{event.location.venueName}</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Link>
+                      </Card>
+                    ))
+                ) : (
+                    <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center col-span-full">
+                      <h3 className="font-headline text-xl font-semibold">No Events Yet</h3>
+                      <p className="text-muted-foreground mt-2">No upcoming events right now. Check back soon or be the first to post one!</p>
+                    </div>
+                )
+              )}
+            </div>
           </div>
           
           <div>
@@ -136,9 +170,9 @@ export default function HomePage() {
                     <Link href="/deals">View All <ArrowRight className="ml-2" /></Link>
                 </Button>
             </div>
-             {latestDeals.length > 0 ? (
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                  {latestDeals.map((deal) => (
+             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {latestDeals.length > 0 ? (
+                  latestDeals.map((deal) => (
                     <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl">
                       <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                         <div className="relative h-56 w-full">
@@ -160,14 +194,14 @@ export default function HomePage() {
                         </CardContent>
                       </Link>
                     </Card>
-                  ))}
-                </div>
+                  ))
               ) : (
-                <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center">
+                <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center col-span-full">
                   <h3 className="font-headline text-xl font-semibold">No Deals Available</h3>
                   <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or post a deal for your business!</p>
                 </div>
               )}
+            </div>
           </div>
         </div>
       </section>
