@@ -310,7 +310,7 @@ export default function NewCommunityPage() {
                             onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
                           >
                             {field.value ? (
-                              <Image src={field.value} alt="Logo preview" fill className="object-cover rounded-lg p-2"/>
+                              <Image src={field.value} alt="Logo preview" fill className="object-cover rounded-lg"/>
                             ) : (
                               <div className="text-center">
                                 <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />
