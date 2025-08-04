@@ -44,6 +44,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import ImageUpload from '@/components/feature/image-upload';
 
 const generateSlug = (value: string) => {
   return value
@@ -59,7 +60,6 @@ const NAME_MAX_LENGTH = 100;
 const SLUG_MAX_LENGTH = 50;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
-const IMAGE_MAX_SIZE_MB = 4;
 
 const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
@@ -97,16 +97,6 @@ export default function NewCommunityPage() {
   
   const [isPending, startTransition] = useTransition();
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
-  
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [isCropperOpen, setIsCropperOpen] = useState(false);
-  const [cropperConfig, setCropperConfig] = useState({ 
-    aspectRatio: 16/9, 
-    onSave: (img: string) => {},
-  });
-  
-  const bannerInputRef = useRef<HTMLInputElement>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const memoizedIsSlugUnique = useCallback((slug: string) => {
     if (slug.length < 3) return true; // Don't validate until it's a valid length
@@ -148,34 +138,6 @@ export default function NewCommunityPage() {
     }
   }, [nameValue, slugManuallyEdited, form]);
 
-
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: 'bannerUrl' | 'logoUrl',
-    aspectRatio: number,
-  ) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (file.size > IMAGE_MAX_SIZE_MB * 1024 * 1024) { 
-          toast({ title: 'Image Too Large', description: `Please select an image smaller than ${IMAGE_MAX_SIZE_MB}MB.`, variant: 'destructive'});
-          return;
-      }
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        setImageSrc(reader.result?.toString() || '');
-        setCropperConfig({ 
-            onSave: (url) => {
-                form.setValue(field, url, { shouldValidate: true, shouldDirty: true });
-                toast({ title: 'Image Uploaded!', icon: <CheckCircle className="h-5 w-5 text-green-500" /> });
-            }, 
-            aspectRatio,
-        });
-        setIsCropperOpen(true);
-        if (e.target) e.target.value = '';
-      });
-      reader.readAsDataURL(file);
-    }
-  };
 
   const onSubmit = async (values: CommunityFormValues) => {
     if (!user) {
@@ -267,18 +229,6 @@ export default function NewCommunityPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      {imageSrc && (
-        <ImageCropper
-          isOpen={isCropperOpen}
-          onClose={() => setIsCropperOpen(false)}
-          imageSrc={imageSrc}
-          onSave={(img) => {
-            cropperConfig.onSave(img);
-            setIsCropperOpen(false);
-          }}
-          aspectRatio={cropperConfig.aspectRatio}
-        />
-      )}
       <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Establish Your Community's Presence</CardTitle>
@@ -292,40 +242,21 @@ export default function NewCommunityPage() {
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="logoUrl"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem>
                         <FormLabel>Community Logo (1:1 Ratio) *</FormLabel>
                         <FormControl>
-                          <Card 
-                            role="button"
-                            aria-label="Upload logo image"
-                            tabIndex={0}
-                            className="relative flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                            onClick={() => logoInputRef.current?.click()}
-                            onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
-                          >
-                            {field.value ? (
-                              <Image src={field.value} alt="Logo preview" fill className="object-cover rounded-lg"/>
-                            ) : (
-                              <div className="text-center">
-                                <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />
-                                <span className="text-muted-foreground text-sm">Upload Community Logo</span>
-                              </div>
-                            )}
-                          </Card>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            aspectRatio={1}
+                            toast={toast}
+                          />
                         </FormControl>
                         <FormMessage />
-                         <Input 
-                          id="community-logo-input" 
-                          type="file" 
-                          className="hidden"
-                          ref={logoInputRef}
-                          onChange={(e) => handleFileChange(e, 'logoUrl', 1)}
-                          accept="image/png, image/jpeg, image/webp"
-                        />
                       </FormItem>
                     )}
                   />
@@ -333,36 +264,17 @@ export default function NewCommunityPage() {
                     control={form.control}
                     name="bannerUrl"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem>
                         <FormLabel>Community Banner (16:9 Ratio) *</FormLabel>
                         <FormControl>
-                          <Card 
-                            role="button"
-                            aria-label="Upload banner image"
-                            tabIndex={0}
-                            className="relative flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed bg-muted hover:bg-muted/80"
-                            onClick={() => bannerInputRef.current?.click()}
-                            onKeyDown={(e) => e.key === 'Enter' && bannerInputRef.current?.click()}
-                          >
-                            {field.value ? (
-                              <Image src={field.value} alt="Banner preview" fill className="object-cover rounded-lg"/>
-                            ) : (
-                              <div className="text-center">
-                                <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />
-                                <span className="text-muted-foreground text-sm">Upload Banner Image</span>
-                              </div>
-                            )}
-                          </Card>
+                           <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            aspectRatio={16/9}
+                            toast={toast}
+                          />
                         </FormControl>
                         <FormMessage />
-                         <Input 
-                          id="community-banner-input" 
-                          type="file" 
-                          className="hidden"
-                          ref={bannerInputRef}
-                          onChange={(e) => handleFileChange(e, 'bannerUrl', 16/9)}
-                          accept="image/png, image/jpeg, image/webp"
-                        />
                       </FormItem>
                     )}
                   />
@@ -564,3 +476,5 @@ export default function NewCommunityPage() {
     </div>
   );
 }
+
+    

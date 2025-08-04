@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, X, Linkedin, Facebook, Edit } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
@@ -37,7 +37,7 @@ const NAME_MAX_LENGTH = 100;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
 
-const formSchema = z.object({
+const formSchema = (isSlugUnique: (slug: string, currentId: string) => boolean) => z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
@@ -56,7 +56,7 @@ const formSchema = z.object({
   socialLinkedin: z.string().url().optional().or(z.literal('')),
 });
 
-type CommunityFormValues = z.infer<typeof formSchema>;
+type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
 
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
 
@@ -65,15 +65,20 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, isSlugUnique } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
   const [isPending, startTransition] = useTransition();
   const [community, setCommunity] = useState<Community | null>(null);
+
+  const memoizedIsSlugUnique = useCallback((slug: string) => {
+    if (!community || slug.length < 3) return true;
+    return isSlugUnique(slug, community.id);
+  }, [isSlugUnique, community]);
   
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
     mode: 'onChange',
     defaultValues: {
       name: '',
@@ -387,3 +392,5 @@ export default function EditCommunityPage() {
     </div>
   );
 }
+
+    
