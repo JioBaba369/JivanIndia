@@ -476,7 +476,7 @@ export default function NewCommunityPage() {
                               </FormControl>
                               <FormDescription className="flex justify-between">
                                 <span>Max {DESC_MAX_LENGTH} characters.</span>
-                                <span>{field.value.length} / {DESC_MAX_LENGTH}</span>
+                                <span>{(field.value || '').length} / {DESC_MAX_LENGTH}</span>
                               </FormDescription>
                               <FormMessage />
                           </FormItem>
@@ -493,7 +493,7 @@ export default function NewCommunityPage() {
                               </FormControl>
                               <FormDescription className="flex justify-between">
                                 <span>This will appear on your main community profile page.</span>
-                                <span>{field.value.length} / {FULL_DESC_MAX_LENGTH}</span>
+                                <span>{(field.value || '').length} / {FULL_DESC_MAX_LENGTH}</span>
                               </FormDescription>
                               <FormMessage />
                           </FormItem>

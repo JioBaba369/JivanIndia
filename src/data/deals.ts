@@ -36,7 +36,7 @@ export const deals = [
     category: 'Services',
     imageUrl: 'https://images.unsplash.com/photo-1590099033615-be1917f6ce52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsYXclMjBvZmZpY2V8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080',
     business: 'Sharma Law Group',
-    businessId: '1', // This should be a provider ID
+    businessId: '1',
     businessLocation: '456 Legal Plaza, New York, NY',
     businessWebsite: 'www.sharmalaw.com',
     expires: 'December 31, 2024',

@@ -40,7 +40,7 @@ const formSchema = z.object({
   description: z.string().min(20, "Description must be at least 20 characters."),
   terms: z.string().min(10, "Terms must be at least 10 characters."),
   category: z.enum(['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other']),
-  expires: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format." }),
+  expires: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid expiration date is required." }),
   imageUrl: z.string().url({ message: "A deal image is required." }),
 });
 

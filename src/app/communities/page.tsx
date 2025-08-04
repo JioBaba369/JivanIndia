@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
-    const { user, joinCommunity, leaveCommunity, isCommunityJoined } = useAuth();
+    const { user, joinCommunity, leaveCommunity, joinedCommunities } = useAuth();
     const router = useRouter();
     const { communities } = useCommunities();
 
@@ -76,7 +76,7 @@ export default function CommunitiesPage() {
             return;
         }
         
-        const currentlyJoined = isCommunityJoined(orgId);
+        const currentlyJoined = joinedCommunities.includes(orgId);
         if (currentlyJoined) {
             leaveCommunity(orgId);
             toast({
@@ -216,8 +216,9 @@ export default function CommunitiesPage() {
                 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
                 : 'flex flex-col'
            )}>
-            {filteredCommunities.map((org) => (
-              view === 'grid' ? (
+            {filteredCommunities.map((org) => {
+                const isJoined = joinedCommunities.includes(org.id);
+                return view === 'grid' ? (
                 <Card key={org.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
                     <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
                         <div className="relative h-48 w-full">
@@ -252,7 +253,7 @@ export default function CommunitiesPage() {
                             </Button>
                             <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                                 <Bookmark className="mr-2 h-4 w-4" />
-                                {isCommunityJoined(org.id) ? "Joined" : "Join"}
+                                {isJoined ? "Joined" : "Join"}
                             </Button>
                         </div>
                         </CardContent>
@@ -262,7 +263,7 @@ export default function CommunitiesPage() {
                 <Card key={org.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
                    <Link href={`/c/${org.slug}`}>
                     <div className="flex flex-col sm:flex-row">
-                        <div className="relative h-48 w-full sm:h-auto sm:w-64 flex-shrink-0">
+                        <div className="relative h-full w-full sm:h-auto sm:w-48 sm:aspect-square flex-shrink-0">
                            <Image
                                 src={org.imageUrl}
                                 alt={org.name}
@@ -292,14 +293,14 @@ export default function CommunitiesPage() {
                             <Button className="w-full sm:w-auto">View</Button>
                              <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                                 <Bookmark className="mr-2 h-4 w-4" />
-                                {isCommunityJoined(org.id) ? "Joined" : "Join"}
+                                {isJoined ? "Joined" : "Join"}
                             </Button>
                          </div>
                     </div>
                    </Link>
                 </Card>
               )
-            ))}
+            })}
             </div>
         ) : (
             <div className="rounded-lg border-2 border-dashed py-12 text-center md:col-span-2 lg:col-span-3">

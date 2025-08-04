@@ -16,16 +16,16 @@ export default function Footer() {
             </p>
             <div className="mt-4 flex space-x-2">
               <Button variant="ghost" size="icon" asChild>
-                <Link href="https://twitter.com/jivanindia" target="_blank"><Twitter /></Link>
+                <Link href="https://twitter.com/jivanindia" target="_blank" aria-label="JivanIndia on Twitter"><Twitter /></Link>
               </Button>
                <Button variant="ghost" size="icon" asChild>
-                <Link href="https://facebook.com/jivanindia" target="_blank"><Facebook /></Link>
+                <Link href="https://facebook.com/jivanindia" target="_blank" aria-label="JivanIndia on Facebook"><Facebook /></Link>
               </Button>
                <Button variant="ghost" size="icon" asChild>
-                <Link href="https://instagram.com/jivanindia" target="_blank"><Instagram /></Link>
+                <Link href="https://instagram.com/jivanindia" target="_blank" aria-label="JivanIndia on Instagram"><Instagram /></Link>
               </Button>
                <Button variant="ghost" size="icon" asChild>
-                <Link href="https://github.com/firebase/studio-jivan-india" target="_blank"><Github /></Link>
+                <Link href="https://github.com/firebase/studio-jivan-india" target="_blank" aria-label="JivanIndia on GitHub"><Github /></Link>
               </Button>
             </div>
           </div>

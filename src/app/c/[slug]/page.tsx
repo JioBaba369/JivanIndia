@@ -191,30 +191,30 @@ export default function CommunityDetailPage() {
                  <Card>
                   <CardContent className="p-4 space-y-4">
                     <h4 className="font-semibold font-headline mb-2">Contact Information</h4>
-                     <div className="flex items-start gap-4">
+                     {community.address && <div className="flex items-start gap-4">
                       <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                          <p className="text-muted-foreground text-sm">{community.address}</p>
                       </div>
-                    </div>
-                     <div className="flex items-start gap-4">
+                    </div>}
+                     {community.phone && <div className="flex items-start gap-4">
                       <Phone className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                          <p className="text-muted-foreground text-sm">{community.phone}</p>
                       </div>
-                    </div>
-                     <div className="flex items-start gap-4">
+                    </div>}
+                     {community.contactEmail && <div className="flex items-start gap-4">
                       <Mail className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                          <p className="text-muted-foreground text-sm hover:text-primary"><a href={`mailto:${community.contactEmail}`}>{community.contactEmail}</a></p>
                       </div>
-                    </div>
-                     <div className="flex items-start gap-4">
+                    </div>}
+                     {community.website && <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                          <p className="text-muted-foreground text-sm hover:text-primary"><a href={`${community.website}`} target="_blank" rel="noopener noreferrer">{community.website}</a></p>
                       </div>
-                    </div>
+                    </div>}
                   </CardContent>
                 </Card>
               </div>
