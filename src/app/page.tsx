@@ -43,36 +43,31 @@ export default function HomePage() {
             Discover What's On
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-shadow text-foreground/80">
-            The heart of the Indian community, all in one place. Explore
-            events, connect with organizations, and find what you need.
+            The heart of the Indian community, all in one place. Explore events, connect with organizations, and find what you need.
           </p>
-          <div className="mt-10">
-            <Card className="mx-auto max-w-4xl border-foreground/20 bg-background/80 text-foreground backdrop-blur-md">
-                <CardContent className="p-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto]">
-                    <div className="relative">
-                      <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                          placeholder="Search for events, communities, deals..."
-                          className="h-12 rounded-lg border-input pl-12 text-base focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                    <Select>
-                      <SelectTrigger className="h-12 rounded-lg border-input text-base focus:ring-2 focus:ring-primary">
-                          <SelectValue placeholder="All Categories" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="events">Events</SelectItem>
-                          <SelectItem value="communities">Communities</SelectItem>
-                          <SelectItem value="deals">Deals</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button size="lg" className="h-12 w-full text-base">
-                        Search
-                    </Button>
-                  </div>
-                </CardContent>
-            </Card>
+          <div className="mt-10 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto] p-4 rounded-lg bg-background/80 backdrop-blur-sm border border-border">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    placeholder="Search for events, communities, deals..."
+                    className="h-12 rounded-lg border-input pl-12 text-base focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <Select>
+                <SelectTrigger className="h-12 rounded-lg border-input text-base focus:ring-2 focus:ring-primary">
+                    <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="events">Events</SelectItem>
+                    <SelectItem value="communities">Communities</SelectItem>
+                    <SelectItem value="deals">Deals</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button size="lg" className="h-12 w-full text-base">
+                  Search
+              </Button>
+            </div>
           </div>
         </div>
       </section>
