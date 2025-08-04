@@ -36,7 +36,7 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
         href={href}
         onClick={onClick}
         className={cn(
-          "transition-colors hover:text-primary",
+          "transition-colors hover:text-primary text-sm",
           isActive ? "font-semibold text-primary" : "text-muted-foreground"
         )}
       >
@@ -88,14 +88,16 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Logo as={Link} href="/" />
-        <nav className="hidden items-center space-x-6 md:flex">
-          {navLinks.map((link) => (
-            <NavLink key={link.href} {...link} />
-          ))}
-        </nav>
+        <div className="flex items-center gap-6">
+            <Logo as={Link} href="/" />
+            <nav className="hidden items-center space-x-6 md:flex">
+              {navLinks.map((link) => (
+                <NavLink key={link.href} {...link} />
+              ))}
+            </nav>
+        </div>
         <div className="hidden items-center space-x-2 md:flex">
           <UserActions />
         </div>
