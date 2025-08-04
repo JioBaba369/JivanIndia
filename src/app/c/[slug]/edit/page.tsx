@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, X, Linkedin, Facebook, Edit } from 'lucide-react';
+import { Loader2, Linkedin, Facebook } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,7 +37,7 @@ const NAME_MAX_LENGTH = 100;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
 
-const formSchema = (isSlugUnique: (slug: string, currentId: string) => boolean) => z.object({
+const formSchema = z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
@@ -51,34 +51,39 @@ const formSchema = (isSlugUnique: (slug: string, currentId: string) => boolean) 
   contactEmail: z.string().email("Please enter a valid email address."),
   phone: z.string().min(10, "Please enter a valid phone number.").optional().or(z.literal('')),
   address: z.string().min(10, "Please enter a valid address.").optional().or(z.literal('')),
-  socialTwitter: z.string().url().optional().or(z.literal('')),
-  socialFacebook: z.string().url().optional().or(z.literal('')),
-  socialLinkedin: z.string().url().optional().or(z.literal('')),
+  socialTwitter: z.string().optional(),
+  socialFacebook: z.string().optional(),
+  socialLinkedin: z.string().optional(),
 });
 
-type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
+type CommunityFormValues = z.infer<typeof formSchema>;
 
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
+
+const stripBaseUrl = (baseUrl: string, fullUrl?: string) => {
+    if (!fullUrl) return '';
+    return fullUrl.startsWith(baseUrl) ? fullUrl.substring(baseUrl.length) : fullUrl;
+}
+
+const XIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+);
+
 
 export default function EditCommunityPage() {
   const router = useRouter();
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity, isSlugUnique } = useCommunities();
+  const { getCommunityBySlug, updateCommunity } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
   const [isPending, startTransition] = useTransition();
   const [community, setCommunity] = useState<Community | null>(null);
 
-  const memoizedIsSlugUnique = useCallback((slug: string) => {
-    if (!community || slug.length < 3) return true;
-    return isSlugUnique(slug, community.id);
-  }, [isSlugUnique, community]);
-  
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
+    resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',
@@ -118,9 +123,9 @@ export default function EditCommunityPage() {
               contactEmail: foundCommunity.contactEmail || '',
               phone: foundCommunity.phone || '',
               address: foundCommunity.address || '',
-              socialTwitter: foundCommunity.socialMedia?.twitter || '',
-              socialFacebook: foundCommunity.socialMedia?.facebook || '',
-              socialLinkedin: foundCommunity.socialMedia?.linkedin || '',
+              socialTwitter: stripBaseUrl('https://x.com/', foundCommunity.socialMedia?.twitter),
+              socialFacebook: stripBaseUrl('https://facebook.com/', foundCommunity.socialMedia?.facebook),
+              socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundCommunity.socialMedia?.linkedin),
           });
       }
   }, [slug, getCommunityBySlug, form]);
@@ -163,9 +168,9 @@ export default function EditCommunityPage() {
           website: values.website || '',
           founded: values.founded,
           socialMedia: {
-            twitter: values.socialTwitter,
-            linkedin: values.socialLinkedin,
-            facebook: values.socialFacebook,
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : undefined,
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
           },
         };
 
@@ -371,9 +376,9 @@ export default function EditCommunityPage() {
                  <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X className="h-4 w-4"/> X (Twitter)</div></FormLabel><FormControl><Input placeholder="https://x.com/" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><FormControl><Input placeholder="https://linkedin.com/company/" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><FormControl><Input placeholder="https://facebook.com/" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><XIcon/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                 </div>
               </div>
 
@@ -392,7 +397,3 @@ export default function EditCommunityPage() {
     </div>
   );
 }
-
-    
-
-    

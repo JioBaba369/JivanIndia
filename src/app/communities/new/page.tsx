@@ -15,11 +15,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Image from 'next/image';
-import { ImageUp, Loader2, CheckCircle, UploadCloud, X, Linkedin, Facebook } from 'lucide-react';
-import ImageCropper from '@/components/feature/image-cropper';
+import { Loader2, Linkedin, Facebook } from 'lucide-react';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,14 +78,19 @@ const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
   contactEmail: z.string().email("Please enter a valid email address."),
   phone: z.string().min(10, "Please enter a valid phone number.").optional().or(z.literal('')),
   address: z.string().min(10, "Please enter a valid address.").optional().or(z.literal('')),
-  socialTwitter: z.string().url().optional().or(z.literal('')),
-  socialFacebook: z.string().url().optional().or(z.literal('')),
-  socialLinkedin: z.string().url().optional().or(z.literal('')),
+  socialTwitter: z.string().optional(),
+  socialFacebook: z.string().optional(),
+  socialLinkedin: z.string().optional(),
 });
 
 type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
 
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
+
+const XIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+);
+
 
 export default function NewCommunityPage() {
   const router = useRouter();
@@ -162,9 +165,9 @@ export default function NewCommunityPage() {
           contactEmail: values.contactEmail,
           website: values.website || '',
           socialMedia: {
-            twitter: values.socialTwitter,
-            linkedin: values.socialLinkedin,
-            facebook: values.socialFacebook,
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : undefined,
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
           },
           founded: values.founded,
           founderUid: user.uid,
@@ -437,9 +440,9 @@ export default function NewCommunityPage() {
                  <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X className="h-4 w-4" /> X (Twitter)</div></FormLabel><FormControl><Input placeholder="https://x.com/yourhandle" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><FormControl><Input placeholder="https://linkedin.com/company/yourhandle" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><FormControl><Input placeholder="https://facebook.com/yourhandle" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><XIcon /> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                 </div>
               </div>
 
@@ -456,4 +459,22 @@ export default function NewCommunityPage() {
                       <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
                       <AlertDialogDescription>
                         Any unsaved changes on this form will be lost.
-                      </Aler
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => router.back()}>Cancel Anyway</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Button type="submit" disabled={isPending || !form.formState.isValid}>
+                  {isPending ? <><Loader2 className="mr-2 animate-spin" /> Submitting...</> : 'Submit for Review'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
