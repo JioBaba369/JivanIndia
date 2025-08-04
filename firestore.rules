@@ -3,89 +3,98 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Helper function to check for unknown fields in a request
-    function hasOnlyAllowedFields(allowedFields) {
-      return request.resource.data.keys().hasOnly(allowedFields);
+    // =================================================================
+    // Helper Functions
+    // =================================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
     }
-  
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    function isCommunityFounder(communityId) {
+       return isAuthenticated() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    }
+    
+    function isEventSubmitter(eventId) {
+       return isAuthenticated() && get(/databases/$(database)/documents/events/$(eventId)).data.submittedByUid == request.auth.uid;
+    }
+
     // =================================================================
     // Users Collection
     // =================================================================
     match /users/{userId} {
+      // Allow public read for profile pages
       allow read: if true;
-      allow create: if request.auth.uid == userId
-                    && hasOnlyAllowedFields(['uid', 'name', 'username', 'email', 'isAdmin', 'profileImageUrl', 'savedEvents', 'joinedCommunities', 'savedDeals', 'savedProviders', 'savedSponsors'])
-                    && request.resource.data.uid == userId
-                    && request.resource.data.name is string && request.resource.data.name.size() > 0
-                    && request.resource.data.email == request.auth.email
-                    && request.resource.data.isAdmin == false; // Ensure users can't make themselves admin on signup
-
-      allow update: if request.auth.uid == userId
-                    && request.resource.data.uid == userId // Cannot change uid
-                    && request.resource.data.email == resource.data.email // Cannot change email
-                    && request.resource.data.isAdmin == resource.data.isAdmin; // Cannot change admin status
+      
+      // Allow user to create their own account document on signup
+      allow create: if isOwner(userId);
+      
+      // Allow user to update their own data
+      allow update: if isOwner(userId);
+      
+      // Disallow deleting user accounts from the client
+      allow delete: if false;
     }
 
     // =================================================================
     // Communities Collection
     // =================================================================
     match /communities/{communityId} {
+      // Allow public read for community lists and detail pages
       allow read: if true;
 
-      allow create: if request.auth != null
-                    && hasOnlyAllowedFields(['name', 'slug', 'type', 'description', 'fullDescription', 'region', 'imageUrl', 'logoUrl', 'tags', 'membersCount', 'address', 'phone', 'contactEmail', 'website', 'socialMedia', 'founded', 'founderUid', 'createdAt', 'isVerified', 'founderEmail'])
-                    && request.resource.data.founderUid == request.auth.uid
-                    && request.resource.data.isVerified == false
-                    && request.resource.data.membersCount == 1
-                    && request.resource.data.name is string && request.resource.data.name.size() > 2
-                    && request.resource.data.slug is string && request.resource.data.slug.size() > 2
-                    && request.resource.data.description is string && request.resource.data.description.size() > 9
-                    && request.resource.data.fullDescription is string && request.resource.data.fullDescription.size() > 49
-                    && request.resource.data.logoUrl is string && request.resource.data.logoUrl.size() > 0
-                    && request.resource.data.imageUrl is string && request.resource.data.imageUrl.size() > 0
-                    && request.resource.data.contactEmail is string;
+      // Allow any logged-in user to create a community
+      allow create: if isAuthenticated();
 
-      allow update: if request.auth.uid == resource.data.founderUid
-                    // Cannot change founder, creation date, or slug
-                    && request.resource.data.founderUid == resource.data.founderUid
-                    && request.resource.data.founderEmail == resource.data.founderEmail
-                    && request.resource.data.createdAt == resource.data.createdAt
-                    && request.resource.data.slug == resource.data.slug
-                    // Admins can verify, founders cannot
-                    && (request.resource.data.isVerified == resource.data.isVerified || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
-
-      // Only an Admin can delete a community.
-      allow delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      // Allow founder or an admin to update
+      allow update: if isCommunityFounder(communityId) || isAdmin();
+      
+      // Allow founder or an admin to delete
+      allow delete: if isCommunityFounder(communityId) || isAdmin();
     }
     
     // =================================================================
     // Events Collection
     // =================================================================
     match /events/{eventId} {
+      // Allow public read for event lists and detail pages
+      allow read: if true;
+
+      // Allow any logged-in user to create an event
+      allow create: if isAuthenticated();
+      
+      // Allow the user who submitted it or an admin to update
+      allow update: if isEventSubmitter(eventId) || isAdmin();
+      
+      // Allow the user who submitted it or an admin to delete
+      allow delete: if isEventSubmitter(eventId) || isAdmin();
+    }
+    
+    // =================================================================
+    // About Collection
+    // =================================================================
+    match /about/singleton {
+      // Allow public read for the About Us page
       allow read: if true;
       
-      allow create: if request.auth != null
-                    && hasOnlyAllowedFields(['title', 'eventType', 'startDateTime', 'endDateTime', 'location', 'description', 'organizerName', 'organizerId', 'imageUrl', 'tags', 'ticketLink', 'submittedByUid', 'createdAt', 'status'])
-                    && request.resource.data.submittedByUid == request.auth.uid
-                    && request.resource.data.title is string && request.resource.data.title.size() > 4
-                    && request.resource.data.description is string && request.resource.data.description.size() > 49
-                    && request.resource.data.imageUrl is string && request.resource.data.imageUrl.size() > 0;
-      
-      // Allow update only by the original submitter or an admin
-      allow update: if request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-      
-      // Allow delete only by the original submitter or an admin
-      allow delete: if request.auth.uid == resource.data.submittedByUid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      // Only admins can write/update the about content
+      allow write: if isAdmin();
     }
 
     // =================================================================
-    // About Collection (Singleton document)
+    // Default Deny
+    // Catch-all rule to deny access to any other path
     // =================================================================
-    match /about/singleton {
-      allow read: if true;
-      
-      // Only an admin can write to the About page content
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
