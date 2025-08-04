@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents } from '@/hooks/use-events';
-import { useProviders } from '@/hooks/use-providers';
-import { useSponsors } from '@/hooks/use-sponsors';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -21,6 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import QRCode from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { useProviders } from '@/hooks/use-providers';
+import { useSponsors } from '@/hooks/use-sponsors';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -32,6 +32,7 @@ export default function UserPublicProfilePage() {
     const { events } = useEvents();
     const { providers } = useProviders();
     const { sponsors } = useSponsors();
+
 
     const [profileUser, setProfileUser] = useState<any | null>(null);
     const [pageUrl, setPageUrl] = useState('');

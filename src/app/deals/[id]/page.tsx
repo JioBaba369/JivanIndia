@@ -146,8 +146,10 @@ export default function DealDetailPage() {
                     </Button>
                 </div>
                  <Card>
-                    <CardContent className="p-4 space-y-4">
-                        <h4 className="font-semibold font-headline mb-2">Offered By</h4>
+                    <CardHeader className="p-4">
+                        <CardTitle className="font-headline text-xl">Offered By</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0 space-y-4">
                         <div className="flex items-start gap-4">
                             <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>

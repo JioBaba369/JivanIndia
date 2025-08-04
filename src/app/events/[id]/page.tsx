@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -184,7 +184,10 @@ export default function EventDetailPage() {
                      Organized by
                    </h3>
                    <Card>
-                       <CardContent className="p-4">
+                        <CardHeader className="p-4">
+                            <CardTitle className="font-headline text-xl">Organized by</CardTitle>
+                        </CardHeader>
+                       <CardContent className="p-4 pt-0">
                            <Link href={`/c/${event.organizerId}`} className="group flex items-center gap-4">
                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                                <Users className="h-6 w-6 text-muted-foreground" />

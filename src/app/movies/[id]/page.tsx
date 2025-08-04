@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Film, Star, Ticket, Clock, Users, History, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +19,6 @@ export default function MovieDetailPage() {
   const [postedAt, setPostedAt] = useState('');
 
   useEffect(() => {
-    // Check if movie and postedAt are available to prevent invalid date errors
     if (movie?.postedAt) {
         try {
             const date = new Date(movie.postedAt);
@@ -110,7 +109,10 @@ export default function MovieDetailPage() {
                                  Distributed By
                                </h3>
                                <Card>
-                                 <CardContent className="p-4">
+                                    <CardHeader className="p-4">
+                                        <CardTitle className="font-headline text-xl">Distributed By</CardTitle>
+                                    </CardHeader>
+                                 <CardContent className="p-4 pt-0">
                                    <Link href={`/c/${movie.details.distributorId}`} className="group flex items-center gap-4">
                                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                                        <Building className="h-6 w-6 text-muted-foreground" />
