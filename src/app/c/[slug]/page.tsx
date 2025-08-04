@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2 } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -173,12 +173,20 @@ export default function CommunityDetailPage() {
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                     {isFounder && (
-                        <Button size="lg" asChild>
-                            <Link href={`/c/${community.slug}/edit`}>
-                                <Edit className="mr-2 h-4 w-4"/>
-                                Edit Community
-                            </Link>
-                        </Button>
+                        <div className="grid grid-cols-2 gap-4">
+                          <Button size="lg" asChild>
+                              <Link href={`/c/${community.slug}/edit`}>
+                                  <Edit className="mr-2 h-4 w-4"/>
+                                  Edit
+                              </Link>
+                          </Button>
+                           <Button size="lg" variant="outline" asChild>
+                              <Link href={`/c/${community.slug}/analytics`}>
+                                  <BarChart2 className="mr-2 h-4 w-4"/>
+                                  Analytics
+                              </Link>
+                          </Button>
+                        </div>
                     )}
                     {!isFounder && (
                         <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
@@ -246,5 +254,3 @@ export default function CommunityDetailPage() {
     </div>
   );
 }
-
-    
