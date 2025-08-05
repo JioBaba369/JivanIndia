@@ -32,7 +32,7 @@ export default function ProfilePage() {
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
-  const { communities: allCommunities, getCommunityById } = useCommunities();
+  const { communities: allCommunities, getCommunityBySlug } = useCommunities();
   const { deals: allDeals } = useDeals();
   const { providers: allProviders } = useProviders();
   const { sponsors: allSponsors } = useSponsors();
@@ -82,7 +82,7 @@ export default function ProfilePage() {
   }
 
   const profileImageUrl = user.profileImageUrl;
-  const affiliatedCommunity = user.affiliation ? getCommunityById(user.affiliation.orgId) : null;
+  const affiliatedCommunity = user.affiliation ? getCommunityBySlug(user.affiliation.orgId) : null;
 
   return (
     <div className="min-h-[calc(100vh-128px)] bg-muted/40">

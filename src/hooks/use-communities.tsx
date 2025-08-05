@@ -32,10 +32,10 @@ export interface Community {
   founderUid: string;
   founderEmail: string;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }
 
-export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'isVerified' | 'founderEmail'>;
+export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail'>;
 
 interface CommunitiesContextType {
   communities: Community[];
@@ -77,9 +77,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   }, [fetchCommunities]);
 
   const addCommunity = async (communityData: NewCommunityInput, founderEmail: string): Promise<Community> => {
+    const now = new Date().toISOString();
     const newCommunityData = {
       ...communityData,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
       isVerified: false,
       founderEmail: founderEmail,
     };
@@ -93,7 +95,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const communityDocRef = doc(firestore, 'communities', id);
     const updatedData = { ...data, updatedAt: new Date().toISOString() };
     await updateDoc(communityDocRef, updatedData);
-    setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } : c));
+    setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } as Community : c));
   };
   
   const deleteCommunity = async (id: string) => {
@@ -119,9 +121,10 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
   const verifyCommunity = async (communityId: string): Promise<void> => {
     const communityDocRef = doc(firestore, 'communities', communityId);
-    await updateDoc(communityDocRef, { isVerified: true, updatedAt: new Date().toISOString() });
+    const updatedData = { isVerified: true, updatedAt: new Date().toISOString() };
+    await updateDoc(communityDocRef, updatedData);
     setCommunities(prev => prev.map(c => 
-      c.id === communityId ? { ...c, isVerified: true, updatedAt: new Date().toISOString() } : c
+      c.id === communityId ? { ...c, ...updatedData } as Community : c
     ));
   };
 

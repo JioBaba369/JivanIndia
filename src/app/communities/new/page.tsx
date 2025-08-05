@@ -122,7 +122,7 @@ export default function NewCommunityPage() {
       socialFacebook: '',
       socialLinkedin: '',
     },
-    mode: 'onChange',
+    mode: 'onBlur',
   });
 
   const nameValue = form.watch('name');
@@ -319,8 +319,9 @@ export default function NewCommunityPage() {
                             <Input
                               placeholder="e.g., bay-area-tamil-sangam"
                               {...field}
+                              onFocus={() => setSlugManuallyEdited(true)}
                               onChange={(e) => {
-                                setSlugManuallyEdited(true);
+                                if (!slugManuallyEdited) setSlugManuallyEdited(true);
                                 field.onChange(generateSlug(e.target.value));
                               }}
                             />
