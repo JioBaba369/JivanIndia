@@ -134,7 +134,7 @@ export default function NewJobPage() {
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Post a New Job Opening</CardTitle>
           <CardDescription>
-            Fill out the form below to share a career opportunity with the community. Fields marked with * are required.
+            Fill out the form below to share a career opportunity with the community. Fields marked with an asterisk (*) are required.
           </CardDescription>
         </CardHeader>
         <CardContent>

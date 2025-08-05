@@ -56,7 +56,7 @@ export default function SignupPage() {
           setError('Please enter a valid email address.');
           break;
         case 'auth/weak-password':
-          setError('The password is too weak. Please choose a stronger password.');
+          setError('The password is too weak. Please choose a stronger password (at least 6 characters).');
           break;
         default:
           setError('An unexpected error occurred. Please try again later.');

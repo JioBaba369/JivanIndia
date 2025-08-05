@@ -36,7 +36,7 @@ export function PostSheet() {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <button className="flex h-12 w-12 flex-col items-center justify-center gap-1 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95">
-          <Plus className="h-6 w-6" />
+          <Plus className="h-5 w-5" />
           <span className="sr-only">Post</span>
         </button>
       </SheetTrigger>

@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { format, formatDistanceToNow, intervalToDuration, isValid } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 
 export default function EventDetailPage() {
@@ -24,44 +24,41 @@ export default function EventDetailPage() {
   const { toast } = useToast();
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
   const router = useRouter();
-  const [createdAt, setCreatedAt] = useState('');
-  const [duration, setDuration] = useState('');
 
-  useEffect(() => {
+  const createdAt = useMemo(() => {
     if (event?.createdAt) {
       try {
         const date = new Date(event.createdAt);
         if (isValid(date)) {
-          setCreatedAt(formatDistanceToNow(date, { addSuffix: true }));
-        } else {
-            setCreatedAt('a while ago');
+          return formatDistanceToNow(date, { addSuffix: true });
         }
       } catch (error) {
         console.error("Failed to parse date:", event.createdAt, error);
-        setCreatedAt('a while ago');
       }
     }
+    return 'a while ago';
+  }, [event?.createdAt]);
+
+  const duration = useMemo(() => {
     if (event?.startDateTime && event?.endDateTime) {
-       try {
-            const startDate = new Date(event.startDateTime);
-            const endDate = new Date(event.endDateTime);
-            if(isValid(startDate) && isValid(endDate)) {
-                const d = intervalToDuration({ start: startDate, end: endDate });
-                const formattedDuration = [
-                    d.days ? `${d.days}d` : '',
-                    d.hours ? `${d.hours}h` : '',
-                    d.minutes ? `${d.minutes}m` : ''
-                ].filter(Boolean).join(' ');
-                setDuration(formattedDuration);
-            } else {
-                 setDuration("N/A");
-            }
-       } catch(e) {
-            console.error("Failed to calculate duration", e);
-            setDuration("N/A");
-       }
+      try {
+        const startDate = new Date(event.startDateTime);
+        const endDate = new Date(event.endDateTime);
+        if (isValid(startDate) && isValid(endDate)) {
+          const d = intervalToDuration({ start: startDate, end: endDate });
+          return [
+            d.days ? `${d.days}d` : '',
+            d.hours ? `${d.hours}h` : '',
+            d.minutes ? `${d.minutes}m` : ''
+          ].filter(Boolean).join(' ');
+        }
+      } catch (e) {
+        console.error("Failed to calculate duration", e);
+      }
     }
-  }, [event]);
+    return 'N/A';
+  }, [event?.startDateTime, event?.endDateTime]);
+
   
   if (!event) {
     return (

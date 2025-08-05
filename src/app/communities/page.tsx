@@ -191,7 +191,7 @@ export default function CommunitiesPage() {
                     </div>
                     <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger className="text-base">
-                        <SelectValue placeholder="i like on the communities" />
+                        <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
                         {communityCategories.map((cat, index) => (

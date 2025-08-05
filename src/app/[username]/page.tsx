@@ -113,6 +113,7 @@ export default function UserPublicProfilePage() {
                 height={18}
                 alt={`${countryCode} flag`}
                 className="rounded-sm object-cover"
+                data-ai-hint="country flag"
             />
         )
     }
@@ -223,7 +224,7 @@ export default function UserPublicProfilePage() {
                                                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                     <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                                                         <div className="relative h-40 w-full">
-                                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" />
+                                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="event photo"/>
                                                         </div>
                                                         <CardContent className="flex flex-grow flex-col p-4">
                                                             <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{event.title}</h3>
@@ -249,7 +250,7 @@ export default function UserPublicProfilePage() {
                                                 <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                     <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                                                         <div className="relative h-40 w-full">
-                                                        <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover transition-transform group-hover:scale-105" />
+                                                        <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="deal photo"/>
                                                         </div>
                                                         <CardContent className="flex flex-grow flex-col p-4">
                                                             <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{deal.title}</h3>
@@ -275,7 +276,7 @@ export default function UserPublicProfilePage() {
                                                 <Card key={community.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                     <Link href={`/c/${community.slug}`} className="flex h-full flex-col">
                                                         <div className="relative h-40 w-full">
-                                                        <Image src={community.imageUrl} alt={community.name} fill className="object-cover transition-transform group-hover:scale-105" />
+                                                        <Image src={community.imageUrl} alt={community.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="community photo"/>
                                                         </div>
                                                         <CardContent className="flex flex-grow flex-col p-4">
                                                             <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{community.name}</h3>
@@ -310,7 +311,7 @@ export default function UserPublicProfilePage() {
                                                     {userAffiliatedEvents.map((event) => (
                                                         <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                             <Link href={`/events/${event.id}`} className="flex h-full flex-col">
-                                                                <div className="relative h-40 w-full"><Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105"/></div>
+                                                                <div className="relative h-40 w-full"><Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="event photo"/></div>
                                                                 <CardContent className="flex flex-grow flex-col p-4">
                                                                     <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{event.title}</h3>
                                                                     <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
@@ -333,7 +334,7 @@ export default function UserPublicProfilePage() {
                                                     {userAffiliatedProviders.map((provider) => (
                                                         <Card key={provider.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                             <Link href={`/providers/${provider.id}`} className="flex h-full flex-col">
-                                                                <div className="relative h-40 w-full"><Image src={provider.imageUrl} alt={provider.name} fill className="object-cover transition-transform group-hover:scale-105"/></div>
+                                                                <div className="relative h-40 w-full"><Image src={provider.imageUrl} alt={provider.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="provider photo"/></div>
                                                                 <CardContent className="flex flex-grow flex-col p-4">
                                                                     <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{provider.name}</h3>
                                                                     <p className="text-sm font-semibold text-primary">{provider.category}</p>
@@ -353,7 +354,7 @@ export default function UserPublicProfilePage() {
                                                     {userAffiliatedSponsors.map((sponsor) => (
                                                         <Card key={sponsor.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                             <Link href={`/sponsors/${sponsor.id}`} className="flex h-full flex-col">
-                                                                <div className="relative h-40 w-full bg-muted flex items-center justify-center p-4"><Image src={sponsor.logoUrl} alt={sponsor.name} width={150} height={75} className="object-contain transition-transform group-hover:scale-105"/></div>
+                                                                <div className="relative h-40 w-full bg-muted flex items-center justify-center p-4"><Image src={sponsor.logoUrl} alt={sponsor.name} width={150} height={75} className="object-contain transition-transform group-hover:scale-105" data-ai-hint="sponsor logo"/></div>
                                                                 <CardContent className="flex flex-grow flex-col p-4">
                                                                     <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{sponsor.name}</h3>
                                                                     <p className="text-sm font-semibold text-primary">{sponsor.industry}</p>
