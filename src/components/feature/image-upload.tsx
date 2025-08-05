@@ -22,7 +22,7 @@ interface ImageUploadProps {
   folderName: string; // e.g., 'community-logos', 'event-banners'
 }
 
-const IMAGE_MAX_SIZE_MB = 5;
+const IMAGE_MAX_SIZE_MB = 10;
 
 const ICONS = {
     banner: { component: <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Banner Image' },

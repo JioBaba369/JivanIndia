@@ -3,17 +3,11 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow read access to everyone for all files
     match /{allPaths=**} {
       allow read;
-    }
-
-    // Allow write access only for authenticated users on specific image paths
-    // Enforce file size and content type
-    match /{folder}/{allPaths=**} {
-      allow write: if request.auth != null
-                   && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+      allow write: if request.auth != null &&
+                      request.resource.size < 10 * 1024 * 1024 &&
+                      request.resource.contentType.matches('image/.*');
     }
   }
 }
