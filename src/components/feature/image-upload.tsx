@@ -17,7 +17,7 @@ interface ImageUploadProps {
   onChange: (value: string) => void;
   aspectRatio: number;
   toast: ReturnType<typeof useToast>['toast'];
-  iconType?: 'banner' | 'logo';
+  iconType?: 'banner' | 'logo' | 'picture';
   folderName: string; // e.g., 'community-logos', 'event-banners'
 }
 
@@ -25,7 +25,8 @@ const IMAGE_MAX_SIZE_MB = 5;
 
 const ICONS = {
     banner: { component: <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Banner Image' },
-    logo: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Logo' }
+    logo: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Logo' },
+    picture: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Picture' }
 };
 
 export default function ImageUpload({
