@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, FormEvent, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,10 +11,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Paperclip } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
+import { Loader2 } from 'lucide-react';
+import { useAuth, type User } from '@/hooks/use-auth';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -22,31 +21,53 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ImageUpload from '@/components/feature/image-upload';
 import { getInitials } from '@/lib/utils';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
+const profileSchema = (isUsernameUnique: (username: string) => Promise<boolean>, originalUsername?: string) => z.object({
+  name: z.string().min(2, "Name must be at least 2 characters.").max(50),
+  username: z.string().min(3, "Username must be at least 3 characters.").max(30)
+    .regex(/^[a-zA-Z0-9_.]+$/, "Username can only contain letters, numbers, underscores, and periods.")
+    .refine(async (username) => {
+        if (username === originalUsername) return true;
+        return await isUsernameUnique(username);
+    }, { message: "This username is already taken." }),
+  email: z.string().email("Please enter a valid email address."),
+  bio: z.string().max(160, "Bio cannot be longer than 160 characters.").optional(),
+  phone: z.string().optional(),
+  website: z.string().url("Please enter a valid URL.").or(z.literal('')).optional(),
+  profileImageUrl: z.string().optional(),
+  
+  currentCountry: z.string().optional(),
+  currentState: z.string().optional(),
+  currentCity: z.string().optional(),
+  
+  originState: z.string().optional(),
+  originDistrict: z.string().optional(),
+  
+  languages: z.string().optional(),
+  interests: z.string().optional(),
+});
+
+type ProfileFormValues = z.infer<ReturnType<typeof profileSchema>>;
+
 
 export default function EditProfilePage() {
   const { toast } = useToast();
-  const { user, updateUser, isLoading: isAuthLoading } = useAuth();
+  const { user, updateUser, getUserByUsername, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [bio, setBio] = useState('');
-  const [phone, setPhone] = useState('');
+  const isUsernameUnique = async (username: string) => {
+    const existingUser = await getUserByUsername(username);
+    return !existingUser;
+  };
   
-  const [currentCountry, setCurrentCountry] = useState('');
-  const [currentState, setCurrentState] = useState('');
-  const [currentCity, setCurrentCity] = useState('');
-
-  const [originState, setOriginState] = useState('');
-  const [originDistrict, setOriginDistrict] = useState('');
-
-  const [languages, setLanguages] = useState('');
-  const [interests, setInterests] = useState('');
-  const [website, setWebsite] = useState('');
-  
-  const [profileImageUrl, setProfileImageUrl] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema(isUsernameUnique, user?.username)),
+    mode: 'onChange',
+  });
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -54,51 +75,50 @@ export default function EditProfilePage() {
         router.push('/login');
         return;
     }
-    setName(user.name || '');
-    setUsername(user.username || '');
-    setEmail(user.email || '');
-    setBio(user.bio || '');
-    setPhone(user.phone || '');
-    setWebsite(user.website || '');
-    setCurrentCountry(user.currentLocation?.country || '');
-    setCurrentState(user.currentLocation?.state || '');
-    setCurrentCity(user.currentLocation?.city || '');
-    setOriginState(user.originLocation?.indiaState || '');
-    setOriginDistrict(user.originLocation?.indiaDistrict || '');
-    setLanguages(user.languagesSpoken?.join(', ') || '');
-    setInterests(user.interests?.join(', ') || '');
-    setProfileImageUrl(user.profileImageUrl || '');
-  }, [user, router, isAuthLoading]);
+    form.reset({
+        name: user.name || '',
+        username: user.username || '',
+        email: user.email || '',
+        bio: user.bio || '',
+        phone: user.phone || '',
+        website: user.website || '',
+        profileImageUrl: user.profileImageUrl || '',
+        currentCountry: user.currentLocation?.country || '',
+        currentState: user.currentLocation?.state || '',
+        currentCity: user.currentLocation?.city || '',
+        originState: user.originLocation?.indiaState || '',
+        originDistrict: user.originLocation?.indiaDistrict || '',
+        languages: user.languagesSpoken?.join(', ') || '',
+        interests: user.interests?.join(', ') || '',
+    });
+  }, [user, router, isAuthLoading, form]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
-    setIsSubmitting(true);
 
     try {
-        const languagesSpoken = languages.split(',').map(s => s.trim()).filter(Boolean);
-        const userInterests = interests.split(',').map(s => s.trim()).filter(Boolean);
-
-        await updateUser({ 
-            name, 
-            username,
-            email, 
-            bio, 
-            profileImageUrl: profileImageUrl, 
-            phone,
-            website,
+        const updatedData: Partial<User> = {
+            name: values.name,
+            username: values.username,
+            email: values.email,
+            bio: values.bio,
+            phone: values.phone,
+            website: values.website,
+            profileImageUrl: values.profileImageUrl,
             currentLocation: {
-                country: currentCountry,
-                state: currentState,
-                city: currentCity
+                country: values.currentCountry || '',
+                state: values.currentState || '',
+                city: values.currentCity || ''
             },
             originLocation: {
-                indiaState: originState,
-                indiaDistrict: originDistrict,
+                indiaState: values.originState || '',
+                indiaDistrict: values.originDistrict || '',
             },
-            languagesSpoken,
-            interests: userInterests
-        });
+            languagesSpoken: values.languages?.split(',').map(s => s.trim()).filter(Boolean),
+            interests: values.interests?.split(',').map(s => s.trim()).filter(Boolean),
+        };
+        
+        await updateUser(updatedData);
         
         toast({
             title: "Profile Updated!",
@@ -115,8 +135,6 @@ export default function EditProfilePage() {
             description: "There was an error updating your profile. Please try again.",
             variant: "destructive",
         });
-    } finally {
-        setIsSubmitting(false);
     }
   };
 
@@ -127,6 +145,9 @@ export default function EditProfilePage() {
         </div>
     );
   }
+  
+  const isSubmitting = form.formState.isSubmitting;
+  const profileImageUrl = form.watch('profileImageUrl');
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -138,163 +159,87 @@ export default function EditProfilePage() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-             <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-4">
-                    <Label>Profile Picture</Label>
-                    <div className="flex items-center gap-6">
-                        <Avatar className="h-24 w-24 border-4 border-primary">
-                            {profileImageUrl ? (
-                                <Image
-                                    src={profileImageUrl}
-                                    alt="Profile preview"
-                                    fill
-                                    className="rounded-full object-cover"
+             <Form {...form}>
+             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                  control={form.control}
+                  name="profileImageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Profile Picture</FormLabel>
+                        <div className="flex items-center gap-6">
+                            <Avatar className="h-24 w-24 border-4 border-primary">
+                                {profileImageUrl ? (
+                                    <Image
+                                        src={profileImageUrl}
+                                        alt="Profile preview"
+                                        fill
+                                        className="rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <AvatarFallback className="font-headline text-3xl">{getInitials(form.getValues('name'))}</AvatarFallback>
+                                )}
+                            </Avatar>
+                            <div className="w-full">
+                               <FormControl>
+                                <ImageUpload
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    aspectRatio={1}
+                                    toast={toast}
+                                    folderName="profile-pictures"
+                                    iconType="picture"
                                 />
-                            ) : (
-                                <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
-                            )}
-                        </Avatar>
-                        <div className="w-full">
-                           <ImageUpload
-                                value={profileImageUrl}
-                                onChange={setProfileImageUrl}
-                                aspectRatio={1}
-                                toast={toast}
-                                folderName="profile-pictures"
-                                iconType="picture"
-                           />
+                                </FormControl>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input 
-                            id="name" 
-                            value={name} 
-                            onChange={(e) => setName(e.target.value)}
-                            required 
-                        />
-                    </div>
-                     <div className="grid gap-2">
-                        <Label htmlFor="username">Username</Label>
-                        <Input 
-                            id="username" 
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)}
-                            required 
-                        />
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input 
-                            id="email" 
-                            type="email" 
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="website">Website URL</Label>
-                        <Input 
-                            id="website" 
-                            type="url"
-                            placeholder="e.g., your-portfolio.com"
-                            value={website}
-                            onChange={(e) => setWebsite(e.target.value)}
-                        />
-                    </div>
+                    <FormField control={form.control} name="name" render={({field}) => (<FormItem><FormLabel>Full Name *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
+                    <FormField control={form.control} name="username" render={({field}) => (<FormItem><FormLabel>Username *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
+                    <FormField control={form.control} name="email" render={({field}) => (<FormItem><FormLabel>Email Address *</FormLabel><FormControl><Input type="email" {...field} required /></FormControl><FormMessage/></FormItem>)}/>
+                    <FormField control={form.control} name="website" render={({field}) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input type="url" {...field} placeholder="e.g., https://your-portfolio.com"/></FormControl><FormMessage/></FormItem>)}/>
                 </div>
 
-                <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input 
-                        id="phone" 
-                        type="tel"
-                        placeholder="e.g., +1 123 456 7890"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                    />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="bio">A Little About You</Label>
-                    <Textarea
-                        id="bio"
-                        placeholder="This is a good place to put your bio..."
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        rows={3}
-                    />
-                </div>
+                <FormField control={form.control} name="phone" render={({field}) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} placeholder="e.g., +1 123 456 7890"/></FormControl><FormMessage/></FormItem>)}/>
+                <FormField control={form.control} name="bio" render={({field}) => (<FormItem><FormLabel>A Little About You</FormLabel><FormControl><Textarea {...field} placeholder="This is a good place to put your bio..." rows={3}/></FormControl><FormMessage/></FormItem>)}/>
 
                 <div className="space-y-4">
                     <h3 className="font-headline text-lg font-semibold border-b pb-2">Current Location</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                         <div className="grid gap-2">
-                            <Label htmlFor="current-country">Country</Label>
-                            <Input id="current-country" placeholder="e.g., USA" value={currentCountry} onChange={(e) => setCurrentCountry(e.target.value)} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="current-state">State / Province</Label>
-                            <Input id="current-state" placeholder="e.g., California" value={currentState} onChange={(e) => setCurrentState(e.target.value)} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="current-city">City</Label>
-                            <Input id="current-city" placeholder="e.g., San Francisco" value={currentCity} onChange={(e) => setCurrentCity(e.target.value)} />
-                        </div>
+                         <FormField control={form.control} name="currentCountry" render={({field}) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} placeholder="e.g., USA" /></FormControl><FormMessage/></FormItem>)}/>
+                         <FormField control={form.control} name="currentState" render={({field}) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} placeholder="e.g., California" /></FormControl><FormMessage/></FormItem>)}/>
+                         <FormField control={form.control} name="currentCity" render={({field}) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} placeholder="e.g., San Francisco" /></FormControl><FormMessage/></FormItem>)}/>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <h3 className="font-headline text-lg font-semibold border-b pb-2">Origin in India (Optional)</h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <div className="grid gap-2">
-                            <Label htmlFor="origin-state">State</Label>
-                            <Input id="origin-state" placeholder="e.g., Kerala, Punjab" value={originState} onChange={(e) => setOriginState(e.target.value)} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="origin-district">District</Label>
-                            <Input id="origin-district" placeholder="e.g., Kollam, Ludhiana" value={originDistrict} onChange={(e) => setOriginDistrict(e.target.value)} />
-                        </div>
+                         <FormField control={form.control} name="originState" render={({field}) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} placeholder="e.g., Kerala, Punjab" /></FormControl><FormMessage/></FormItem>)}/>
+                         <FormField control={form.control} name="originDistrict" render={({field}) => (<FormItem><FormLabel>District</FormLabel><FormControl><Input {...field} placeholder="e.g., Kollam, Ludhiana" /></FormControl><FormMessage/></FormItem>)}/>
                     </div>
                 </div>
 
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="languages">Languages Spoken</Label>
-                        <Input 
-                            id="languages" 
-                            placeholder="e.g., Hindi, English, Gujarati"
-                            value={languages}
-                            onChange={(e) => setLanguages(e.target.value)}
-                        />
-                        <p className="text-xs text-muted-foreground">Separate languages with a comma.</p>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="interests">Interests</Label>
-                        <Input 
-                            id="interests" 
-                            placeholder="e.g., Volunteering, Music, Sports"
-                            value={interests}
-                            onChange={(e) => setInterests(e.target.value)}
-                        />
-                        <p className="text-xs text-muted-foreground">Separate interests with a comma.</p>
-                    </div>
+                    <FormField control={form.control} name="languages" render={({field}) => (<FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input {...field} placeholder="e.g., Hindi, English, Gujarati"/></FormControl><FormDescription>Separate with a comma.</FormDescription><FormMessage/></FormItem>)}/>
+                    <FormField control={form.control} name="interests" render={({field}) => (<FormItem><FormLabel>Interests</FormLabel><FormControl><Input {...field} placeholder="e.g., Volunteering, Music, Sports"/></FormControl><FormDescription>Separate with a comma.</FormDescription><FormMessage/></FormItem>)}/>
                 </div>
                 
                 <div className="flex justify-end gap-4 pt-4">
                     <Button type="button" variant="outline" asChild>
                         <Link href="/profile">Cancel</Link>
                     </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save"}
+                    <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
+                        {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
                     </Button>
                 </div>
             </form>
+            </Form>
             </CardContent>
         </Card>
     </div>
