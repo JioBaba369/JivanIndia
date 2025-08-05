@@ -94,25 +94,25 @@ export function DealsProvider({ children }: { children: ReactNode }) {
         const querySnapshot = await getDocs(dealsCollectionRef);
         const dealsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
         setDeals(dealsData);
-        return dealsData;
     } catch (error) {
         console.error("Failed to fetch deals from Firestore", error);
         setDeals([]);
-        return [];
     }
   }, []);
 
   const seedDeals = useCallback(async () => {
     console.log("Deals collection is empty, seeding with initial data...");
     const batch = writeBatch(firestore);
+    const seededDeals: Deal[] = [];
     initialDealsData.forEach((dealData) => {
         const docRef = doc(dealsCollectionRef);
         batch.set(docRef, dealData);
+        seededDeals.push({ id: docRef.id, ...dealData });
     });
     await batch.commit();
-    await fetchAndSetDeals();
+    setDeals(seededDeals);
     console.log("Deals collection seeded successfully.");
-  }, [fetchAndSetDeals]);
+  }, []);
 
   useEffect(() => {
     const initializeDeals = async () => {

@@ -107,11 +107,9 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
         const querySnapshot = await getDocs(sponsorsCollectionRef);
         const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
         setSponsors(sponsorsData);
-        return sponsorsData;
     } catch (error) {
         console.error("Failed to fetch sponsors from Firestore", error);
         setSponsors([]);
-        return [];
     }
   }, []);
 
@@ -119,14 +117,16 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   const seedSponsors = useCallback(async () => {
     console.log("Sponsors collection is empty, seeding with initial data...");
     const batch = writeBatch(firestore);
+    const seededSponsors: Sponsor[] = [];
     initialSponsors.forEach((sponsorData) => {
         const docRef = doc(sponsorsCollectionRef);
         batch.set(docRef, sponsorData);
+        seededSponsors.push({ id: docRef.id, ...sponsorData });
     });
     await batch.commit();
-    await fetchAndSetSponsors(); // Refetch to get correct IDs
+    setSponsors(seededSponsors);
     console.log("Sponsors collection seeded successfully.");
-  }, [fetchAndSetSponsors]);
+  }, []);
 
   useEffect(() => {
     const initializeSponsors = async () => {

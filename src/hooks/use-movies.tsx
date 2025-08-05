@@ -96,25 +96,25 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
       const querySnapshot = await getDocs(moviesCollectionRef);
       const moviesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
       setMovies(moviesData);
-      return moviesData;
     } catch (error) {
       console.error("Failed to fetch movies from Firestore", error);
       setMovies([]);
-      return [];
     }
   }, []);
 
   const seedMovies = useCallback(async () => {
       console.log("Movies collection is empty, seeding with initial data...");
       const batch = writeBatch(firestore);
+      const seededMovies: Movie[] = [];
       initialMoviesData.forEach((movieData) => {
           const docRef = doc(moviesCollectionRef);
           batch.set(docRef, movieData);
+          seededMovies.push({ id: docRef.id, ...movieData });
       });
       await batch.commit();
-      await fetchAndSetMovies();
+      setMovies(seededMovies);
       console.log("Movies collection seeded successfully.");
-  }, [fetchAndSetMovies]);
+  }, []);
 
   useEffect(() => {
     const initializeMovies = async () => {

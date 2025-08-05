@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Linkedin, Facebook, X, Trash2 } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
@@ -37,9 +38,27 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 const NAME_MAX_LENGTH = 100;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
+const SLUG_MAX_LENGTH = 50;
 
-const formSchema = z.object({
+
+const generateSlug = (value: string) => {
+  return value
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+};
+
+
+const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean, currentId?: string) => z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
+  slug: z.string().min(3, "URL must be at least 3 characters.").max(SLUG_MAX_LENGTH)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces.")
+    .refine((slug) => isSlugUnique(slug, currentId), {
+      message: "This URL is already taken.",
+    }),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
   fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(FULL_DESC_MAX_LENGTH, `Full description must be ${FULL_DESC_MAX_LENGTH} characters or less.`),
@@ -57,7 +76,7 @@ const formSchema = z.object({
   socialLinkedin: z.string().optional(),
 });
 
-type CommunityFormValues = z.infer<typeof formSchema>;
+type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
 
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
 
@@ -71,7 +90,7 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -79,27 +98,14 @@ export default function EditCommunityPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [community, setCommunity] = useState<Community | null>(null);
 
+  const memoizedIsSlugUnique = useCallback((slug: string, currentId?: string) => {
+    if (slug.length < 3) return true;
+    return isSlugUnique(slug, currentId);
+  }, [isSlugUnique]);
+
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(memoizedIsSlugUnique, community?.id)),
     mode: 'onChange',
-    defaultValues: {
-      name: '',
-      type: 'Other',
-      description: '',
-      fullDescription: '',
-      region: '',
-      founded: '',
-      tags: '',
-      logoUrl: '',
-      bannerUrl: '',
-      website: '',
-      contactEmail: '',
-      phone: '',
-      address: '',
-      socialTwitter: '',
-      socialFacebook: '',
-      socialLinkedin: '',
-    },
   });
 
   useEffect(() => {
@@ -109,6 +115,7 @@ export default function EditCommunityPage() {
           setCommunity(foundCommunity);
           form.reset({
               name: foundCommunity.name || '',
+              slug: foundCommunity.slug || '',
               type: foundCommunity.type || 'Other',
               description: foundCommunity.description || '',
               fullDescription: foundCommunity.fullDescription || '',
@@ -159,8 +166,10 @@ export default function EditCommunityPage() {
     if (!community) return;
     
     startTransition(async () => {
+        const newSlug = generateSlug(values.name);
         const updatedData: Partial<Community> = {
           name: values.name,
+          slug: newSlug,
           type: values.type,
           description: values.description,
           fullDescription: values.fullDescription,
@@ -187,7 +196,7 @@ export default function EditCommunityPage() {
             description: `Your community "${values.name}" has been successfully updated.`,
           });
           
-          router.push(`/c/${community.slug}`);
+          router.push(`/c/${newSlug}`);
           router.refresh();
 
         } catch (error) {

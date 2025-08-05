@@ -78,25 +78,25 @@ export function JobsProvider({ children }: { children: ReactNode }) {
         const querySnapshot = await getDocs(jobsCollectionRef);
         const jobsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
         setJobs(jobsData);
-        return jobsData;
     } catch (error) {
         console.error("Failed to fetch jobs from Firestore", error);
         setJobs([]);
-        return [];
     }
   }, []);
 
   const seedJobs = useCallback(async () => {
       console.log("Jobs collection is empty, seeding with initial data...");
       const batch = writeBatch(firestore);
+      const seededJobs: Job[] = [];
       initialJobsData.forEach((jobData) => {
           const docRef = doc(jobsCollectionRef);
           batch.set(docRef, jobData);
+          seededJobs.push({ id: docRef.id, ...jobData });
       });
       await batch.commit();
-      await fetchAndSetJobs();
+      setJobs(seededJobs);
       console.log("Jobs collection seeded successfully.");
-  }, [fetchAndSetJobs]);
+  }, []);
 
   useEffect(() => {
     const initializeJobs = async () => {

@@ -68,9 +68,11 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const affiliatedCommunity = getCommunityById(eventData.organizerId);
     const status: Event['status'] = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
 
+    const now = new Date().toISOString();
     const newEventData = {
       ...eventData,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
       status: status,
     };
     
