@@ -6,6 +6,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { getInitials } from '@/lib/utils';
 
 export interface User {
   uid: string;
@@ -56,7 +57,6 @@ interface AuthContextType {
   updateUser: (updatedData: Partial<User>) => void;
   setAffiliation: (orgId: string, orgName: string) => void;
   getUserByUsername: (username: string) => Promise<User | undefined>;
-  getInitials: (name: string) => string;
   
   savedEvents: string[];
   saveEvent: (eventId: string) => void;
@@ -161,15 +161,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     return undefined;
   };
-  
-  const getInitials = useCallback((name: string) => {
-    if (!name) return '';
-    const names = name.split(' ');
-    if (names.length > 1) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }, []);
 
   const createSaveFunctions = <K extends keyof User>(listType: K) => {
     const list = (user?.[listType] as string[] | undefined) || [];
@@ -209,7 +200,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateUser,
     setAffiliation,
     getUserByUsername,
-    getInitials,
     savedEvents: (user?.savedEvents || []), saveEvent, unsaveEvent, isEventSaved,
     joinedCommunities: (user?.joinedCommunities || []), joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals: (user?.savedDeals || []), saveDeal, unsaveDeal, isDealSaved,

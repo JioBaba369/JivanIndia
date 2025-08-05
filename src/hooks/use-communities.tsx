@@ -45,7 +45,6 @@ interface CommunitiesContextType {
   getCommunityBySlug: (slug: string) => Community | undefined;
   isSlugUnique: (slug: string, currentId?: string) => boolean;
   verifyCommunity: (communityId: string) => Promise<void>;
-  getInitials: (name: string) => string;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
@@ -113,15 +112,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     ));
   };
 
-  const getInitials = useCallback((name: string) => {
-    if (!name) return '';
-    const names = name.split(' ');
-    if (names.length > 1) {
-      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }, []);
-
   const contextValue = {
     communities,
     isLoading,
@@ -131,7 +121,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     getCommunityBySlug,
     isSlugUnique,
     verifyCommunity,
-    getInitials,
   };
 
   return (

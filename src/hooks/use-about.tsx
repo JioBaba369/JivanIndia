@@ -71,7 +71,6 @@ interface AboutContextType {
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
   updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
   deleteTeamMember: (memberId: string) => Promise<void>;
-  getInitials: (name: string) => string;
 }
 
 const AboutContext = createContext<AboutContextType | undefined>(undefined);
@@ -83,15 +82,6 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth(); // To ensure admin checks are against a loaded user
 
-  const getInitials = useCallback((name: string) => {
-    if (!name) return '';
-    const names = name.split(' ');
-    if (names.length > 1) {
-      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  }, []);
-  
   const aboutDocRef = doc(firestore, 'about', ABOUT_DOC_ID);
 
   const fetchContent = useCallback(async () => {
@@ -162,7 +152,6 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     addTeamMember,
     updateTeamMember,
 deleteTeamMember,
-    getInitials,
   };
 
   return (

@@ -19,10 +19,11 @@ import { useCommunities } from '@/hooks/use-communities';
 import { useDeals } from '@/hooks/use-deals';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
+import { getInitials } from '@/lib/utils';
 
 
 export default function ProfilePage() {
-  const { user, getInitials,
+  const { user,
     savedEvents, unsaveEvent,
     joinedCommunities, leaveCommunity,
     savedDeals, unsaveDeal,
@@ -42,41 +43,24 @@ export default function ProfilePage() {
   const userSavedProviders = allProviders.filter(provider => savedProviders.includes(provider.id));
   const userSavedSponsors = allSponsors.filter(sponsor => savedSponsors.includes(sponsor.id));
   const userOrganizedEvents = user ? allEvents.filter(event => event.submittedByUid === user.uid) : [];
+  
+  const unsaveActions = {
+    event: { fn: unsaveEvent, name: 'Event' },
+    community: { fn: leaveCommunity, name: 'Community' },
+    deal: { fn: unsaveDeal, name: 'Deal' },
+    provider: { fn: unsaveProvider, name: 'Provider' },
+    sponsor: { fn: unsaveSponsor, name: 'Sponsor' },
+  };
 
-  const handleUnsave = (type: 'event' | 'community' | 'deal' | 'provider' | 'sponsor', id: string, title: string) => {
-    let unsaveFunction;
-    let typeName = '';
-
-    switch(type) {
-        case 'event':
-            unsaveFunction = unsaveEvent;
-            typeName = 'Event';
-            break;
-        case 'community':
-            unsaveFunction = leaveCommunity;
-            typeName = 'Community';
-            break;
-        case 'deal':
-            unsaveFunction = unsaveDeal;
-            typeName = 'Deal';
-            break;
-        case 'provider':
-            unsaveFunction = unsaveProvider;
-            typeName = 'Provider';
-            break;
-        case 'sponsor':
-            unsaveFunction = unsaveSponsor;
-            typeName = 'Sponsor';
-            break;
-        default:
-            return;
+  const handleUnsave = (type: keyof typeof unsaveActions, id: string, title: string) => {
+    const action = unsaveActions[type];
+    if (action) {
+      action.fn(id);
+      toast({
+          title: `${action.name} Removed`,
+          description: `The item "${title}" has been removed from your list.`,
+      });
     }
-    
-    unsaveFunction(id);
-    toast({
-        title: `${typeName} Removed`,
-        description: `The item "${title}" has been removed from your list.`,
-    });
   }
 
   if (!user) {

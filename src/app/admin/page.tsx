@@ -22,17 +22,16 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { getInitials } from '@/lib/utils';
 
 
 const TeamMemberDialog = ({
   member,
   onSave,
-  getInitials,
   children
 }: {
   member?: TeamMember | null,
   onSave: (data: Omit<TeamMember, 'id'>) => void,
-  getInitials: (name: string) => string,
   children: React.ReactNode
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -103,7 +102,7 @@ export default function AdminDashboardPage() {
   const { user, isLoading } = useAuth();
   const { events, updateEventStatus } = useEvents();
   const { communities, verifyCommunity } = useCommunities();
-  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, getInitials } = useAbout();
+  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember } = useAbout();
   const { toast } = useToast();
 
   const [story, setStory] = useState(aboutContent.story);
@@ -305,7 +304,7 @@ export default function AdminDashboardPage() {
                                         <CardTitle>Meet the Team</CardTitle>
                                         <CardDescription>Manage the team members displayed on the "About Us" page.</CardDescription>
                                     </div>
-                                    <TeamMemberDialog onSave={handleAddTeamMember} getInitials={getInitials}>
+                                    <TeamMemberDialog onSave={handleAddTeamMember}>
                                         <Button><UserPlus className="mr-2 h-4 w-4" /> Add Member</Button>
                                     </TeamMemberDialog>
                                 </div>
@@ -332,7 +331,7 @@ export default function AdminDashboardPage() {
                                                 <TableCell className="font-medium">{member.name}</TableCell>
                                                 <TableCell>{member.role}</TableCell>
                                                 <TableCell className="text-right space-x-2">
-                                                    <TeamMemberDialog member={member} onSave={(data) => handleUpdateTeamMember(member.id, data)} getInitials={getInitials}>
+                                                    <TeamMemberDialog member={member} onSave={(data) => handleUpdateTeamMember(member.id, data)}>
                                                       <Button variant="outline" size="icon"><Edit className="h-4 w-4" /></Button>
                                                     </TeamMemberDialog>
                                                     <AlertDialog>

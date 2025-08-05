@@ -24,6 +24,7 @@ import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
 import { deals as allDeals } from '@/data/deals';
+import { getInitials } from '@/lib/utils';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -31,7 +32,7 @@ export default function UserPublicProfilePage() {
     const { toast } = useToast();
     const username = typeof params.username === 'string' ? params.username : '';
 
-    const { getUserByUsername, getInitials } = useAuth();
+    const { getUserByUsername } = useAuth();
     const { events: allEvents } = useEvents();
     const { providers } = useProviders();
     const { sponsors } = useSponsors();

@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatUrl } from "@/lib/utils";
+import { formatUrl, getInitials } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import type { Community } from "@/hooks/use-communities";
 
@@ -21,7 +21,7 @@ export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = typeof params.slug === 'string' ? params.slug : '';
-  const { getCommunityBySlug, getInitials } = useCommunities();
+  const { getCommunityBySlug } = useCommunities();
   
   const [community, setCommunity] = useState<Community | null | undefined>(undefined);
   

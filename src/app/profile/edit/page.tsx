@@ -21,10 +21,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ImageUpload from '@/components/feature/image-upload';
+import { getInitials } from '@/lib/utils';
 
 export default function EditProfilePage() {
   const { toast } = useToast();
-  const { user, updateUser, getInitials, isLoading: isAuthLoading } = useAuth();
+  const { user, updateUser, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState('');

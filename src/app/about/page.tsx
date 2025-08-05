@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAbout } from "@/hooks/use-about";
+import { getInitials } from "@/lib/utils";
 
 export default function AboutUsPage() {
-  const { aboutContent, getInitials } = useAbout();
+  const { aboutContent } = useAbout();
   const { story, teamMembers } = aboutContent;
 
   return (
