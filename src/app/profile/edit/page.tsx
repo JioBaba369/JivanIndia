@@ -93,7 +93,7 @@ export default function EditProfilePage() {
     });
   }, [user, router, isAuthLoading, form]);
 
-  const onSubmit = async (values: ProfileFormValues) => {
+  const onSubmit = (values: ProfileFormValues) => {
     if (!user) return;
     
     startTransition(async () => {
@@ -203,7 +203,7 @@ export default function EditProfilePage() {
                       <FormField control={form.control} name="name" render={({field}) => (<FormItem><FormLabel>Full Name *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
                       <FormField control={form.control} name="username" render={({field}) => (<FormItem><FormLabel>Username *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
                       <FormField control={form.control} name="email" render={({field}) => (<FormItem><FormLabel>Email Address *</FormLabel><FormControl><Input type="email" {...field} required /></FormControl><FormMessage/></FormItem>)}/>
-                      <FormField control={form.control} name="website" render={({field}) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input type="url" {...field} placeholder="e.g., https://your-portfolio.com"/></FormControl><FormMessage/></FormItem>)}/>
+                      <FormField control={form.control} name="website" render={({field}) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input type="url" {...field} placeholder="your-website.com"/></FormControl><FormMessage/></FormItem>)}/>
                   </div>
                 </div>
 
