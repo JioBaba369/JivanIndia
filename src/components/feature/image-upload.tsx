@@ -5,12 +5,13 @@ import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
-import { UploadCloud, CheckCircle, ImageUp, Loader2 } from 'lucide-react';
+import { UploadCloud, CheckCircle, ImageUp, Loader2, Camera } from 'lucide-react';
 import ImageCropper from './image-cropper';
 import type { useToast } from '@/hooks/use-toast';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from '../ui/progress';
+import { Button } from '../ui/button';
 
 interface ImageUploadProps {
   value?: string;
@@ -26,7 +27,7 @@ const IMAGE_MAX_SIZE_MB = 5;
 const ICONS = {
     banner: { component: <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Banner Image' },
     logo: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Logo' },
-    picture: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Picture' }
+    picture: { component: <Camera className="h-8 w-8 text-muted-foreground" />, text: 'Upload new picture' }
 };
 
 export default function ImageUpload({
@@ -45,6 +46,12 @@ export default function ImageUpload({
       isUploading: false,
       progress: 0,
   });
+  
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -55,13 +62,13 @@ export default function ImageUpload({
           description: `Please select an image smaller than ${IMAGE_MAX_SIZE_MB}MB.`,
           variant: 'destructive',
         });
-        return; // Do not clear the input if the file is too large
+        resetFileInput();
+        return;
       }
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         setImageSrc(reader.result?.toString() || '');
         setIsCropperOpen(true);
-        if (e.target) e.target.value = ''; // Reset here, after successful processing
       });
       reader.readAsDataURL(file);
     }
@@ -69,6 +76,7 @@ export default function ImageUpload({
 
   const handleSave = async (blob: Blob) => {
     setIsCropperOpen(false);
+    resetFileInput();
     setUploadState({ isUploading: true, progress: 0 });
 
     const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
@@ -102,45 +110,73 @@ export default function ImageUpload({
       }
     );
   };
+  
+  const handleCropperClose = () => {
+      setIsCropperOpen(false);
+      resetFileInput();
+  }
 
   const icon = ICONS[iconType];
+  
+  const UploadButtonContent = () => {
+    if (iconType === 'picture') {
+        return (
+            <Button
+                type="button"
+                variant="outline"
+                onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
+                disabled={uploadState.isUploading}
+            >
+                {uploadState.isUploading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                ) : (
+                    icon.component
+                )}
+                <span>{uploadState.isUploading ? 'Uploading...' : icon.text}</span>
+            </Button>
+        )
+    }
+    return (
+        <Card
+            role="button"
+            aria-label="Upload image"
+            tabIndex={0}
+            className="relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80"
+            style={{ aspectRatio: `${aspectRatio}` }}
+            onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
+            onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
+            >
+            {value && !uploadState.isUploading ? (
+            <Image src={value} alt="Preview" fill className="object-cover rounded-lg" />
+            ) : uploadState.isUploading ? (
+                <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+                    <p className="text-sm text-muted-foreground">Uploading...</p>
+                    <Progress value={uploadState.progress} className="w-full" />
+                </div>
+            ) : (
+            <div className="text-center p-4">
+                {icon.component}
+                <span className="text-muted-foreground text-sm">{icon.text}</span>
+                <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
+            </div>
+            )}
+        </Card>
+    );
+  }
 
   return (
     <>
       {imageSrc && (
         <ImageCropper
           isOpen={isCropperOpen}
-          onClose={() => setIsCropperOpen(false)}
+          onClose={handleCropperClose}
           imageSrc={imageSrc}
           onSave={handleSave}
           aspectRatio={aspectRatio}
         />
       )}
-      <Card
-        role="button"
-        aria-label="Upload image"
-        tabIndex={0}
-        className="relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80"
-        style={{ aspectRatio: `${aspectRatio}` }}
-        onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
-        onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
-      >
-        {value && !uploadState.isUploading ? (
-          <Image src={value} alt="Preview" fill className="object-cover rounded-lg" />
-        ) : uploadState.isUploading ? (
-            <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
-                <Loader2 className="h-8 w-8 animate-spin text-primary"/>
-                <p className="text-sm text-muted-foreground">Uploading...</p>
-                <Progress value={uploadState.progress} className="w-full" />
-            </div>
-        ) : (
-          <div className="text-center p-4">
-            {icon.component}
-            <span className="text-muted-foreground text-sm">{icon.text}</span>
-            <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
-          </div>
-        )}
-      </Card>
+      <UploadButtonContent />
       <Input
         id={`image-input-${aspectRatio}`}
         type="file"

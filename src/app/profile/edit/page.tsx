@@ -15,10 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
 import { useAuth, type User } from '@/hooks/use-auth';
 import { Textarea } from '@/components/ui/textarea';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ImageUpload from '@/components/feature/image-upload';
 import { getInitials } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
@@ -148,6 +147,7 @@ export default function EditProfilePage() {
   
   const isSubmitting = form.formState.isSubmitting;
   const profileImageUrl = form.watch('profileImageUrl');
+  const nameValue = form.watch('name');
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -161,52 +161,54 @@ export default function EditProfilePage() {
             <CardContent>
              <Form {...form}>
              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
-                  control={form.control}
-                  name="profileImageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Profile Picture</FormLabel>
-                        <div className="flex items-center gap-6">
-                            <Avatar className="h-24 w-24 border-4 border-primary">
-                                {profileImageUrl ? (
-                                    <Image
-                                        src={profileImageUrl}
-                                        alt="Profile preview"
-                                        fill
-                                        className="rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <AvatarFallback className="font-headline text-3xl">{getInitials(form.getValues('name'))}</AvatarFallback>
-                                )}
-                            </Avatar>
-                            <div className="w-full">
-                               <FormControl>
-                                <ImageUpload
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    aspectRatio={1}
-                                    toast={toast}
-                                    folderName="profile-pictures"
-                                    iconType="picture"
-                                />
-                                </FormControl>
-                            </div>
-                        </div>
-                        <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="name" render={({field}) => (<FormItem><FormLabel>Full Name *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
-                    <FormField control={form.control} name="username" render={({field}) => (<FormItem><FormLabel>Username *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
-                    <FormField control={form.control} name="email" render={({field}) => (<FormItem><FormLabel>Email Address *</FormLabel><FormControl><Input type="email" {...field} required /></FormControl><FormMessage/></FormItem>)}/>
-                    <FormField control={form.control} name="website" render={({field}) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input type="url" {...field} placeholder="e.g., https://your-portfolio.com"/></FormControl><FormMessage/></FormItem>)}/>
+                <div className="space-y-4">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Profile Picture</h3>
+                   <FormField
+                    control={form.control}
+                    name="profileImageUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                            <div className="flex items-center gap-6">
+                                <Avatar className="h-24 w-24 border-4 border-primary">
+                                    <AvatarImage src={profileImageUrl} alt={nameValue} />
+                                    <AvatarFallback className="font-headline text-3xl">{getInitials(nameValue)}</AvatarFallback>
+                                </Avatar>
+                                <div className="w-full">
+                                <FormControl>
+                                    <ImageUpload
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        aspectRatio={1}
+                                        toast={toast}
+                                        folderName="profile-pictures"
+                                        iconType="picture"
+                                    />
+                                </FormControl>
+                                <FormDescription className="mt-2">Upload a new picture. Square images work best.</FormDescription>
+                                </div>
+                            </div>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Profile Identity</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField control={form.control} name="name" render={({field}) => (<FormItem><FormLabel>Full Name *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
+                      <FormField control={form.control} name="username" render={({field}) => (<FormItem><FormLabel>Username *</FormLabel><FormControl><Input {...field} required /></FormControl><FormMessage/></FormItem>)}/>
+                      <FormField control={form.control} name="email" render={({field}) => (<FormItem><FormLabel>Email Address *</FormLabel><FormControl><Input type="email" {...field} required /></FormControl><FormMessage/></FormItem>)}/>
+                      <FormField control={form.control} name="website" render={({field}) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input type="url" {...field} placeholder="e.g., https://your-portfolio.com"/></FormControl><FormMessage/></FormItem>)}/>
+                  </div>
                 </div>
 
-                <FormField control={form.control} name="phone" render={({field}) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} placeholder="e.g., +1 123 456 7890"/></FormControl><FormMessage/></FormItem>)}/>
-                <FormField control={form.control} name="bio" render={({field}) => (<FormItem><FormLabel>A Little About You</FormLabel><FormControl><Textarea {...field} placeholder="This is a good place to put your bio..." rows={3}/></FormControl><FormMessage/></FormItem>)}/>
+                <div className="space-y-4">
+                   <h3 className="font-headline text-lg font-semibold border-b pb-2">Personal Details</h3>
+                    <FormField control={form.control} name="phone" render={({field}) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} placeholder="e.g., +1 123 456 7890"/></FormControl><FormMessage/></FormItem>)}/>
+                    <FormField control={form.control} name="bio" render={({field}) => (<FormItem><FormLabel>A Little About You</FormLabel><FormControl><Textarea {...field} placeholder="This is a good place to put your bio..." rows={3}/></FormControl><FormMessage/></FormItem>)}/>
+                </div>
 
                 <div className="space-y-4">
                     <h3 className="font-headline text-lg font-semibold border-b pb-2">Current Location</h3>
@@ -224,10 +226,13 @@ export default function EditProfilePage() {
                          <FormField control={form.control} name="originDistrict" render={({field}) => (<FormItem><FormLabel>District</FormLabel><FormControl><Input {...field} placeholder="e.g., Kollam, Ludhiana" /></FormControl><FormMessage/></FormItem>)}/>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="languages" render={({field}) => (<FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input {...field} placeholder="e.g., Hindi, English, Gujarati"/></FormControl><FormDescription>Separate with a comma.</FormDescription><FormMessage/></FormItem>)}/>
-                    <FormField control={form.control} name="interests" render={({field}) => (<FormItem><FormLabel>Interests</FormLabel><FormControl><Input {...field} placeholder="e.g., Volunteering, Music, Sports"/></FormControl><FormDescription>Separate with a comma.</FormDescription><FormMessage/></FormItem>)}/>
+                
+                <div className="space-y-4">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Interests & Languages</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField control={form.control} name="languages" render={({field}) => (<FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input {...field} placeholder="e.g., Hindi, English, Gujarati"/></FormControl><FormDescription>Separate with a comma.</FormDescription><FormMessage/></FormItem>)}/>
+                      <FormField control={form.control} name="interests" render={({field}) => (<FormItem><FormLabel>Interests</FormLabel><FormControl><Input {...field} placeholder="e.g., Volunteering, Music, Sports"/></FormControl><FormDescription>Separate with a comma.</FormDescription><FormMessage/></FormItem>)}/>
+                  </div>
                 </div>
                 
                 <div className="flex justify-end gap-4 pt-4">
