@@ -4,7 +4,6 @@ export interface TeamMember {
   name: string;
   role: string;
   avatarUrl: string;
-  initials: string;
   bio: string;
 }
 
@@ -26,16 +25,14 @@ We are dedicated to fostering connection, celebrating our rich heritage, and cre
       id: '1',
       name: 'Priya Sharma',
       role: 'Founder & CEO',
-      avatarUrl: 'https://unsplash.com/photos/a-cat-peeks-out-from-inside-a-container-g5o6T-PWT3g 0',
-      initials: 'PS',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMHdvbWFufGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
       bio: 'Priya is passionate about building bridges within the community. Her vision is to create a platform that empowers and connects every member of the Indian diaspora.',
     },
     {
       id: '2',
-      name: 'Bibin Jose',
-      role: 'Founder & CEO ',
+      name: 'Rohan Mehta',
+      role: 'Co-Founder & CTO',
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500',
-      initials: 'RM',
       bio: 'Rohan is the technical architect behind JivanIndia.co. He loves solving complex problems and building user-friendly digital experiences.',
     },
   ],

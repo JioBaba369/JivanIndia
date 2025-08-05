@@ -31,7 +31,7 @@ const TeamMemberDialog = ({
   children
 }: {
   member?: TeamMember | null,
-  onSave: (data: Omit<TeamMember, 'id' | 'initials'>) => void,
+  onSave: (data: Omit<TeamMember, 'id'>) => void,
   getInitials: (name: string) => string,
   children: React.ReactNode
 }) => {
@@ -139,12 +139,12 @@ export default function AdminDashboardPage() {
     toast({ title: 'About Page Updated', description: '"Our Story" has been saved.' });
   }
 
-  const handleAddTeamMember = (data: Omit<TeamMember, 'id' | 'initials'>) => {
+  const handleAddTeamMember = (data: Omit<TeamMember, 'id'>) => {
     addTeamMember(data);
     toast({ title: 'Team Member Added', description: `${data.name} has been added to the team.` });
   }
 
-  const handleUpdateTeamMember = (id: string, data: Omit<TeamMember, 'id' | 'initials'>) => {
+  const handleUpdateTeamMember = (id: string, data: Omit<TeamMember, 'id'>) => {
     updateTeamMember(id, data);
     toast({ title: 'Team Member Updated', description: `${data.name}'s information has been updated.` });
   }

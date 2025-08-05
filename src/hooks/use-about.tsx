@@ -11,8 +11,8 @@ interface AboutContextType {
   aboutContent: AboutContent;
   isLoading: boolean;
   updateStory: (newStory: string) => Promise<void>;
-  addTeamMember: (member: Omit<TeamMember, 'id' | 'initials'>) => Promise<void>;
-  updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id' | 'initials'>) => Promise<void>;
+  addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
+  updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
   deleteTeamMember: (memberId: string) => Promise<void>;
   getInitials: (name: string) => string;
 }
@@ -55,7 +55,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
       }
     };
     fetchContent();
-  }, []);
+  }, [aboutDocRef]);
 
   const updateStory = async (newStory: string) => {
     if (!user?.isAdmin) throw new Error("Unauthorized");
@@ -64,23 +64,22 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     await updateDoc(aboutDocRef, { story: newStory });
   };
 
-  const addTeamMember = async (memberData: Omit<TeamMember, 'id' | 'initials'>) => {
+  const addTeamMember = async (memberData: Omit<TeamMember, 'id'>) => {
     if (!user?.isAdmin) throw new Error("Unauthorized");
     const newMember: TeamMember = {
       ...memberData,
       id: new Date().getTime().toString(),
-      initials: getInitials(memberData.name),
     };
     const updatedMembers = [...aboutContent.teamMembers, newMember];
     setAboutContent({ ...aboutContent, teamMembers: updatedMembers });
     await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
   };
 
-  const updateTeamMember = async (memberId: string, updatedData: Omit<TeamMember, 'id' | 'initials'>) => {
+  const updateTeamMember = async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
     if (!user?.isAdmin) throw new Error("Unauthorized");
     const updatedMembers = aboutContent.teamMembers.map(member => 
       member.id === memberId 
-        ? { ...member, ...updatedData, initials: getInitials(updatedData.name) } 
+        ? { ...member, ...updatedData } 
         : member
     );
     setAboutContent({ ...aboutContent, teamMembers: updatedMembers });
