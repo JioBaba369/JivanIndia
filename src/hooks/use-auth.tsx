@@ -11,7 +11,7 @@ import { getInitials } from '@/lib/utils';
 export interface User {
   uid: string;
   name: string;
-  username?: string;
+  username: string;
   email: string;
   isAdmin?: boolean;
   profileImageUrl?: string;
@@ -119,6 +119,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: fbUser.email!,
       isAdmin: false,
       profileImageUrl: '',
+      bio: '',
+      phone: '',
+      website: '',
+      currentLocation: { country: '', state: '', city: '' },
+      originLocation: { indiaState: '', indiaDistrict: '' },
+      languagesSpoken: [],
+      interests: [],
       savedEvents: [],
       joinedCommunities: [],
       savedDeals: [],

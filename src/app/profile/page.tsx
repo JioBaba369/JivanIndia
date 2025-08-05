@@ -19,7 +19,7 @@ import { useCommunities } from '@/hooks/use-communities';
 import { useDeals } from '@/hooks/use-deals';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
-import { getInitials } from '@/lib/utils';
+import { getInitials, formatUrl } from '@/lib/utils';
 
 
 export default function ProfilePage() {
@@ -98,7 +98,7 @@ export default function ProfilePage() {
                            ) : <AvatarFallback className="font-headline text-3xl">{getInitials(user.name)}</AvatarFallback>}
                         </Avatar>
                         <CardTitle className="font-headline pt-2 text-2xl">{user.name}</CardTitle>
-                        <CardDescription>{user.email}</CardDescription>
+                        <CardDescription>@{user.username}</CardDescription>
                         {user.bio && <p className="pt-2 text-sm italic text-muted-foreground">"{user.bio}"</p>}
                          <Button variant="secondary" className="mt-4 w-full" asChild>
                             <Link href="/profile/edit">Edit Profile</Link>
@@ -167,7 +167,7 @@ export default function ProfilePage() {
                                     <Globe className="h-5 w-5 mt-1 flex-shrink-0 text-primary" />
                                     <div>
                                         <p className="text-sm font-semibold">Website</p>
-                                        <p className="text-sm text-muted-foreground truncate hover:text-primary"><a href={user.website} target="_blank" rel="noopener noreferrer">{user.website}</a></p>
+                                        <p className="text-sm text-muted-foreground truncate hover:text-primary"><a href={formatUrl(user.website)} target="_blank" rel="noopener noreferrer">{user.website}</a></p>
                                     </div>
                                 </div>
                             )}

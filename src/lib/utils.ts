@@ -13,7 +13,7 @@ export function formatUrl(url: string): string {
   return `https://${url}`;
 }
 
-export const getInitials = (name: string) => {
+export const getInitials = (name?: string) => {
   if (!name) return '';
   const names = name.split(' ');
   if (names.length > 1) {

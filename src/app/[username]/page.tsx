@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -24,7 +24,8 @@ import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
 import { useDeals } from '@/hooks/use-deals';
-import { getInitials } from '@/lib/utils';
+import { getInitials, formatUrl } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -106,7 +107,7 @@ export default function UserPublicProfilePage() {
         });
     };
 
-    const CountryFlag = ({ countryCode }: { countryCode: string }) => {
+    const CountryFlag = ({ countryCode }: { countryCode?: string }) => {
         if (!countryCode) return null;
         return (
             <Image
@@ -122,6 +123,7 @@ export default function UserPublicProfilePage() {
 
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
+             <TooltipProvider>
             <div className="container mx-auto p-4 md:p-12">
                 <Card className="max-w-4xl mx-auto shadow-xl">
                     <CardContent className="p-6 md:p-8">
@@ -133,7 +135,6 @@ export default function UserPublicProfilePage() {
                                 </Avatar>
                                 <div className="absolute -bottom-2 -right-8 flex gap-2">
                                     {profileUser.currentLocation?.country && (
-                                    <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center">
@@ -144,10 +145,8 @@ export default function UserPublicProfilePage() {
                                             <p>Current: {profileUser.currentLocation.city}, {profileUser.currentLocation.state}, {profileUser.currentLocation.country}</p>
                                         </TooltipContent>
                                     </Tooltip>
-                                    </TooltipProvider>
                                     )}
                                      {profileUser.originLocation?.indiaState && (
-                                     <TooltipProvider>
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center">
@@ -158,7 +157,6 @@ export default function UserPublicProfilePage() {
                                             <p>Origin: {profileUser.originLocation.indiaDistrict}, {profileUser.originLocation.indiaState}, India</p>
                                         </TooltipContent>
                                     </Tooltip>
-                                    </TooltipProvider>
                                      )}
                                 </div>
                             </div>
@@ -166,6 +164,21 @@ export default function UserPublicProfilePage() {
                             <h1 className="font-headline text-4xl font-bold mt-4">{profileUser.name}</h1>
                             <p className="text-muted-foreground">@{profileUser.username}</p>
                             {profileUser.bio && <p className="mt-4 max-w-2xl mx-auto text-foreground/80">{profileUser.bio}</p>}
+                        
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
+                                {(profileUser.languagesSpoken && profileUser.languagesSpoken.length > 0) && (
+                                <div className="flex items-center gap-2"><Languages className="h-4 w-4"/> {profileUser.languagesSpoken.join(', ')}</div>
+                                )}
+                                {profileUser.website && (
+                                     <div className="flex items-center gap-2"><Globe className="h-4 w-4"/> <a href={formatUrl(profileUser.website)} target="_blank" rel="noopener noreferrer" className="hover:text-primary">{profileUser.website}</a></div>
+                                )}
+                            </div>
+
+                             {(profileUser.interests && profileUser.interests.length > 0) && (
+                                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                                    {profileUser.interests.map(interest => <Badge key={interest} variant="secondary"><Heart className="mr-1 h-3 w-3"/>{interest}</Badge>)}
+                                </div>
+                             )}
                         </div>
 
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -173,13 +186,6 @@ export default function UserPublicProfilePage() {
                                 <Button asChild>
                                     <Link href={`/c/${affiliatedCommunity.slug}`}>
                                         <Building className="mr-2"/> View {profileUser.affiliation.orgName}
-                                    </Link>
-                                </Button>
-                            )}
-                             {profileUser.website && (
-                                <Button asChild variant="secondary">
-                                    <Link href={`https://${profileUser.website}`} target="_blank">
-                                        <Globe className="mr-2"/> Website
                                     </Link>
                                 </Button>
                             )}
@@ -374,6 +380,7 @@ export default function UserPublicProfilePage() {
                     </CardContent>
                 </Card>
             </div>
+            </TooltipProvider>
         </div>
     );
 }

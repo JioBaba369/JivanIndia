@@ -60,6 +60,7 @@ export default function EditProfilePage() {
   const [isPending, startTransition] = useTransition();
 
   const isUsernameUnique = async (username: string) => {
+    if (!username) return true;
     const existingUser = await getUserByUsername(username);
     return !existingUser;
   };
@@ -126,7 +127,11 @@ export default function EditProfilePage() {
                 description: "Your profile information has been successfully updated.",
             });
 
-            router.push('/profile');
+            if (user.username !== values.username) {
+              router.push(`/${values.username}`);
+            } else {
+              router.push('/profile');
+            }
             router.refresh();
 
         } catch (error) {
@@ -210,7 +215,7 @@ export default function EditProfilePage() {
                 <div className="space-y-4">
                    <h3 className="font-headline text-lg font-semibold border-b pb-2">Personal Details</h3>
                     <FormField control={form.control} name="phone" render={({field}) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} placeholder="e.g., +1 123 456 7890"/></FormControl><FormMessage/></FormItem>)}/>
-                    <FormField control={form.control} name="bio" render={({field}) => (<FormItem><FormLabel>A Little About You</FormLabel><FormControl><Textarea {...field} placeholder="This is a good place to put your bio..." rows={3}/></FormControl><FormMessage/></FormItem>)}/>
+                    <FormField control={form.control} name="bio" render={({field}) => (<FormItem><FormLabel>A Little About You</FormLabel><FormControl><Textarea {...field} placeholder="This is a good place to put your bio..." rows={3}/></FormControl><FormDescription>Max 160 characters.</FormDescription><FormMessage/></FormItem>)}/>
                 </div>
 
                 <div className="space-y-4">
