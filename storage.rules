@@ -3,45 +3,17 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-
-    // Profile pictures: Only the user can upload/update their own picture.
-    match /profile-pictures/{userId}/{allPaths=**} {
-      allow write: if isOwner(userId);
-      allow read;
-    }
-
-    // Community logos & banners: Only authenticated users can upload.
-    // More specific rules can be added here later if needed (e.g., check community ownership via Firestore).
-    match /community-logos/{allPaths=**} {
-      allow write: if request.auth != null;
-      allow read;
-    }
-
-    match /community-banners/{allPaths=**} {
-      allow write: if request.auth != null;
-      allow read;
-    }
-
-    // Event banners: Only authenticated users can upload.
-    match /event-banners/{allPaths=**} {
-      allow write: if request.auth != null;
-      allow read;
-    }
-
-    // Deal images: Only authenticated users can upload.
-    match /deal-images/{allPaths=**} {
-      allow write: if request.auth != null;
-      allow read;
-    }
-
-    // Deny all other writes by default
+    // Allow read access to everyone for all files
     match /{allPaths=**} {
       allow read;
-      allow write: if false;
+    }
+
+    // Allow write access only for authenticated users on specific image paths
+    // Enforce file size and content type
+    match /{folder}/{allPaths=**} {
+      allow write: if request.auth != null
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
   }
 }
