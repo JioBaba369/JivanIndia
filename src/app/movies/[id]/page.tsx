@@ -10,13 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { useState, useEffect } from 'react';
 import { useParams } from "next/navigation";
-import { movies } from "@/data/movies";
+import { useMovies } from "@/hooks/use-movies";
 import { useCommunities } from "@/hooks/use-communities";
 
 export default function MovieDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
-  const movie = movies.find(m => m.id === id);
+  const { getMovieById } = useMovies();
+  const movie = getMovieById(id);
   const [postedAt, setPostedAt] = useState('');
   const { getCommunityBySlug } = useCommunities();
   const distributor = getCommunityBySlug(movie?.details.distributorId || '');

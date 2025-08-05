@@ -15,11 +15,12 @@ import { Film, MapPin, Search, Star, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
-import { movies } from "@/data/movies";
+import { useMovies } from "@/hooks/use-movies";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 export default function MoviesPage() {
+  const { movies } = useMovies();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -34,7 +35,7 @@ export default function MoviesPage() {
       const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [searchQuery]);
+  }, [movies, searchQuery]);
 
   return (
     <div className="flex flex-col">

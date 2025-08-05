@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useCommunities } from '@/hooks/use-communities';
-import { deals as allDeals } from "@/data/deals";
+import { useDeals } from '@/hooks/use-deals';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 
@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
   const { communities: allCommunities, getCommunityById } = useCommunities();
+  const { deals: allDeals } = useDeals();
   const { providers: allProviders } = useProviders();
   const { sponsors: allSponsors } = useSponsors();
 
@@ -463,5 +464,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

@@ -16,7 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
-import { deals } from "@/data/deals";
+import { useDeals } from "@/hooks/use-deals";
 import { format } from "date-fns";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
   const { events, isLoading: isLoadingEvents } = useEvents();
+  const { deals, isLoading: isLoadingDeals } = useDeals();
+
   const latestEvents = events.filter(e => e.status === 'Approved').slice(0, 3);
   const latestDeals = deals.slice(0, 3);
   const router = useRouter();
@@ -171,7 +173,8 @@ export default function HomePage() {
                 </Button>
             </div>
              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {latestDeals.length > 0 ? (
+              {isLoadingDeals ? <DealSkeletons /> : (
+                latestDeals.length > 0 ? (
                   latestDeals.map((deal) => (
                     <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl">
                       <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
@@ -200,7 +203,7 @@ export default function HomePage() {
                   <h3 className="font-headline text-xl font-semibold">No Deals Available</h3>
                   <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or post a deal for your business!</p>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>

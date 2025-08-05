@@ -15,6 +15,9 @@ import CookieConsentBanner from "@/components/cookie-consent-banner";
 import { ProvidersProvider } from "@/hooks/use-providers";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
 import MobileNav from "@/components/layout/mobile-nav";
+import { JobsProvider } from "@/hooks/use-jobs";
+import { MoviesProvider } from "@/hooks/use-movies";
+import { DealsProvider } from "@/hooks/use-deals";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -75,14 +78,20 @@ export default function RootLayout({
               <EventsProvider>
                 <ProvidersProvider>
                   <SponsorsProvider>
-                    <div className="relative flex min-h-screen flex-col">
-                      <Header />
-                      <main className="flex-1 pb-20 md:pb-0">{children}</main>
-                      <Footer />
-                    </div>
-                    <Toaster />
-                    <CookieConsentBanner />
-                    <MobileNav />
+                    <DealsProvider>
+                      <MoviesProvider>
+                        <JobsProvider>
+                          <div className="relative flex min-h-screen flex-col">
+                            <Header />
+                            <main className="flex-1 pb-20 md:pb-0">{children}</main>
+                            <Footer />
+                          </div>
+                          <Toaster />
+                          <CookieConsentBanner />
+                          <MobileNav />
+                        </JobsProvider>
+                      </MoviesProvider>
+                    </DealsProvider>
                   </SponsorsProvider>
                 </ProvidersProvider>
               </EventsProvider>

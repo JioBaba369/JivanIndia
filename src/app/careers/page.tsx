@@ -10,10 +10,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { jobs } from "@/data/jobs";
+import { useJobs } from "@/hooks/use-jobs";
 import { useSearchParams } from "next/navigation";
 
 export default function CareersPage() {
+  const { jobs } = useJobs();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
@@ -26,7 +27,7 @@ export default function CareersPage() {
   const jobTypes = useMemo(() => {
     const types = new Set(jobs.map(j => j.type));
     return ['all', ...Array.from(types)];
-  }, []);
+  }, [jobs]);
 
   const filteredJobs = useMemo(() => {
     return jobs.filter(job => {
@@ -40,7 +41,7 @@ export default function CareersPage() {
       
       return matchesSearch && matchesLocation && matchesType;
     });
-  }, [searchQuery, locationQuery, jobType]);
+  }, [jobs, searchQuery, locationQuery, jobType]);
 
   return (
     <div className="flex flex-col">

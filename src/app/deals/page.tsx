@@ -10,11 +10,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deals } from "@/data/deals";
+import { useDeals } from "@/hooks/use-deals";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 export default function DealsPage() {
+  const { deals } = useDeals();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -27,7 +28,7 @@ export default function DealsPage() {
   const dealCategories = useMemo(() => {
     const categories = new Set(deals.map(d => d.category));
     return ['all', ...Array.from(categories)];
-  }, []);
+  }, [deals]);
 
   const filteredDeals = useMemo(() => {
     return deals.filter(deal => {
@@ -37,7 +38,7 @@ export default function DealsPage() {
       const matchesCategory = category === 'all' || deal.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, category]);
+  }, [deals, searchQuery, category]);
 
   return (
     <div className="flex flex-col">

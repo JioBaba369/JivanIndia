@@ -12,12 +12,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { formatDistanceToNow, isValid } from 'date-fns';
 import { useState, useEffect } from 'react';
-import { deals } from "@/data/deals";
+import { useDeals } from "@/hooks/use-deals";
 
 export default function DealDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
-  const deal = deals.find(d => d.id === id);
+  const { getDealById } = useDeals();
+  const deal = getDealById(id);
 
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
