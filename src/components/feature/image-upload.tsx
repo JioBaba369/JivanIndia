@@ -130,7 +130,7 @@ export default function ImageUpload({
                 {uploadState.isUploading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
                 ) : (
-                    icon.component
+                    <Camera className="mr-2 h-4 w-4" />
                 )}
                 <span>{uploadState.isUploading ? 'Uploading...' : icon.text}</span>
             </Button>
