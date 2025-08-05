@@ -1,7 +1,6 @@
 
 'use client';
 
-import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, Target, Sprout, Handshake, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";

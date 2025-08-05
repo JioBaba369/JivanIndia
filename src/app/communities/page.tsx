@@ -227,7 +227,7 @@ export default function CommunitiesPage() {
             {filteredCommunities.map((org) => {
                 const isJoined = isCommunityJoined(org.id);
                 return view === 'grid' ? (
-                <Card key={org.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Card key={org.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl">
                     <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
                         <div className="relative h-48 w-full">
                         <Image
@@ -268,7 +268,7 @@ export default function CommunitiesPage() {
                     </div>
                 </Card>
               ) : (
-                <Card key={org.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
+                <Card key={org.id} className="group w-full overflow-hidden border transition-all hover:shadow-xl">
                    <Link href={`/c/${org.slug}`}>
                     <div className="flex flex-col sm:flex-row">
                         <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">

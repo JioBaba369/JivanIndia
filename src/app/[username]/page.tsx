@@ -113,7 +113,6 @@ export default function UserPublicProfilePage() {
                 height={18}
                 alt={`${countryCode} flag`}
                 className="rounded-sm object-cover"
-                unoptimized
             />
         )
     }
@@ -378,5 +377,3 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
-
-    
