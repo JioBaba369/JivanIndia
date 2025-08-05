@@ -1,111 +1,74 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper Functions for validating requests
+    
+    // =================================
+    // Helper Functions
+    // =================================
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
     
     function isAdmin() {
-      // get() can't be used in helper functions in this context,
-      // so we check the incoming resource directly.
-      // This will be combined with checks on the existing resource in rules.
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    // Check if the user is the founder of a specific community
     function isCommunityFounder(communityId) {
-      let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
-      return request.auth.uid == community.founderUid;
+      return isSignedIn() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
     }
-    
-    function isEventSubmitter(eventId) {
-      let event = get(/databases/$(database)/documents/events/$(eventId)).data;
-      return request.auth.uid == event.submittedByUid;
-    }
-    
-    // Validate required fields are present and not empty for a new document
-    function hasRequiredFields(requiredFields) {
-      return requiredFields.size() == requiredFields.filter(field => field in request.resource.data && request.resource.data[field] != '').size();
-    }
-    
-    // Check if there are any unexpected fields
-    function hasOnlyAllowedFields(allowedFields) {
-      return request.resource.data.keys().hasOnly(allowedFields);
-    }
-    
 
-    // =====================================================================
-    //  USERS Collection
-    // =====================================================================
+    // Check if the user who submitted an event is the one trying to update it
+    function isEventSubmitter(eventResource) {
+      return isSignedIn() && eventResource.data.submittedByUid == request.auth.uid;
+    }
+
+    // =================================
+    // Collection Rules
+    // =================================
+
+    // USERS
+    // Users can be read by anyone (for public profiles).
+    // Users can only be created if the UID matches.
+    // Users can only update their own document, and cannot make themselves an admin.
     match /users/{userId} {
-      // ANYONE can read a user's public profile data
       allow read: if true;
-      
-      // ONLY the user themselves can update their own profile
-      // CRITICAL: They cannot change their isAdmin status.
-      allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
-
-      // Users can only be created via the signup flow (see functions rules)
       allow create: if isOwner(userId);
-      
-      // No one can delete user documents from the client
-      allow delete: if false;
+      allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
     }
 
-    // =====================================================================
-    //  COMMUNITIES Collection
-    // =====================================================================
+    // COMMUNITIES
+    // Communities can be read by anyone.
+    // They can only be created by signed-in users.
+    // They can only be updated by their founder or an admin.
     match /communities/{communityId} {
-      // ANYONE can read community profiles
       allow read: if true;
-      
-      // ONLY authenticated users can create communities
-      // Validation: Ensure required fields are present and correct types.
-      allow create: if request.auth != null
-                    && request.resource.data.founderUid == request.auth.uid
-                    && request.resource.data.isVerified == false; // Must be unverified on creation
-      
-      // ONLY the founder or an admin can update a community
-      // Validation: Ensure founder UID cannot be changed.
-      allow update: if request.auth != null && (isCommunityFounder(communityId) || isAdmin())
-                    && request.resource.data.founderUid == resource.data.founderUid;
-      
-      // ONLY an admin can delete a community (for safety)
-      allow delete: if request.auth != null && isAdmin();
-    }
-
-    // =====================================================================
-    //  EVENTS Collection
-    // =====================================================================
-    match /events/{eventId} {
-      // ANYONE can read approved events
-      allow read: if resource.data.status == 'Approved' || isEventSubmitter(eventId) || isAdmin();
-      
-      // ONLY authenticated users can create events
-      allow create: if request.auth != null 
-                    && request.resource.data.submittedByUid == request.auth.uid;
-      
-      // ONLY the event submitter or an admin can update an event
-      allow update: if request.auth != null && (isEventSubmitter(eventId) || isAdmin());
-
-      // ONLY the event submitter or an admin can delete an event
-      allow delete: if request.auth != null && (isEventSubmitter(eventId) || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isAdmin() || isCommunityFounder(communityId);
     }
     
-    // =====================================================================
-    //  ABOUT Collection
-    // =====================================================================
-    match /about/{docId} {
-      // ANYONE can read the about page content
+    // EVENTS
+    // Events can be read by anyone.
+    // They can only be created by signed-in users.
+    // They can only be updated by the user who submitted them or an admin.
+    match /events/{eventId} {
       allow read: if true;
-      
-      // ONLY an admin can update the about page
-      allow update: if request.auth != null && isAdmin();
-      
-      // No one can create/delete the singleton about doc from client
-      allow create, delete: if false;
+      allow create: if isSignedIn();
+      allow update: if isAdmin() || isEventSubmitter(resource);
+    }
+    
+    // ABOUT
+    // The about page content is public, but can only be written to by an admin.
+    match /about/singleton {
+        allow read: if true;
+        allow write: if isAdmin();
     }
   }
 }
