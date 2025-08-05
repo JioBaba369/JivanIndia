@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name,
       username,
       email: fbUser.email!,
-      isAdmin: false,
+      isAdmin: fbUser.uid === 'defDHmCjCdWvmGid9YYg3RJi01x2',
       profileImageUrl: '',
       bio: '',
       phone: '',
