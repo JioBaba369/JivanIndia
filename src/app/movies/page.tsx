@@ -14,7 +14,7 @@ import {
 import { Film, MapPin, Search, Star, LayoutGrid, List } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useMovies } from "@/hooks/use-movies";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
@@ -30,12 +30,10 @@ export default function MoviesPage() {
   }, [searchParams]);
 
 
-  const filteredMovies = useMemo(() => {
-    return movies.filter(movie => {
-      const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesSearch;
-    });
-  }, [movies, searchQuery]);
+  const filteredMovies = movies.filter(movie => {
+    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
 
   return (
     <div className="flex flex-col">

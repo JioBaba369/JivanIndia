@@ -166,10 +166,7 @@ export default function MovieDetailPage() {
                                         <div className="mt-4 sm:mt-0 flex flex-wrap gap-2">
                                             {theater.showtimes.map(time => (
                                                 <Button key={time} variant="outline" asChild>
-                                                    <Link href="#">
-                                                        <Ticket className="mr-2 h-4 w-4" />
-                                                        {time}
-                                                    </Link>
+                                                    <a href="#"><Ticket className="mr-2 h-4 w-4" />{time}</a>
                                                 </Button>
                                             ))}
                                         </div>

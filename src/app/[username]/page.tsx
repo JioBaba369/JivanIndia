@@ -127,11 +127,8 @@ export default function UserPublicProfilePage() {
                         <div className="text-center">
                             <div className="inline-flex relative">
                                 <Avatar className="h-32 w-32 border-4 border-primary shadow-lg">
-                                    {profileUser.profileImageUrl ? (
-                                        <AvatarImage src={profileUser.profileImageUrl} alt={profileUser.name} />
-                                    ) : (
-                                        <AvatarFallback className="font-headline text-5xl">{getInitials(profileUser.name)}</AvatarFallback>
-                                    )}
+                                    <AvatarImage src={profileUser.profileImageUrl} alt={profileUser.name} />
+                                    <AvatarFallback className="font-headline text-5xl">{getInitials(profileUser.name)}</AvatarFallback>
                                 </Avatar>
                                 <div className="absolute -bottom-2 -right-8 flex gap-2">
                                     {profileUser.currentLocation?.country && (

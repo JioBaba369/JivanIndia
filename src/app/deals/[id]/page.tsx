@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
-import { formatDistanceToNow, isValid } from 'date-fns';
+import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { useDeals } from "@/hooks/use-deals";
 
@@ -97,6 +97,8 @@ export default function DealDetailPage() {
   }
 
   const dealIsSaved = user ? isDealSaved(deal.id) : false;
+  const expirationDate = isValid(new Date(deal.expires)) ? format(new Date(deal.expires), 'PPP') : 'N/A';
+
 
   return (
     <div className="bg-background">
@@ -170,7 +172,7 @@ export default function DealDetailPage() {
                             <Calendar className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 <p className="font-semibold">Expires</p>
-                                <p className="text-muted-foreground text-sm">{deal.expires}</p>
+                                <p className="text-muted-foreground text-sm">{expirationDate}</p>
                             </div>
                         </div>
                          <div className="flex items-start gap-4">

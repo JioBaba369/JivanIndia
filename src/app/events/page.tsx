@@ -34,10 +34,7 @@ export default function EventsPage() {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
 
-  const eventCategories = useMemo(() => {
-    const categories = new Set(events.filter(e => e.status === 'Approved').map(event => event.eventType));
-    return ['all', ...Array.from(categories)];
-  }, [events]);
+  const eventCategories = ['all', ...Array.from(new Set(events.filter(e => e.status === 'Approved').map(event => event.eventType)))];
 
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
