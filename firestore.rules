@@ -3,97 +3,90 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // =====================================================================
-    // Helper Functions
-    // =====================================================================
 
-    // Is the user authenticated?
+    // Helper functions to simplify rule logic
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Is the user the owner of the document?
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
 
-    // Is the user an admin?
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
     
-    // Does the incoming data have any fields that are not in the allowed set?
-    function hasOnlyAllowedFields(allowedFields) {
-      return request.resource.data.keys().hasOnly(allowedFields);
+    function isCommunityFounder(communityId) {
+        return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    }
+    
+    function isEventSubmitter(eventId) {
+        return get(/databases/$(database)/documents/events/$(eventId)).data.submittedByUid == request.auth.uid;
+    }
+    
+    // Incoming data validation functions
+    function isValidCommunity(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+            && data.slug is string && data.slug.size() > 0 && data.slug.size() <= 50
+            && data.type is string
+            && data.description is string && data.description.size() <= 160
+            && data.fullDescription is string && data.fullDescription.size() <= 2000
+            && data.founderUid == request.auth.uid // Enforce ownership
+            && data.isVerified == false; // New communities must be unverified
+    }
+    
+     function isValidEvent(data) {
+        return data.title is string && data.title.size() > 0 && data.title.size() <= 100
+            && data.description is string && data.description.size() > 0
+            && data.startDateTime is timestamp
+            && data.endDateTime is timestamp && data.endDateTime > data.startDateTime
+            && data.submittedByUid == request.auth.uid; // Enforce ownership
+    }
+    
+    function canUpdateCommunity(data) {
+       return data.keys().hasOnly(['name', 'type', 'description', 'fullDescription', 'region', 'imageUrl', 'logoUrl', 'tags', 'address', 'phone', 'contactEmail', 'website', 'founded', 'socialMedia', 'updatedAt'])
+        && data.name is string && data.name.size() > 0;
     }
 
-    // =====================================================================
-    // Collection: users
-    // =====================================================================
+
+    // =================================
+    //         Collection Rules
+    // =================================
+
+    // Users can read all user profiles for public pages, but can only write to their own.
     match /users/{userId} {
-      // READ: Anyone can read public user profiles. A user can read their own document.
-      allow read: if true;
-
-      // CREATE: Allow user creation only via signup flow (not directly).
-      // We check for minimal required fields during creation.
-      allow create: if isSignedIn() && request.auth.uid == userId
-                      && request.resource.data.name is string
-                      && request.resource.data.email is string;
-
-      // UPDATE: A user can update their own profile.
-      // They CANNOT change their own isAdmin status.
+      allow read;
+      allow create: if isOwner(userId);
+      // Allow updates if the user is the owner, but explicitly prevent them from changing their own admin status.
       allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
-
-      // DELETE: Not allowed for now to prevent data loss.
-      allow delete: if false;
-    }
-
-    // =====================================================================
-    // Collection: communities
-    // =====================================================================
-    match /communities/{communityId} {
-      // READ: Anyone can read community pages.
-      allow read: if true;
-
-      // CREATE: Any signed-in user can create a community.
-      // We enforce that the founderUid must match the user's UID.
-      allow create: if isSignedIn() && request.resource.data.founderUid == request.auth.uid;
-
-      // UPDATE: Only the founder or an admin can update.
-      allow update: if isAdmin() || (isSignedIn() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid);
-      
-      // DELETE: Only an admin can delete.
-      allow delete: if isAdmin();
-    }
-
-    // =====================================================================
-    // Collection: events
-    // =====================================================================
-    match /events/{eventId} {
-      // READ: Anyone can read events.
-      allow read: if true;
-      
-      // CREATE: Any signed-in user can create an event.
-      // We enforce that the submittedByUid must match the user's UID.
-      allow create: if isSignedIn() && request.resource.data.submittedByUid == request.auth.uid;
-      
-      // UPDATE: Admins can update any event (e.g., to change status).
-      allow update: if isAdmin();
-      
-      // DELETE: Admins can delete events.
-      allow delete: if isAdmin();
     }
     
-    // =====================================================================
-    // Collection: about
-    // =====================================================================
-    match /about/{documentId} {
-        // READ: The 'about' page content should be public.
-        allow read: if true;
-        
-        // WRITE: Only admins should be able to update the 'about' page content.
-        allow write: if isAdmin();
+    // Communities are public to read. Creation requires sign-in. Updates are restricted.
+    match /communities/{communityId} {
+        allow read;
+        allow create: if isSignedIn() && isValidCommunity(request.resource.data);
+        allow update: if (isCommunityFounder(communityId) || isAdmin()) && canUpdateCommunity(request.resource.data);
+        allow delete: if isAdmin();
+    }
+    
+    // Events are public to read. Creation requires sign-in. Updates are restricted.
+    match /events/{eventId} {
+        allow read;
+        allow create: if isSignedIn();
+        allow update: if isEventSubmitter(eventId) || isAdmin();
+        allow delete: if isAdmin();
+    }
+    
+    // The "about" page content is public to read, but only admins can write to it.
+    match /about/{document} {
+      allow read;
+      allow write: if isAdmin();
+    }
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

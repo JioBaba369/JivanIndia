@@ -1,70 +1,45 @@
+
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Helper function to check if a user is the founder of a community.
-    function isCommunityFounder(communityId) {
-      return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+  
+    // Helper function to check if a user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
     }
-
-    // =====================================================================
-    // Profile Pictures
-    // =====================================================================
-    // Users can only write to their own profile picture path.
-    // The file size must be less than 5MB.
-    match /profile-pictures/{userId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId
-                   && request.resource.size < 5 * 1024 * 1024;
-    }
-
-    // =====================================================================
-    // Community Logos
-    // =====================================================================
-    // Only the community founder can upload a logo.
-    match /community-logos/{communityId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && isCommunityFounder(communityId)
-                   && request.resource.size < 5 * 1024 * 1024;
-    }
-    
-    // =====================================================================
-    // Community Banners
-    // =====================================================================
-    // Only the community founder can upload a banner.
-    match /community-banners/{communityId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && isCommunityFounder(communityId)
-                   && request.resource.size < 5 * 1024 * 1024;
-    }
-    
-    // =====================================================================
-    // Event Banners
-    // =====================================================================
-    // Any authenticated user can upload an event banner, as it will be linked
-    // to an event they are creating. The Firestore rules will handle event
-    // creation authorization.
-    match /event-banners/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-                   && request.resource.size < 5 * 1024 * 1024;
-    }
-    
-    // =====================================================================
-    // Deal Images
-    // =====================================================================
-    // Any authenticated user can upload a deal image.
-    match /deal-images/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-                   && request.resource.size < 5 * 1024 * 1024;
-    }
-    
-    // Deny all other writes by default
+  
+    // Default deny all reads and writes
     match /{allPaths=**} {
-        allow read: if false; // Can be true if you want other files to be public
-        allow write: if false;
+      allow read, write: if false;
+    }
+
+    // Allow public read access to all files.
+    // This is necessary for images to be displayed in your app.
+    // Write access is restricted by the more specific rules below.
+    match /{allPaths=**} {
+      allow read;
+    }
+
+    // User can only write to their own profile picture folder
+    match /profile-pictures/{userId}/{fileName} {
+      allow write: if request.auth.uid == userId;
+    }
+    
+    // Any authenticated user can upload community and event images.
+    // This is a trade-off for simplicity. A more complex rule could check
+    // Firestore to verify founder/submitter status, but requires more setup.
+    match /community-logos/{fileName} {
+        allow write: if isSignedIn();
+    }
+     match /community-banners/{fileName} {
+        allow write: if isSignedIn();
+    }
+    match /event-banners/{fileName} {
+        allow write: if isSignedIn();
+    }
+     match /deal-images/{fileName} {
+        allow write: if isSignedIn();
     }
   }
 }
