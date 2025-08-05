@@ -34,7 +34,7 @@ const initialMoviesData: Omit<Movie, 'id'>[] = [
     {
       title: "Kalki 2898 AD",
       genre: "Sci-Fi/Action",
-      imageUrl: "https://placehold.co/400x600.png",
+      imageUrl: "https://placehold.co/400x600/FF9933/FFFFFF.png",
       rating: 4.5,
       postedAt: "2024-07-29T12:00:00Z",
       details: {
@@ -56,7 +56,7 @@ const initialMoviesData: Omit<Movie, 'id'>[] = [
     {
       title: "Jatt & Juliet 3",
       genre: "Romantic Comedy",
-      imageUrl: "https://placehold.co/400x600.png",
+      imageUrl: "https://placehold.co/400x600/D46A00/FFFFFF.png",
       rating: 4.2,
        postedAt: "2024-07-28T12:00:00Z",
       details: {
