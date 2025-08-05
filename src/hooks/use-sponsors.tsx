@@ -109,14 +109,14 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
       if (querySnapshot.empty) {
         console.log("Sponsors collection is empty, seeding with initial data...");
         const batch = writeBatch(firestore);
-        const seededSponsors: Sponsor[] = [];
         initialSponsors.forEach((sponsorData) => {
             const docRef = doc(sponsorsCollectionRef);
             batch.set(docRef, sponsorData);
-            seededSponsors.push({ id: docRef.id, ...sponsorData });
         });
         await batch.commit();
-        setSponsors(seededSponsors);
+        const seededSnapshot = await getDocs(sponsorsCollectionRef);
+        const sponsorsData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
+        setSponsors(sponsorsData);
         console.log("Sponsors collection seeded successfully.");
       } else {
         const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
@@ -124,8 +124,7 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch sponsors from Firestore", error);
-      const localDataWithIds = initialSponsors.map((sponsor, index) => ({...sponsor, id: `local-sponsor-${index}`}));
-      setSponsors(localDataWithIds);
+      setSponsors([]);
     } finally {
       setIsLoading(false);
     }

@@ -85,14 +85,14 @@ export function JobsProvider({ children }: { children: ReactNode }) {
       if (querySnapshot.empty) {
         console.log("Jobs collection is empty, seeding with initial data...");
         const batch = writeBatch(firestore);
-        const seededJobs: Job[] = [];
          initialJobsData.forEach((jobData) => {
             const docRef = doc(jobsCollectionRef);
             batch.set(docRef, jobData);
-            seededJobs.push({ id: docRef.id, ...jobData });
         });
         await batch.commit();
-        setJobs(seededJobs);
+        const seededSnapshot = await getDocs(jobsCollectionRef);
+        const jobsData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
+        setJobs(jobsData);
         console.log("Jobs collection seeded successfully.");
       } else {
         const jobsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
@@ -100,8 +100,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch jobs from Firestore", error);
-      const localDataWithIds = initialJobsData.map((job, index) => ({...job, id: `local-job-${index}`}));
-      setJobs(localDataWithIds);
+      setJobs([]);
     } finally {
       setIsLoading(false);
     }

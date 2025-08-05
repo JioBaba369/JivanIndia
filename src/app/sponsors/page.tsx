@@ -17,10 +17,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
-import { type Sponsor, initialSponsors } from "@/data/sponsors";
+import { useSponsors } from "@/hooks/use-sponsors";
+import type { Sponsor } from "@/hooks/use-sponsors";
 
 export default function SponsorsPage() {
-    const [sponsors] = useState<Sponsor[]>(initialSponsors);
+    const { sponsors } = useSponsors();
     const [searchQuery, setSearchQuery] = useState('');
     const [industry, setIndustry] = useState('all');
     const [view, setView] = useState<'grid' | 'list'>('grid');

@@ -98,23 +98,22 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
       if (querySnapshot.empty) {
         console.log("Movies collection is empty, seeding with initial data...");
         const batch = writeBatch(firestore);
-        const seededMovies: Movie[] = [];
         initialMoviesData.forEach((movieData) => {
             const docRef = doc(moviesCollectionRef);
             batch.set(docRef, movieData);
-            seededMovies.push({ id: docRef.id, ...movieData });
         });
         await batch.commit();
-        setMovies(seededMovies);
+        const seededSnapshot = await getDocs(moviesCollectionRef);
+        const moviesData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
+        setMovies(moviesData);
         console.log("Movies collection seeded successfully.");
       } else {
         const moviesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
         setMovies(moviesData);
       }
     } catch (error) {
-      console.error("Failed to fetch movies from Firestore, falling back to local data.", error);
-      const localDataWithIds = initialMoviesData.map((movie, index) => ({...movie, id: `local-movie-${index}`}));
-      setMovies(localDataWithIds);
+      console.error("Failed to fetch movies from Firestore", error);
+      setMovies([]);
     } finally {
       setIsLoading(false);
     }

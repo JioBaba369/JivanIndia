@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, writeBatch, collection, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useAuth } from './use-auth';
 
@@ -94,25 +94,30 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   
   const aboutDocRef = doc(firestore, 'about', ABOUT_DOC_ID);
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const docSnap = await getDoc(aboutDocRef);
-        if (docSnap.exists()) {
-          setAboutContent(docSnap.data() as AboutContent);
-        } else {
-          // If the document doesn't exist, create it with initial content
-          await setDoc(aboutDocRef, initialAboutContent);
-          setAboutContent(initialAboutContent);
-        }
-      } catch (error) {
-        console.error("Failed to fetch about content from Firestore", error);
-      } finally {
-        setIsLoading(false);
+  const fetchContent = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const docSnap = await getDoc(aboutDocRef);
+      if (docSnap.exists()) {
+        setAboutContent(docSnap.data() as AboutContent);
+      } else {
+        // If the document doesn't exist, create it with initial content
+        console.log("About content not found, seeding with initial data...");
+        await setDoc(aboutDocRef, initialAboutContent);
+        setAboutContent(initialAboutContent);
+        console.log("About content seeded successfully.");
       }
-    };
-    fetchContent();
+    } catch (error) {
+      console.error("Failed to fetch about content from Firestore", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [aboutDocRef]);
+
+
+  useEffect(() => {
+    fetchContent();
+  }, [fetchContent]);
 
   const updateStory = async (newStory: string) => {
     if (!user?.isAdmin) throw new Error("Unauthorized");

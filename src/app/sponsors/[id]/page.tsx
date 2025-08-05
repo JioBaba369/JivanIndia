@@ -11,22 +11,23 @@ import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { useState, useEffect } from "react";
-import { initialSponsors, type Sponsor } from "@/data/sponsors";
+import { useSponsors } from "@/hooks/use-sponsors";
+import type { Sponsor } from "@/hooks/use-sponsors";
 import { formatUrl } from "@/lib/utils";
 
 
 export default function SponsorDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
+  const { getSponsorById } = useSponsors();
   const [sponsor, setSponsor] = useState<Sponsor | null | undefined>(undefined);
-  const [sponsors] = useState<Sponsor[]>(initialSponsors);
 
   const { events } = useEvents();
 
   useEffect(() => {
-    const foundSponsor = sponsors.find(s => s.id === id);
+    const foundSponsor = getSponsorById(id);
     setSponsor(foundSponsor);
-  }, [id, sponsors]);
+  }, [id, getSponsorById]);
 
   const sponsoredEvents = events.filter(event => sponsor?.eventsSponsored.some(e => e.eventId === event.id) && event.status === 'Approved');
 

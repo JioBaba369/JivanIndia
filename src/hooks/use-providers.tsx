@@ -107,14 +107,14 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       if (querySnapshot.empty) {
         console.log("Providers collection is empty, seeding with initial data...");
         const batch = writeBatch(firestore);
-        const seededProviders: Provider[] = [];
         initialProviders.forEach((providerData) => {
             const docRef = doc(providersCollectionRef);
             batch.set(docRef, providerData);
-            seededProviders.push({ id: docRef.id, ...providerData });
         });
         await batch.commit();
-        setProviders(seededProviders);
+        const seededSnapshot = await getDocs(providersCollectionRef);
+        const providersData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Provider));
+        setProviders(providersData);
         console.log("Providers collection seeded successfully.");
       } else {
         const providersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Provider));
@@ -122,8 +122,7 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch providers from Firestore", error);
-      const localDataWithIds = initialProviders.map((provider, index) => ({...provider, id: `local-provider-${index}`}));
-      setProviders(localDataWithIds);
+      setProviders([]);
     } finally {
       setIsLoading(false);
     }
