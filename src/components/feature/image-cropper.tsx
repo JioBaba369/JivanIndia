@@ -22,6 +22,8 @@ interface ImageCropperProps {
   aspectRatio?: number;
 }
 
+const MAX_WIDTH = 1200;
+
 export default function ImageCropper({
   isOpen,
   onClose,
@@ -55,9 +57,18 @@ export default function ImageCropper({
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    
-    canvas.width = Math.floor(crop.width * scaleX);
-    canvas.height = Math.floor(crop.height * scaleY);
+
+    let targetWidth = crop.width * scaleX;
+    let targetHeight = crop.height * scaleY;
+
+    if (targetWidth > MAX_WIDTH) {
+        const reductionFactor = MAX_WIDTH / targetWidth;
+        targetWidth = MAX_WIDTH;
+        targetHeight = targetHeight * reductionFactor;
+    }
+
+    canvas.width = Math.floor(targetWidth);
+    canvas.height = Math.floor(targetHeight);
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -86,7 +97,7 @@ export default function ImageCropper({
                 resolve(blob);
             },
             'image/jpeg',
-            0.95
+            0.90 // Slightly lower quality for better compression
         );
     });
   };
@@ -113,7 +124,7 @@ export default function ImageCropper({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Crop Your Image</DialogTitle>
+          <DialogTitle>Crop & Resize Image</DialogTitle>
         </DialogHeader>
         <div className="my-4 flex justify-center">
             {imageSrc && (

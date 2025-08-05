@@ -158,7 +158,7 @@ export default function ImageUpload({
             <div className="text-center p-4">
                 {icon.component}
                 <span className="text-muted-foreground text-sm">{icon.text}</span>
-                <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
+                <p className="text-xs text-muted-foreground/80 mt-1">Up to ${IMAGE_MAX_SIZE_MB}MB</p>
             </div>
             )}
         </Card>
