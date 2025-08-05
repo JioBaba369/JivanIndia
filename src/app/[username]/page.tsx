@@ -23,7 +23,7 @@ import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
-import { deals as allDeals } from '@/data/deals';
+import { useDeals } from '@/hooks/use-deals';
 import { getInitials } from '@/lib/utils';
 
 export default function UserPublicProfilePage() {
@@ -37,6 +37,7 @@ export default function UserPublicProfilePage() {
     const { providers } = useProviders();
     const { sponsors } = useSponsors();
     const { communities: allCommunities, getCommunityById } = useCommunities();
+    const { deals: allDeals } = useDeals();
 
 
     const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
@@ -375,4 +376,5 @@ export default function UserPublicProfilePage() {
             </div>
         </div>
     );
-}
+
+    
