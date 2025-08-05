@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -57,6 +57,7 @@ export default function EditProfilePage() {
   const { toast } = useToast();
   const { user, updateUser, getUserByUsername, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const isUsernameUnique = async (username: string) => {
     const existingUser = await getUserByUsername(username);
@@ -94,47 +95,49 @@ export default function EditProfilePage() {
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
+    
+    startTransition(async () => {
+        try {
+            const updatedData: Partial<User> = {
+                name: values.name,
+                username: values.username,
+                email: values.email,
+                bio: values.bio,
+                phone: values.phone,
+                website: values.website,
+                profileImageUrl: values.profileImageUrl,
+                currentLocation: {
+                    country: values.currentCountry || '',
+                    state: values.currentState || '',
+                    city: values.currentCity || ''
+                },
+                originLocation: {
+                    indiaState: values.originState || '',
+                    indiaDistrict: values.originDistrict || '',
+                },
+                languagesSpoken: values.languages?.split(',').map(s => s.trim()).filter(Boolean),
+                interests: values.interests?.split(',').map(s => s.trim()).filter(Boolean),
+            };
+            
+            await updateUser(updatedData);
+            
+            toast({
+                title: "Profile Updated!",
+                description: "Your profile information has been successfully updated.",
+            });
 
-    try {
-        const updatedData: Partial<User> = {
-            name: values.name,
-            username: values.username,
-            email: values.email,
-            bio: values.bio,
-            phone: values.phone,
-            website: values.website,
-            profileImageUrl: values.profileImageUrl,
-            currentLocation: {
-                country: values.currentCountry || '',
-                state: values.currentState || '',
-                city: values.currentCity || ''
-            },
-            originLocation: {
-                indiaState: values.originState || '',
-                indiaDistrict: values.originDistrict || '',
-            },
-            languagesSpoken: values.languages?.split(',').map(s => s.trim()).filter(Boolean),
-            interests: values.interests?.split(',').map(s => s.trim()).filter(Boolean),
-        };
-        
-        await updateUser(updatedData);
-        
-        toast({
-            title: "Profile Updated!",
-            description: "Your profile information has been successfully updated.",
-        });
+            router.push('/profile');
+            router.refresh();
 
-        router.push('/profile');
-        router.refresh();
-
-    } catch (error) {
-        console.error("Update failed", error);
-        toast({
-            title: "Update Failed",
-            description: "There was an error updating your profile. Please try again.",
-            variant: "destructive",
-        });
-    }
+        } catch (error) {
+            console.error("Update failed", error);
+            toast({
+                title: "Update Failed",
+                description: "There was an error updating your profile. Please try again.",
+                variant: "destructive",
+            });
+        }
+    });
   };
 
   if (isAuthLoading || !user) {
@@ -145,7 +148,7 @@ export default function EditProfilePage() {
     );
   }
   
-  const isSubmitting = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting || isPending;
   const profileImageUrl = form.watch('profileImageUrl');
   const nameValue = form.watch('name');
 
