@@ -1,74 +1,108 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // =================================
+
+    // =====================================================================
     // Helper Functions
-    // =================================
-    
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
+    // =====================================================================
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      // Check the user's custom claim if it exists, otherwise check the database.
+      // This allows for future scalability without needing a DB read every time.
+      return request.auth.token.isAdmin == true || 
+             (request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
     }
     
-    function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-    }
-
-    // Check if the user is the founder of a specific community
     function isCommunityFounder(communityId) {
-      return isSignedIn() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+        let communityDoc = get(/databases/$(database)/documents/communities/$(communityId));
+        return request.auth != null && communityDoc.data.founderUid == request.auth.uid;
     }
 
-    // Check if the user who submitted an event is the one trying to update it
-    function isEventSubmitter(eventResource) {
-      return isSignedIn() && eventResource.data.submittedByUid == request.auth.uid;
+    function requestData() {
+      return request.resource.data;
     }
 
-    // =================================
-    // Collection Rules
-    // =================================
-
-    // USERS
-    // Users can be read by anyone (for public profiles).
-    // Users can only be created if the UID matches.
-    // Users can only update their own document, and cannot make themselves an admin.
+    // =====================================================================
+    // Collection: users
+    // =====================================================================
     match /users/{userId} {
       allow read: if true;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
+
+      // Allow user creation if the user is creating their own document.
+      allow create: if isOwner(userId)
+                    && requestData().name is string
+                    && requestData().email is string
+                    // Ensure a user cannot make themselves an admin on creation.
+                    && requestData().isAdmin == false;
+
+      // Allow users to update their own profile, but not their admin status.
+      allow update: if isOwner(userId)
+                     // Prevent changing admin status.
+                     && request.resource.data.isAdmin == resource.data.isAdmin;
+
+      // Deleting user accounts should be handled by a backend process.
+      allow delete: if false;
     }
 
-    // COMMUNITIES
-    // Communities can be read by anyone.
-    // They can only be created by signed-in users.
-    // They can only be updated by their founder or an admin.
+    // =====================================================================
+    // Collection: communities
+    // =====================================================================
     match /communities/{communityId} {
       allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isAdmin() || isCommunityFounder(communityId);
+
+      // Allow creation if the user is authenticated and provides valid data.
+      allow create: if request.auth != null
+                    // Data validation for required fields
+                    && requestData().name is string && requestData().name.size() > 2
+                    && requestData().slug is string && requestData().slug.size() > 2
+                    && requestData().founderUid == request.auth.uid
+                    // Ensure a new community is not created as verified.
+                    && requestData().isVerified == false;
+
+      // Allow update if the user is the founder or an admin.
+      allow update: if request.auth != null && (isCommunityFounder(communityId) || isAdmin());
+
+      // Only admins should be able to delete communities entirely.
+      allow delete: if isAdmin();
     }
     
-    // EVENTS
-    // Events can be read by anyone.
-    // They can only be created by signed-in users.
-    // They can only be updated by the user who submitted them or an admin.
+    // =====================================================================
+    // Collection: events
+    // =====================================================================
     match /events/{eventId} {
       allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isAdmin() || isEventSubmitter(resource);
+
+      // Allow creation if the user is authenticated.
+      allow create: if request.auth != null
+                     && requestData().title is string
+                     && requestData().startDateTime is timestamp
+                     && requestData().endDateTime is timestamp
+                     && requestData().endDateTime > requestData().startDateTime;
+
+      // Allow update if the user is the original submitter or an admin.
+      allow update: if request.auth != null && (resource.data.submittedByUid == request.auth.uid || isAdmin());
+
+      // Only admins can delete events.
+      allow delete: if isAdmin();
     }
     
-    // ABOUT
-    // The about page content is public, but can only be written to by an admin.
+    // =====================================================================
+    // Collection: about
+    // =====================================================================
     match /about/singleton {
-        allow read: if true;
-        allow write: if isAdmin();
+      allow read: if true;
+
+      // Only admins can write to the "About Us" content.
+      allow write: if isAdmin();
+    }
+
+    // Deny access to any other collections by default.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
