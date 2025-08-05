@@ -182,10 +182,7 @@ export default function EventDetailPage() {
                      Organized by
                    </h3>
                    <Card>
-                       <CardHeader>
-                         <CardTitle className="font-headline text-xl">Organized by</CardTitle>
-                       </CardHeader>
-                       <CardContent>
+                       <CardContent className="p-4">
                            <Link href={`/c/${event.organizerId}`} className="group flex items-center gap-4">
                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                                <Users className="h-6 w-6 text-muted-foreground" />

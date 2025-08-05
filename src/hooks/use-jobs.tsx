@@ -9,7 +9,6 @@ export interface Job {
   id: string;
   title: string;
   companyName: string;
-  companyLogoUrl: string;
   location: string;
   type: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
   salary?: string;
@@ -22,7 +21,6 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Senior Frontend Engineer",
       companyName: "Rani's Boutique",
-      companyLogoUrl: "https://placehold.co/100x100.png",
       location: "San Francisco, CA",
       type: "Full-time",
       salary: "$150,000 - $180,000",
@@ -33,7 +31,6 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Marketing Manager",
       companyName: "Saffron Spice Restaurant",
-      companyLogoUrl: "https://placehold.co/100x100.png",
       location: "Remote",
       type: "Part-time",
       description: "Join our team to lead marketing campaigns, manage social media, and drive growth for our beloved restaurant.",
@@ -43,7 +40,6 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Data Scientist",
       companyName: "Bollywood Cinemas",
-      companyLogoUrl: "https://placehold.co/100x100.png",
       location: "New York, NY",
       type: "Full-time",
       salary: "$130,000 - $160,000",
@@ -54,7 +50,6 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Content Writer (Internship)",
       companyName: "Nirvana Yoga Studio",
-      companyLogoUrl: "https://placehold.co/100x100.png",
       location: "Austin, TX",
       type: "Internship",
       description: "Create engaging content for our blog, social media, and newsletters. A great opportunity for aspiring writers passionate about wellness.",

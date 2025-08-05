@@ -73,6 +73,7 @@ export default function MovieDetailPage() {
                         alt={`Poster for ${movie.title}`}
                         fill
                         className="object-cover"
+                        priority
                         />
                     </div>
                 </Card>
@@ -114,9 +115,6 @@ export default function MovieDetailPage() {
                                  Distributed By
                                </h3>
                                <Card>
-                                    <CardHeader className="p-4">
-                                        <CardTitle className="font-headline text-xl">Distributed By</CardTitle>
-                                    </CardHeader>
                                  <CardContent className="p-4 pt-0">
                                    <Link href={distributor ? `/c/${distributor.slug}` : '#'} className="group flex items-center gap-4">
                                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">

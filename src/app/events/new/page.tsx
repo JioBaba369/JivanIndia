@@ -326,7 +326,7 @@ export default function NewEventPage() {
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Additional Information</h3>
                 <div className="space-y-2">
-                    <FormLabel htmlFor="organizerName">Organizer</FormLabel>
+                    <FormLabel>Organizer</FormLabel>
                     <Input
                         id="organizerName"
                         value={user.affiliation.orgName}

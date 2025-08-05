@@ -24,10 +24,7 @@ export default function CareersPage() {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
 
-  const jobTypes = useMemo(() => {
-    const types = new Set(jobs.map(j => j.type));
-    return ['all', ...Array.from(types)];
-  }, [jobs]);
+  const jobTypes = ['all', ...Array.from(new Set(jobs.map(j => j.type)))];
 
   const filteredJobs = useMemo(() => {
     return jobs.filter(job => {

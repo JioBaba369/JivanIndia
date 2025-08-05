@@ -123,12 +123,12 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
         if (querySnapshot.empty) {
             await seedMovies();
         } else {
-            await fetchAndSetMovies();
+            setMovies(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie)));
         }
         setIsLoading(false);
     };
     initializeMovies();
-  }, [seedMovies, fetchAndSetMovies]);
+  }, [seedMovies]);
 
   const getMovieById = (id: string): Movie | undefined => {
     return movies.find(m => m.id === id);

@@ -105,6 +105,7 @@ export default function MoviesPage() {
                         alt={movie.title}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
+                        data-ai-hint="movie poster"
                     />
                     </div>
                     <CardContent className="p-4">

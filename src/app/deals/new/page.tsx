@@ -155,7 +155,6 @@ export default function NewDealPage() {
                                 aspectRatio={16 / 9}
                                 toast={toast}
                                 folderName="deal-images"
-                                data-ai-hint="deal photo"
                             />
                         </FormControl>
                         <FormMessage />
