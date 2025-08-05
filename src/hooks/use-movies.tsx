@@ -91,37 +91,44 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchMovies = useCallback(async () => {
-    setIsLoading(true);
+  const fetchAndSetMovies = useCallback(async () => {
     try {
       const querySnapshot = await getDocs(moviesCollectionRef);
-      if (querySnapshot.empty) {
-        console.log("Movies collection is empty, seeding with initial data...");
-        const batch = writeBatch(firestore);
-        initialMoviesData.forEach((movieData) => {
-            const docRef = doc(moviesCollectionRef);
-            batch.set(docRef, movieData);
-        });
-        await batch.commit();
-        const seededSnapshot = await getDocs(moviesCollectionRef);
-        const moviesData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
-        setMovies(moviesData);
-        console.log("Movies collection seeded successfully.");
-      } else {
-        const moviesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
-        setMovies(moviesData);
-      }
+      const moviesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
+      setMovies(moviesData);
+      return moviesData;
     } catch (error) {
       console.error("Failed to fetch movies from Firestore", error);
       setMovies([]);
-    } finally {
-      setIsLoading(false);
+      return [];
     }
   }, []);
-  
+
+  const seedMovies = useCallback(async () => {
+      console.log("Movies collection is empty, seeding with initial data...");
+      const batch = writeBatch(firestore);
+      initialMoviesData.forEach((movieData) => {
+          const docRef = doc(moviesCollectionRef);
+          batch.set(docRef, movieData);
+      });
+      await batch.commit();
+      await fetchAndSetMovies();
+      console.log("Movies collection seeded successfully.");
+  }, [fetchAndSetMovies]);
+
   useEffect(() => {
-    fetchMovies();
-  }, [fetchMovies]);
+    const initializeMovies = async () => {
+        setIsLoading(true);
+        const querySnapshot = await getDocs(moviesCollectionRef);
+        if (querySnapshot.empty) {
+            await seedMovies();
+        } else {
+            await fetchAndSetMovies();
+        }
+        setIsLoading(false);
+    };
+    initializeMovies();
+  }, [seedMovies, fetchAndSetMovies]);
 
   const getMovieById = (id: string): Movie | undefined => {
     return movies.find(m => m.id === id);

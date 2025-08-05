@@ -3,56 +3,89 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Default deny all access
+
+    // Helper function to check if a user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Helper function to check if the user is the owner of a document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Default deny all reads and writes
     match /{document=**} {
       allow read, write: if false;
     }
-
-    // Allow public read access for most collections
-    match /events/{eventId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && request.auth.uid == resource.data.submittedByUid;
-    }
-
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && request.auth.uid == resource.data.founderUid;
-    }
-
+    
+    // Users Collection
     match /users/{userId} {
+      // Anyone can read a user's public profile data
       allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
+      // Only the authenticated owner can create or update their own profile
+      allow create, update: if isAuthenticated() && isOwner(userId);
+      // No one can delete user profiles
+      allow delete: if false;
+    }
+
+    // Events Collection
+    match /events/{eventId} {
+      // Anyone can read approved events
+      allow read: if resource.data.status == 'Approved' || (isAuthenticated() && isOwner(resource.data.submittedByUid)) || isAdmin();
+      // Authenticated users can create events
+      allow create: if isAuthenticated();
+      // Only admins can update events (e.g., change status)
+      allow update: if isAdmin();
+       // Only admins can delete events
+      allow delete: if isAdmin();
     }
     
+    // Communities Collection
+    match /communities/{communityId} {
+      // Anyone can read community data
+      allow read: if true;
+      // Authenticated users can create a community
+      allow create: if isAuthenticated();
+      // Only the founder or an admin can update a community
+      allow update: if (isAuthenticated() && isOwner(resource.data.founderUid)) || isAdmin();
+       // Only admins can delete communities
+      allow delete: if isAdmin();
+    }
+
+    // General read-only collections
     match /deals/{dealId} {
       allow read: if true;
-      allow create: if request.auth != null;
+      allow write: if isAdmin(); // Only admins can manage deals
     }
-
     match /movies/{movieId} {
       allow read: if true;
+      allow write: if isAdmin(); // Only admins can manage movies
     }
-
     match /providers/{providerId} {
       allow read: if true;
+      allow write: if isAdmin(); // Only admins can manage providers
     }
-
     match /sponsors/{sponsorId} {
       allow read: if true;
+      allow write: if isAdmin(); // Only admins can manage sponsors
     }
-    
     match /jobs/{jobId} {
       allow read: if true;
-      allow create: if request.auth != null;
+      allow write: if isAuthenticated(); // Affiliated users can post jobs
     }
-
-    match /about/{aboutId} {
+    
+    // About page content
+    match /about/singleton {
+      // Anyone can read the about page content
       allow read: if true;
-      allow update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      // Only an admin can write to the about page content
+      allow write: if isAdmin();
     }
   }
 }

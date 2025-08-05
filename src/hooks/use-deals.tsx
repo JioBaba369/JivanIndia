@@ -89,38 +89,44 @@ export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchDeals = useCallback(async () => {
-    setIsLoading(true);
+  const fetchAndSetDeals = useCallback(async () => {
     try {
-      const querySnapshot = await getDocs(dealsCollectionRef);
-      if (querySnapshot.empty) {
-        console.log("Deals collection is empty, seeding with initial data...");
-        const batch = writeBatch(firestore);
-        initialDealsData.forEach((dealData) => {
-            const docRef = doc(dealsCollectionRef);
-            batch.set(docRef, dealData);
-        });
-        await batch.commit();
-        // After seeding, fetch the data again to get correct IDs
-        const seededSnapshot = await getDocs(dealsCollectionRef);
-        const dealsData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
-        setDeals(dealsData);
-        console.log("Deals collection seeded successfully.");
-      } else {
+        const querySnapshot = await getDocs(dealsCollectionRef);
         const dealsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
         setDeals(dealsData);
-      }
+        return dealsData;
     } catch (error) {
-      console.error("Failed to fetch deals from Firestore", error);
-      setDeals([]);
-    } finally {
-      setIsLoading(false);
+        console.error("Failed to fetch deals from Firestore", error);
+        setDeals([]);
+        return [];
     }
   }, []);
 
+  const seedDeals = useCallback(async () => {
+    console.log("Deals collection is empty, seeding with initial data...");
+    const batch = writeBatch(firestore);
+    initialDealsData.forEach((dealData) => {
+        const docRef = doc(dealsCollectionRef);
+        batch.set(docRef, dealData);
+    });
+    await batch.commit();
+    await fetchAndSetDeals();
+    console.log("Deals collection seeded successfully.");
+  }, [fetchAndSetDeals]);
+
   useEffect(() => {
-    fetchDeals();
-  }, [fetchDeals]);
+    const initializeDeals = async () => {
+        setIsLoading(true);
+        const querySnapshot = await getDocs(dealsCollectionRef);
+        if (querySnapshot.empty) {
+            await seedDeals();
+        } else {
+            await fetchAndSetDeals();
+        }
+        setIsLoading(false);
+    };
+    initializeDeals();
+  }, [seedDeals, fetchAndSetDeals]);
 
 
   const getDealById = (id: string): Deal | undefined => {

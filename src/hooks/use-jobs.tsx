@@ -78,37 +78,44 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchJobs = useCallback(async () => {
-    setIsLoading(true);
+  const fetchAndSetJobs = useCallback(async () => {
     try {
-      const querySnapshot = await getDocs(jobsCollectionRef);
-      if (querySnapshot.empty) {
-        console.log("Jobs collection is empty, seeding with initial data...");
-        const batch = writeBatch(firestore);
-         initialJobsData.forEach((jobData) => {
-            const docRef = doc(jobsCollectionRef);
-            batch.set(docRef, jobData);
-        });
-        await batch.commit();
-        const seededSnapshot = await getDocs(jobsCollectionRef);
-        const jobsData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
-        setJobs(jobsData);
-        console.log("Jobs collection seeded successfully.");
-      } else {
+        const querySnapshot = await getDocs(jobsCollectionRef);
         const jobsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
         setJobs(jobsData);
-      }
+        return jobsData;
     } catch (error) {
-      console.error("Failed to fetch jobs from Firestore", error);
-      setJobs([]);
-    } finally {
-      setIsLoading(false);
+        console.error("Failed to fetch jobs from Firestore", error);
+        setJobs([]);
+        return [];
     }
   }, []);
 
+  const seedJobs = useCallback(async () => {
+      console.log("Jobs collection is empty, seeding with initial data...");
+      const batch = writeBatch(firestore);
+      initialJobsData.forEach((jobData) => {
+          const docRef = doc(jobsCollectionRef);
+          batch.set(docRef, jobData);
+      });
+      await batch.commit();
+      await fetchAndSetJobs();
+      console.log("Jobs collection seeded successfully.");
+  }, [fetchAndSetJobs]);
+
   useEffect(() => {
-    fetchJobs();
-  }, [fetchJobs]);
+    const initializeJobs = async () => {
+        setIsLoading(true);
+        const querySnapshot = await getDocs(jobsCollectionRef);
+        if (querySnapshot.empty) {
+            await seedJobs();
+        } else {
+            await fetchAndSetJobs();
+        }
+        setIsLoading(false);
+    };
+    initializeJobs();
+  }, [seedJobs, fetchAndSetJobs]);
 
   const getJobById = (id: string): Job | undefined => {
     return jobs.find(j => j.id === id);

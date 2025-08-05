@@ -161,7 +161,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     updateStory,
     addTeamMember,
     updateTeamMember,
-    deleteTeamMember,
+deleteTeamMember,
     getInitials,
   };
 

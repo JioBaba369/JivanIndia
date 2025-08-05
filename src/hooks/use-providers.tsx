@@ -100,37 +100,44 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProviders = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const querySnapshot = await getDocs(providersCollectionRef);
-      if (querySnapshot.empty) {
-        console.log("Providers collection is empty, seeding with initial data...");
-        const batch = writeBatch(firestore);
-        initialProviders.forEach((providerData) => {
-            const docRef = doc(providersCollectionRef);
-            batch.set(docRef, providerData);
-        });
-        await batch.commit();
-        const seededSnapshot = await getDocs(providersCollectionRef);
-        const providersData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Provider));
-        setProviders(providersData);
-        console.log("Providers collection seeded successfully.");
-      } else {
+  const fetchAndSetProviders = useCallback(async () => {
+     try {
+        const querySnapshot = await getDocs(providersCollectionRef);
         const providersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Provider));
         setProviders(providersData);
-      }
+        return providersData;
     } catch (error) {
-      console.error("Failed to fetch providers from Firestore", error);
-      setProviders([]);
-    } finally {
-      setIsLoading(false);
+        console.error("Failed to fetch providers from Firestore", error);
+        setProviders([]);
+        return [];
     }
   }, []);
 
+  const seedProviders = useCallback(async () => {
+    console.log("Providers collection is empty, seeding with initial data...");
+    const batch = writeBatch(firestore);
+    initialProviders.forEach((providerData) => {
+        const docRef = doc(providersCollectionRef);
+        batch.set(docRef, providerData);
+    });
+    await batch.commit();
+    await fetchAndSetProviders();
+    console.log("Providers collection seeded successfully.");
+  }, [fetchAndSetProviders]);
+
   useEffect(() => {
-    fetchProviders();
-  }, [fetchProviders]);
+    const initializeProviders = async () => {
+        setIsLoading(true);
+        const querySnapshot = await getDocs(providersCollectionRef);
+        if (querySnapshot.empty) {
+            await seedProviders();
+        } else {
+            await fetchAndSetProviders();
+        }
+        setIsLoading(false);
+    };
+    initializeProviders();
+  }, [seedProviders, fetchAndSetProviders]);
 
   const getProviderById = (id: string) => {
     return providers.find(provider => provider.id === id);

@@ -102,37 +102,45 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchSponsors = useCallback(async () => {
-    setIsLoading(true);
+  const fetchAndSetSponsors = useCallback(async () => {
     try {
-      const querySnapshot = await getDocs(sponsorsCollectionRef);
-      if (querySnapshot.empty) {
-        console.log("Sponsors collection is empty, seeding with initial data...");
-        const batch = writeBatch(firestore);
-        initialSponsors.forEach((sponsorData) => {
-            const docRef = doc(sponsorsCollectionRef);
-            batch.set(docRef, sponsorData);
-        });
-        await batch.commit();
-        const seededSnapshot = await getDocs(sponsorsCollectionRef);
-        const sponsorsData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
-        setSponsors(sponsorsData);
-        console.log("Sponsors collection seeded successfully.");
-      } else {
+        const querySnapshot = await getDocs(sponsorsCollectionRef);
         const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
         setSponsors(sponsorsData);
-      }
+        return sponsorsData;
     } catch (error) {
-      console.error("Failed to fetch sponsors from Firestore", error);
-      setSponsors([]);
-    } finally {
-      setIsLoading(false);
+        console.error("Failed to fetch sponsors from Firestore", error);
+        setSponsors([]);
+        return [];
     }
   }, []);
 
+
+  const seedSponsors = useCallback(async () => {
+    console.log("Sponsors collection is empty, seeding with initial data...");
+    const batch = writeBatch(firestore);
+    initialSponsors.forEach((sponsorData) => {
+        const docRef = doc(sponsorsCollectionRef);
+        batch.set(docRef, sponsorData);
+    });
+    await batch.commit();
+    await fetchAndSetSponsors(); // Refetch to get correct IDs
+    console.log("Sponsors collection seeded successfully.");
+  }, [fetchAndSetSponsors]);
+
   useEffect(() => {
-    fetchSponsors();
-  }, [fetchSponsors]);
+    const initializeSponsors = async () => {
+        setIsLoading(true);
+        const querySnapshot = await getDocs(sponsorsCollectionRef);
+        if (querySnapshot.empty) {
+            await seedSponsors();
+        } else {
+            await fetchAndSetSponsors();
+        }
+        setIsLoading(false);
+    };
+    initializeSponsors();
+  }, [seedSponsors, fetchAndSetSponsors]);
 
 
   const getSponsorById = (id: string) => {

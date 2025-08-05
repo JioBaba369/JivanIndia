@@ -12,9 +12,14 @@ import { type Sponsor } from '@/hooks/use-sponsors';
 
 const BASE_URL = 'https://jivanindia.co';
 
-async function fetchCollection<T>(collectionName: string): Promise<T[]> {
-    const snapshot = await getDocs(collection(firestore, collectionName));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T & { id: string }));
+async function fetchCollection<T>(collectionName: string): Promise<(T & { id: string })[]> {
+    try {
+        const snapshot = await getDocs(collection(firestore, collectionName));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T & { id: string }));
+    } catch (error) {
+        console.error(`Error fetching collection ${collectionName}:`, error);
+        return [];
+    }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -47,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter(event => event.status === 'Approved')
     .map(event => ({
       url: `${BASE_URL}/events/${event.id}`,
-      lastModified: event.updatedAt || event.createdAt,
+      lastModified: event.updatedAt || event.createdAt || new Date().toISOString(),
       changeFrequency: 'weekly' as 'weekly',
   }));
 
@@ -62,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const userRoutes = users.map(user => {
       return user.username ? {
         url: `${BASE_URL}/${user.username}`,
-        lastModified: new Date().toISOString(),
+        lastModified: new Date().toISOString(), // User documents don't have a timestamp
         changeFrequency: 'monthly' as 'monthly',
       } : null;
   }).filter(Boolean) as MetadataRoute.Sitemap;
@@ -72,28 +77,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const deals = await fetchCollection<Deal>('deals');
   const dealRoutes = deals.map(deal => ({
     url: `${BASE_URL}/deals/${deal.id}`,
-    lastModified: new Date().toISOString(),
+    lastModified: deal.postedAt || new Date().toISOString(),
     changeFrequency: 'weekly' as 'weekly',
   }));
   
   const movies = await fetchCollection<Movie>('movies');
   const movieRoutes = movies.map(movie => ({
     url: `${BASE_URL}/movies/${movie.id}`,
-    lastModified: new Date().toISOString(),
+    lastModified: movie.postedAt || new Date().toISOString(),
     changeFrequency: 'weekly' as 'weekly',
   }));
   
   const providers = await fetchCollection<Provider>('providers');
   const providerRoutes = providers.map(provider => ({
     url: `${BASE_URL}/providers/${provider.id}`,
-    lastModified: new Date().toISOString(),
+    lastModified: new Date().toISOString(), // No timestamp on this data
     changeFrequency: 'monthly' as 'monthly',
   }));
   
   const sponsors = await fetchCollection<Sponsor>('sponsors');
   const sponsorRoutes = sponsors.map(sponsor => ({
     url: `${BASE_URL}/sponsors/${sponsor.id}`,
-    lastModified: new Date().toISOString(),
+    lastModified: new Date().toISOString(), // No timestamp on this data
     changeFrequency: 'monthly' as 'monthly',
   }));
 
