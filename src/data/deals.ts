@@ -86,3 +86,5 @@ export const deals: Deal[] = [
         postedAt: '2024-07-28T16:00:00Z',
     }
 ];
+
+    

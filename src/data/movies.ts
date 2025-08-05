@@ -75,7 +75,7 @@ export const movies: Movie[] = [
         id: 'movie-3',
         title: 'Gully Cricket',
         genre: 'Sports/Comedy',
-        imageUrl: 'https://images.unsplash.com/photo-1595359424214-3545c6356449?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBjcmlja2V0fGVufDB8fHx8MTc1NDQxNzQzNnww&ixlib=rb-4.1.0&q=80&w=1080',
+        imageUrl: 'https://images.unsplash.com/photo-1595359424214-3545c6356449?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBjcmlja2V0fGVufDB8fHx8fDE3NTQ0MTc0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
         rating: 4.2,
         postedAt: '2024-07-28T14:00:00Z',
         details: {
@@ -94,3 +94,5 @@ export const movies: Movie[] = [
         }
     }
 ];
+
+    
