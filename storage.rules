@@ -3,43 +3,42 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-  
-    // Helper function to check if a user is authenticated
-    function isSignedIn() {
-      return request.auth != null;
+    
+    // Helper function to check ownership of a community
+    function isCommunityFounder(communityId) {
+      return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
     }
-  
-    // Default deny all reads and writes
-    match /{allPaths=**} {
-      allow read, write: if false;
-    }
-
-    // Allow public read access to all files.
-    // This is necessary for images to be displayed in your app.
-    // Write access is restricted by the more specific rules below.
+    
+    // Publicly readable, anyone can see images
     match /{allPaths=**} {
       allow read;
     }
-
-    // User can only write to their own profile picture folder
-    match /profile-pictures/{userId}/{fileName} {
+    
+    // Profile Pictures: Only the owner can write to their own folder
+    match /profile-pictures/{userId}/{allPaths=**} {
       allow write: if request.auth.uid == userId;
     }
     
-    // Any authenticated user can upload community and event images.
-    // This is a trade-off for simplicity. A more complex rule could check
-    // Firestore to verify founder/submitter status, but requires more setup.
-    match /community-logos/{fileName} {
-        allow write: if isSignedIn();
+    // Community Logos: Only the community founder can write to their folder
+    match /community-logos/{communityId}/{allPaths=**} {
+      allow write: if isCommunityFounder(communityId);
     }
-     match /community-banners/{fileName} {
-        allow write: if isSignedIn();
+    
+    // Community Banners: Only the community founder can write to their folder
+    match /community-banners/{communityId}/{allPaths=**} {
+       allow write: if isCommunityFounder(communityId);
     }
-    match /event-banners/{fileName} {
-        allow write: if isSignedIn();
+    
+    // Event Banners: Any authenticated user can upload an event banner.
+    // The Firestore rules will handle who can create/update the event itself.
+    match /event-banners/{allPaths=**} {
+      allow write: if request.auth != null;
     }
-     match /deal-images/{fileName} {
-        allow write: if isSignedIn();
+    
+    // Deal Images: Any authenticated user can upload a deal image.
+    // The Firestore rules will handle who can create/update the deal itself.
+    match /deal-images/{allPaths=**} {
+      allow write: if request.auth != null;
     }
   }
 }

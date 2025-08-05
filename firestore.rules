@@ -4,11 +4,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions to simplify rule logic
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
+    // Helper Functions
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
@@ -18,75 +14,57 @@ service cloud.firestore {
     }
     
     function isCommunityFounder(communityId) {
-        return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+      let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
+      return community.founderUid == request.auth.uid;
     }
     
     function isEventSubmitter(eventId) {
-        return get(/databases/$(database)/documents/events/$(eventId)).data.submittedByUid == request.auth.uid;
+      let event = get(/databases/$(database)/documents/events/$(eventId)).data;
+      return event.submittedByUid == request.auth.uid;
     }
-    
-    // Incoming data validation functions
-    function isValidCommunity(data) {
-        return data.name is string && data.name.size() > 0 && data.name.size() <= 100
-            && data.slug is string && data.slug.size() > 0 && data.slug.size() <= 50
-            && data.type is string
-            && data.description is string && data.description.size() <= 160
-            && data.fullDescription is string && data.fullDescription.size() <= 2000
-            && data.founderUid == request.auth.uid // Enforce ownership
-            && data.isVerified == false; // New communities must be unverified
-    }
-    
-     function isValidEvent(data) {
-        return data.title is string && data.title.size() > 0 && data.title.size() <= 100
-            && data.description is string && data.description.size() > 0
-            && data.startDateTime is timestamp
-            && data.endDateTime is timestamp && data.endDateTime > data.startDateTime
-            && data.submittedByUid == request.auth.uid; // Enforce ownership
-    }
-    
-    function canUpdateCommunity(data) {
-       return data.keys().hasOnly(['name', 'type', 'description', 'fullDescription', 'region', 'imageUrl', 'logoUrl', 'tags', 'address', 'phone', 'contactEmail', 'website', 'founded', 'socialMedia', 'updatedAt'])
-        && data.name is string && data.name.size() > 0;
-    }
-
 
     // =================================
-    //         Collection Rules
+    // Collections
     // =================================
 
-    // Users can read all user profiles for public pages, but can only write to their own.
+    // Users Collection
+    // Users can read public profiles.
+    // Users can create their own profile on signup.
+    // Users can only update their own profile, and cannot make themselves an admin.
     match /users/{userId} {
       allow read;
       allow create: if isOwner(userId);
-      // Allow updates if the user is the owner, but explicitly prevent them from changing their own admin status.
       allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
+      allow delete: if isAdmin(); // Only admins can delete user accounts
     }
     
-    // Communities are public to read. Creation requires sign-in. Updates are restricted.
-    match /communities/{communityId} {
-        allow read;
-        allow create: if isSignedIn() && isValidCommunity(request.resource.data);
-        allow update: if (isCommunityFounder(communityId) || isAdmin()) && canUpdateCommunity(request.resource.data);
-        allow delete: if isAdmin();
-    }
-    
-    // Events are public to read. Creation requires sign-in. Updates are restricted.
-    match /events/{eventId} {
-        allow read;
-        allow create: if isSignedIn();
-        allow update: if isEventSubmitter(eventId) || isAdmin();
-        allow delete: if isAdmin();
-    }
-    
-    // The "about" page content is public to read, but only admins can write to it.
-    match /about/{document} {
+    // About Collection
+    // Publicly readable. Only admins can write.
+    match /about/{docId} {
       allow read;
       allow write: if isAdmin();
     }
+
+    // Communities Collection
+    // Publicly readable.
+    // Authenticated users can create new communities.
+    // Only founders or admins can update.
+    match /communities/{communityId} {
+      allow read;
+      allow create: if request.auth != null && request.resource.data.founderUid == request.auth.uid;
+      allow update: if isAdmin() || isCommunityFounder(communityId);
+      allow delete: if isAdmin() || isCommunityFounder(communityId);
+    }
     
-    // Default deny all other collections
-    match /{document=**} {
-      allow read, write: if false;
+    // Events Collection
+    // Publicly readable.
+    // Authenticated users can create new events.
+    // Only submitters or admins can update.
+    match /events/{eventId} {
+        allow read;
+        allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
+        allow update: if isAdmin() || isEventSubmitter(eventId);
+        allow delete: if isAdmin() || isEventSubmitter(eventId);
     }
   }
 }
