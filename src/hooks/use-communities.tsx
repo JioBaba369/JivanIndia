@@ -2,8 +2,9 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, deleteDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useAuth } from './use-auth';
 
 export interface Community {
   id: string;
@@ -41,6 +42,7 @@ interface CommunitiesContextType {
   isLoading: boolean;
   addCommunity: (community: NewCommunityInput, founderEmail: string) => Promise<Community>;
   updateCommunity: (id: string, data: Partial<Community>) => Promise<void>;
+  deleteCommunity: (id: string) => Promise<void>;
   getCommunityById: (id: string) => Community | undefined;
   getCommunityBySlug: (slug: string) => Community | undefined;
   isSlugUnique: (slug: string, currentId?: string) => boolean;
@@ -54,6 +56,8 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user, updateUser } = useAuth();
+
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -91,6 +95,15 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     await updateDoc(communityDocRef, updatedData);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } : c));
   };
+  
+  const deleteCommunity = async (id: string) => {
+    const communityDocRef = doc(firestore, 'communities', id);
+    await deleteDoc(communityDocRef);
+    if(user && user.affiliation?.orgId === id) {
+        await updateUser({ affiliation: undefined });
+    }
+    setCommunities(prev => prev.filter(c => c.id !== id));
+  };
 
   const getCommunityById = (id: string): Community | undefined => {
     return communities.find(c => c.id === id);
@@ -117,6 +130,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     isLoading,
     addCommunity,
     updateCommunity,
+    deleteCommunity,
     getCommunityById,
     getCommunityBySlug,
     isSlugUnique,

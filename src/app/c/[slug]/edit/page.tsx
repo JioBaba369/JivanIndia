@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, X, Trash2 } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,6 +32,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 const NAME_MAX_LENGTH = 100;
 const DESC_MAX_LENGTH = 160;
@@ -70,11 +72,12 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity, isLoading: isLoadingCommunities } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
   const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
   const [community, setCommunity] = useState<Community | null>(null);
 
   const form = useForm<CommunityFormValues>({
@@ -197,6 +200,27 @@ export default function EditCommunityPage() {
         }
     });
   };
+
+  const handleDelete = async () => {
+      if (!community) return;
+      setIsDeleting(true);
+      try {
+          await deleteCommunity(community.id);
+          toast({
+              title: "Community Deleted",
+              description: `The community "${community.name}" has been permanently deleted.`
+          });
+          router.push('/communities');
+          router.refresh();
+      } catch (error) {
+          toast({
+              title: "Deletion Failed",
+              description: "An unexpected error occurred. Please try again.",
+              variant: 'destructive'
+          });
+          setIsDeleting(false);
+      }
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -390,13 +414,37 @@ export default function EditCommunityPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4 pt-4">
-                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={!form.formState.isValid || isPending}>
-                  {isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}
-                </Button>
+              <div className="flex justify-between items-center gap-4 pt-4">
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                         <Button type="button" variant="destructive" disabled={isDeleting}>
+                            <Trash2 className="mr-2"/> Delete Community
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your
+                                community and remove all of its associated data from our servers.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                                {isDeleting ? 'Deleting...' : 'Yes, delete it'}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+                 <div className="flex justify-end gap-4">
+                    <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={!form.formState.isValid || isPending}>
+                      {isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}
+                    </Button>
+                </div>
               </div>
             </form>
           </Form>
