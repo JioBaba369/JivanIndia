@@ -217,7 +217,7 @@ export default function ProfilePage() {
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                            <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
+                                            <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="event photo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/events/${event.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{event.title}</CardTitle></Link>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                            <Image src={org.imageUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
+                                            <Image src={org.imageUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="community photo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/c/${org.slug}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
@@ -295,7 +295,7 @@ export default function ProfilePage() {
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                            <Image src={deal.imageUrl} alt={deal.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
+                                            <Image src={deal.imageUrl} alt={deal.title} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="deal photo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/deals/${deal.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{deal.title}</CardTitle></Link>
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                                 <Card key={provider.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                            <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" />
+                                            <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="service photo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/providers/${provider.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
                                 <Card key={sponsor.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                            <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-1" />
+                                            <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-1" data-ai-hint="sponsor logo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/sponsors/${sponsor.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{sponsor.name}</CardTitle></Link>
@@ -417,7 +417,7 @@ export default function ProfilePage() {
                                 <Card key={event.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                          <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" />
+                                          <Image src={event.imageUrl} alt={event.title} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="event photo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <div className="flex items-start justify-between">

@@ -89,7 +89,7 @@ export default function HomePage() {
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                      placeholder="Search for events, communities, deals..."
+                      placeholder="Search for events, deals, and more..."
                       className="h-12 rounded-md border-0 bg-transparent pl-12 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -136,6 +136,7 @@ export default function HomePage() {
                               alt={event.title}
                               fill
                               className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              data-ai-hint="event photo"
                             />
                           </div>
                           <CardContent className="flex flex-grow flex-col p-6">
@@ -184,6 +185,7 @@ export default function HomePage() {
                             alt={deal.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint="deal photo"
                           />
                         </div>
                         <CardContent className="flex flex-grow flex-col p-6">

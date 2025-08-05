@@ -4,28 +4,26 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Handshake, X, Linkedin, Facebook } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Handshake, X, Linkedin, Facebook, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { useSponsors } from "@/hooks/use-sponsors";
-import type { Sponsor } from "@/hooks/use-sponsors";
 import { formatUrl } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 
 export default function SponsorDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { getSponsorById } = useSponsors();
+  const { getSponsorById, isLoading } = useSponsors();
   const sponsor = getSponsorById(id);
 
   const { events } = useEvents();
+  const { toast } = useToast();
 
   const sponsoredEvents = events.filter(event => sponsor?.eventsSponsored.some(e => e.eventId === event.id) && event.status === 'Approved');
-
-  const { toast } = useToast();
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -34,6 +32,14 @@ export default function SponsorDetailPage() {
       description: "Sponsor profile link copied to clipboard.",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!sponsor) {
     return (
@@ -58,6 +64,7 @@ export default function SponsorDetailPage() {
               width={400}
               height={200}
               className="object-contain"
+              data-ai-hint="sponsor logo"
             />
           </div>
           <CardContent className="p-6 md:p-8">
@@ -96,7 +103,7 @@ export default function SponsorDetailPage() {
                             <Link href={`/events/${event.id}`} key={event.id} className="group">
                                 <Card className="overflow-hidden h-full">
                                     <div className="relative h-32 w-full">
-                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105"/>
+                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="event photo"/>
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>

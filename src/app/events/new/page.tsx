@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents, type NewEventInput } from '@/hooks/use-events';
@@ -327,7 +326,7 @@ export default function NewEventPage() {
             <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Additional Information</h3>
                 <div className="space-y-2">
-                    <Label htmlFor="organizerName">Organizer</Label>
+                    <FormLabel htmlFor="organizerName">Organizer</FormLabel>
                     <Input
                         id="organizerName"
                         value={user.affiliation.orgName}

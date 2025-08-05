@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useDeals } from "@/hooks/use-deals";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { format, isValid } from 'date-fns';
 
 export default function DealsPage() {
   const { deals } = useDeals();
@@ -109,8 +110,9 @@ export default function DealsPage() {
                 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
                 : 'flex flex-col'
             )}>
-            {filteredDeals.map((deal) => (
-              view === 'grid' ? (
+            {filteredDeals.map((deal) => {
+              const expirationDate = isValid(new Date(deal.expires)) ? format(new Date(deal.expires), 'PP') : 'N/A';
+              return view === 'grid' ? (
                 <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
                   <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                     <div className="relative h-48 w-full">
@@ -119,6 +121,7 @@ export default function DealsPage() {
                         alt={deal.title}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
+                        data-ai-hint="deal photo"
                       />
                     </div>
                     <CardContent className="flex flex-grow flex-col p-6">
@@ -145,6 +148,7 @@ export default function DealsPage() {
                           alt={deal.title}
                           fill
                           className="object-cover transition-transform group-hover:scale-105"
+                          data-ai-hint="deal photo"
                         />
                       </div>
                       <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
@@ -155,7 +159,7 @@ export default function DealsPage() {
                             <span>{deal.business}</span>
                         </div>
                          <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>Expires: {deal.expires}</span>
+                            <span>Expires: {expirationDate}</span>
                         </div>
                       </CardContent>
                       <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
@@ -168,7 +172,7 @@ export default function DealsPage() {
                   </Link>
                 </Card>
               )
-            ))}
+            })}
           </div>
         ) : (
             <div className="rounded-lg border-2 border-dashed py-16 text-center">

@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -12,24 +12,17 @@ import { useAuth } from "@/hooks/use-auth";
 import { useParams, useRouter } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { useCommunities } from "@/hooks/use-communities";
-import { useState, useEffect } from "react";
 import { useProviders } from "@/hooks/use-providers";
-import type { Provider } from "@/hooks/use-providers";
 
 export default function ProviderDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { providers } = useProviders();
-  const [provider, setProvider] = useState<Provider | null | undefined>(undefined);
+  const { providers, isLoading: isLoadingProviders } = useProviders();
+  const provider = providers.find(p => p.id === id);
   
   const { events } = useEvents();
   const { getCommunityById } = useCommunities();
-
-  useEffect(() => {
-    const foundProvider = providers.find(p => p.id === id);
-    setProvider(foundProvider);
-  }, [id, providers]);
 
   const associatedCommunity = provider?.associatedCommunityId ? getCommunityById(provider.associatedCommunityId) : null;
   
@@ -73,6 +66,14 @@ export default function ProviderDetailPage() {
     }
   }
 
+  if (isLoadingProviders) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   if (!provider) {
     return (
         <div className="container mx-auto px-4 py-12 text-center">
@@ -97,6 +98,7 @@ export default function ProviderDetailPage() {
               alt={provider.name}
               fill
               className="object-cover"
+              data-ai-hint="service photo"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
@@ -156,7 +158,7 @@ export default function ProviderDetailPage() {
                             <Link href={`/events/${event.id}`} key={event.id} className="group">
                                 <Card className="overflow-hidden h-full">
                                     <div className="relative h-32 w-full">
-                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105"/>
+                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="event photo"/>
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>

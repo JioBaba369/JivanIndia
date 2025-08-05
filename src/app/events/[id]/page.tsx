@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { format, formatDistanceToNow, intervalToDuration, isValid } from 'date-fns';
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 
 export default function EventDetailPage() {
@@ -142,6 +142,7 @@ export default function EventDetailPage() {
               alt={event.title}
               fill
               className="object-cover"
+              data-ai-hint="event photo"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
@@ -246,6 +247,7 @@ export default function EventDetailPage() {
                       fill
                       className="object-cover"
                       data-ai-hint="map location"
+                      priority
                     />
                  </div>
               </div>

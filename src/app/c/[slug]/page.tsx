@@ -14,26 +14,15 @@ import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatUrl, getInitials } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import type { Community } from "@/hooks/use-communities";
 
 export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = typeof params.slug === 'string' ? params.slug : '';
-  const { getCommunityBySlug } = useCommunities();
-  
-  const [community, setCommunity] = useState<Community | null | undefined>(undefined);
+  const { getCommunityBySlug, isLoading } = useCommunities();
+  const community = getCommunityBySlug(slug);
   
   const { events } = useEvents();
-
-  useEffect(() => {
-    if (slug) {
-        const foundCommunity = getCommunityBySlug(slug);
-        setCommunity(foundCommunity);
-    }
-  }, [slug, getCommunityBySlug]);
-
 
   const relatedEvents = community ? events.filter(event => event.organizerId === community.id && event.status === 'Approved').slice(0, 3) : [];
   
@@ -75,7 +64,7 @@ export default function CommunityDetailPage() {
     }
   }
 
-  if (community === undefined) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -107,6 +96,7 @@ export default function CommunityDetailPage() {
                 fill
                 className="object-cover"
                 priority
+                data-ai-hint="community photo"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
@@ -158,7 +148,7 @@ export default function CommunityDetailPage() {
                             <Link href={`/events/${event.id}`} key={event.id} className="group">
                                 <Card className="overflow-hidden h-full">
                                     <div className="relative h-32 w-full">
-                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105"/>
+                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="event photo"/>
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>

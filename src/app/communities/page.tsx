@@ -235,6 +235,7 @@ export default function CommunitiesPage() {
                             alt={org.name}
                             fill
                             className="object-cover transition-transform group-hover:scale-105"
+                            data-ai-hint="community photo"
                         />
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4">
@@ -277,6 +278,7 @@ export default function CommunitiesPage() {
                                 alt={org.name}
                                 fill
                                 className="object-cover transition-transform group-hover:scale-105"
+                                data-ai-hint="community photo"
                             />
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
