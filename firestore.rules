@@ -3,12 +3,16 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
+  
     // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-
+    
     function isAdmin() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
@@ -17,54 +21,45 @@ service cloud.firestore {
       let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
       return community.founderUid == request.auth.uid;
     }
-    
+
     function isEventSubmitter(eventId) {
-      let event = get(/databases/$(database)/documents/events/$(eventId)).data;
-      return event.submittedByUid == request.auth.uid;
+        let event = get(/databases/$(database)/documents/events/$(eventId)).data;
+        return event.submittedByUid == request.auth.uid;
     }
 
-    // =================================
-    // Collections
-    // =================================
-
-    // Users Collection
-    // Users can read public profiles.
-    // Users can create their own profile on signup.
-    // Users can only update their own profile, and cannot make themselves an admin.
+    // Collection: users
     match /users/{userId} {
       allow read;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin;
-      allow delete: if isAdmin(); // Only admins can delete user accounts
+      allow create: if isSignedIn() && isOwner(userId);
+      // Users can update their own profile, but cannot make themselves an admin.
+      allow update: if (isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin) || isAdmin();
+    }
+
+    // Collection: communities
+    match /communities/{communityId} {
+      allow read;
+      allow create: if isSignedIn();
+      allow update: if isCommunityFounder(communityId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
-    // About Collection
-    // Publicly readable. Only admins can write.
-    match /about/{docId} {
+    // Collection: events
+    match /events/{eventId} {
+      allow read;
+      allow create: if isSignedIn();
+      allow update: if isEventSubmitter(eventId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Collection: about
+    match /about/singleton {
       allow read;
       allow write: if isAdmin();
     }
 
-    // Communities Collection
-    // Publicly readable.
-    // Authenticated users can create new communities.
-    // Only founders or admins can update.
-    match /communities/{communityId} {
-      allow read;
-      allow create: if request.auth != null && request.resource.data.founderUid == request.auth.uid;
-      allow update: if isAdmin() || isCommunityFounder(communityId);
-      allow delete: if isAdmin() || isCommunityFounder(communityId);
-    }
-    
-    // Events Collection
-    // Publicly readable.
-    // Authenticated users can create new events.
-    // Only submitters or admins can update.
-    match /events/{eventId} {
-        allow read;
-        allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
-        allow update: if isAdmin() || isEventSubmitter(eventId);
-        allow delete: if isAdmin() || isEventSubmitter(eventId);
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

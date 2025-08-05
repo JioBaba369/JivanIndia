@@ -4,41 +4,44 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Helper function to check ownership of a community
-    function isCommunityFounder(communityId) {
-      return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
-    
-    // Publicly readable, anyone can see images
-    match /{allPaths=**} {
+
+    // Profile pictures: Only the user can upload/update their own picture.
+    match /profile-pictures/{userId}/{allPaths=**} {
+      allow write: if isOwner(userId);
       allow read;
     }
-    
-    // Profile Pictures: Only the owner can write to their own folder
-    match /profile-pictures/{userId}/{allPaths=**} {
-      allow write: if request.auth.uid == userId;
+
+    // Community logos & banners: Only authenticated users can upload.
+    // More specific rules can be added here later if needed (e.g., check community ownership via Firestore).
+    match /community-logos/{allPaths=**} {
+      allow write: if request.auth != null;
+      allow read;
     }
-    
-    // Community Logos: Only the community founder can write to their folder
-    match /community-logos/{communityId}/{allPaths=**} {
-      allow write: if isCommunityFounder(communityId);
+
+    match /community-banners/{allPaths=**} {
+      allow write: if request.auth != null;
+      allow read;
     }
-    
-    // Community Banners: Only the community founder can write to their folder
-    match /community-banners/{communityId}/{allPaths=**} {
-       allow write: if isCommunityFounder(communityId);
-    }
-    
-    // Event Banners: Any authenticated user can upload an event banner.
-    // The Firestore rules will handle who can create/update the event itself.
+
+    // Event banners: Only authenticated users can upload.
     match /event-banners/{allPaths=**} {
       allow write: if request.auth != null;
+      allow read;
     }
-    
-    // Deal Images: Any authenticated user can upload a deal image.
-    // The Firestore rules will handle who can create/update the deal itself.
+
+    // Deal images: Only authenticated users can upload.
     match /deal-images/{allPaths=**} {
       allow write: if request.auth != null;
+      allow read;
+    }
+
+    // Deny all other writes by default
+    match /{allPaths=**} {
+      allow read;
+      allow write: if false;
     }
   }
 }
