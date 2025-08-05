@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List, Bookmark } from "lucide-react";
+import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List, Bookmark, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, type MouseEvent } from "react";
@@ -91,6 +91,14 @@ export default function ProvidersPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find trusted professionals for legal, health, financial, and other services.
           </p>
+          {user?.isAdmin && (
+             <Button asChild size="lg" className="mt-8">
+              <Link href="/providers/new">
+                <PlusCircle className="mr-2 h-5 w-5"/>
+                List a Service
+              </Link>
+            </Button>
+          )}
         </div>
       </section>
 

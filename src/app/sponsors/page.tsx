@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Handshake, Search, LayoutGrid, List } from "lucide-react";
+import { Handshake, Search, LayoutGrid, List, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +19,11 @@ import { useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
 import { useSponsors } from "@/hooks/use-sponsors";
 import type { Sponsor } from "@/hooks/use-sponsors";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function SponsorsPage() {
     const { sponsors } = useSponsors();
+    const { user } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [industry, setIndustry] = useState('all');
     const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -49,6 +51,14 @@ export default function SponsorsPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Meet the organizations whose generous support helps our community thrive.
           </p>
+           {user?.isAdmin && (
+             <Button asChild size="lg" className="mt-8">
+              <Link href="/sponsors/new">
+                <PlusCircle className="mr-2 h-5 w-5"/>
+                Add a Sponsor
+              </Link>
+            </Button>
+          )}
         </div>
       </section>
 
