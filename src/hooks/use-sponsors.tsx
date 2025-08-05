@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Sponsor {

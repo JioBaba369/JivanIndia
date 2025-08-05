@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Provider {
@@ -26,9 +26,8 @@ export interface Provider {
   associatedCommunityId?: string; // Slug of the community
 }
 
-export const initialProviders: Provider[] = [
+export const initialProviders: Omit<Provider, 'id'>[] = [
     {
-      id: "1",
       name: "Gupta Law Firm",
       category: "Legal",
       description: "Specializing in immigration and family law for the community.",
@@ -48,7 +47,6 @@ export const initialProviders: Provider[] = [
       associatedCommunityId: "bay-area-tamil-sangam"
     },
     {
-      id: "2",
       name: "Patel Medical Clinic",
       category: "Healthcare",
       description: "Comprehensive healthcare services for the entire family.",
@@ -68,7 +66,6 @@ export const initialProviders: Provider[] = [
        associatedCommunityId: "bay-area-tamil-sangam"
     },
     {
-      id: "3",
       name: "Singh Financials",
       category: "Financial",
       description: "Expert financial planning and investment advice.",
@@ -108,16 +105,25 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     try {
       const querySnapshot = await getDocs(providersCollectionRef);
       if (querySnapshot.empty) {
-        // If the collection is empty, you might want to seed it with initial data
-        // For now, we'll just set it to the initial static data
-        setProviders(initialProviders);
+        console.log("Providers collection is empty, seeding with initial data...");
+        const batch = writeBatch(firestore);
+        const seededProviders: Provider[] = [];
+        initialProviders.forEach((providerData) => {
+            const docRef = doc(providersCollectionRef);
+            batch.set(docRef, providerData);
+            seededProviders.push({ id: docRef.id, ...providerData });
+        });
+        await batch.commit();
+        setProviders(seededProviders);
+        console.log("Providers collection seeded successfully.");
       } else {
         const providersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Provider));
         setProviders(providersData);
       }
     } catch (error) {
       console.error("Failed to fetch providers from Firestore", error);
-      setProviders(initialProviders); // Fallback to static data on error
+      const localDataWithIds = initialProviders.map((provider, index) => ({...provider, id: `local-provider-${index}`}));
+      setProviders(localDataWithIds);
     } finally {
       setIsLoading(false);
     }

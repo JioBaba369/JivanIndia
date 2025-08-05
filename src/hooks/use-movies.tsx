@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Movie {
@@ -107,7 +107,6 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
         await batch.commit();
         setMovies(seededMovies);
         console.log("Movies collection seeded successfully.");
-
       } else {
         const moviesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
         setMovies(moviesData);

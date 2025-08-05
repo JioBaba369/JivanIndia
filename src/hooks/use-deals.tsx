@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Deal {
@@ -98,7 +98,7 @@ export function DealsProvider({ children }: { children: ReactNode }) {
         const batch = writeBatch(firestore);
         const seededDeals: Deal[] = [];
         initialDealsData.forEach((dealData) => {
-            const docRef = collection(firestore, 'deals').doc();
+            const docRef = doc(dealsCollectionRef);
             batch.set(docRef, dealData);
             seededDeals.push({ id: docRef.id, ...dealData });
         });
@@ -111,7 +111,6 @@ export function DealsProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch deals from Firestore, falling back to local data.", error);
-      // Fallback to local data if firestore fails
       const localDataWithIds = initialDealsData.map((deal, index) => ({...deal, id: `local-deal-${index}`}));
       setDeals(localDataWithIds);
     } finally {

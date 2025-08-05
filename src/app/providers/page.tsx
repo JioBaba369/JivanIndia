@@ -19,10 +19,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { type Provider, initialProviders } from "@/data/providers";
+import { useProviders } from "@/hooks/use-providers";
+import type { Provider } from "@/hooks/use-providers";
 
 export default function ProvidersPage() {
-    const [providers] = useState<Provider[]>(initialProviders);
+    const { providers } = useProviders();
     const { user, saveProvider, unsaveProvider, isProviderSaved } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
@@ -153,7 +154,7 @@ export default function ProvidersPage() {
                 : 'flex flex-col'
             )}>
             {filteredProviders.map((provider) => {
-                const isSaved = isProviderSaved(provider.id);
+                const isSaved = user ? isProviderSaved(provider.id) : false;
                 return view === 'grid' ? (
                 <Card key={provider.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
                     <Link href={`/providers/${provider.id}`} className="flex h-full flex-grow flex-col">

@@ -13,15 +13,16 @@ import { useParams, useRouter } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { useCommunities } from "@/hooks/use-communities";
 import { useState, useEffect } from "react";
-import { initialProviders, type Provider } from "@/data/providers";
+import { useProviders } from "@/hooks/use-providers";
+import type { Provider } from "@/hooks/use-providers";
 
 export default function ProviderDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
+  const { providers } = useProviders();
   const [provider, setProvider] = useState<Provider | null | undefined>(undefined);
   
-  const [providers] = useState<Provider[]>(initialProviders);
   const { events } = useEvents();
   const { getCommunityById } = useCommunities();
 
