@@ -1,52 +1,66 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
+
     // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function isCommunityFounder(communityId) {
       return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
     }
 
-    // Allow public read on most collections
-    match /{collection}/{docId} 
-      where collection in ['events', 'communities', 'deals', 'movies', 'providers', 'sponsors', 'jobs', 'about'] {
-      allow read: if true;
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    // Users can only read/write their own document
+    // Public read access for most collections
+    match /about/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    match /communities/{communityId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.founderUid) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    }
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.submittedByUid) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    }
     match /users/{userId} {
       allow read: if true;
       allow create: if isSignedIn() && isOwner(userId);
       allow update: if isSignedIn() && isOwner(userId);
-      allow delete: if false; // Generally, don't allow users to delete their own accounts
     }
-    
-    // Events can be created by authenticated users, but only updated/deleted by their creator or an admin
-    match /events/{eventId} {
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && (resource.data.submittedByUid == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create, update: if isSignedIn();
     }
-    
-    // Communities can be created by any signed-in user.
-    // Updates are restricted to the community's founder.
-    match /communities/{communityId} {
-        allow create: if isSignedIn();
-        allow update: if isSignedIn() && isCommunityFounder(communityId);
-        allow delete: if false; // Prevent accidental deletion
+     match /jobs/{jobId} {
+      allow read: if true;
+      allow create, update: if isSignedIn();
     }
-
-    // Default deny all other requests
-    match /{document=**} {
-      allow read, write: if false;
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    match /providers/{providerId} {
+        allow read: if true;
+        allow create, update: if isSignedIn();
+    }
+    match /sponsors/{sponsorId} {
+        allow read: if true;
+        allow create, update: if isSignedIn();
     }
   }
 }
