@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useAuth } from './use-auth';
 
@@ -86,7 +86,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       founderEmail: founderEmail,
     };
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
-    const newCommunity = { id: docRef.id, ...newCommunityData };
+    const newCommunity = { id: docRef.id, ...newCommunityData } as Community;
     setCommunities(prev => [...prev, newCommunity]);
     return newCommunity;
   };
@@ -124,7 +124,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const updatedData = { isVerified: true, updatedAt: new Date().toISOString() };
     await updateDoc(communityDocRef, updatedData);
     setCommunities(prev => prev.map(c => 
-      c.id === communityId ? { ...c, ...updatedData } as Community : c
+      c.id === communityId ? { ...c, isVerified: true, updatedAt: updatedData.updatedAt } as Community : c
     ));
   };
 

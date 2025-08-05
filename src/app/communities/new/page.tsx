@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
@@ -94,15 +94,9 @@ export default function NewCommunityPage() {
   const { user, setAffiliation } = useAuth();
   
   const [isPending, startTransition] = useTransition();
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
-
-  const memoizedIsSlugUnique = useCallback((slug: string) => {
-    if (slug.length < 3) return true; // Don't validate until it's a valid length
-    return isSlugUnique(slug);
-  }, [isSlugUnique]);
 
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
+    resolver: zodResolver(formSchema(isSlugUnique)),
     defaultValues: {
       name: '',
       slug: '',
@@ -126,15 +120,13 @@ export default function NewCommunityPage() {
   });
 
   const nameValue = form.watch('name');
-  const slugValue = form.watch('slug');
-  const isSlugChecking = form.formState.isValidating && form.getFieldState('slug').isDirty;
 
   useEffect(() => {
-    if (!slugManuallyEdited && nameValue) {
+    if (nameValue) {
       const newSlug = generateSlug(nameValue);
       form.setValue('slug', newSlug, { shouldValidate: true });
     }
-  }, [nameValue, slugManuallyEdited, form]);
+  }, [nameValue, form]);
 
 
   const onSubmit = async (values: CommunityFormValues) => {
@@ -295,13 +287,6 @@ export default function NewCommunityPage() {
                           <Input 
                             placeholder="e.g., Bay Area Tamil Sangam" 
                             {...field} 
-                            onChange={(e) => {
-                                field.onChange(e);
-                                if (!slugManuallyEdited) {
-                                    const newSlug = generateSlug(e.target.value);
-                                    form.setValue('slug', newSlug, { shouldValidate: true });
-                                }
-                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -319,16 +304,11 @@ export default function NewCommunityPage() {
                             <Input
                               placeholder="e.g., bay-area-tamil-sangam"
                               {...field}
-                              onFocus={() => setSlugManuallyEdited(true)}
-                              onChange={(e) => {
-                                if (!slugManuallyEdited) setSlugManuallyEdited(true);
-                                field.onChange(generateSlug(e.target.value));
-                              }}
                             />
                           </FormControl>
-                          {isSlugChecking && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
+                          {form.formState.isValidating && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
                         </div>
-                        <FormDescription>jivanindia.co/c/{slugValue || '{your-url}'}</FormDescription>
+                        <FormDescription>jivanindia.co/c/{form.getValues('slug') || '{your-url}'}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

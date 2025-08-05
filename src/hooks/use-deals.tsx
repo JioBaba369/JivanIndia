@@ -29,7 +29,7 @@ const initialDealsData: Omit<Deal, 'id'>[] = [
       imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjByZXN0YXVyYW50fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
       expires: "2024-12-31",
       business: "Saffron Spice Restaurant",
-      businessId: "bay-area-tamil-sangam",
+      businessId: "saffron-spice-restaurant",
       businessLocation: "123 Main St, Fremont, CA",
       businessWebsite: "saffronspice.com",
       postedAt: "2024-07-20T10:00:00Z"
@@ -42,7 +42,7 @@ const initialDealsData: Omit<Deal, 'id'>[] = [
       imageUrl: "https://images.unsplash.com/photo-1583513135406-ac698a3a890a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzYXJlZSUyMHNob3B8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       expires: "2024-10-31",
       business: "Rani's Boutique",
-      businessId: "bay-area-tamil-sangam",
+      businessId: "ranis-boutique",
       businessLocation: "456 Oak Ave, Sunnyvale, CA",
       businessWebsite: "ranisboutique.com",
       postedAt: "2024-07-18T11:00:00Z"
@@ -55,7 +55,7 @@ const initialDealsData: Omit<Deal, 'id'>[] = [
       imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx5b2dhJTIwY2xhc3N8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       expires: "2024-11-30",
       business: "Nirvana Yoga Studio",
-      businessId: "bay-area-tamil-sangam",
+      businessId: "nirvana-yoga-studio",
       businessLocation: "789 Pine St, Santa Clara, CA",
       businessWebsite: "nirvanayoga.com",
       postedAt: "2024-07-15T14:00:00Z"
@@ -68,7 +68,7 @@ const initialDealsData: Omit<Deal, 'id'>[] = [
       imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxib2xseXdvb2QlMjBtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       expires: "2025-01-01",
       business: "Bollywood Cinemas",
-      businessId: "bay-area-tamil-sangam",
+      businessId: "bollywood-cinemas",
       businessLocation: "321 Maple Rd, Milpitas, CA",
       businessWebsite: "bollywoodcinemas.com",
       postedAt: "2024-07-12T18:00:00Z"
@@ -89,45 +89,37 @@ export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchAndSetDeals = useCallback(async () => {
+  const fetchDeals = useCallback(async () => {
+    setIsLoading(true);
     try {
         const querySnapshot = await getDocs(dealsCollectionRef);
-        const dealsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
-        setDeals(dealsData);
+        if (querySnapshot.empty) {
+            console.log("Deals collection is empty, seeding with initial data...");
+            const batch = writeBatch(firestore);
+            const seededDeals: Deal[] = [];
+            initialDealsData.forEach((dealData) => {
+                const docRef = doc(dealsCollectionRef);
+                batch.set(docRef, dealData);
+                seededDeals.push({ id: docRef.id, ...dealData });
+            });
+            await batch.commit();
+            setDeals(seededDeals);
+            console.log("Deals collection seeded successfully.");
+        } else {
+            const dealsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
+            setDeals(dealsData);
+        }
     } catch (error) {
-        console.error("Failed to fetch deals from Firestore", error);
+        console.error("Failed to fetch or seed deals from Firestore", error);
         setDeals([]);
+    } finally {
+        setIsLoading(false);
     }
   }, []);
 
-  const seedDeals = useCallback(async () => {
-    console.log("Deals collection is empty, seeding with initial data...");
-    const batch = writeBatch(firestore);
-    const seededDeals: Deal[] = [];
-    initialDealsData.forEach((dealData) => {
-        const docRef = doc(dealsCollectionRef);
-        batch.set(docRef, dealData);
-        seededDeals.push({ id: docRef.id, ...dealData });
-    });
-    await batch.commit();
-    setDeals(seededDeals);
-    console.log("Deals collection seeded successfully.");
-  }, []);
-
   useEffect(() => {
-    const initializeDeals = async () => {
-        setIsLoading(true);
-        const querySnapshot = await getDocs(dealsCollectionRef);
-        if (querySnapshot.empty) {
-            await seedDeals();
-        } else {
-            await fetchAndSetDeals();
-        }
-        setIsLoading(false);
-    };
-    initializeDeals();
-  }, [seedDeals, fetchAndSetDeals]);
-
+    fetchDeals();
+  }, [fetchDeals]);
 
   const getDealById = (id: string): Deal | undefined => {
     return deals.find(d => d.id === id);

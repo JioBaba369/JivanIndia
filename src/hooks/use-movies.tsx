@@ -64,7 +64,7 @@ const initialMoviesData: Omit<Movie, 'id'>[] = [
         duration: "2h 10m",
         releaseDate: "2024-06-27",
         distributor: "White Hill Studios",
-         distributorId: "vyjayanthi-movies",
+         distributorId: "white-hill-studios",
         director: "Jagdeep Sidhu",
         cast: ["Diljit Dosanjh", "Neeru Bajwa", "Jasmin Bhasin"],
         trailerUrl: "https://www.youtube.com/embed/kQDd1FFfvX8",
@@ -91,44 +91,36 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchAndSetMovies = useCallback(async () => {
+  const fetchMovies = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const querySnapshot = await getDocs(moviesCollectionRef);
-      const moviesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie));
-      setMovies(moviesData);
-    } catch (error) {
-      console.error("Failed to fetch movies from Firestore", error);
-      setMovies([]);
-    }
-  }, []);
-
-  const seedMovies = useCallback(async () => {
-      console.log("Movies collection is empty, seeding with initial data...");
-      const batch = writeBatch(firestore);
-      const seededMovies: Movie[] = [];
-      initialMoviesData.forEach((movieData) => {
-          const docRef = doc(moviesCollectionRef);
-          batch.set(docRef, movieData);
-          seededMovies.push({ id: docRef.id, ...movieData });
-      });
-      await batch.commit();
-      setMovies(seededMovies);
-      console.log("Movies collection seeded successfully.");
-  }, []);
-
-  useEffect(() => {
-    const initializeMovies = async () => {
-        setIsLoading(true);
         const querySnapshot = await getDocs(moviesCollectionRef);
         if (querySnapshot.empty) {
-            await seedMovies();
+            console.log("Movies collection is empty, seeding with initial data...");
+            const batch = writeBatch(firestore);
+            const seededMovies: Movie[] = [];
+            initialMoviesData.forEach((movieData) => {
+                const docRef = doc(moviesCollectionRef);
+                batch.set(docRef, movieData);
+                seededMovies.push({ id: docRef.id, ...movieData });
+            });
+            await batch.commit();
+            setMovies(seededMovies);
+            console.log("Movies collection seeded successfully.");
         } else {
             setMovies(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie)));
         }
+    } catch (error) {
+        console.error("Failed to fetch or seed movies from Firestore", error);
+        setMovies([]);
+    } finally {
         setIsLoading(false);
-    };
-    initializeMovies();
-  }, [seedMovies]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMovies();
+  }, [fetchMovies]);
 
   const getMovieById = (id: string): Movie | undefined => {
     return movies.find(m => m.id === id);

@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useCommunities } from './use-communities';
 
@@ -28,7 +28,7 @@ export interface Event {
   updatedAt?: string; 
 }
 
-export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'status'>;
+export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status'>;
 
 interface EventsContextType {
   events: Event[];
@@ -77,7 +77,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     };
     
     const docRef = await addDoc(eventsCollectionRef, newEventData);
-    setEvents(prev => [...prev, { id: docRef.id, ...newEventData }]);
+    setEvents(prev => [...prev, { id: docRef.id, ...newEventData } as Event]);
   };
 
   const getEventById = useCallback((id: string) => {

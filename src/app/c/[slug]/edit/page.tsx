@@ -166,10 +166,9 @@ export default function EditCommunityPage() {
     if (!community) return;
     
     startTransition(async () => {
-        const newSlug = generateSlug(values.name);
         const updatedData: Partial<Community> = {
           name: values.name,
-          slug: newSlug,
+          slug: values.slug,
           type: values.type,
           description: values.description,
           fullDescription: values.fullDescription,
@@ -196,7 +195,7 @@ export default function EditCommunityPage() {
             description: `Your community "${values.name}" has been successfully updated.`,
           });
           
-          router.push(`/c/${newSlug}`);
+          router.push(`/c/${values.slug}`);
           router.refresh();
 
         } catch (error) {
@@ -298,6 +297,20 @@ export default function EditCommunityPage() {
                         <FormControl>
                           <Input placeholder="e.g., Bay Area Tamil Sangam" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community URL *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., bay-area-tamil-sangam" {...field} />
+                        </FormControl>
+                         <FormDescription>jivanindia.co/c/{form.getValues('slug') || '{your-url}'}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

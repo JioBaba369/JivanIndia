@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -13,17 +13,21 @@ import { useRouter, useParams } from "next/navigation";
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { useDeals } from "@/hooks/use-deals";
+import { useCommunities } from "@/hooks/use-communities";
 
 export default function DealDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { getDealById } = useDeals();
+  const { getDealById, isLoading: isLoadingDeals } = useDeals();
   const deal = getDealById(id);
-
+  const { getCommunityBySlug, isLoading: isLoadingCommunities } = useCommunities();
+  
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
   const router = useRouter();
   const [postedAt, setPostedAt] = useState('');
+
+  const businessCommunity = getCommunityBySlug(deal?.businessId || '');
 
   useEffect(() => {
     // Check if deal and postedAt are available to prevent invalid date errors
@@ -82,6 +86,16 @@ export default function DealDetailPage() {
             description: `The "${deal.title}" deal has been saved to your profile.`,
         });
     }
+  }
+  
+  const isLoading = isLoadingDeals || isLoadingCommunities;
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (!deal) {
@@ -157,7 +171,11 @@ export default function DealDetailPage() {
                         <div className="flex items-start gap-4">
                             <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
-                                <Link href={`/c/${deal.businessId}`} className="font-semibold hover:text-primary">{deal.business}</Link>
+                                {businessCommunity ? (
+                                    <Link href={`/c/${businessCommunity.slug}`} className="font-semibold hover:text-primary">{deal.business}</Link>
+                                ) : (
+                                    <p className="font-semibold">{deal.business}</p>
+                                )}
                                 <p className="text-sm text-muted-foreground">Visit the business profile for more information.</p>
                             </div>
                         </div>
