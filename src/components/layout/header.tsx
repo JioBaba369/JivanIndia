@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 const navLinks = [
   { href: "/events", label: "What's On" },
@@ -45,7 +46,7 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
   };
 
 const UserActions = () => {
-  const { user, logout, getInitials } = useAuth();
+  const { user, logout } = useAuth();
   
   if (user) {
     return (
