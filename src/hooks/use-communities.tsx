@@ -5,7 +5,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
-import { useAuth } from './use-auth';
+import { initialCommunities } from '@/data/communities';
 
 export interface Community {
   id: string;
@@ -36,33 +36,6 @@ export interface Community {
   updatedAt: string;
 }
 
-export const initialCommunities: Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'founderEmail'>[] = [
-    {
-        slug: "bay-area-tamil-sangam",
-        name: "Bay Area Tamil Sangam",
-        type: 'Cultural & Arts',
-        description: "Promoting Tamil language and culture in the Bay Area through events and community service.",
-        fullDescription: "Since its inception, the Bay Area Tamil Sangam has been a cornerstone for the Tamil-speaking community in Northern California. We are dedicated to preserving and promoting the rich heritage of Tamil language, literature, and culture. Through a variety of programs including cultural events, educational workshops, and community service initiatives, we aim to create a vibrant and supportive network for Tamils and friends of Tamil culture.",
-        imageUrl: "https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
-        logoUrl: "https://placehold.co/200x200.png",
-        region: "San Francisco Bay Area",
-        membersCount: 1250,
-        isVerified: true,
-        founded: "1985",
-        tags: ['cultural', 'tamil', 'bay-area', 'non-profit', 'family-friendly'],
-        address: "PO Box 1234, Fremont, CA 94538",
-        phone: "(510) 555-1234",
-        contactEmail: "contact@bayareatamilsangam.org",
-        website: "https://www.bayareatamilsangam.org",
-        socialMedia: {
-            twitter: "https://x.com/batamilsangam",
-            facebook: "https://facebook.com/batamilsangam"
-        },
-        founderUid: "some-founder-uid"
-    },
-    // more communities...
-];
-
 export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail'>;
 
 interface CommunitiesContextType {
@@ -83,14 +56,47 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
-  const { isLoading: isAuthLoading, initialCommunitiesData } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
+  const fetchCommunities = useCallback(async () => {
+    setIsLoading(true);
+    try {
+        const querySnapshot = await getDocs(communitiesCollectionRef);
+        if (querySnapshot.empty) {
+            console.log("Communities collection is empty, seeding with initial data...");
+            const batch = writeBatch(firestore);
+            const seededCommunities: Community[] = [];
+            initialCommunities.forEach((communityData) => {
+                const docRef = doc(communitiesCollectionRef);
+                const now = new Date().toISOString();
+                const completeData = {
+                  ...communityData,
+                  createdAt: now,
+                  updatedAt: now,
+                  founderEmail: 'seed@jivanindia.co',
+                };
+                batch.set(docRef, completeData);
+                seededCommunities.push({ id: docRef.id, ...completeData });
+            });
+            await batch.commit();
+            setCommunities(seededCommunities);
+            console.log("Communities collection seeded successfully.");
+        } else {
+            const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+            setCommunities(communitiesData);
+        }
+    } catch (error) {
+        console.error("Failed to fetch or seed communities from Firestore", error);
+        setCommunities([]);
+    } finally {
+        setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (initialCommunitiesData) {
-      setCommunities(initialCommunitiesData);
-    }
-  }, [initialCommunitiesData]);
+    fetchCommunities();
+  }, [fetchCommunities]);
+
 
   const addCommunity = async (communityData: NewCommunityInput, user: User): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
@@ -146,7 +152,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
   const contextValue = {
     communities,
-    isLoading: isAuthLoading, // Communities are now loaded via AuthProvider
+    isLoading,
     addCommunity,
     updateCommunity,
     deleteCommunity,
