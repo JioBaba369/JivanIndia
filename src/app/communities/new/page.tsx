@@ -124,16 +124,11 @@ export default function NewCommunityPage() {
   const slugValue = form.watch('slug');
 
   useEffect(() => {
-    // Only auto-generate slug if the user hasn't manually edited it
-    const currentSlug = form.getValues('slug');
     const slugFromState = generateSlug(nameValue);
-    
-    // A simple check to see if the slug likely came from a previous name value
-    // This isn't perfect but prevents overwriting a user's manual change
-    if (nameValue && (!currentSlug || generateSlug(form.getValues('name')) === currentSlug)) {
+    if (nameValue && generateSlug(form.getValues('name')) === form.getValues('slug')) {
         form.setValue('slug', slugFromState, { shouldValidate: true });
     }
-     if (!nameValue && currentSlug) {
+     if (!nameValue && form.getValues('slug')) {
         form.setValue('slug', '', { shouldValidate: true });
     }
   }, [nameValue, form]);

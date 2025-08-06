@@ -6,7 +6,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import { initialAboutContent } from './use-about'; // Import initial content to get admin list
+import { initialAboutContent } from './use-about'; 
 
 export interface User {
   uid: string;
@@ -20,7 +20,7 @@ export interface User {
     orgId: string;
     orgName: string;
     orgSlug: string;
-  } | null; // Allow null for no affiliation
+  } | null; 
   phone?: string;
   website?: string;
   currentLocation?: {
@@ -47,6 +47,9 @@ export interface User {
   };
   calendarSyncEnabled?: boolean;
 }
+
+export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedProviders' | 'savedSponsors';
+
 
 interface AuthContextType {
   user: User | null;
@@ -87,7 +90,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to fetch the admin list
 const getAdminUids = async (): Promise<string[]> => {
     try {
         const aboutDocRef = doc(firestore, 'about', 'singleton');
@@ -98,7 +100,6 @@ const getAdminUids = async (): Promise<string[]> => {
     } catch (error) {
         console.error("Could not fetch admin UIDs", error);
     }
-    // Fallback to initial content if Firestore fails
     return initialAboutContent.adminUids || [];
 };
 
@@ -106,47 +107,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUserData = useCallback(async (fbUser: FirebaseUser): Promise<User | null> => {
+    const userDocRef = doc(firestore, 'users', fbUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+        return null;
+    }
+
+    const userData = userDocSnap.data() as User;
+    const adminUids = await getAdminUids();
+    userData.isAdmin = adminUids.includes(fbUser.uid);
+
+    // If user has an affiliation, ensure the slug is present by fetching it.
+    if (userData.affiliation && userData.affiliation.orgId && !userData.affiliation.orgSlug) {
+        const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
+        const communityDocSnap = await getDoc(communityDocRef);
+        if (communityDocSnap.exists()) {
+            const communityData = communityDocSnap.data();
+            if(communityData && communityData.slug) {
+                const updatedAffiliation = { ...userData.affiliation, orgSlug: communityData.slug };
+                await updateDoc(userDocRef, { affiliation: updatedAffiliation });
+                return { ...userData, affiliation: updatedAffiliation };
+            }
+        }
+    }
+    
+    return userData;
+  }, []);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setIsLoading(true);
       setFirebaseUser(fbUser);
       if (fbUser) {
-        const userDocRef = doc(firestore, 'users', fbUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if(userDocSnap.exists()) {
-          const userData = userDocSnap.data() as User;
-          
-          const adminUids = await getAdminUids();
-          userData.isAdmin = adminUids.includes(fbUser.uid);
-
-          // If user has an affiliation, ensure the slug is present by fetching it.
-          if (userData.affiliation && userData.affiliation.orgId && !userData.affiliation.orgSlug) {
-              const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
-              const communityDocSnap = await getDoc(communityDocRef);
-              if (communityDocSnap.exists()) {
-                  const communityData = communityDocSnap.data();
-                  if(communityData && communityData.slug) {
-                      const updatedAffiliation = { ...userData.affiliation, orgSlug: communityData.slug };
-                      await updateDoc(userDocRef, { affiliation: updatedAffiliation });
-                      setUser({ ...userData, affiliation: updatedAffiliation });
-                  } else {
-                     setUser(userData);
-                  }
-              } else {
-                 setUser(userData);
-              }
-          } else {
-             setUser(userData);
-          }
-        }
+        const userData = await fetchUserData(fbUser);
+        setUser(userData);
       } else {
         setUser(null);
       }
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [fetchUserData]);
 
   const signup = async (name: string, email: string, pass: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -170,7 +174,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       originLocation: { indiaState: '', indiaDistrict: '' },
       languagesSpoken: [],
       interests: [],
-      
       savedEvents: [],
       joinedCommunities: [],
       savedDeals: [],
@@ -216,7 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return undefined;
   };
 
-  const createSaveFunctions = (listType: keyof User & ('savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedProviders' | 'savedSponsors')) => {
+  const createSaveFunctions = (listType: SaveableItem) => {
     const list = user?.[listType] || [];
 
     const saveItem = async (itemId: string) => {
