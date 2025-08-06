@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -59,14 +59,34 @@ const UserActions = () => {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-56">
+           <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild><Link href="/profile">My Profile</Link></DropdownMenuItem>
-          {user.username && <DropdownMenuItem asChild><Link href={`/${user.username}`}>View Public Profile</Link></DropdownMenuItem>}
+           <DropdownMenuItem asChild>
+              <Link href="/dashboard">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+           {user.username && <DropdownMenuItem asChild>
+            <Link href={`/${user.username}`}>
+              <User className="mr-2 h-4 w-4" />
+              <span>Public Profile</span>
+            </Link>
+          </DropdownMenuItem>}
           {user.isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => logout()}>
+             <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
