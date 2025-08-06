@@ -48,7 +48,7 @@ export default function ProfilePage() {
     event: { fn: unsaveEvent, name: 'Event' },
     community: { fn: leaveCommunity, name: 'Community' },
     deal: { fn: unsaveDeal, name: 'Deal' },
-    provider: { fn: unsaveProvider, name: 'Provider' },
+    provider: { fn: unsaveProvider, name: 'Listing' },
     sponsor: { fn: unsaveSponsor, name: 'Sponsor' },
   };
 
@@ -200,7 +200,7 @@ export default function ProfilePage() {
                     <TabsTrigger value="events">Events ({userSavedEvents.length})</TabsTrigger>
                     <TabsTrigger value="organizations">Communities ({userJoinedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="deals">Deals ({userSavedDeals.length})</TabsTrigger>
-                    <TabsTrigger value="providers">Providers ({userSavedProviders.length})</TabsTrigger>
+                    <TabsTrigger value="directory">Directory ({userSavedProviders.length})</TabsTrigger>
                     <TabsTrigger value="sponsors">Sponsors ({userSavedSponsors.length})</TabsTrigger>
                     <TabsTrigger value="my-events">My Events ({userOrganizedEvents.length})</TabsTrigger>
                 </TabsList>
@@ -327,7 +327,7 @@ export default function ProfilePage() {
                     )}
                 </TabsContent>
 
-                <TabsContent value="providers" className="mt-6">
+                <TabsContent value="directory" className="mt-6">
                     {userSavedProviders.length > 0 ? (
                         <div className="space-y-4">
                             {userSavedProviders.map((provider) => (
@@ -337,14 +337,14 @@ export default function ProfilePage() {
                                             <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="service photo"/>
                                         </div>
                                         <div className="flex-grow">
-                                            <Link href={`/providers/${provider.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
+                                            <Link href={`/directory/${provider.id}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{provider.name}</CardTitle></Link>
                                             <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /><span>{provider.category}</span></div>
                                                 <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)}</span></div>
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-stretch gap-2 self-stretch sm:items-center sm:flex-row sm:ml-auto w-full sm:w-auto">
-                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/providers/${provider.id}`}>View</Link></Button>
+                                            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto"><Link href={`/directory/${provider.id}`}>View</Link></Button>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button variant="destructive" size="icon" onClick={() => handleUnsave('provider', provider.id, provider.name)}><Trash2 className="h-4 w-4" /></Button>
@@ -360,8 +360,8 @@ export default function ProfilePage() {
                         </div>
                     ) : (
                         <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                            <p className="text-muted-foreground">You haven't saved any providers yet.</p>
-                            <Button asChild className="mt-4"><Link href="/providers">Find Providers</Link></Button>
+                            <p className="text-muted-foreground">You haven't saved any listings yet.</p>
+                            <Button asChild className="mt-4"><Link href="/directory">Find Listings</Link></Button>
                         </div>
                     )}
                 </TabsContent>

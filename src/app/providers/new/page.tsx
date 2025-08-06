@@ -31,17 +31,17 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
+import { providerCategories } from '@/hooks/use-providers';
 
-const providerCategories = ['Legal', 'Healthcare', 'Financial', 'Real Estate', 'Immigration'] as const;
 
 const formSchema = z.object({
-  name: z.string().min(3, "Provider name must be at least 3 characters."),
+  name: z.string().min(3, "Business name must be at least 3 characters."),
   category: z.enum(providerCategories),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
   imageUrl: z.string().url({ message: "A representative image is required." }),
   region: z.string().min(2, "Region is required."),
-  services: z.string().min(3, "Please list at least one service."),
+  services: z.string().min(3, "Please list at least one service or product."),
   phone: z.string().min(10, "A valid phone number is required."),
   email: z.string().email("A valid email address is required."),
   website: z.string().url("A valid website URL is required."),
@@ -50,7 +50,7 @@ const formSchema = z.object({
 
 type ProviderFormValues = z.infer<typeof formSchema>;
 
-export default function NewProviderPage() {
+export default function NewDirectoryEntryPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -61,7 +61,7 @@ export default function NewProviderPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      category: 'Legal',
+      category: 'Groceries & Spices',
       description: '',
       fullDescription: '',
       imageUrl: '',
@@ -79,7 +79,7 @@ export default function NewProviderPage() {
     if (!user?.affiliation || !user.isAdmin) {
       toast({
         title: 'Admin Affiliation Required',
-        description: 'Only administrative users of an affiliated community can add a provider.',
+        description: 'Only administrative users of an affiliated community can add to the directory.',
         variant: 'destructive',
       });
       return;
@@ -91,11 +91,11 @@ export default function NewProviderPage() {
         await new Promise(resolve => setTimeout(resolve, 1500)); 
 
         toast({
-            title: 'Provider Submitted!',
+            title: 'Listing Submitted!',
             description: `${values.name} has been added to the directory.`,
         });
         
-        router.push('/providers');
+        router.push('/directory');
     });
   };
 
@@ -105,7 +105,7 @@ export default function NewProviderPage() {
         <Card className="mx-auto max-w-md">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
-                <CardDescription>You must be logged in to add a service provider.</CardDescription>
+                <CardDescription>You must be logged in to add a directory listing.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button asChild className="mt-2"><Link href="/login">Login</Link></Button>
@@ -121,7 +121,7 @@ export default function NewProviderPage() {
         <Card className="mx-auto max-w-md">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Permission Required</CardTitle>
-                <CardDescription>Only administrators of a registered community can add new service providers to ensure they are trusted and verified.</CardDescription>
+                <CardDescription>Only administrators of a registered community can add new listings to ensure they are trusted and verified.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button asChild className="mt-2"><Link href="/dashboard">Return to Dashboard</Link></Button>
@@ -136,9 +136,9 @@ export default function NewProviderPage() {
     <div className="container mx-auto px-4 py-12">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">List a New Service Provider</CardTitle>
+          <CardTitle className="font-headline text-3xl">Create a New Directory Listing</CardTitle>
           <CardDescription>
-            Add a trusted professional to the community directory. This feature is limited to community administrators.
+            Add a trusted business, temple, or professional to the community directory. This feature is limited to community administrators.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,7 +149,7 @@ export default function NewProviderPage() {
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Provider Image *</FormLabel>
+                        <FormLabel>Primary Image *</FormLabel>
                         <FormControl>
                           <ImageUpload
                             value={field.value}
@@ -164,14 +164,14 @@ export default function NewProviderPage() {
                     </FormItem>
                   )}
                 />
-              <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Provider Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Gupta Law Firm" /></FormControl><FormMessage /></FormItem>)}/>
+              <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Business/Place Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Fremont Hindu Temple" /></FormControl><FormMessage /></FormItem>)}/>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent>{providerCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
                 <FormField name="region" control={form.control} render={({field}) => (<FormItem><FormLabel>Region *</FormLabel><FormControl><Input {...field} placeholder="e.g., San Francisco Bay Area" /></FormControl><FormMessage /></FormItem>)}/>
               </div>
               <FormField name="description" control={form.control} render={({field}) => (<FormItem><FormLabel>Short Description *</FormLabel><FormControl><Textarea {...field} placeholder="A brief one-sentence summary." rows={2}/></FormControl><FormMessage /></FormItem>)}/>
-              <FormField name="fullDescription" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea {...field} placeholder="A detailed description of the provider and their services." rows={5}/></FormControl><FormMessage /></FormItem>)}/>
-              <FormField name="services" control={form.control} render={({field}) => (<FormItem><FormLabel>Services Offered *</FormLabel><FormControl><Input {...field} placeholder="e.g., Immigration Visas, Family Law, Business Contracts" /></FormControl><FormDescription>Separate services with a comma.</FormDescription><FormMessage /></FormItem>)}/>
+              <FormField name="fullDescription" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea {...field} placeholder="A detailed description of the place or service." rows={5}/></FormControl><FormMessage /></FormItem>)}/>
+              <FormField name="services" control={form.control} render={({field}) => (<FormItem><FormLabel>Products / Services Offered *</FormLabel><FormControl><Input {...field} placeholder="e.g., Daily puja, wedding services, Indian spices" /></FormControl><FormDescription>Separate items with a comma.</FormDescription><FormMessage /></FormItem>)}/>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField name="phone" control={form.control} render={({field}) => (<FormItem><FormLabel>Phone *</FormLabel><FormControl><Input {...field} type="tel" /></FormControl><FormMessage /></FormItem>)}/>
                 <FormField name="email" control={form.control} render={({field}) => (<FormItem><FormLabel>Email *</FormLabel><FormControl><Input {...field} type="email" /></FormControl><FormMessage /></FormItem>)}/>
@@ -181,7 +181,7 @@ export default function NewProviderPage() {
               <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
                 <Button type="submit" disabled={isPending || !form.formState.isValid}>
-                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Adding...</> : "Add Provider"}
+                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Adding...</> : "Add to Directory"}
                 </Button>
               </div>
             </form>

@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List, Bookmark, PlusCircle } from "lucide-react";
+import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List, Bookmark, PlusCircle, ShoppingCart, Utensils, Temple } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, type MouseEvent } from "react";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { useProviders } from "@/hooks/use-providers";
 import type { Provider } from "@/hooks/use-providers";
 
-export default function ProvidersPage() {
+export default function DirectoryPage() {
     const { providers } = useProviders();
     const { user, saveProvider, unsaveProvider, isProviderSaved } = useAuth();
     const { toast } = useToast();
@@ -58,7 +58,7 @@ export default function ProvidersPage() {
         if (!user) {
             toast({
                 title: "Please log in",
-                description: "You must be logged in to save providers.",
+                description: "You must be logged in to save listings.",
                 variant: "destructive"
             });
             router.push('/login');
@@ -68,13 +68,13 @@ export default function ProvidersPage() {
         if (isProviderSaved(providerId)) {
             unsaveProvider(providerId);
             toast({
-                title: "Provider Unsaved",
-                description: `${providerName} has been removed from your saved providers.`,
+                title: "Listing Unsaved",
+                description: `${providerName} has been removed from your saved listings.`,
             });
         } else {
             saveProvider(providerId);
             toast({
-                title: "Provider Saved!",
+                title: "Listing Saved!",
                 description: `${providerName} has been saved to your profile.`,
             });
         }
@@ -86,16 +86,16 @@ export default function ProvidersPage() {
       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
           <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
-            Service Providers
+            Community Directory
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Find trusted professionals for legal, health, financial, and other services.
+            Find trusted local businesses, temples, grocery stores, and professional services.
           </p>
           {user?.isAdmin && (
              <Button asChild size="lg" className="mt-8">
-              <Link href="/providers/new">
+              <Link href="/directory/new">
                 <PlusCircle className="mr-2 h-5 w-5"/>
-                List a Service
+                Add a Listing
               </Link>
             </Button>
           )}
@@ -165,7 +165,7 @@ export default function ProvidersPage() {
                 const isSaved = user ? isProviderSaved(provider.id) : false;
                 return view === 'grid' ? (
                 <Card key={provider.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <Link href={`/providers/${provider.id}`} className="flex h-full flex-grow flex-col">
+                    <Link href={`/directory/${provider.id}`} className="flex h-full flex-grow flex-col">
                         <div className="relative h-48 w-full">
                         <Image
                             src={provider.imageUrl}
@@ -196,7 +196,7 @@ export default function ProvidersPage() {
                     </Link>
                     <div className="mt-auto flex gap-2 p-4 pt-0">
                         <Button asChild className="flex-1">
-                            <Link href={`/providers/${provider.id}`}>View Profile</Link>
+                            <Link href={`/directory/${provider.id}`}>View Profile</Link>
                         </Button>
                         <Button variant="secondary" className="flex-1" onClick={(e) => handleSaveToggle(e, provider.name, provider.id)}>
                             <Bookmark className="mr-2 h-4 w-4"/>
@@ -206,7 +206,7 @@ export default function ProvidersPage() {
                 </Card>
             ) : (
                 <Card key={provider.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
-                   <Link href={`/providers/${provider.id}`}>
+                   <Link href={`/directory/${provider.id}`}>
                     <div className="flex flex-col sm:flex-row">
                         <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0">
                            <Image
@@ -236,7 +236,7 @@ export default function ProvidersPage() {
                         </CardContent>
                          <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
                             <Button asChild className="w-full sm:w-auto">
-                               <Link href={`/providers/${provider.id}`}>View</Link>
+                               <Link href={`/directory/${provider.id}`}>View</Link>
                             </Button>
                              <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleSaveToggle(e, provider.name, provider.id)}>
                                 <Bookmark className="mr-2 h-4 w-4"/>
@@ -251,8 +251,8 @@ export default function ProvidersPage() {
           </div>
        ) : (
              <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <h3 className="font-headline text-xl font-semibold">No Providers Found</h3>
-                <p className="text-muted-foreground mt-2">No providers match your criteria. Please check back later or adjust your filters.</p>
+                <h3 className="font-headline text-xl font-semibold">No Listings Found</h3>
+                <p className="text-muted-foreground mt-2">No listings match your criteria. Please check back later or adjust your filters.</p>
                 <Button variant="link" onClick={() => {
                     setSearchQuery('');
                     setLocationQuery('');

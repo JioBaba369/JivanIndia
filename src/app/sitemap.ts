@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/movies', 
     '/deals', 
     '/careers', 
-    '/providers', 
+    '/directory', 
     '/sponsors',
     '/about', 
     '/contact', 
@@ -90,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   const providers = await fetchCollection<Provider>('providers');
   const providerRoutes = providers.map(provider => ({
-    url: `${BASE_URL}/providers/${provider.id}`,
+    url: `${BASE_URL}/directory/${provider.id}`,
     lastModified: new Date().toISOString(), // No timestamp on this data
     changeFrequency: 'monthly' as 'monthly',
   }));

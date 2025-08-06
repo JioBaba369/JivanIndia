@@ -35,7 +35,7 @@ export default function ProviderDetailPage() {
     navigator.clipboard.writeText(window.location.href);
     toast({
       title: "Link Copied!",
-      description: "Provider profile link copied to clipboard.",
+      description: "Listing profile link copied to clipboard.",
     });
   };
 
@@ -43,7 +43,7 @@ export default function ProviderDetailPage() {
     if (!user || !provider) {
         toast({
             title: "Please log in",
-            description: "You need to be logged in to save providers.",
+            description: "You need to be logged in to save listings.",
             variant: "destructive",
         });
         if (!user) router.push("/login");
@@ -54,13 +54,13 @@ export default function ProviderDetailPage() {
     if (currentlySaved) {
         unsaveProvider(provider.id);
         toast({
-            title: "Provider Unsaved",
+            title: "Listing Unsaved",
             description: `${provider.name} has been removed from your saved list.`,
         });
     } else {
         saveProvider(provider.id);
         toast({
-            title: "Provider Saved!",
+            title: "Listing Saved!",
             description: `${provider.name} has been saved to your profile.`,
         });
     }
@@ -77,10 +77,10 @@ export default function ProviderDetailPage() {
   if (!provider) {
     return (
         <div className="container mx-auto px-4 py-12 text-center">
-            <h1 className="font-headline text-3xl font-bold">Provider Not Found</h1>
-            <p className="mt-4 text-muted-foreground">The provider you are looking for does not exist or may have been removed.</p>
+            <h1 className="font-headline text-3xl font-bold">Listing Not Found</h1>
+            <p className="mt-4 text-muted-foreground">The listing you are looking for does not exist or may have been removed.</p>
             <Button asChild className="mt-6">
-                <Link href="/providers">Back to Providers</Link>
+                <Link href="/directory">Back to Directory</Link>
             </Button>
         </div>
     );
@@ -174,7 +174,7 @@ export default function ProviderDetailPage() {
                 <div className="flex flex-col gap-4">
                     <Button size="lg" variant={providerIsSaved ? "default" : "secondary"} className="w-full" onClick={handleSaveToggle}>
                         <Bookmark className="mr-2 h-4 w-4"/>
-                        {providerIsSaved ? "Saved" : "Save Provider"}
+                        {providerIsSaved ? "Saved" : "Save Listing"}
                     </Button>
                     <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
                         <Share2 className="mr-2 h-4 w-4"/>

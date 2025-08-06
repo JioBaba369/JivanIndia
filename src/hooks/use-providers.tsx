@@ -5,10 +5,14 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
+export type ProviderCategory = 'Temples & Worship' | 'Groceries & Spices' | 'Restaurants' | 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration' | 'Other';
+export const providerCategories: ProviderCategory[] = ['Temples & Worship', 'Groceries & Spices', 'Restaurants', 'Legal', 'Healthcare', 'Financial', 'Real Estate', 'Immigration', 'Other'];
+
+
 export interface Provider {
   id: string;
   name: string;
-  category: 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration';
+  category: ProviderCategory;
   description: string;
   fullDescription: string;
   imageUrl: string;
@@ -27,6 +31,44 @@ export interface Provider {
 }
 
 export const initialProviders: Omit<Provider, 'id'>[] = [
+    {
+      name: "Fremont Hindu Temple",
+      category: "Temples & Worship",
+      description: "A vibrant cultural and spiritual center for the Hindu community.",
+      fullDescription: "The Fremont Hindu Temple is dedicated to providing a place of worship and organizing cultural and religious festivals. It serves as a vital hub for spiritual activities, educational classes, and community gatherings, fostering a sense of peace and unity.",
+      imageUrl: "https://images.unsplash.com/photo-1594778962534-a89c814421b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZXxlbnwwfHx8fDE3NTQ0NDgwMTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      isVerified: true,
+      region: "Fremont, CA",
+      rating: 4.9,
+      reviewCount: 520,
+      services: ["Daily Puja", "Religious Festivals", "Vedic Classes", "Wedding Services"],
+      contact: {
+        phone: "510-555-0101",
+        email: "contact@fremonttemple.org",
+        website: "www.fremonttemple.org",
+        address: "3676 Delaware Dr, Fremont, CA 94538"
+      },
+      associatedCommunityId: "bay-area-tamil-sangam"
+    },
+    {
+      name: "Bharat Bazaar",
+      category: "Groceries & Spices",
+      description: "Your one-stop shop for authentic Indian groceries, spices, and fresh produce.",
+      fullDescription: "Bharat Bazaar offers the widest selection of authentic Indian groceries, from rare spices and flours to fresh vegetables and sweets. We are committed to bringing the taste of home to your kitchen with high-quality products and friendly service.",
+      imageUrl: "https://images.unsplash.com/photo-1583182474438-421711736780?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBzcGljZSUyMHNob3B8ZW58MHx8fHwxNzU0NDQ4MDE2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      isVerified: true,
+      region: "Sunnyvale, CA",
+      rating: 4.7,
+      reviewCount: 310,
+      services: ["Imported Spices", "Fresh Produce", "Sweets & Snacks", "Puja Supplies"],
+      contact: {
+        phone: "408-555-0102",
+        email: "info@bharatbazaar.com",
+        website: "www.bharatbazaar.com",
+        address: "1202 Kifer Rd, Sunnyvale, CA 94086"
+      },
+       associatedCommunityId: "bay-area-tamil-sangam"
+    },
     {
       name: "Gupta Law Firm",
       category: "Legal",
@@ -65,25 +107,6 @@ export const initialProviders: Omit<Provider, 'id'>[] = [
       },
        associatedCommunityId: "bay-area-tamil-sangam"
     },
-    {
-      name: "Singh Financials",
-      category: "Financial",
-      description: "Expert financial planning and investment advice.",
-      fullDescription: "Achieve your financial goals with Singh Financials. We provide personalized strategies for retirement planning, investment management, and wealth creation, all tailored to your unique circumstances.",
-      imageUrl: "https://images.unsplash.com/photo-1554224155-1696413565d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaW5hbmNpYWwlMjBhZHZpc29yfGVufDB8fHx8MTc1NDE5NzQzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      isVerified: false,
-      region: "New York City",
-      rating: 4.7,
-      reviewCount: 95,
-      services: ["Retirement Planning", "Stock Portfolio Management", "Tax Guidance"],
-      contact: {
-        phone: "212-555-9876",
-        email: "support@singhfinancials.com",
-        website: "www.singhfinancials.com",
-        address: "789 Wall Street, New York, NY 10005"
-      },
-       associatedCommunityId: "bay-area-tamil-sangam"
-    }
 ];
 
 interface ProvidersContextType {
