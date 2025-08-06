@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatUrl, getInitials } from "@/lib/utils";
+import { format } from "date-fns";
 
 export default function CommunityDetailPage() {
   const params = useParams();
@@ -152,7 +152,7 @@ export default function CommunityDetailPage() {
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>
-                                        <p className="text-sm text-muted-foreground">{new Date(event.startDateTime).toLocaleDateString()}</p>
+                                        <p className="text-sm text-muted-foreground">{format(new Date(event.startDateTime), 'PP')}</p>
                                     </CardContent>
                                 </Card>
                             </Link>

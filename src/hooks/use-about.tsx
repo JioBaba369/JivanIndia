@@ -1,10 +1,9 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { doc, getDoc, setDoc, updateDoc, writeBatch, collection, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from './use-auth';
+import { useAuth } from '@/hooks/use-auth';
 
 // Define types directly in the hook
 export interface TeamMember {
@@ -62,7 +61,7 @@ Today, JivanIndia.co is more than just a website. It's a bustling hub, a digital
         avatarUrl: 'https://placehold.co/400x400.png',
       },
     ],
-    adminUids: ['defDHmCjCdWvmGid9YYg3RJi01x2'],
+    adminUids: [],
 };
 
 

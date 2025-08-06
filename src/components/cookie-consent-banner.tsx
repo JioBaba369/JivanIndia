@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,16 +11,20 @@ export default function CookieConsentBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check localStorage only on the client side
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (!consent) {
-      setIsVisible(true);
+    // Check localStorage only on the client side after mount
+    if (typeof window !== 'undefined') {
+        const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+        if (!consent) {
+          setIsVisible(true);
+        }
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
-    setIsVisible(false);
+    if (typeof window !== 'undefined') {
+        localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
+        setIsVisible(false);
+    }
   };
 
   if (!isVisible) {

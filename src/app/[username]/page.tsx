@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -42,16 +41,12 @@ export default function UserPublicProfilePage() {
 
 
     const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
-    const [pageUrl, setPageUrl] = useState('');
 
     useEffect(() => {
         if (username) {
             getUserByUsername(username).then(foundUser => {
                 setProfileUser(foundUser || null);
             });
-        }
-        if (typeof window !== 'undefined') {
-            setPageUrl(window.location.href);
         }
     }, [username, getUserByUsername]);
 
@@ -105,11 +100,13 @@ export default function UserPublicProfilePage() {
     const userSavedDeals = allDeals.filter(deal => profileUser.savedDeals?.includes(deal.id));
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(pageUrl);
-        toast({
-            title: "Link Copied!",
-            description: "Profile URL copied to clipboard.",
-        });
+        if(typeof window !== 'undefined'){
+            navigator.clipboard.writeText(window.location.href);
+            toast({
+                title: "Link Copied!",
+                description: "Profile URL copied to clipboard.",
+            });
+        }
     };
 
     const CountryFlag = ({ countryCode }: { countryCode?: string }) => {
@@ -204,11 +201,11 @@ export default function UserPublicProfilePage() {
                                     </DialogHeader>
                                     <div className="flex flex-col items-center justify-center gap-4 py-4">
                                         <div className="rounded-lg border p-4">
-                                            <QRCode value={pageUrl} size={192} />
+                                            <QRCode value={typeof window !== 'undefined' ? window.location.href : ''} size={192} />
                                         </div>
                                         <p className="text-sm text-muted-foreground">Scan this QR code with your phone</p>
                                         <div className="w-full flex items-center space-x-2">
-                                            <Input id="copy-url" value={pageUrl} readOnly />
+                                            <Input id="copy-url" value={typeof window !== 'undefined' ? window.location.href : ''} readOnly />
                                             <Button type="submit" size="icon" onClick={copyToClipboard}>
                                                 <Copy className="h-4 w-4" />
                                             </Button>

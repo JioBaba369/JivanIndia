@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { format, formatDistanceToNow, isValid } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDeals } from "@/hooks/use-deals";
 import { useCommunities } from "@/hooks/use-communities";
 
@@ -25,24 +24,17 @@ export default function DealDetailPage() {
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
   const router = useRouter();
-  const [postedAt, setPostedAt] = useState('');
 
   const businessCommunity = getCommunityBySlug(deal?.businessId || '');
 
-  useEffect(() => {
-    // Check if deal and postedAt are available to prevent invalid date errors
-    if (deal?.postedAt) {
-      try {
-        const date = new Date(deal.postedAt);
-        if (isValid(date)) {
-          setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
-        } else {
-            setPostedAt('a while ago');
-        }
-      } catch (error) {
-        console.error("Failed to parse date:", deal.postedAt);
-        setPostedAt('a while ago');
-      }
+  const postedAt = useMemo(() => {
+    if (!deal?.postedAt) return 'a while ago';
+    try {
+      const date = new Date(deal.postedAt);
+      return isValid(date) ? formatDistanceToNow(date, { addSuffix: true }) : 'a while ago';
+    } catch (error) {
+      console.error("Failed to parse date:", deal.postedAt);
+      return 'a while ago';
     }
   }, [deal?.postedAt]);
 

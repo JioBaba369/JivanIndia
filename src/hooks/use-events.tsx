@@ -1,10 +1,9 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useCommunities } from './use-communities';
+import { useCommunities } from '@/hooks/use-communities';
 
 export interface Event {
   id: string;

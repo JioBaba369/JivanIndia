@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ImageUpload from '@/components/feature/image-upload';
-import { formatUrl } from '@/lib/utils'; // New import for URL formatting
+import { formatUrl, getInitials } from '@/lib/utils'; // New import for URL formatting
 
 export default function EditProfilePage() {
   const { toast } = useToast();
@@ -72,6 +72,14 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!name || !email) {
+        toast({
+            title: "Required Fields Missing",
+            description: "Please enter your full name and email address.",
+            variant: "destructive",
+        });
+        return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -127,15 +135,6 @@ export default function EditProfilePage() {
         </div>
     );
   }
-  
-  const getInitials = (name: string) => {
-    if (!name) return '';
-    const names = name.split(' ');
-    if (names.length > 1) {
-      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
 
   return (
     <div className="container mx-auto px-4 py-12">

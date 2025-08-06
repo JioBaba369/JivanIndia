@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -6,7 +5,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import { initialAboutContent } from './use-about'; 
+import { initialAboutContent } from '@/hooks/use-about'; 
 
 export interface User {
   uid: string;
@@ -224,16 +223,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const saveItem = async (itemId: string) => {
         if (!user) return;
+        setUser(prevUser => prevUser ? { ...prevUser, [listType]: [...(prevUser[listType] || []), itemId] } : null);
         const userRef = doc(firestore, 'users', user.uid);
         await updateDoc(userRef, { [listType]: arrayUnion(itemId) });
-        setUser(prevUser => prevUser ? { ...prevUser, [listType]: [...(prevUser[listType] || []), itemId] } : null);
     };
 
     const unsaveItem = async (itemId: string) => {
         if (!user) return;
+        setUser(prevUser => prevUser ? { ...prevUser, [listType]: (prevUser[listType] || []).filter(id => id !== itemId) } : null);
         const userRef = doc(firestore, 'users', user.uid);
         await updateDoc(userRef, { [listType]: arrayRemove(itemId) });
-        setUser(prevUser => prevUser ? { ...prevUser, [listType]: (prevUser[listType] || []).filter(id => id !== itemId) } : null);
     };
     
     const isItemSaved = (itemId: string) => list.includes(itemId);

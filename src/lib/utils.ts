@@ -21,3 +21,14 @@ export const getInitials = (name?: string) => {
   }
   return name.substring(0, 2).toUpperCase();
 };
+
+export const generateSlug = (value: string) => {
+  if (!value) return '';
+  return value
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+};

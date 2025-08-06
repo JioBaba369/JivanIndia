@@ -1,11 +1,10 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from './use-auth';
-import type { User } from './use-auth';
+import { useAuth } from '@/hooks/use-auth';
+import type { User } from '@/hooks/use-auth';
 
 export interface Community {
   id: string;
@@ -58,7 +57,7 @@ export const initialCommunities: Omit<Community, 'id' | 'createdAt' | 'updatedAt
             twitter: "https://x.com/batamilsangam",
             facebook: "https://facebook.com/batamilsangam"
         },
-        founderUid: "defDHmCjCdWvmGid9YYg3RJi01x2"
+        founderUid: "some-founder-uid"
     },
     // more communities...
 ];

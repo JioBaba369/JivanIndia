@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -20,6 +19,7 @@ import { useDeals } from '@/hooks/use-deals';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 import { getInitials, formatUrl } from '@/lib/utils';
+import { useMemo } from 'react';
 
 
 export default function ProfilePage() {
@@ -37,12 +37,12 @@ export default function ProfilePage() {
   const { providers: allProviders } = useProviders();
   const { sponsors: allSponsors } = useSponsors();
 
-  const userSavedEvents = allEvents.filter(event => savedEvents.includes(String(event.id)));
-  const userJoinedCommunities = allCommunities.filter(org => joinedCommunities.includes(org.id));
-  const userSavedDeals = allDeals.filter(deal => savedDeals.includes(deal.id));
-  const userSavedProviders = allProviders.filter(provider => savedProviders.includes(provider.id));
-  const userSavedSponsors = allSponsors.filter(sponsor => savedSponsors.includes(sponsor.id));
-  const userOrganizedEvents = user ? allEvents.filter(event => event.submittedByUid === user.uid) : [];
+  const userSavedEvents = useMemo(() => allEvents.filter(event => savedEvents.includes(String(event.id))), [allEvents, savedEvents]);
+  const userJoinedCommunities = useMemo(() => allCommunities.filter(org => joinedCommunities.includes(org.id)), [allCommunities, joinedCommunities]);
+  const userSavedDeals = useMemo(() => allDeals.filter(deal => savedDeals.includes(deal.id)), [allDeals, savedDeals]);
+  const userSavedProviders = useMemo(() => allProviders.filter(provider => savedProviders.includes(provider.id)), [allProviders, savedProviders]);
+  const userSavedSponsors = useMemo(() => allSponsors.filter(sponsor => savedSponsors.includes(sponsor.id)), [allSponsors, savedSponsors]);
+  const userOrganizedEvents = useMemo(() => user ? allEvents.filter(event => event.submittedByUid === user.uid) : [], [allEvents, user]);
   
   const unsaveActions = {
     event: { fn: unsaveEvent, name: 'Event' },

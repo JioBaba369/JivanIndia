@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef } from 'react';
@@ -60,12 +59,20 @@ export default function ImageCropper({
 
     let targetWidth = crop.width * scaleX;
     let targetHeight = crop.height * scaleY;
-
-    if (targetWidth > MAX_WIDTH) {
-        const reductionFactor = MAX_WIDTH / targetWidth;
-        targetWidth = MAX_WIDTH;
-        targetHeight = targetHeight * reductionFactor;
+    
+    // Adjust dimensions if either exceeds MAX_WIDTH, maintaining aspect ratio
+    if (targetWidth > MAX_WIDTH || targetHeight > MAX_WIDTH) {
+        if (targetWidth > targetHeight) {
+            const reductionFactor = MAX_WIDTH / targetWidth;
+            targetWidth = MAX_WIDTH;
+            targetHeight = targetHeight * reductionFactor;
+        } else {
+            const reductionFactor = MAX_WIDTH / targetHeight;
+            targetHeight = MAX_WIDTH;
+            targetWidth = targetWidth * reductionFactor;
+        }
     }
+
 
     canvas.width = Math.floor(targetWidth);
     canvas.height = Math.floor(targetHeight);
@@ -97,7 +104,7 @@ export default function ImageCropper({
                 resolve(blob);
             },
             'image/jpeg',
-            0.85 // Lower quality for better compression
+            0.85
         );
     });
   };
