@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arra
 import { Loader2 } from 'lucide-react';
 import { useAbout } from '@/hooks/use-about'; 
 import { useToast } from './use-toast';
+import { useCommunities } from './use-communities';
 
 export interface User {
   uid: string;
@@ -101,11 +102,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { aboutContent } = useAbout();
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { aboutContent, isLoading: isAboutLoading } = useAbout();
+  const { communities, isLoading: isCommunitiesLoading } = useCommunities();
   const { toast } = useToast();
 
-  const fetchUserData = useCallback(async (fbUser: FirebaseUser): Promise<User | null> => {
+  const fetchUserData = useCallback(async (fbUser: FirebaseUser, adminUids: string[], allCommunities: any[]): Promise<User | null> => {
     const userDocRef = doc(firestore, 'users', fbUser.uid);
     const userDocSnap = await getDoc(userDocRef);
 
@@ -114,40 +116,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const userData = userDocSnap.data() as User;
-    const adminUids = aboutContent?.adminUids || [];
     userData.isAdmin = adminUids.includes(fbUser.uid);
     
-    // Ensure affiliation data is complete
     if (userData.affiliation && userData.affiliation.orgId && !userData.affiliation.orgSlug) {
-        const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
-        const communityDocSnap = await getDoc(communityDocRef);
-        if (communityDocSnap.exists()) {
-            const communityData = communityDocSnap.data();
-            if(communityData && communityData.slug) {
-                const updatedAffiliation = { ...userData.affiliation, orgSlug: communityData.slug };
-                await updateDoc(userDocRef, { affiliation: updatedAffiliation });
-                return { ...userData, affiliation: updatedAffiliation };
-            }
+        const community = allCommunities.find(c => c.id === userData.affiliation!.orgId);
+        if (community?.slug) {
+            const updatedAffiliation = { ...userData.affiliation, orgSlug: community.slug };
+            await updateDoc(userDocRef, { affiliation: updatedAffiliation });
+            return { ...userData, affiliation: updatedAffiliation };
         }
     }
     
     return userData;
-  }, [aboutContent]);
+  }, []);
   
   useEffect(() => {
+    if (isAboutLoading || isCommunitiesLoading) return;
+    
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      setIsLoading(true);
+      setIsAuthLoading(true);
       setFirebaseUser(fbUser);
       if (fbUser) {
-        const userData = await fetchUserData(fbUser);
+        const userData = await fetchUserData(fbUser, aboutContent.adminUids || [], communities);
         setUser(userData);
       } else {
         setUser(null);
       }
-      setIsLoading(false);
+      setIsAuthLoading(false);
     });
     return () => unsubscribe();
-  }, [fetchUserData]);
+  }, [fetchUserData, isAboutLoading, isCommunitiesLoading, aboutContent, communities]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -205,9 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setAffiliation = async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        const userDocRef = doc(firestore, 'users', user.uid);
-        await updateDoc(userDocRef, { affiliation });
-        setUser(prevUser => prevUser ? { ...prevUser, affiliation } : null);
+        await updateUser({ affiliation });
     }
   };
 
@@ -261,6 +257,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { saveItem: saveSponsor, unsaveItem: unsaveSponsor, isItemSaved: isSponsorSaved, list: savedSponsors } = createSaveFunctions('savedSponsors');
   const { saveItem: saveMovie, unsaveItem: unsaveMovie, isItemSaved: isMovieSaved, list: savedMovies } = createSaveFunctions('savedMovies');
 
+  const isLoading = isAuthLoading || isAboutLoading || isCommunitiesLoading;
+
   const value = { 
     user,
     firebaseUser,
@@ -298,5 +296,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    

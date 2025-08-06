@@ -68,7 +68,7 @@ export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt'
 interface CommunitiesContextType {
   communities: Community[];
   isLoading: boolean;
-  addCommunity: (community: NewCommunityInput) => Promise<Community>;
+  addCommunity: (community: NewCommunityInput, user: User) => Promise<Community>;
   updateCommunity: (id: string, data: Partial<Omit<Community, 'id'>>) => Promise<void>;
   deleteCommunity: (id: string) => Promise<void>;
   getCommunityById: (id: string) => Community | undefined;
@@ -84,7 +84,6 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user, setAffiliation } = useAuth();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -117,7 +116,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     fetchCommunities();
   }, [fetchCommunities]);
 
-  const addCommunity = async (communityData: NewCommunityInput): Promise<Community> => {
+  const addCommunity = async (communityData: NewCommunityInput, user: User): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
 
     const now = new Date().toISOString();
@@ -131,8 +130,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
     const newCommunity = { id: docRef.id, ...newCommunityData } as Community;
     
-    await setAffiliation(newCommunity.id, newCommunity.name, newCommunity.slug);
-
     setCommunities(prev => [...prev, newCommunity]);
     return newCommunity;
   };
@@ -142,21 +139,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const updatedData = { ...data, updatedAt: new Date().toISOString() };
     await updateDoc(communityDocRef, updatedData);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } as Community : c));
-    if (user && user.affiliation?.orgId === id && (data.name || data.slug)) {
-        await setAffiliation(
-          id,
-          data.name || user.affiliation.orgName,
-          data.slug || user.affiliation.orgSlug
-        );
-    }
   };
   
   const deleteCommunity = async (id: string) => {
     const communityDocRef = doc(firestore, 'communities', id);
     await deleteDoc(communityDocRef);
-    if(user && user.affiliation?.orgId === id) {
-        await setAffiliation('', '', '');
-    }
     setCommunities(prev => prev.filter(c => c.id !== id));
   };
 
@@ -207,5 +194,3 @@ export function useCommunities() {
   }
   return context;
 }
-
-    

@@ -84,7 +84,7 @@ export default function EditCommunityPage() {
 
   const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique } = useCommunities();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, setAffiliation } = useAuth();
   
   const [isPending, startTransition] = useTransition();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -183,6 +183,13 @@ export default function EditCommunityPage() {
 
         try {
           await updateCommunity(community.id, updatedData);
+          if (user && user.affiliation?.orgId === community.id && (values.name !== community.name || values.slug !== community.slug)) {
+            await setAffiliation(
+              community.id,
+              values.name,
+              values.slug
+            );
+          }
           toast({
             title: 'Community Updated!',
             description: `Your community "${values.name}" has been successfully updated.`,
@@ -208,6 +215,9 @@ export default function EditCommunityPage() {
       setIsDeleting(true);
       try {
           await deleteCommunity(community.id);
+          if (user && user.affiliation?.orgId === community.id) {
+              await setAffiliation('', '', '');
+          }
           toast({
               title: "Community Deleted",
               description: `The community "${community.name}" has been permanently deleted.`
