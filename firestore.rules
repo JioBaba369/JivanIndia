@@ -1,66 +1,65 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    function isCommunityFounder(communityId) {
-      return get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
-    }
-
+    
     // Default deny all
     match /{document=**} {
       allow read, write: if false;
     }
-
-    // Public read access for most collections
-    match /about/{docId} {
-      allow read: if true;
-      allow write: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-    }
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isOwner(resource.data.founderUid) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
-    }
-    match /events/{eventId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isOwner(resource.data.submittedByUid) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
-    }
+    
+    // Users Collection
     match /users/{userId} {
       allow read: if true;
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isOwner(userId);
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
     }
+
+    // About, Events, Businesses, Communities, Deals, Jobs, Movies, Sponsors
+    // Allow public read for all content collections
+    match /(about|events|businesses|communities|deals|jobs|movies|sponsors)/{docId} {
+      allow read: if true;
+    }
+
+    // Secure write access
+    match /communities/{communityId} {
+      // Allow create only for authenticated users
+      allow create: if request.auth != null;
+      // Allow update only for the founder of the community
+      allow update: if request.auth != null && request.auth.uid == resource.data.founderUid;
+       // Allow delete only for the founder of the community
+      allow delete: if request.auth != null && request.auth.uid == resource.data.founderUid;
+    }
+
+    match /events/{eventId} {
+       // Allow create for authenticated users with a community affiliation
+      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation != null;
+      // Allow update for admins (via status change)
+      allow update: if request.auth != null && get(/databases/$(database)/documents/about/singleton).data.adminUids.hasAny([request.auth.uid]);
+    }
+    
     match /deals/{dealId} {
-      allow read: if true;
-      allow create, update: if isSignedIn();
+      // Allow create for authenticated users with a community affiliation
+      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation != null;
     }
+
      match /jobs/{jobId} {
-      allow read: if true;
-      allow create, update: if isSignedIn();
+      // Allow create for authenticated users with a community affiliation
+      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation != null;
     }
-    match /movies/{movieId} {
-      allow read: if true;
-      allow create, update: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+
+    match /businesses/{businessId} {
+        // Allow create only for admins
+        allow create: if request.auth != null && get(/databases/$(database)/documents/about/singleton).data.adminUids.hasAny([request.auth.uid]);
     }
-    match /providers/{providerId} {
-        allow read: if true;
-        allow create, update: if isSignedIn();
-    }
+
     match /sponsors/{sponsorId} {
-        allow read: if true;
-        allow create, update: if isSignedIn();
+        // Allow create only for admins
+        allow create: if request.auth != null && get(/databases/$(database)/documents/about/singleton).data.adminUids.hasAny([request.auth.uid]);
+    }
+
+    // Contact form submissions
+    match /contacts/{contactId} {
+        allow create: if true;
     }
   }
 }
