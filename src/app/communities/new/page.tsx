@@ -91,7 +91,7 @@ export default function NewCommunityPage() {
   const router = useRouter();
   const { addCommunity, isSlugUnique } = useCommunities();
   const { toast } = useToast();
-  const { user, setAffiliation } = useAuth();
+  const { user } = useAuth();
   
   const [isPending, startTransition] = useTransition();
 
@@ -168,7 +168,6 @@ export default function NewCommunityPage() {
 
         try {
           const addedCommunity = await addCommunity(newCommunity, user.email);
-          await setAffiliation(addedCommunity.id, addedCommunity.name, addedCommunity.slug);
           toast({
             title: 'Community Submitted!',
             description: `Your community "${values.name}" has been submitted for review.`,

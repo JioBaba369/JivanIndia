@@ -23,7 +23,6 @@ export default function DashboardPage() {
     if (user.isAdmin) {
       router.push('/admin');
     } else if (user.affiliation?.orgSlug) {
-      // This is the key check: ensure orgSlug is defined before redirecting
       router.push(`/c/${user.affiliation.orgSlug}`);
     } else {
       router.push('/profile');

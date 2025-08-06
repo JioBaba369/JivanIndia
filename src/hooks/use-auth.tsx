@@ -119,7 +119,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const adminUids = await getAdminUids();
           userData.isAdmin = adminUids.includes(fbUser.uid);
 
-          setUser(userData);
+          if (userData.affiliation?.orgId && !userData.affiliation.orgSlug) {
+             const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
+             const communityDocSnap = await getDoc(communityDocRef);
+             if (communityDocSnap.exists()) {
+                 const communityData = communityDocSnap.data();
+                 const affiliation = {
+                    ...userData.affiliation,
+                    orgSlug: communityData.slug
+                 };
+                 await updateDoc(userDocRef, { affiliation });
+                 setUser({...userData, affiliation });
+             } else {
+                setUser(userData);
+             }
+          } else {
+            setUser(userData);
+          }
         }
       } else {
         setUser(null);
@@ -172,21 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const userDocRef = doc(firestore, 'users', user.uid);
       await updateDoc(userDocRef, updatedData);
-      
-       setUser(prevUser => {
-        if (!prevUser) return null;
-        
-        // Deep merge for nested affiliation object
-        const newAffiliation = updatedData.affiliation !== undefined 
-          ? { ...(prevUser.affiliation || {}), ...updatedData.affiliation } as User['affiliation']
-          : prevUser.affiliation;
-
-        return {
-            ...prevUser,
-            ...updatedData,
-            affiliation: newAffiliation,
-        };
-      });
+      setUser(prevUser => prevUser ? { ...prevUser, ...updatedData } : null);
     }
   };
 
@@ -194,6 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const affiliation = { orgId, orgName, orgSlug };
       await updateUser({ affiliation });
+      setUser(prevUser => prevUser ? { ...prevUser, affiliation } : null);
     }
   };
 

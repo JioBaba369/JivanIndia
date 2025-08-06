@@ -84,7 +84,7 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, setAffiliation } = useAuth();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -128,6 +128,9 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     };
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
     const newCommunity = { id: docRef.id, ...newCommunityData } as Community;
+    
+    await setAffiliation(newCommunity.id, newCommunity.name, newCommunity.slug);
+
     setCommunities(prev => [...prev, newCommunity]);
     return newCommunity;
   };
