@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, type User } from '@/hooks/use-auth';
 import { useEvents, type Event } from '@/hooks/use-events';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember } from '@/hooks/use-about';
@@ -96,13 +96,48 @@ const TeamMemberDialog = ({
   )
 }
 
+const AddAdminDialog = ({ onSave }: { onSave: (email: string) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [email, setEmail] = useState('');
+
+    const handleSave = () => {
+        onSave(email);
+        setIsOpen(false);
+        setEmail('');
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button><UserPlus className="mr-2 h-4 w-4" /> Add Admin</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Add New Administrator</DialogTitle>
+                    <CardDescription>Enter the email address of the user you want to grant admin privileges to.</CardDescription>
+                </DialogHeader>
+                <div className="space-y-2 py-4">
+                    <Label htmlFor="email">User Email</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleSave}>Grant Access</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, users, isLoading } = useAuth();
   const { events, updateEventStatus } = useEvents();
   const { communities, verifyCommunity } = useCommunities();
-  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember } = useAbout();
+  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin } = useAbout();
   const { toast } = useToast();
 
   const [story, setStory] = useState(aboutContent.story);
@@ -153,6 +188,22 @@ export default function AdminDashboardPage() {
     toast({ title: 'Team Member Removed', description: 'The team member has been removed.' });
   }
 
+  const handleAddAdmin = async (email: string) => {
+    await addAdmin(email);
+  }
+
+  const handleRemoveAdmin = async (uid: string) => {
+    if (user?.uid === uid) {
+      toast({
+        title: "Action Not Allowed",
+        description: "You cannot remove your own admin privileges.",
+        variant: "destructive",
+      });
+      return;
+    }
+    await removeAdmin(uid);
+  }
+
   const getEventStatusVariant = (status: Event['status']) => {
     switch (status) {
         case 'Approved': return 'default';
@@ -172,6 +223,7 @@ export default function AdminDashboardPage() {
 
   const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const adminUsers = users.filter(u => aboutContent.adminUids?.includes(u.uid));
 
 
   return (
@@ -352,6 +404,65 @@ export default function AdminDashboardPage() {
                                                         <AlertDialogFooter>
                                                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                           <AlertDialogAction onClick={() => handleDeleteTeamMember(member.id)}>Yes, delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                      </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                         {/* Admins Section */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <CardTitle>Platform Administrators</CardTitle>
+                                        <CardDescription>Manage users who have admin privileges.</CardDescription>
+                                    </div>
+                                    <AddAdminDialog onSave={handleAddAdmin} />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Avatar</TableHead>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>Email</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {adminUsers.map(admin => (
+                                            <TableRow key={admin.uid}>
+                                                <TableCell>
+                                                    <Avatar>
+                                                        <AvatarImage src={admin.profileImageUrl} alt={admin.name} />
+                                                        <AvatarFallback>{getInitials(admin.name)}</AvatarFallback>
+                                                    </Avatar>
+                                                </TableCell>
+                                                <TableCell className="font-medium">{admin.name}</TableCell>
+                                                <TableCell>{admin.email}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="destructive" size="icon" disabled={admin.uid === user.uid}>
+                                                                <UserX className="h-4 w-4" />
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                          <AlertDialogDescription>
+                                                            This will revoke admin privileges for {admin.name}. They will still be a regular user.
+                                                          </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                          <AlertDialogAction onClick={() => handleRemoveAdmin(admin.uid)}>Yes, revoke</AlertDialogAction>
                                                         </AlertDialogFooter>
                                                       </AlertDialogContent>
                                                     </AlertDialog>

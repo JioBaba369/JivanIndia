@@ -6,6 +6,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useToast } from './use-toast';
+import { useAbout } from './use-about';
 
 export interface User {
   uid: string;
@@ -49,6 +50,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  users: User[];
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
   signup: (name: string, email: string, pass: string, country: string) => Promise<void>;
@@ -84,9 +86,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { aboutContent } = useAbout();
 
   useEffect(() => {
     setIsLoading(true);
@@ -95,8 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (fbUser) {
         const userDocRef = doc(firestore, 'users', fbUser.uid);
         const userDocSnap = await getDoc(userDocRef);
-        const aboutSnap = await getDoc(doc(firestore, 'about', 'singleton'));
-        const aboutContent = aboutSnap.data();
 
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data() as User;
@@ -108,17 +110,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setUser(null);
       }
+      
+      // Fetch all users for admin panel
+      const usersCollectionRef = collection(firestore, 'users');
+      const usersSnapshot = await getDocs(usersCollectionRef);
+      setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data() } as User)));
+      
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [aboutContent]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
-    const aboutSnap = await getDoc(doc(firestore, 'about', 'singleton'));
-    const aboutContent = aboutSnap.data();
     const username = name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
     
     const newUser: User = {
@@ -144,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
     setUser(newUser);
+    setUsers(prev => [...prev, newUser]);
   }
 
   const login = async (email: string, pass: string) => {
@@ -227,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = { 
     user,
+    users,
     firebaseUser,
     isLoading,
     signup,

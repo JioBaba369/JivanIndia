@@ -66,8 +66,8 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <AuthProvider>
-          <AboutProvider>
+        <AboutProvider>
+          <AuthProvider>
             <CommunitiesProvider>
               <EventsProvider>
                 <BusinessesProvider>
@@ -96,8 +96,8 @@ export default function RootLayout({
                 </BusinessesProvider>
               </EventsProvider>
             </CommunitiesProvider>
-          </AboutProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </AboutProvider>
       </body>
     </html>
   );
