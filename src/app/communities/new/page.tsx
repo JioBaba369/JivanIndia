@@ -120,11 +120,17 @@ export default function NewCommunityPage() {
   });
 
   const nameValue = form.watch('name');
+  const slugValue = form.watch('slug');
 
   useEffect(() => {
-    if (nameValue) {
-      const newSlug = generateSlug(nameValue);
-      form.setValue('slug', newSlug, { shouldValidate: true });
+    // Only auto-generate slug if the user hasn't manually edited it
+    const currentSlug = form.getValues('slug');
+    const slugFromState = generateSlug(nameValue);
+    
+    // A simple check to see if the slug likely came from a previous name value
+    // This isn't perfect but prevents overwriting a user's manual change
+    if (nameValue && (!currentSlug || generateSlug(form.getValues('name')) === currentSlug)) {
+        form.setValue('slug', slugFromState, { shouldValidate: true });
     }
   }, [nameValue, form]);
 
@@ -221,9 +227,9 @@ export default function NewCommunityPage() {
     <div className="container mx-auto px-4 py-12">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Establish Your Community's Presence</CardTitle>
+          <CardTitle className="font-headline text-3xl">Register Your Community</CardTitle>
           <CardDescription>
-            Fill out the form below to add your organization to the JivanIndia.co community hub. Fields marked with an asterisk (*) are required.
+            Fill out the form to add your organization to the JivanIndia.co hub. Required fields are marked with an asterisk (*).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -276,44 +282,42 @@ export default function NewCommunityPage() {
 
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community Name *</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Community Name *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="e.g., Bay Area Tamil Sangam" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Community URL *</FormLabel>
+                      <div className="relative">
                         <FormControl>
-                          <Input 
-                            placeholder="e.g., Bay Area Tamil Sangam" 
-                            {...field} 
+                          <Input
+                            placeholder="e.g., bay-area-tamil-sangam"
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community URL *</FormLabel>
-                        <div className="relative">
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., bay-area-tamil-sangam"
-                              {...field}
-                            />
-                          </FormControl>
-                          {form.formState.isValidating && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
-                        </div>
-                        <FormDescription>jivanindia.co/c/{form.getValues('slug') || '{your-url}'}</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        {form.formState.isValidating && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
+                      </div>
+                      <FormDescription>jivanindia.co/c/{slugValue || '{your-url}'}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               
               <div className="space-y-6">
@@ -379,7 +383,7 @@ export default function NewCommunityPage() {
                               </FormControl>
                               <FormDescription className="flex justify-between">
                                 <span>Max {DESC_MAX_LENGTH} characters.</span>
-                                <span>{(field.value || '').length} / {DESC_MAX_LENGTH}</span>
+                                <span>{(form.watch('description') || '').length} / {DESC_MAX_LENGTH}</span>
                               </FormDescription>
                               <FormMessage />
                           </FormItem>
@@ -396,7 +400,7 @@ export default function NewCommunityPage() {
                               </FormControl>
                               <FormDescription className="flex justify-between">
                                 <span>This will appear on your main community profile page.</span>
-                                <span>{(field.value || '').length} / {FULL_DESC_MAX_LENGTH}</span>
+                                <span>{(form.watch('fullDescription') || '').length} / {FULL_DESC_MAX_LENGTH}</span>
                               </FormDescription>
                               <FormMessage />
                           </FormItem>
