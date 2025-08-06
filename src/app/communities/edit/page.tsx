@@ -14,11 +14,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useTransition } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
-import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
+import { Loader2, Linkedin, Facebook, X, Trash2 } from 'lucide-react';
+import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,18 +31,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import ImageUpload from '@/components/feature/image-upload';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
+
+const NAME_MAX_LENGTH = 100;
+const DESC_MAX_LENGTH = 160;
+const FULL_DESC_MAX_LENGTH = 2000;
+const SLUG_MAX_LENGTH = 50;
+
 
 const generateSlug = (value: string) => {
   if (!value) return '';
@@ -55,16 +52,12 @@ const generateSlug = (value: string) => {
     .replace(/-+/g, '-');
 };
 
-const NAME_MAX_LENGTH = 100;
-const SLUG_MAX_LENGTH = 50;
-const DESC_MAX_LENGTH = 160;
-const FULL_DESC_MAX_LENGTH = 2000;
 
-const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
+const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean, currentId?: string) => z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
   slug: z.string().min(3, "URL must be at least 3 characters.").max(SLUG_MAX_LENGTH)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces.")
-    .refine(isSlugUnique, {
+    .refine((slug) => isSlugUnique(slug, currentId), {
       message: "This URL is already taken.",
     }),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
@@ -88,65 +81,93 @@ type CommunityFormValues = z.infer<ReturnType<typeof formSchema>>;
 
 const communityTypes = ['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other'] as const;
 
-export default function NewCommunityPage() {
+const stripBaseUrl = (baseUrl: string, fullUrl?: string) => {
+    if (!fullUrl) return '';
+    return fullUrl.startsWith(baseUrl) ? fullUrl.substring(baseUrl.length) : fullUrl;
+}
+
+export default function EditCommunityPage() {
   const router = useRouter();
-  const { addCommunity, isSlugUnique } = useCommunities();
+  const params = useParams();
+  const slug = typeof params.slug === 'string' ? params.slug : '';
+
+  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
   const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [community, setCommunity] = useState<Community | null>(null);
+
+  const memoizedIsSlugUnique = useCallback((slug: string, currentId?: string) => {
+    if (slug.length < 3) return true;
+    return isSlugUnique(slug, currentId);
+  }, [isSlugUnique]);
 
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(isSlugUnique)),
-    defaultValues: {
-      name: '',
-      slug: '',
-      type: 'Other',
-      description: '',
-      fullDescription: '',
-      region: '',
-      founded: '',
-      tags: '',
-      logoUrl: undefined,
-      bannerUrl: undefined,
-      website: '',
-      contactEmail: user?.email || '',
-      phone: '',
-      address: '',
-      socialTwitter: '',
-      socialFacebook: '',
-      socialLinkedin: '',
-    },
-    mode: 'onBlur',
+    resolver: zodResolver(formSchema(memoizedIsSlugUnique, community?.id)),
+    mode: 'onChange',
   });
 
-  const nameValue = form.watch('name');
-  const slugValue = form.watch('slug');
-
   useEffect(() => {
-    // Only auto-generate slug if the user hasn't manually edited it
-    const currentSlug = form.getValues('slug');
-    const slugFromState = generateSlug(nameValue);
-    
-    // A simple check to see if the slug likely came from a previous name value
-    // This isn't perfect but prevents overwriting a user's manual change
-    if (nameValue && (!currentSlug || generateSlug(form.getValues('name')) === currentSlug)) {
-        form.setValue('slug', slugFromState, { shouldValidate: true });
-    }
-     if (!nameValue && currentSlug) {
-        form.setValue('slug', '', { shouldValidate: true });
-    }
-  }, [nameValue, form]);
+      if (isLoadingCommunities) return;
+      const foundCommunity = getCommunityBySlug(slug);
+      if (foundCommunity) {
+          setCommunity(foundCommunity);
+          form.reset({
+              name: foundCommunity.name || '',
+              slug: foundCommunity.slug || '',
+              type: foundCommunity.type || 'Other',
+              description: foundCommunity.description || '',
+              fullDescription: foundCommunity.fullDescription || '',
+              region: foundCommunity.region || '',
+              founded: foundCommunity.founded || '',
+              tags: foundCommunity.tags?.join(', ') || '',
+              logoUrl: foundCommunity.logoUrl || '',
+              bannerUrl: foundCommunity.imageUrl || '',
+              website: foundCommunity.website || '',
+              contactEmail: foundCommunity.contactEmail || '',
+              phone: foundCommunity.phone || '',
+              address: foundCommunity.address || '',
+              socialTwitter: stripBaseUrl('https://x.com/', foundCommunity.socialMedia?.twitter),
+              socialFacebook: stripBaseUrl('https://facebook.com/', foundCommunity.socialMedia?.facebook),
+              socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundCommunity.socialMedia?.linkedin),
+          });
+      }
+  }, [slug, getCommunityBySlug, form, isLoadingCommunities]);
+
+  if (isLoadingCommunities) {
+    return (
+        <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  if (!user || (community && user.uid !== community.founderUid)) {
+    return (
+       <div className="container mx-auto px-4 py-12 text-center">
+        <Card className="mx-auto max-w-md">
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
+                <CardDescription>You do not have permission to edit this community.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="mt-2">
+                    <Link href={`/c/${slug}`}>Back to Community</Link>
+                </Button>
+            </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
 
   const onSubmit = async (values: CommunityFormValues) => {
-    if (!user) {
-        toast({ title: 'Authentication Error', description: 'You must be logged in to create a community.', variant: 'destructive' });
-        return;
-    }
+    if (!community) return;
     
     startTransition(async () => {
-        const newCommunity: NewCommunityInput = {
+        const updatedData: Partial<Community> = {
           name: values.name,
           slug: values.slug,
           type: values.type,
@@ -156,83 +177,68 @@ export default function NewCommunityPage() {
           imageUrl: values.bannerUrl,
           logoUrl: values.logoUrl,
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
-          membersCount: 1,
           address: values.address || '',
           phone: values.phone || '',
           contactEmail: values.contactEmail,
           website: values.website || '',
-          socialMedia: {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : undefined,
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
-          },
           founded: values.founded,
-          founderUid: user.uid,
+          socialMedia: {
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : '',
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
+          },
         };
 
         try {
-          const addedCommunity = await addCommunity(newCommunity, user.email);
+          await updateCommunity(community.id, updatedData);
           toast({
-            title: 'Community Submitted!',
-            description: `Your community "${values.name}" has been submitted for review.`,
+            title: 'Community Updated!',
+            description: `Your community "${values.name}" has been successfully updated.`,
           });
           
-          router.push(`/c/${addedCommunity.slug}`);
+          if (slug !== values.slug) {
+            router.push(`/c/${values.slug}/edit`);
+          }
+          router.refresh();
 
         } catch (error) {
            toast({
-            title: 'Submission Failed',
+            title: 'Update Failed',
             description: 'An unexpected error occurred. Please try again.',
             variant: 'destructive',
           });
         }
     });
   };
-  
-  if (!user) {
-    return (
-       <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="mx-auto max-w-md">
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
-                <CardDescription>You must be logged in to create a community. Please log in to continue.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button asChild className="mt-2">
-                    <Link href="/login">Login</Link>
-                </Button>
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
-  
-  if (user.affiliation) {
-    return (
-      <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="mx-auto max-w-md">
-          <CardHeader>
-            <CardTitle className="font-headline text-3xl">Already Affiliated</CardTitle>
-            <CardDescription>You are already affiliated with a community and cannot create a new one.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <p className="font-semibold">{user.affiliation.orgName}</p>
-            <Button asChild className="mt-4">
-                <Link href={`/c/${user.affiliation.orgSlug}`}>View Your Community</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+
+  const handleDelete = async () => {
+      if (!community) return;
+      setIsDeleting(true);
+      try {
+          await deleteCommunity(community.id);
+          toast({
+              title: "Community Deleted",
+              description: `The community "${community.name}" has been permanently deleted.`
+          });
+          router.push('/communities');
+          router.refresh();
+      } catch (error) {
+          toast({
+              title: "Deletion Failed",
+              description: "An unexpected error occurred. Please try again.",
+              variant: 'destructive'
+          });
+          setIsDeleting(false);
+      }
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="mx-auto max-w-3xl">
+      <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Register Your Community</CardTitle>
+          <CardTitle className="font-headline text-3xl">Edit Your Community</CardTitle>
           <CardDescription>
-            Fill out the form to add your organization to the JivanIndia.co hub. Required fields are marked with an asterisk (*).
+            Update your community's information below. Changes will be reflected publicly once you save.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -285,42 +291,33 @@ export default function NewCommunityPage() {
 
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Community Name *</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="e.g., Bay Area Tamil Sangam" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Community URL *</FormLabel>
-                      <div className="relative">
+                 <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community Name *</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="e.g., bay-area-tamil-sangam"
-                            {...field}
-                          />
+                          <Input placeholder="e.g., Bay Area Tamil Sangam" {...field} />
                         </FormControl>
-                        {form.formState.isValidating && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
-                      </div>
-                      <FormDescription>jivanindia.co/c/{slugValue || '{your-url}'}</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community URL *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., bay-area-tamil-sangam" {...field} />
+                        </FormControl>
+                         <FormDescription>jivanindia.co/c/{form.getValues('slug') || '{your-url}'}</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
               </div>
               
               <div className="space-y-6">
@@ -360,21 +357,21 @@ export default function NewCommunityPage() {
                           )}
                       />
                   </div>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <FormField
-                        control={form.control}
-                        name="founded"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Year Founded *</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g., 2010" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                  </div>
+                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                            control={form.control}
+                            name="founded"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Year Founded *</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., 2010" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                   </div>
                   <FormField
                       control={form.control}
                       name="description"
@@ -386,7 +383,7 @@ export default function NewCommunityPage() {
                               </FormControl>
                               <FormDescription className="flex justify-between">
                                 <span>Max {DESC_MAX_LENGTH} characters.</span>
-                                <span>{(form.watch('description') || '').length} / {DESC_MAX_LENGTH}</span>
+                                <span>{(field.value || '').length} / {DESC_MAX_LENGTH}</span>
                               </FormDescription>
                               <FormMessage />
                           </FormItem>
@@ -403,7 +400,7 @@ export default function NewCommunityPage() {
                               </FormControl>
                               <FormDescription className="flex justify-between">
                                 <span>This will appear on your main community profile page.</span>
-                                <span>{(form.watch('fullDescription') || '').length} / {FULL_DESC_MAX_LENGTH}</span>
+                                <span>{(field.value || '').length} / {FULL_DESC_MAX_LENGTH}</span>
                               </FormDescription>
                               <FormMessage />
                           </FormItem>
@@ -435,36 +432,43 @@ export default function NewCommunityPage() {
                  <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X /> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                 </div>
               </div>
 
-
-              <div className="flex justify-end gap-4 pt-4">
+              <div className="flex justify-between items-center gap-4 pt-4">
                 <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button type="button" variant="outline" disabled={isPending}>
-                      Cancel
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Any unsaved changes on this form will be lost.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Continue Editing</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => router.back()}>Cancel Anyway</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
+                    <AlertDialogTrigger asChild>
+                         <Button type="button" variant="destructive" disabled={isDeleting}>
+                            <Trash2 className="mr-2"/> Delete Community
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your
+                                community and remove all of its associated data from our servers.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                                {isDeleting ? 'Deleting...' : 'Yes, delete it'}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
                 </AlertDialog>
-                <Button type="submit" disabled={isPending || !form.formState.isValid}>
-                  {isPending ? <><Loader2 className="mr-2 animate-spin" /> Submitting...</> : 'Submit for Review'}
-                </Button>
+                 <div className="flex justify-end gap-4">
+                    <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={!form.formState.isValid || isPending}>
+                      {isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}
+                    </Button>
+                </div>
               </div>
             </form>
           </Form>

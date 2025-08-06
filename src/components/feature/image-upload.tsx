@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
-import { UploadCloud, CheckCircle, ImageUp, Loader2, Camera } from 'lucide-react';
+import { UploadCloud, CheckCircle, ImageUp, Loader2, Camera, Pencil } from 'lucide-react';
 import ImageCropper from './image-cropper';
 import type { useToast } from '@/hooks/use-toast';
 import { storage } from '@/lib/firebase';
@@ -147,13 +148,20 @@ export default function ImageUpload({
             role="button"
             aria-label="Upload image"
             tabIndex={0}
-            className="relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80"
+            className="group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80"
             style={{ aspectRatio: `${aspectRatio}` }}
             onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
             onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
             >
             {value && !uploadState.isUploading ? (
-            <Image src={value} alt="Preview" fill className="object-cover rounded-lg" />
+            <>
+              <Image src={value} alt="Preview" fill className="object-cover rounded-lg" />
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 text-white">
+                  <Pencil className="h-5 w-5"/> Change
+                </div>
+              </div>
+            </>
             ) : uploadState.isUploading ? (
                 <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
                     <Loader2 className="h-8 w-8 animate-spin text-primary"/>
