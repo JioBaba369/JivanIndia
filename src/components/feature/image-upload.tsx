@@ -53,6 +53,9 @@ export default function ImageUpload({
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Reset imageSrc to ensure cropper re-renders for the same file
+    setImageSrc(null);
+
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.size > IMAGE_MAX_SIZE_MB * 1024 * 1024) {
