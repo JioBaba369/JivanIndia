@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -61,7 +62,7 @@ Today, JivanIndia.co is more than just a website. It's a bustling hub, a digital
         avatarUrl: 'https://placehold.co/400x400.png',
       },
     ],
-    adminUids: [],
+    adminUids: ["KLcCoN1BwgUaYVtT3i4aX9fJBuH2"],
 };
 
 
