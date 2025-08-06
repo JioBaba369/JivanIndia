@@ -14,7 +14,6 @@ import "@/lib/firebase"; // Import to initialize services
 import CookieConsentBanner from "@/components/cookie-consent-banner";
 import { BusinessesProvider } from "@/hooks/use-businesses";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
-import MobileNav from "@/components/layout/mobile-nav";
 import { JobsProvider } from "@/hooks/use-jobs";
 import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
@@ -85,11 +84,10 @@ export default function RootLayout({
                           <div className="relative flex min-h-screen flex-col">
                             <Header />
                             <main className="flex-1 pb-20 md:pb-0">{children}</main>
-                             <div className="fixed bottom-6 right-6 z-50 md:hidden">
+                             <div className="md:hidden fixed bottom-6 right-6 z-50">
                                 <PostSheet />
                              </div>
                             <Footer />
-                            <MobileNav />
                           </div>
                           <Toaster />
                           <CookieConsentBanner />
