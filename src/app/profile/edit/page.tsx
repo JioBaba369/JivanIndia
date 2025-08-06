@@ -38,6 +38,7 @@ const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: str
   username: z.string().min(3, { message: "Username must be at least 3 characters." })
     .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores.')
     .refine(async (username) => {
+        if (!username) return true; // Let min handle empty
         return await isUsernameUnique(username, currentUid);
     }, {
         message: "This username is already taken.",
