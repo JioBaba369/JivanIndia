@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -206,7 +207,7 @@ export default function NewDealPage() {
               />
                <div className="space-y-2">
                 <Label htmlFor="businessName">Business Name</Label>
-                <Input id="businessName" value={user.affiliation.orgName} readOnly disabled />
+                <Input id="businessName" value={user.affiliation.orgName} readOnly disabled className="disabled:bg-muted/50" />
                 <p className="text-xs text-muted-foreground">This is based on your community affiliation.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

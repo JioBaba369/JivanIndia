@@ -104,7 +104,7 @@ export default function EventsPage() {
               const formattedDate = format(new Date(event.startDateTime), 'MMMM d, yyyy');
               return (
                  <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    <CardHeader className="p-0">
+                    <CardContent className="p-0">
                         <div className="relative h-48 w-full">
                             <Image
                             src={event.imageUrl}
@@ -116,11 +116,11 @@ export default function EventsPage() {
                             />
                             <Badge className="absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{event.eventType}</Badge>
                         </div>
-                    </CardHeader>
+                    </CardContent>
                     <CardContent className="flex-grow p-4">
-                        <CardTitle className="mb-2 font-headline text-xl">
+                        <h3 className="mb-2 font-headline text-xl">
                             <Link href={`/events/${event.id}`} className="hover:text-primary transition-colors">{event.title}</Link>
-                        </CardTitle>
+                        </h3>
                         <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
                         <div className="mt-4 space-y-2">
                             <div className="flex items-center text-sm text-muted-foreground">

@@ -11,8 +11,6 @@ import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import ImageCropper from './image-cropper';
 
 interface ImageUploadProps {
   value?: string;
@@ -34,7 +32,6 @@ export default function ImageUpload({
   className
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [uploadState, setUploadState] = useState({
       isUploading: false,
@@ -47,7 +44,7 @@ export default function ImageUpload({
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.size > IMAGE_MAX_SIZE_MB * 1024 * 1024) {
@@ -59,56 +56,48 @@ export default function ImageUpload({
         resetFileInput();
         return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+      
+      setUploadState({ isUploading: true, progress: 0 });
 
-  const handleUpload = async (imageBlob: Blob) => {
-    setSelectedImage(null);
-    setUploadState({ isUploading: true, progress: 0 });
+      const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
+      const storageRef = ref(storage, fileName);
+      
+      try {
+        const uploadTask = uploadBytesResumable(storageRef, file, { contentType: 'image/jpeg' });
 
-    const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
-    const storageRef = ref(storage, fileName);
-    
-    try {
-      const uploadTask = uploadBytesResumable(storageRef, imageBlob, { contentType: 'image/jpeg' });
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadState(prevState => ({ ...prevState, progress }));
-        },
-        (error) => {
-            console.error("Upload error", error);
-            setUploadState({ isUploading: false, progress: 0 });
-            toast({
-                title: "Upload Failed",
-                description: "There was an error uploading your image. Please try again.",
-                variant: "destructive",
-            });
-        },
-        async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            onChange(downloadURL);
-            setUploadState({ isUploading: false, progress: 0 });
-            toast({
-                title: 'Image Uploaded!',
-                icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-            });
-        }
-      );
-    } catch (error) {
-      setUploadState({ isUploading: false, progress: 0 });
-      toast({
-        title: "Upload Failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-      console.error("Upload error", error);
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadState(prevState => ({ ...prevState, progress }));
+          },
+          (error) => {
+              console.error("Upload error", error);
+              setUploadState({ isUploading: false, progress: 0 });
+              toast({
+                  title: "Upload Failed",
+                  description: "There was an error uploading your image. Please try again.",
+                  variant: "destructive",
+              });
+          },
+          async () => {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              onChange(downloadURL);
+              setUploadState({ isUploading: false, progress: 0 });
+              toast({
+                  title: 'Image Uploaded!',
+                  icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+              });
+          }
+        );
+      } catch (error) {
+        setUploadState({ isUploading: false, progress: 0 });
+        toast({
+          title: "Upload Failed",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
+        console.error("Upload error", error);
+      }
     }
   };
   
@@ -180,20 +169,6 @@ export default function ImageUpload({
         accept="image/png, image/jpeg, image/webp"
         disabled={uploadState.isUploading}
       />
-       <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Crop Your Image</DialogTitle>
-          </DialogHeader>
-          {selectedImage && (
-            <ImageCropper
-              imageSrc={selectedImage}
-              aspect={aspectRatio}
-              onCropComplete={handleUpload}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
