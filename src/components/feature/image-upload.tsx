@@ -82,33 +82,40 @@ export default function ImageUpload({
     const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
     const storageRef = ref(storage, fileName);
     
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+    try {
+      const uploadTask = uploadBytesResumable(storageRef, blob);
 
-    uploadTask.on('state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadState(prevState => ({ ...prevState, progress }));
-      },
-      (error) => {
-        setUploadState({ isUploading: false, progress: 0 });
-        toast({
-          title: "Upload Failed",
-          description: "There was an error uploading your image. Please try again.",
-          variant: "destructive",
-        });
-        console.error("Upload error", error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          onChange(downloadURL);
-          setUploadState({ isUploading: false, progress: 0 });
-          toast({
-            title: 'Image Uploaded!',
-            icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-          });
-        });
-      }
-    );
+      await new Promise<void>((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadState(prevState => ({ ...prevState, progress }));
+          },
+          (error) => {
+            reject(error);
+          },
+          () => {
+            resolve();
+          }
+        );
+      });
+      
+      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      onChange(downloadURL);
+      setUploadState({ isUploading: false, progress: 0 });
+      toast({
+        title: 'Image Uploaded!',
+        icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+      });
+    } catch (error) {
+      setUploadState({ isUploading: false, progress: 0 });
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your image. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Upload error", error);
+    }
   };
   
   const handleCropperClose = () => {
