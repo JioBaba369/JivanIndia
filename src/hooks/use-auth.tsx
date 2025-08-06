@@ -61,6 +61,7 @@ interface AuthContextType {
   updateUser: (updatedData: Partial<User>) => Promise<void>;
   setAffiliation: (orgId: string, orgName: string, orgSlug: string) => Promise<void>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
+  isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
   savedEvents: string[];
   saveEvent: (eventId: string) => void;
@@ -219,6 +220,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return undefined;
   };
 
+  const isUsernameUnique = async (username: string, currentUid?: string): Promise<boolean> => {
+    const usersRef = collection(firestore, 'users');
+    const q = query(usersRef, where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+    if(querySnapshot.empty) return true;
+    // If a user is found, check if it's the current user
+    if(currentUid && querySnapshot.docs[0].id === currentUid) {
+      return true;
+    }
+    return false;
+  };
+
   const createSaveFunctions = (listType: SaveableItem) => {
     const list = user?.[listType] || [];
 
@@ -257,6 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateUser,
     setAffiliation,
     getUserByUsername,
+    isUsernameUnique,
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved,

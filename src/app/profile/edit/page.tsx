@@ -33,9 +33,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-const profileFormSchema = z.object({
+const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>, currentUid?: string) => z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  username: z.string().min(3, { message: "Username must be at least 3 characters." }).regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores.'),
+  username: z.string().min(3, { message: "Username must be at least 3 characters." })
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores.')
+    .refine(async (username) => {
+        return await isUsernameUnique(username, currentUid);
+    }, {
+        message: "This username is already taken.",
+    }),
   email: z.string().email({ message: "Please enter a valid email address." }),
   bio: z.string().max(280, { message: "Bio cannot exceed 280 characters." }).optional(),
   phone: z.string().optional(),
@@ -50,16 +56,15 @@ const profileFormSchema = z.object({
   interests: z.string().optional(),
 });
 
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function EditProfilePage() {
   const { toast } = useToast();
-  const { user, updateUser, isLoading: isAuthLoading } = useAuth();
+  const { user, updateUser, isLoading: isAuthLoading, isUsernameUnique } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
+  const form = useForm<z.infer<ReturnType<typeof profileFormSchema>>>({
+    resolver: zodResolver(profileFormSchema(isUsernameUnique, user?.uid)),
     mode: 'onChange',
   });
 
@@ -93,7 +98,7 @@ export default function EditProfilePage() {
     );
   }
 
-  const onSubmit = (data: ProfileFormValues) => {
+  const onSubmit = (data: z.infer<ReturnType<typeof profileFormSchema>>) => {
     if (!user) return;
     
     startTransition(async () => {
