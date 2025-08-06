@@ -24,7 +24,7 @@ import { getInitials } from "@/lib/utils";
 const navLinks = [
   { href: "/events", label: "What's On" },
   { href: "/communities", label: "Communities" },
-  { href: "/directory", label: "Directory" },
+  { href: "/businesses", label: "Businesses" },
   { href: "/movies", label: "Movies" },
   { href: "/deals", label: "Deals" },
   { href: "/careers", label: "Careers" },

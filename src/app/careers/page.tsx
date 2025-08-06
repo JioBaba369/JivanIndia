@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Search, PlusCircle, Briefcase, Building, ArrowRight } from "lucide-react";
@@ -90,7 +90,7 @@ export default function CareersPage() {
                 <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row justify-between items-start">
                         <div>
-                            <h3 className="font-headline text-2xl font-semibold tracking-tight">{job.title}</h3>
+                            <CardTitle className="font-headline text-2xl tracking-tight">{job.title}</CardTitle>
                             <div className="text-md text-muted-foreground">{job.companyName}</div>
                         </div>
                         <Badge variant="secondary">{job.type}</Badge>

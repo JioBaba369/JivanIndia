@@ -89,10 +89,10 @@ export default function RootLayout({
                                 <PostSheet />
                              </div>
                             <Footer />
+                            <MobileNav />
                           </div>
                           <Toaster />
                           <CookieConsentBanner />
-                          <MobileNav />
                         </JobsProvider>
                       </MoviesProvider>
                     </DealsProvider>
