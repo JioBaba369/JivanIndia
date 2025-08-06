@@ -11,14 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, PlusCircle, LayoutGrid, List } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, PlusCircle, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { useMemo, useState, useEffect } from "react";
 import { format } from 'date-fns';
-import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 export default function EventsPage() {
@@ -28,7 +27,6 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [category, setCategory] = useState('all');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
@@ -56,154 +54,94 @@ export default function EventsPage() {
   }, [events, searchQuery, locationQuery, category]);
 
   return (
-    <div className="flex flex-col">
-      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
-        <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
-            What's On
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Explore cultural, professional, and community events happening near you.
-          </p>
-           <Button size="lg" className="mt-8" asChild>
-              <Link href="/events/new">
-                <PlusCircle className="mr-2 h-5 w-5" />
-                Post an Event
-              </Link>
-            </Button>
+    <div className="container mx-auto py-12">
+        <div className="space-y-4 mb-8">
+            <h1 className="font-headline text-4xl font-bold">Upcoming Events</h1>
+            <p className="text-lg text-muted-foreground">Discover cultural celebrations, professional meetups, concerts, and more.</p>
         </div>
-      </section>
-
-      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-4">
-               <div className="flex flex-col gap-4 md:flex-row">
-                 <div className="grid flex-grow grid-cols-1 gap-4 lg:grid-cols-3">
-                    <div className="relative lg:col-span-1">
-                      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Search event, organizer..."
-                        className="pl-10 text-base"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Location"
-                        className="pl-10 text-base"
-                        value={locationQuery}
-                        onChange={(e) => setLocationQuery(e.target.value)}
-                      />
-                    </div>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="text-base">
+        <Card className="p-4 shadow-md mb-8">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                 <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                    placeholder="Search Events..."
+                    className="pl-10 text-base md:text-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+                 <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                    placeholder="Location (e.g. San Jose)"
+                    className="pl-10 text-base md:text-sm"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
+                    />
+                </div>
+                <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger>
                         <SelectValue placeholder="All Categories" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {eventCategories.map((cat, index) => (
-                          <SelectItem key={index} value={cat}>
-                            {cat === 'all' ? 'All Categories' : cat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                 </div>
-                 <div className="flex items-center gap-2">
-                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
-                        <LayoutGrid />
-                    </Button>
-                    <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
-                        <List />
-                    </Button>
-                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <section className="container mx-auto px-4 py-12">
+                    </SelectTrigger>
+                    <SelectContent>
+                    {eventCategories.map((cat, index) => (
+                        <SelectItem key={index} value={cat}>
+                        {cat === 'all' ? 'All Categories' : cat}
+                        </SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+                <Button className="w-full">
+                    <Search className="mr-2 h-4 w-4" />
+                    Apply Filters
+                </Button>
+            </div>
+        </Card>
+        
         {filteredEvents.length > 0 ? (
-           <div className={cn(
-             "gap-8",
-             view === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                : 'flex flex-col'
-           )}>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {filteredEvents.map((event) => {
-              const formattedDate = format(new Date(event.startDateTime), 'eee, MMM d, p');
-              return view === 'grid' ? (
-                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
-                  <Link href={`/events/${event.id}`} className="flex h-full flex-col">
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={event.imageUrl}
-                        alt={event.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                      />
-                        <Badge variant="secondary" className="absolute top-2 right-2">{event.eventType}</Badge>
-                    </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
-                      <h3 className="font-headline flex-grow text-xl font-bold group-hover:text-primary">{event.title}</h3>
-                      <div className="mt-4 flex flex-col space-y-2 text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>{formattedDate}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{event.location.venueName}</span>
-                          </div>
-                      </div>
-                        <Button variant="outline" className="mt-6 w-full">
-                          <Ticket className="mr-2 h-4 w-4" />
-                          View Event
-                        </Button>
-                    </CardContent>
-                  </Link>
-                </Card>
-              ) : (
-                 <Card key={event.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
-                  <Link href={`/events/${event.id}`}>
-                    <div className="flex flex-col sm:flex-row">
-                      <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0">
-                        <Image
-                          src={event.imageUrl}
-                          alt={event.title}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                        />
-                         <Badge variant="secondary" className="absolute top-2 right-2 sm:hidden">{event.eventType}</Badge>
-                      </div>
-                      <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
-                         <Badge variant="secondary" className="hidden sm:inline-flex w-fit">{event.eventType}</Badge>
-                         <h3 className="font-headline mt-2 text-xl font-bold group-hover:text-primary">{event.title}</h3>
-                         <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
+              const formattedDate = format(new Date(event.startDateTime), 'MMMM d, yyyy');
+              return (
+                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <CardHeader className="p-0">
+                        <div className="relative h-48 w-full">
+                            <Image
+                            src={event.imageUrl}
+                            alt={event.title}
+                            fill
+                            className="object-cover"
+                            sizes="100vw"
+                            data-ai-hint="event photo"
+                            />
+                            <Badge className="absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{event.eventType}</Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex-grow p-4">
+                        <CardTitle className="mb-2 font-headline text-xl">
+                            <Link href={`/events/${event.id}`} className="hover:text-primary transition-colors">{event.title}</Link>
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                        <div className="mt-4 space-y-2">
+                            <div className="flex items-center text-sm text-muted-foreground">
+                                <Calendar className="mr-2 h-4 w-4 text-primary"/>
                                 <span>{formattedDate}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4" />
+                             <div className="flex items-center text-sm text-muted-foreground">
+                                <MapPin className="mr-2 h-4 w-4 text-primary"/>
                                 <span>{event.location.venueName}</span>
                             </div>
-                         </div>
-                         <p className="text-sm mt-2 text-muted-foreground line-clamp-2">{event.organizerName}</p>
-                      </CardContent>
-                       <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                        <Button variant="outline" className="w-full sm:w-auto">
-                            <Ticket className="mr-2 h-4 w-4" />
-                            View Event
+                        </div>
+                    </CardContent>
+                    <div className="flex items-center p-4 pt-0">
+                        <Button asChild variant="link" className="p-0 h-auto">
+                            <Link href={`/events/${event.id}`}>
+                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
                         </Button>
-                      </div>
                     </div>
-                  </Link>
                 </Card>
-              )
+              ) 
             })}
            </div>
         ) : (
@@ -217,7 +155,6 @@ export default function EventsPage() {
                 }}>Clear Filters</Button>
             </div>
           )}
-      </section>
     </div>
   );
 }
