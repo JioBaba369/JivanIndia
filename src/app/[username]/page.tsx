@@ -140,14 +140,7 @@ export default function UserPublicProfilePage() {
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <Image
-                                                    src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnbG9iZXxlbnwwfHx8fDE3NTQ0NjQ2NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                                                    alt="Globe representing current country"
-                                                    width={32}
-                                                    height={32}
-                                                    className="object-cover h-full w-full"
-                                                    data-ai-hint="globe"
-                                                    />
+                                                <CountryFlag countryName={profileUser.currentLocation.country} />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -159,14 +152,7 @@ export default function UserPublicProfilePage() {
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <Image
-                                                    src="https://images.unsplash.com/photo-1526489376599-b34b5aeab368?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmbGFnfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                                                    alt="Indian flag representing origin"
-                                                    width={32}
-                                                    height={32}
-                                                    className="object-cover h-full w-full"
-                                                    data-ai-hint="India flag"
-                                                />
+                                                <CountryFlag countryName="India" />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -400,5 +386,3 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
-
-    
