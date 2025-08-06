@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Heart } from 'lucide-react';
 
 interface LogoProps extends React.HTMLAttributes<HTMLElement> {
     as?: React.ElementType;
@@ -8,7 +9,7 @@ interface LogoProps extends React.HTMLAttributes<HTMLElement> {
 export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
   return (
     <Component className="flex items-center gap-2" aria-label="JivanIndia.co homepage" {...props}>
-        <span className="font-headline text-4xl text-primary font-bold">Ω</span>
+        <Heart className="h-8 w-8 text-primary fill-primary" />
         <span className="font-headline text-2xl font-bold">JivanIndia.co</span>
     </Component>
   );
