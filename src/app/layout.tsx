@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { Metadata } from "next";
 import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -8,10 +9,10 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { AuthProvider } from "@/hooks/use-auth";
 import { EventsProvider } from "@/hooks/use-events";
-import { CommunitiesProvider, useCommunities } from "@/hooks/use-communities";
-import { AboutProvider, useAbout } from "@/hooks/use-about";
+import { CommunitiesProvider } from "@/hooks/use-communities";
+import { AboutProvider } from "@/hooks/use-about";
 import "@/lib/firebase"; // Import to initialize services
 import CookieConsentBanner from "@/components/cookie-consent-banner";
 import { BusinessesProvider } from "@/hooks/use-businesses";
@@ -20,7 +21,7 @@ import { JobsProvider } from "@/hooks/use-jobs";
 import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
 import { PostSheet } from "@/components/layout/post-sheet";
-import { useState } from "react";
+import { Loader2 } from 'lucide-react';
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -33,76 +34,20 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
 });
 
-// export const metadata: Metadata = {
-//   title: "JivanIndia.co - The Heartbeat of the Indian Community",
-//   description:
-//     "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
-//   openGraph: {
-//     title: "JivanIndia.co - The Heartbeat of the Indian Community",
-//     description: "Your one-stop destination for community events, organizations, deals, and more.",
-//     url: "https://jivanindia.co",
-//     siteName: "JivanIndia.co",
-//     images: [
-//       {
-//         url: 'https://images.unsplash.com/photo-1594917409245-8a245973c8b4?w=1200&h=630&fit=crop', // A representative image
-//         width: 1200,
-//         height: 630,
-//         alt: 'A vibrant Indian community festival',
-//       },
-//     ],
-//     locale: 'en_US',
-//     type: 'website',
-//   },
-//    twitter: {
-//     card: 'summary_large_image',
-//     title: 'JivanIndia.co - The Heartbeat of the Indian Community',
-//     description: 'Your one-stop destination for community events, organizations, deals, and more.',
-//     images: ['https://images.unsplash.com/photo-1594917409245-8a245973c8b4?w=1200&h=630&fit=crop'],
-//   },
-// };
-
-const AppContent = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1 pb-20 md:pb-0">{children}</main>
-            <div className="md:hidden fixed bottom-6 right-6 z-50">
-                <PostSheet />
-            </div>
-            <Footer />
-        </div>
-    );
-};
-
+// This is a client component, so we can't use metadata export
+// export const metadata: Metadata = { ... };
 
 function AppProviders({ children }: { children: React.ReactNode }) {
-    const [aboutContentLoaded, setAboutContentLoaded] = useState(false);
-    const [communitiesLoaded, setCommunitiesLoaded] = useState(false);
+  const [aboutContentLoaded, setAboutContentLoaded] = useState(false);
+  const [communitiesLoaded, setCommunitiesLoaded] = useState(false);
 
-    return (
-        <AboutProvider setAboutContentLoaded={setAboutContentLoaded}>
-            <CommunitiesProvider setCommunitiesLoaded={setCommunitiesLoaded}>
-                <DataFetcher>
-                    {children}
-                </DataFetcher>
-            </CommunitiesProvider>
-        </AboutProvider>
-    );
-}
+  const allDataLoaded = aboutContentLoaded && communitiesLoaded;
 
-function DataFetcher({ children }: { children: React.ReactNode }) {
-    const { aboutContent, isLoading: isAboutLoading } = useAbout();
-    const { communities, isLoading: isCommunitiesLoading } = useCommunities();
-    const [aboutContentLoaded, setAboutContentLoaded] = useState(false);
-    const [communitiesLoaded, setCommunitiesLoaded] = useState(false);
-
-    return (
-        <AuthProvider 
-            aboutContent={aboutContent} 
-            communities={communities} 
-            aboutContentLoaded={!isAboutLoading} 
-            communitiesLoaded={!isCommunitiesLoading}
-        >
+  return (
+    <AboutProvider setAboutContentLoaded={setAboutContentLoaded}>
+      <CommunitiesProvider setCommunitiesLoaded={setCommunitiesLoaded}>
+        <AuthProvider>
+          {allDataLoaded ? (
             <EventsProvider>
                 <BusinessesProvider>
                     <SponsorsProvider>
@@ -110,16 +55,21 @@ function DataFetcher({ children }: { children: React.ReactNode }) {
                             <MoviesProvider>
                                 <JobsProvider>
                                     {children}
-                                    <Toaster />
-                                    <CookieConsentBanner />
                                 </JobsProvider>
                             </MoviesProvider>
                         </DealsProvider>
                     </SponsorsProvider>
                 </BusinessesProvider>
             </EventsProvider>
+          ) : (
+            <div className="flex h-[calc(100vh-128px)] w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          )}
         </AuthProvider>
-    );
+      </CommunitiesProvider>
+    </AboutProvider>
+  )
 }
 
 export default function RootLayout({
@@ -140,9 +90,18 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <AppProviders>
-          <AppContent>{children}</AppContent>
-        </AppProviders>
+        <div className="relative flex min-h-screen flex-col">
+            <AppProviders>
+              <Header />
+              <main className="flex-1 pb-20 md:pb-0">{children}</main>
+              <div className="md:hidden fixed bottom-6 right-6 z-50">
+                  <PostSheet />
+              </div>
+              <Footer />
+            </AppProviders>
+        </div>
+        <Toaster />
+        <CookieConsentBanner />
       </body>
     </html>
   );

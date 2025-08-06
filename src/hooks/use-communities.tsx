@@ -1,7 +1,8 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 
@@ -102,8 +103,22 @@ export function CommunitiesProvider({ children, setCommunitiesLoaded }: { childr
   };
   
   const deleteCommunity = async (id: string) => {
+    // 1. Delete the community document
     const communityDocRef = doc(firestore, 'communities', id);
     await deleteDoc(communityDocRef);
+
+    // 2. Remove affiliation from any users linked to this community
+    const usersRef = collection(firestore, 'users');
+    const q = query(usersRef, where("affiliation.orgId", "==", id));
+    const querySnapshot = await getDocs(q);
+    
+    const batch = writeBatch(firestore);
+    querySnapshot.forEach(userDoc => {
+        batch.update(userDoc.ref, { affiliation: null });
+    });
+    await batch.commit();
+
+    // 3. Update local state
     setCommunities(prev => prev.filter(c => c.id !== id));
   };
 

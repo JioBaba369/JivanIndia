@@ -1,9 +1,9 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from '@/hooks/use-auth';
 
 export interface TeamMember {
   id: string;
@@ -68,7 +68,7 @@ export function AboutProvider({ children, setAboutContentLoaded }: { children: R
     };
 
     fetchAndSeedAbout();
-  }, [setAboutContentLoaded]);
+  }, [setAboutContentLoaded, aboutDocRef]);
 
   const updateStory = async (newStory: string) => {
     const updatedContent = { ...aboutContent, story: newStory };

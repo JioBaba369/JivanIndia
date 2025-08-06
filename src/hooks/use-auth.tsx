@@ -6,8 +6,8 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import type { AboutContent } from '@/hooks/use-about'; 
-import type { Community } from '@/hooks/use-communities';
+import { useAbout } from '@/hooks/use-about'; 
+import { useCommunities } from '@/hooks/use-communities';
 import { useToast } from './use-toast';
 
 export interface User {
@@ -99,24 +99,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children, aboutContent, communities, aboutContentLoaded, communitiesLoaded }: { 
-    children: ReactNode, 
-    aboutContent: AboutContent, 
-    communities: Community[],
-    aboutContentLoaded: boolean,
-    communitiesLoaded: boolean 
-}) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-
-  const isLoading = isAuthLoading || !aboutContentLoaded || !communitiesLoaded;
+  const { aboutContent } = useAbout();
 
   useEffect(() => {
-    if (!aboutContentLoaded) return;
-
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+        setIsLoading(true);
         setFirebaseUser(fbUser);
         if (fbUser) {
             const userDocRef = doc(firestore, 'users', fbUser.uid);
@@ -131,11 +123,11 @@ export function AuthProvider({ children, aboutContent, communities, aboutContent
         } else {
             setUser(null);
         }
-        setIsAuthLoading(false);
+        setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, [aboutContentLoaded, aboutContent.adminUids]);
+  }, [aboutContent.adminUids]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -248,7 +240,7 @@ export function AuthProvider({ children, aboutContent, communities, aboutContent
   const value = { 
     user,
     firebaseUser,
-    isLoading: isAuthLoading,
+    isLoading,
     signup,
     login, 
     logout, 
@@ -266,11 +258,7 @@ export function AuthProvider({ children, aboutContent, communities, aboutContent
 
   return (
     <AuthContext.Provider value={value}>
-      {isLoading ? (
-        <div className="flex h-screen w-screen items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : children}
+      {children}
     </AuthContext.Provider>
   );
 }

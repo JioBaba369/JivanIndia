@@ -71,17 +71,17 @@ export default function UserPublicProfilePage() {
     const userSavedDeals = useMemo(() => allDeals.filter(deal => profileUser?.savedDeals?.includes(deal.id)), [allDeals, profileUser]);
     const userSavedMovies = useMemo(() => allMovies.filter(movie => profileUser?.savedMovies?.includes(movie.id)), [allMovies, profileUser]);
         
-    const userAffiliatedEvents = useMemo(() => affiliatedCommunity
+    const userAffiliatedEvents = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
         ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
-        : [], [allEvents, affiliatedCommunity]);
+        : [], [allEvents, affiliatedCommunity, profileUser]);
     
-    const userAffiliatedBusinesses = useMemo(() => affiliatedCommunity
+    const userAffiliatedBusinesses = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
         ? businesses.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
-        : [], [businesses, affiliatedCommunity]);
+        : [], [businesses, affiliatedCommunity, profileUser]);
 
-    const userAffiliatedSponsors = useMemo(() => affiliatedCommunity
+    const userAffiliatedSponsors = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
         ? sponsors.filter(s => s.eventsSponsored.some(e => allEvents.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
-        : [], [sponsors, allEvents, affiliatedCommunity]);
+        : [], [sponsors, allEvents, affiliatedCommunity, profileUser]);
         
     const copyToClipboard = () => {
         navigator.clipboard.writeText(pageUrl);
@@ -132,7 +132,7 @@ export default function UserPublicProfilePage() {
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length },
     ];
     
-    if (affiliatedCommunity) {
+    if (affiliatedCommunity && profileUser.affiliation) {
         tabs.push({ value: 'community-activity', label: 'Affiliation', count: 0 });
     }
 
@@ -228,7 +228,7 @@ export default function UserPublicProfilePage() {
 
                          <div className="mt-12">
                             <Tabs defaultValue="saved-events" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                                <TabsList className="grid w-full" style={{gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`}}>
                                     {tabs.map(tab => (
                                         <TabsTrigger key={tab.value} value={tab.value}>
                                             {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
@@ -341,7 +341,7 @@ export default function UserPublicProfilePage() {
                                     )}
                                 </TabsContent>
 
-                                {affiliatedCommunity && (
+                                {affiliatedCommunity && profileUser.affiliation && (
                                 <TabsContent value="community-activity" className="mt-6">
                                     <Tabs defaultValue="events" className="w-full">
                                         <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
@@ -424,5 +424,3 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
-
-    
