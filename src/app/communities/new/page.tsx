@@ -113,16 +113,13 @@ export default function NewCommunityPage() {
 
   const nameValue = form.watch('name');
   const slugValue = form.watch('slug');
+  const isSlugTouched = form.formState.touchedFields.slug;
 
   useEffect(() => {
-    const slugFromState = generateSlug(nameValue);
-    if (nameValue && generateSlug(form.getValues('name')) === form.getValues('slug')) {
-        form.setValue('slug', slugFromState, { shouldValidate: true });
+    if (!isSlugTouched) {
+      form.setValue('slug', generateSlug(nameValue), { shouldValidate: true });
     }
-     if (!nameValue && form.getValues('slug')) {
-        form.setValue('slug', '', { shouldValidate: true });
-    }
-  }, [nameValue, form]);
+  }, [nameValue, isSlugTouched, form]);
 
 
   const onSubmit = async (values: CommunityFormValues) => {
