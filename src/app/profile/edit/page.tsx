@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
@@ -12,15 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Paperclip } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ImageUpload from '@/components/feature/image-upload';
-import { formatUrl, getInitials } from '@/lib/utils'; // New import for URL formatting
+import { formatUrl, getInitials } from '@/lib/utils';
 
 export default function EditProfilePage() {
   const { toast } = useToast();
@@ -151,16 +152,8 @@ export default function EditProfilePage() {
                     <Label>Profile Picture</Label>
                     <div className="flex items-center gap-6">
                         <Avatar className="h-24 w-24 border-4 border-primary">
-                            {profileImageUrl ? (
-                                <Image
-                                    src={profileImageUrl}
-                                    alt="Profile preview"
-                                    fill
-                                    className="rounded-full object-cover"
-                                />
-                            ) : (
-                                <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
-                            )}
+                            <AvatarImage src={profileImageUrl} alt="Profile preview" />
+                            <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
                         </Avatar>
                         <div className="w-full">
                            <ImageUpload
