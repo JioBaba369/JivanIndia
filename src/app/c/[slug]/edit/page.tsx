@@ -195,7 +195,9 @@ export default function EditCommunityPage() {
             description: `Your community "${values.name}" has been successfully updated.`,
           });
           
-          router.push(`/c/${values.slug}`);
+          if (slug !== values.slug) {
+            router.push(`/c/${values.slug}/edit`);
+          }
           router.refresh();
 
         } catch (error) {

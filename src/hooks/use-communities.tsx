@@ -84,7 +84,7 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user, updateUser, setAffiliation } = useAuth();
+  const { user, setAffiliation } = useAuth();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -142,13 +142,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } as Community : c));
      // Also update user's affiliation if name/slug changed
     if (user && user.affiliation?.orgId === id && (data.name || data.slug)) {
-        await updateUser({
-            affiliation: {
-                orgId: id,
-                orgName: data.name || user.affiliation.orgName,
-                orgSlug: data.slug || user.affiliation.orgSlug
-            }
-        })
+        await setAffiliation(
+          id,
+          data.name || user.affiliation.orgName,
+          data.slug || user.affiliation.orgSlug
+        );
     }
   };
   
@@ -156,7 +154,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const communityDocRef = doc(firestore, 'communities', id);
     await deleteDoc(communityDocRef);
     if(user && user.affiliation?.orgId === id) {
-        await updateUser({ affiliation: undefined });
+        await setAffiliation('', '', '');
     }
     setCommunities(prev => prev.filter(c => c.id !== id));
   };

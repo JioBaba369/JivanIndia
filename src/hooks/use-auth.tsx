@@ -118,24 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           const adminUids = await getAdminUids();
           userData.isAdmin = adminUids.includes(fbUser.uid);
-
-          if (userData.affiliation?.orgId && !userData.affiliation.orgSlug) {
-             const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
-             const communityDocSnap = await getDoc(communityDocRef);
-             if (communityDocSnap.exists()) {
-                 const communityData = communityDocSnap.data();
-                 const affiliation = {
-                    ...userData.affiliation,
-                    orgSlug: communityData.slug
-                 };
-                 await updateDoc(userDocRef, { affiliation });
-                 setUser({...userData, affiliation });
-             } else {
-                setUser(userData);
-             }
-          } else {
-            setUser(userData);
-          }
+          
+          setUser(userData);
         }
       } else {
         setUser(null);
@@ -158,7 +142,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username,
       email: fbUser.email!,
       isAdmin: adminUids.includes(fbUser.uid),
-      affiliation: undefined,
       profileImageUrl: '',
       bio: '',
       phone: '',
@@ -198,6 +181,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const affiliation = { orgId, orgName, orgSlug };
       await updateUser({ affiliation });
+      // This was the missing piece: ensure local state is updated.
+      setUser(prevUser => prevUser ? { ...prevUser, affiliation } : null);
     }
   };
 
