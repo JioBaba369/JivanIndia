@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -54,7 +55,7 @@ interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
-  signup: (name: string, email: string, pass: string) => Promise<void>;
+  signup: (name: string, email: string, pass: string, country: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
@@ -151,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [fetchUserData]);
 
-  const signup = async (name: string, email: string, pass: string) => {
+  const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
     const username = name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
@@ -169,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       bio: '',
       phone: '',
       website: '',
-      currentLocation: { country: '', state: '', city: '' },
+      currentLocation: { country: country, state: '', city: '' },
       originLocation: { indiaState: '', indiaDistrict: '' },
       languagesSpoken: [],
       interests: [],

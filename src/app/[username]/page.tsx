@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents } from '@/hooks/use-events';
@@ -51,6 +51,36 @@ export default function UserPublicProfilePage() {
         }
     }, [username, getUserByUsername]);
 
+    const userSavedEvents = useMemo(() => allEvents.filter(event => profileUser?.savedEvents?.includes(String(event.id))), [allEvents, profileUser]);
+    const userJoinedCommunities = useMemo(() => allCommunities.filter(org => profileUser?.joinedCommunities?.includes(org.id)), [allCommunities, profileUser]);
+    const userSavedDeals = useMemo(() => allDeals.filter(deal => profileUser?.savedDeals?.includes(deal.id)), [allDeals, profileUser]);
+    
+    const affiliatedCommunity = useMemo(() => profileUser?.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null, [profileUser, getCommunityById]);
+
+    const userAffiliatedEvents = useMemo(() => affiliatedCommunity
+        ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
+        : [], [allEvents, affiliatedCommunity]);
+    
+    const userAffiliatedProviders = useMemo(() => affiliatedCommunity
+        ? providers.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
+        : [], [providers, affiliatedCommunity]);
+
+    const userAffiliatedSponsors = useMemo(() => affiliatedCommunity
+        ? sponsors.filter(s => s.eventsSponsored.some(e => allEvents.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
+        : [], [sponsors, allEvents, affiliatedCommunity]);
+        
+    const copyToClipboard = () => {
+        if(typeof window !== 'undefined'){
+            navigator.clipboard.writeText(window.location.href);
+            toast({
+                title: "Link Copied!",
+                description: "Profile URL copied to clipboard.",
+            });
+        }
+    };
+    
+    const pageUrl = (typeof window !== 'undefined') ? window.location.href : '';
+
     if (profileUser === undefined) {
       return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
@@ -82,33 +112,9 @@ export default function UserPublicProfilePage() {
         );
     }
     
-    const affiliatedCommunity = profileUser.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null;
+    const hasCurrentLocation = profileUser.currentLocation && (profileUser.currentLocation.city || profileUser.currentLocation.state || profileUser.currentLocation.country);
+    const hasOriginLocation = profileUser.originLocation && (profileUser.originLocation.indiaDistrict || profileUser.originLocation.indiaState);
 
-    const userAffiliatedEvents = affiliatedCommunity
-        ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
-        : [];
-    
-    const userAffiliatedProviders = affiliatedCommunity
-        ? providers.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
-        : [];
-
-    const userAffiliatedSponsors = affiliatedCommunity
-        ? sponsors.filter(s => s.eventsSponsored.some(e => allEvents.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
-        : [];
-        
-    const userSavedEvents = allEvents.filter(event => profileUser.savedEvents?.includes(String(event.id)));
-    const userJoinedCommunities = allCommunities.filter(org => profileUser.joinedCommunities?.includes(org.id));
-    const userSavedDeals = allDeals.filter(deal => profileUser.savedDeals?.includes(deal.id));
-
-    const copyToClipboard = () => {
-        if(typeof window !== 'undefined'){
-            navigator.clipboard.writeText(window.location.href);
-            toast({
-                title: "Link Copied!",
-                description: "Profile URL copied to clipboard.",
-            });
-        }
-    };
 
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
@@ -123,7 +129,7 @@ export default function UserPublicProfilePage() {
                                     <AvatarFallback className="font-headline text-5xl">{getInitials(profileUser.name)}</AvatarFallback>
                                 </Avatar>
                                 <div className="absolute -bottom-2 -right-8 flex gap-2">
-                                    {profileUser.currentLocation?.country && (
+                                    {hasCurrentLocation && (
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
@@ -131,11 +137,11 @@ export default function UserPublicProfilePage() {
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Current: {profileUser.currentLocation.city}, {profileUser.currentLocation.state}, {profileUser.currentLocation.country}</p>
+                                            <p>Current: {[profileUser.currentLocation?.city, profileUser.currentLocation?.state, profileUser.currentLocation?.country].filter(Boolean).join(', ')}</p>
                                         </TooltipContent>
                                     </Tooltip>
                                     )}
-                                     {profileUser.originLocation?.indiaState && (
+                                     {hasOriginLocation && (
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
@@ -143,7 +149,7 @@ export default function UserPublicProfilePage() {
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Origin: {profileUser.originLocation.indiaDistrict}, {profileUser.originLocation.indiaState}, India</p>
+                                            <p>Origin: {[profileUser.originLocation?.indiaDistrict, profileUser.originLocation?.indiaState, 'India'].filter(Boolean).join(', ')}</p>
                                         </TooltipContent>
                                     </Tooltip>
                                      )}
@@ -188,11 +194,11 @@ export default function UserPublicProfilePage() {
                                     </DialogHeader>
                                     <div className="flex flex-col items-center justify-center gap-4 py-4">
                                         <div className="rounded-lg border p-4">
-                                            <QRCode value={typeof window !== 'undefined' ? window.location.href : ''} size={192} />
+                                            <QRCode value={pageUrl} size={192} />
                                         </div>
                                         <p className="text-sm text-muted-foreground">Scan this QR code with your phone</p>
                                         <div className="w-full flex items-center space-x-2">
-                                            <Input id="copy-url" value={typeof window !== 'undefined' ? window.location.href : ''} readOnly />
+                                            <Input id="copy-url" value={pageUrl} readOnly />
                                             <Button type="submit" size="icon" onClick={copyToClipboard}>
                                                 <Copy className="h-4 w-4" />
                                             </Button>

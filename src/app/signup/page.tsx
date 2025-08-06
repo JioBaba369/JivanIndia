@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -24,9 +24,10 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [country, setCountry] = useState('');
   const { signup } = useAuth();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -36,36 +37,35 @@ export default function SignupPage() {
       setError("Passwords do not match.");
       return;
     }
-    setIsLoading(true);
     setError(null);
 
-    try {
-      await signup(name, email, password);
-      toast({
-        title: "Account Created!",
-        description: "Welcome! You have been successfully signed up.",
-      });
-      router.push('/dashboard');
-    } catch (err: any) {
-      const errorCode = err.code || 'auth/unknown-error';
-      switch (errorCode) {
-        case 'auth/email-already-in-use':
-          setError('This email address is already in use by another account.');
-          break;
-        case 'auth/invalid-email':
-          setError('Please enter a valid email address.');
-          break;
-        case 'auth/weak-password':
-          setError('The password is too weak. Please choose a stronger password (at least 6 characters).');
-          break;
-        default:
-          setError('An unexpected error occurred. Please try again later.');
-          console.error(err);
-          break;
+    startTransition(async () => {
+      try {
+        await signup(name, email, password, country);
+        toast({
+          title: "Account Created!",
+          description: "Welcome! You have been successfully signed up.",
+        });
+        router.push('/dashboard');
+      } catch (err: any) {
+        const errorCode = err.code || 'auth/unknown-error';
+        switch (errorCode) {
+          case 'auth/email-already-in-use':
+            setError('This email address is already in use by another account.');
+            break;
+          case 'auth/invalid-email':
+            setError('Please enter a valid email address.');
+            break;
+          case 'auth/weak-password':
+            setError('The password is too weak. Please choose a stronger password (at least 6 characters).');
+            break;
+          default:
+            setError('An unexpected error occurred. Please try again later.');
+            console.error(err);
+            break;
+        }
       }
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
@@ -93,7 +93,7 @@ export default function SignupPage() {
                   required 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
               <div className="grid gap-2">
@@ -105,7 +105,19 @@ export default function SignupPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isPending}
+                />
+              </div>
+               <div className="grid gap-2">
+                <Label htmlFor="country">Country</Label>
+                <Input
+                  id="country"
+                  type="text"
+                  placeholder="e.g., USA, Canada, UK"
+                  required
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  disabled={isPending}
                 />
               </div>
               <div className="grid gap-2">
@@ -116,7 +128,7 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
                <div className="grid gap-2">
@@ -127,14 +139,14 @@ export default function SignupPage() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex-col">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 animate-spin" />}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 animate-spin" />}
               Create Account
             </Button>
             <div className="mt-4 text-center text-sm">
