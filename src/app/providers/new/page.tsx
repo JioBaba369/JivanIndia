@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -31,7 +31,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
-import { providerCategories } from '@/hooks/use-providers';
+import { useProviders, providerCategories, type NewProviderInput } from '@/hooks/use-providers';
 
 
 const formSchema = z.object({
@@ -54,6 +54,7 @@ export default function NewDirectoryEntryPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { addProvider } = useProviders();
   
   const [isPending, startTransition] = useTransition();
 
@@ -76,26 +77,48 @@ export default function NewDirectoryEntryPage() {
   });
 
   const onSubmit = async (values: ProviderFormValues) => {
-    if (!user?.affiliation || !user.isAdmin) {
+    if (!user?.isAdmin) {
       toast({
-        title: 'Admin Affiliation Required',
-        description: 'Only administrative users of an affiliated community can add to the directory.',
+        title: 'Admin Access Required',
+        description: 'Only platform administrators can add new directory listings.',
         variant: 'destructive',
       });
       return;
     }
 
     startTransition(async () => {
-        // Here you would typically call a function to add the provider to your backend
-        // e.g., `addProvider(values)`
-        await new Promise(resolve => setTimeout(resolve, 1500)); 
-
-        toast({
-            title: 'Listing Submitted!',
-            description: `${values.name} has been added to the directory.`,
-        });
+        const newProviderData: NewProviderInput = {
+          name: values.name,
+          category: values.category,
+          description: values.description,
+          fullDescription: values.fullDescription,
+          imageUrl: values.imageUrl,
+          region: values.region,
+          services: values.services.split(',').map(s => s.trim()).filter(Boolean),
+          contact: {
+            phone: values.phone,
+            email: values.email,
+            website: values.website,
+            address: values.address,
+          },
+          associatedCommunityId: user.affiliation?.orgId,
+        };
         
-        router.push('/directory');
+        try {
+          await addProvider(newProviderData);
+          toast({
+              title: 'Listing Submitted!',
+              description: `${values.name} has been added to the directory.`,
+          });
+          router.push('/directory');
+        } catch (error) {
+          console.error(error);
+          toast({
+            title: 'Submission Failed',
+            description: 'An unexpected error occurred. Please try again.',
+            variant: 'destructive',
+          });
+        }
     });
   };
 
@@ -115,13 +138,13 @@ export default function NewDirectoryEntryPage() {
     );
   }
 
-   if (!user.isAdmin || !user.affiliation) {
+   if (!user.isAdmin) {
      return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Permission Required</CardTitle>
-                <CardDescription>Only administrators of a registered community can add new listings to ensure they are trusted and verified.</CardDescription>
+                <CardDescription>Only administrators can add new listings to ensure they are trusted and verified.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button asChild className="mt-2"><Link href="/dashboard">Return to Dashboard</Link></Button>

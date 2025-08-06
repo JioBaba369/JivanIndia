@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -52,7 +52,7 @@ export default function NewDealPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<DealFormValues>({
     resolver: zodResolver(formSchema),
@@ -78,17 +78,16 @@ export default function NewDealPage() {
       return;
     }
     
-    setIsSubmitting(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    startTransition(async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    toast({
-      title: 'Deal Submitted!',
-      description: `Your deal "${values.title}" has been submitted for review.`,
+      toast({
+        title: 'Deal Submitted!',
+        description: `Your deal "${values.title}" has been submitted for review.`,
+      });
+      
+      router.push('/deals');
     });
-    
-    setIsSubmitting(false);
-    router.push('/deals');
   };
 
    if (!user) {
@@ -244,9 +243,9 @@ export default function NewDealPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
-                {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Deal"}
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
+              <Button type="submit" disabled={isPending || !form.formState.isValid}>
+                {isPending ? <><Loader2 className="mr-2 animate-spin"/>Creating...</> : "Create Deal"}
               </Button>
             </div>
           </form>

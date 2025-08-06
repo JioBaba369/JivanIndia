@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
@@ -51,7 +51,7 @@ export default function NewJobPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<JobFormValues>({
     resolver: zodResolver(formSchema),
@@ -77,18 +77,18 @@ export default function NewJobPage() {
       return;
     }
     
-    setIsSubmitting(true);
+    startTransition(async () => {
    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: 'Job Submitted!',
-      description: `Your job posting for "${values.title}" has been submitted for review.`,
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: 'Job Submitted!',
+        description: `Your job posting for "${values.title}" has been submitted for review.`,
+      });
+      
+      form.reset();
+      router.push('/careers');
     });
-    
-    setIsSubmitting(false);
-    form.reset();
-    router.push('/careers');
   };
 
   if (!user) {
@@ -244,11 +244,11 @@ export default function NewJobPage() {
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
-                {isSubmitting ? <><Loader2 className="mr-2 animate-spin"/>Submitting...</> : "Post Job"}
+              <Button type="submit" disabled={isPending || !form.formState.isValid}>
+                {isPending ? <><Loader2 className="mr-2 animate-spin"/>Submitting...</> : "Post Job"}
               </Button>
             </div>
           </form>

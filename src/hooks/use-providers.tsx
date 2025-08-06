@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export type ProviderCategory = 'Temples & Worship' | 'Groceries & Spices' | 'Restaurants' | 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration' | 'Other';
@@ -29,6 +29,8 @@ export interface Provider {
   };
   associatedCommunityId?: string; // Slug of the community
 }
+
+export type NewProviderInput = Omit<Provider, 'id' | 'isVerified' | 'rating' | 'reviewCount'>;
 
 export const initialProviders: Omit<Provider, 'id'>[] = [
     {
@@ -113,6 +115,7 @@ interface ProvidersContextType {
   providers: Provider[];
   isLoading: boolean;
   getProviderById: (id: string) => Provider | undefined;
+  addProvider: (provider: NewProviderInput) => Promise<void>;
 }
 
 const ProvidersContext = createContext<ProvidersContextType | undefined>(undefined);
@@ -155,6 +158,17 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     fetchProviders();
   }, [fetchProviders]);
 
+  const addProvider = async (providerData: NewProviderInput) => {
+    const newProvider = {
+      ...providerData,
+      isVerified: true, // Admin-added providers are auto-verified
+      rating: 0,
+      reviewCount: 0,
+    };
+    const docRef = await addDoc(providersCollectionRef, newProvider);
+    setProviders(prev => [...prev, { id: docRef.id, ...newProvider } as Provider]);
+  };
+
 
   const getProviderById = (id: string) => {
     return providers.find(provider => provider.id === id);
@@ -164,6 +178,7 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     providers,
     isLoading,
     getProviderById,
+    addProvider,
   };
 
   return (
