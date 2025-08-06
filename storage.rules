@@ -2,52 +2,16 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Default deny all
+    // Allow read access to everyone for all files
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read;
     }
 
-    // Allow public read on all files
-    allow read: if true;
-
-    // Allow writes for authenticated users on specific folders with validation
-    // Profile Pictures: Users can only write to their own folder.
-    match /profile-pictures/{userId}/{fileName} {
-      allow write: if request.auth != null && request.auth.uid == userId
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
-    }
-
-    // Other folders: Any authenticated user can write (e.g., for community/event images)
-    match /community-logos/{fileName} {
-       allow write: if request.auth != null
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
-    }
-    match /community-banners/{fileName} {
-       allow write: if request.auth != null
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
-    }
-    match /event-banners/{fileName} {
-       allow write: if request.auth != null
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
-    }
-     match /deal-images/{fileName} {
-       allow write: if request.auth != null
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
-    }
-     match /provider-images/{fileName} {
-       allow write: if request.auth != null
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
-    }
-    match /sponsor-logos/{fileName} {
-       allow write: if request.auth != null
-                    && request.resource.size < 10 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
+    // Allow write access only to authenticated users
+    // This is a broad rule; for production, you might want to restrict
+    // by path, file size, or content type.
+    match /{allPaths=**} {
+      allow write: if request.auth != null;
     }
   }
 }
