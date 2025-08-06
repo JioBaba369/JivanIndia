@@ -145,7 +145,7 @@ export default function EditProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="max-w-3xl mx-auto">
+      <Card className="mx-auto max-w-3xl">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Update Your Profile</CardTitle>
           <CardDescription>
