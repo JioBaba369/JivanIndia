@@ -169,6 +169,7 @@ export default function EditProfilePage() {
                                 aspectRatio={1}
                                 toast={toast}
                                 folderName="profile-pictures"
+                                iconType="picture"
                            />
                         </div>
                     </div>
