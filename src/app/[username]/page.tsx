@@ -26,6 +26,7 @@ import { type User } from '@/hooks/use-auth';
 import { useDeals } from '@/hooks/use-deals';
 import { getInitials, formatUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import CountryFlag from '@/components/feature/country-flag';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -129,11 +130,11 @@ export default function UserPublicProfilePage() {
                                     <AvatarFallback className="font-headline text-5xl">{getInitials(profileUser.name)}</AvatarFallback>
                                 </Avatar>
                                 <div className="absolute -bottom-2 -right-8 flex gap-2">
-                                    {hasCurrentLocation && (
+                                    {profileUser.currentLocation?.country && (
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <Image src="https://images.unsplash.com/photo-1542037104-924825a12745?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnbG9iZSUyMGVhcnRofGVufDB8fHx8MTc1NDQ2NTM1MXww&ixlib=rb-4.1.0&q=80&w=1080" alt="Globe" width={32} height={32} className="object-cover" data-ai-hint="globe world" />
+                                                <CountryFlag countryName={profileUser.currentLocation.country} />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -145,7 +146,7 @@ export default function UserPublicProfilePage() {
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <Image src="https://images.unsplash.com/photo-1562000823-746a5a04553c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYSUyMGZsYWd8ZW58MHx8fHwxNzU0NDY1NDg1fDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Indian flag" width={32} height={32} className="object-cover" data-ai-hint="India flag" />
+                                                <CountryFlag countryName="India" />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
