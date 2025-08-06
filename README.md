@@ -1,16 +1,15 @@
-# JivanIndia.co - Community Platform
+# JivanIndia.co - A Comprehensive Global Community Hub for the Indian Diaspora
 
-This repository contains the source code for JivanIndia.co, a modern, full-featured web application built with Next.js and React. The platform serves as a central hub for the Indian community, providing a one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.
+JivanIndia.co is a digital platform offering events, community engagement, and deals, primarily serving a localized Indian audience. The strategic vision is to transform JivanIndia.co into a global hub for the 35.4 million-strong Indian diaspora, fostering deep connections, preserving cultural heritage, empowering economic prosperity, and supporting holistic well-being. This platform focuses on hyper-personalization, robust community tools, integrated diaspora services (financial, legal, health), and a culturally sensitive content strategy. The transformation aims to increase user engagement, retention, and monetization, positioning JivanIndia.co as the definitive digital home for Indians worldwide.
 
 ## Key Features
 
-*   **Events Calendar**: A comprehensive listing of upcoming cultural, professional, and community events. Users can submit their own events for review.
-*   **Community Hub**: A directory of community organizations, allowing users to find and join groups that match their interests.
+*   **Events Calendar**: A comprehensive listing of upcoming cultural, professional, and community events.
+*   **Community Hub**: A directory of community organizations, allowing users to find and connect with groups that match their interests.
 *   **Deals & Offers**: A collection of exclusive deals and promotions from local businesses.
 *   **Movie Listings**: Information on the latest Bollywood and regional movies currently in theaters.
+*   **Career Opportunities**: A job board for opportunities within the community.
 *   **User Profiles**: Personalized user profiles where members can save their favorite events, deals, and joined communities.
-*   **Admin Dashboard**: A secure back-end interface for site administrators to manage and approve user-submitted content, ensuring quality and safety.
-*   **Fully Responsive**: A beautiful and intuitive user interface that is optimized for both desktop and mobile devices.
 
 ## Tech Stack
 
