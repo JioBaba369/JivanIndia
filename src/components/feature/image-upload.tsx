@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -53,7 +54,6 @@ export default function ImageUpload({
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Reset imageSrc to ensure cropper re-renders for the same file
     setImageSrc(null);
 
     if (e.target.files && e.target.files.length > 0) {
@@ -159,7 +159,7 @@ export default function ImageUpload({
             >
             {value && !uploadState.isUploading ? (
             <>
-              <Image src={value} alt="Preview" fill className="object-cover rounded-lg" />
+              <Image src={value} alt="Preview" fill className="object-cover" />
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="flex items-center gap-2 text-white">
                   <Pencil className="h-5 w-5"/> Change
@@ -207,3 +207,5 @@ export default function ImageUpload({
     </>
   );
 }
+
+    

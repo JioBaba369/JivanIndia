@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,7 +26,6 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,10 +33,6 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email, password);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
       router.push('/dashboard');
     } catch (err: any) {
       const errorCode = err.code || 'auth/unknown-error';
@@ -120,3 +115,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

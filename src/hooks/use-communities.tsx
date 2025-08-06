@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -67,7 +68,7 @@ export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt'
 interface CommunitiesContextType {
   communities: Community[];
   isLoading: boolean;
-  addCommunity: (community: NewCommunityInput, founderEmail: string) => Promise<Community>;
+  addCommunity: (community: NewCommunityInput) => Promise<Community>;
   updateCommunity: (id: string, data: Partial<Omit<Community, 'id'>>) => Promise<void>;
   deleteCommunity: (id: string) => Promise<void>;
   getCommunityById: (id: string) => Community | undefined;
@@ -116,7 +117,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     fetchCommunities();
   }, [fetchCommunities]);
 
-  const addCommunity = async (communityData: NewCommunityInput, founderEmail: string): Promise<Community> => {
+  const addCommunity = async (communityData: NewCommunityInput): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
 
     const now = new Date().toISOString();
@@ -125,7 +126,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       createdAt: now,
       updatedAt: now,
       isVerified: false,
-      founderEmail: founderEmail,
+      founderEmail: user.email,
     };
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
     const newCommunity = { id: docRef.id, ...newCommunityData } as Community;
@@ -141,7 +142,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const updatedData = { ...data, updatedAt: new Date().toISOString() };
     await updateDoc(communityDocRef, updatedData);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } as Community : c));
-     // Also update user's affiliation if name/slug changed
     if (user && user.affiliation?.orgId === id && (data.name || data.slug)) {
         await setAffiliation(
           id,
@@ -207,3 +207,5 @@ export function useCommunities() {
   }
   return context;
 }
+
+    

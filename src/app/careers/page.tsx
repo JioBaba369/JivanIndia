@@ -51,7 +51,7 @@ export default function CareersPage() {
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
+                        className="pl-10 text-base md:text-sm"
                         placeholder="Search Jobs..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -60,7 +60,7 @@ export default function CareersPage() {
                 <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
+                        className="pl-10 text-base md:text-sm"
                         placeholder="Location (e.g. San Jose)"
                          value={locationQuery}
                         onChange={(e) => setLocationQuery(e.target.value)}
@@ -130,3 +130,5 @@ export default function CareersPage() {
     </div>
   );
 }
+
+    

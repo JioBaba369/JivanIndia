@@ -6,7 +6,8 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import { initialAboutContent } from '@/hooks/use-about'; 
+import { useAbout } from '@/hooks/use-about'; 
+import { useToast } from './use-toast';
 
 export interface User {
   uid: string;
@@ -97,23 +98,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const getAdminUids = async (): Promise<string[]> => {
-    try {
-        const aboutDocRef = doc(firestore, 'about', 'singleton');
-        const docSnap = await getDoc(aboutDocRef);
-        if (docSnap.exists() && docSnap.data()?.adminUids) {
-            return docSnap.data().adminUids;
-        }
-    } catch (error) {
-        console.error("Could not fetch admin UIDs", error);
-    }
-    return initialAboutContent.adminUids || [];
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { aboutContent } = useAbout();
+  const { toast } = useToast();
 
   const fetchUserData = useCallback(async (fbUser: FirebaseUser): Promise<User | null> => {
     const userDocRef = doc(firestore, 'users', fbUser.uid);
@@ -124,10 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const userData = userDocSnap.data() as User;
-    const adminUids = await getAdminUids();
+    const adminUids = aboutContent?.adminUids || [];
     userData.isAdmin = adminUids.includes(fbUser.uid);
-
-    // If user has an affiliation, ensure the slug is present by fetching it.
+    
+    // Ensure affiliation data is complete
     if (userData.affiliation && userData.affiliation.orgId && !userData.affiliation.orgSlug) {
         const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
         const communityDocSnap = await getDoc(communityDocRef);
@@ -142,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     return userData;
-  }, []);
+  }, [aboutContent]);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
@@ -164,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fbUser = userCredential.user;
     const username = name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
     
-    const adminUids = await getAdminUids();
+    const adminUids = aboutContent?.adminUids || [];
 
     const newUser: User = {
       uid: fbUser.uid,
@@ -194,6 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, pass: string) => {
     await signInWithEmailAndPassword(auth, email, pass);
+     toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
   }
 
   const logout = async () => {
@@ -232,7 +226,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const q = query(usersRef, where("username", "==", username));
     const querySnapshot = await getDocs(q);
     if(querySnapshot.empty) return true;
-    // If a user is found, check if it's the current user
     if(currentUid && querySnapshot.docs[0].id === currentUid) {
       return true;
     }
@@ -305,3 +298,5 @@ export function useAuth() {
   }
   return context;
 }
+
+    

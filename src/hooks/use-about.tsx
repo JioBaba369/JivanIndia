@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, setDoc, updateDoc, writeBatch, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -175,3 +175,5 @@ export function useAbout() {
   }
   return context;
 }
+
+    

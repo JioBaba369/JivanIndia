@@ -17,9 +17,7 @@ export default function DirectoryIdRedirectPage() {
         }
     }, [router, id]);
 
-    return (
-        <div className="container mx-auto px-4 py-12 text-center">
-            <p>Redirecting...</p>
-        </div>
-    );
+    return null;
 }
+
+    

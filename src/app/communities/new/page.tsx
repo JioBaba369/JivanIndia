@@ -154,7 +154,7 @@ export default function NewCommunityPage() {
         };
 
         try {
-          const addedCommunity = await addCommunity(newCommunity, user.email);
+          const addedCommunity = await addCommunity(newCommunity);
           toast({
             title: 'Community Submitted!',
             description: `Your community "${values.name}" has been submitted for review.`,
@@ -457,3 +457,5 @@ export default function NewCommunityPage() {
     </div>
   );
 }
+
+    

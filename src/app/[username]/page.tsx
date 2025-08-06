@@ -131,6 +131,10 @@ export default function UserPublicProfilePage() {
         { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length },
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length },
     ];
+    
+    if (affiliatedCommunity) {
+        tabs.push({ value: 'community-activity', label: 'Affiliation', count: 0 });
+    }
 
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
@@ -226,9 +230,10 @@ export default function UserPublicProfilePage() {
                             <Tabs defaultValue="saved-events" className="w-full">
                                 <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
                                     {tabs.map(tab => (
-                                        <TabsTrigger key={tab.value} value={tab.value}>{tab.label} ({tab.count})</TabsTrigger>
+                                        <TabsTrigger key={tab.value} value={tab.value}>
+                                            {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
+                                        </TabsTrigger>
                                     ))}
-                                    {affiliatedCommunity && <TabsTrigger value="community-activity">Affiliation</TabsTrigger>}
                                 </TabsList>
 
                                 <TabsContent value="saved-events" className="mt-6">
@@ -419,3 +424,5 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
+
+    
