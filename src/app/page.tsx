@@ -100,14 +100,29 @@ export default function HomePage() {
             <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
                 <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">Discover. Connect. Thrive.</h1>
                 <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-200">JivanIndia.co is your portal to the vibrant Indian community. Find events, deals, and connections near you.</p>
-                <div className="mt-8 flex flex-wrap justify-center gap-4">
-                    <Button asChild size="lg" >
-                        <Link href="/events">Explore Events</Link>
-                    </Button>
-                    <Button asChild size="lg" variant="secondary">
-                        <Link href="/communities">Join a Community</Link>
-                    </Button>
-                </div>
+                 <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <Input 
+                            type="search"
+                            placeholder="Search for anything..."
+                            className="flex-grow text-lg text-black"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                         <Select value={searchCategory} onValueChange={setSearchCategory}>
+                            <SelectTrigger className="w-full sm:w-[180px] text-lg text-black">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categoryLinks.map(cat => <SelectItem key={cat.href} value={cat.href.substring(1)}>{cat.label}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Button type="submit" size="lg" className="text-lg">
+                            <Search className="mr-2"/>
+                            Search
+                        </Button>
+                    </div>
+                </form>
             </div>
         </div>
       </section>
