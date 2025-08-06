@@ -43,17 +43,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import ImageUpload from '@/components/feature/image-upload';
+import { generateSlug } from '@/lib/utils';
 
-const generateSlug = (value: string) => {
-  if (!value) return '';
-  return value
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-};
 
 const NAME_MAX_LENGTH = 100;
 const SLUG_MAX_LENGTH = 50;
@@ -249,6 +240,7 @@ export default function NewCommunityPage() {
                             aspectRatio={1}
                             toast={toast}
                             folderName="community-logos"
+                            iconType="logo"
                           />
                         </FormControl>
                         <FormMessage />
