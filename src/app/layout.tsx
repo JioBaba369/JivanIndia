@@ -1,6 +1,6 @@
 
 import type { Metadata } from "next";
-import { PT_Sans, Space_Grotesk } from "next/font/google";
+import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/header";
@@ -25,9 +25,9 @@ const ptSans = PT_Sans({
   variable: "--font-pt-sans",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-playfair-display",
 });
 
 export const metadata: Metadata = {
@@ -69,7 +69,7 @@ export default function RootLayout({
         className={cn(
           "min-h-screen bg-background font-body antialiased",
           ptSans.variable,
-          spaceGrotesk.variable
+          playfairDisplay.variable
         )}
       >
         <AuthProvider>
