@@ -51,7 +51,7 @@ const SLUG_MAX_LENGTH = 50;
 const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
 
-const communityTypes = ['Environmental', 'Animal Welfare', 'Human Rights', 'Arts & Culture', 'Community Development', 'Health', 'Education', 'Other'] as const;
+const communityTypes = ['Social', 'Cultural', 'Business', 'Religious', 'Charitable', 'Regional', 'Professional', 'Other'] as const;
 
 const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
@@ -216,23 +216,23 @@ export default function NewCommunityPage() {
     <div className="container mx-auto px-4 py-12">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Register Your Non-Profit</CardTitle>
+          <CardTitle className="font-headline text-3xl">Register Your Community</CardTitle>
           <CardDescription>
-            Fill out the form to add your organization to our non-profit hub. Required fields are marked with an asterisk (*).
+            Fill out the form to add your community to our hub. Required fields are marked with an asterisk (*).
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Organization Branding</h3>
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                    <FormField
                     control={form.control}
                     name="logoUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organization Logo (1:1 Ratio) *</FormLabel>
+                        <FormLabel>Community Logo (1:1 Ratio) *</FormLabel>
                         <FormControl>
                           <ImageUpload
                             value={field.value}
@@ -251,7 +251,7 @@ export default function NewCommunityPage() {
                     name="bannerUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Organization Banner (16:9 Ratio) *</FormLabel>
+                        <FormLabel>Community Banner (16:9 Ratio) *</FormLabel>
                         <FormControl>
                            <ImageUpload
                             value={field.value}
@@ -269,13 +269,13 @@ export default function NewCommunityPage() {
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Organization Identity</h3>
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organization Name *</FormLabel>
+                      <FormLabel>Community Name *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="e.g., Bay Area Tamil Sangam" 
@@ -291,7 +291,7 @@ export default function NewCommunityPage() {
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organization URL *</FormLabel>
+                      <FormLabel>Community URL *</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input
@@ -309,14 +309,14 @@ export default function NewCommunityPage() {
               </div>
               
               <div className="space-y-6">
-                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Organization Details & Purpose</h3>
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Details & Purpose</h3>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <FormField
                           control={form.control}
                           name="type"
                           render={({ field }) => (
                               <FormItem>
-                                  <FormLabel>Organization Category *</FormLabel>
+                                  <FormLabel>Community Category *</FormLabel>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                                       <FormControl>
                                           <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>

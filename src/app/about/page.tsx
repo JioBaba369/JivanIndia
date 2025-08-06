@@ -44,10 +44,10 @@ export default function AboutUsPage() {
         </div>
         <div className="container mx-auto px-4 relative">
           <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
-            Empowering Those Who Do Good
+            Connecting Our Community
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80 text-shadow">
-            Our mission is to provide the digital tools and community platform for non-profits to thrive and amplify their impact.
+            We are dedicated to building the digital town square for the Indian diaspora, fostering connections and celebrating our shared culture.
           </p>
         </div>
       </section>
@@ -56,7 +56,7 @@ export default function AboutUsPage() {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto">
             <h2 className="font-headline text-3xl font-bold text-center mb-4">Our Story</h2>
-            <p className="text-center text-muted-foreground text-lg mb-10">JivanIndia.co was born from a desire to support the pillars of our communities: the non-profit organizations that work tirelessly for the greater good.</p>
+            <p className="text-center text-muted-foreground text-lg mb-10">JivanIndia.co was born from a simple idea: to create a single place where the vibrant and diverse Indian community can come together.</p>
              {isLoading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-5 w-full" />
@@ -78,23 +78,23 @@ export default function AboutUsPage() {
             <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto text-center">
                 <div className="flex flex-col items-center">
                     <Sprout className="h-10 w-10 text-primary mb-4" />
-                    <h3 className="font-headline text-xl font-semibold">Empowerment</h3>
-                    <p className="text-muted-foreground mt-2">Providing tools and platforms for non-profits to succeed.</p>
+                    <h3 className="font-headline text-xl font-semibold">Culture</h3>
+                    <p className="text-muted-foreground mt-2">Celebrating and preserving our rich heritage and traditions.</p>
                 </div>
                 <div className="flex flex-col items-center">
                     <LinkIcon className="h-10 w-10 text-primary mb-4" />
                     <h3 className="font-headline text-xl font-semibold">Connection</h3>
-                    <p className="text-muted-foreground mt-2">Connecting organizations with volunteers, donors, and partners.</p>
+                    <p className="text-muted-foreground mt-2">Bringing people together through events, groups, and shared interests.</p>
                 </div>
                 <div className="flex flex-col items-center">
                     <Heart className="h-10 w-10 text-primary mb-4" />
-                    <h3 className="font-headline text-xl font-semibold">Impact</h3>
-                    <p className="text-muted-foreground mt-2">Facilitating actions that lead to meaningful, positive change.</p>
+                    <h3 className="font-headline text-xl font-semibold">Community</h3>
+                    <p className="text-muted-foreground mt-2">Fostering a sense of belonging and support for one another.</p>
                 </div>
                  <div className="flex flex-col items-center">
                     <Handshake className="h-10 w-10 text-primary mb-4" />
-                    <h3 className="font-headline text-xl font-semibold">Collaboration</h3>
-                    <p className="text-muted-foreground mt-2">Fostering a network of support and shared purpose.</p>
+                    <h3 className="font-headline text-xl font-semibold">Commerce</h3>
+                    <p className="text-muted-foreground mt-2">Supporting local businesses and creating economic opportunities.</p>
                 </div>
             </div>
         </div>
@@ -129,11 +129,11 @@ export default function AboutUsPage() {
        {/* CTA Section */}
       <section className="bg-primary/10 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
-             <h2 className="font-headline text-3xl font-bold">Join Our Mission</h2>
-             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Help us build the most comprehensive resource for the non-profit community. Register your organization, post a volunteer opportunity, or get in touch.</p>
+             <h2 className="font-headline text-3xl font-bold">Join Our Community</h2>
+             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Become a part of the JivanIndia.co family. Register your community group, post an event, or find local deals.</p>
              <div className="mt-8 flex justify-center gap-4">
                 <Button asChild size="lg">
-                    <Link href="/communities/new">Register Your Non-Profit</Link>
+                    <Link href="/communities/new">Register Your Community</Link>
                 </Button>
                 <Button asChild variant="secondary" size="lg">
                     <Link href="/contact">Contact Us</Link>

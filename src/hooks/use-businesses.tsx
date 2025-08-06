@@ -5,8 +5,8 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
-export type BusinessCategory = 'Corporate Sponsor' | 'Grant Provider' | 'Service Partner' | 'Technology Provider' | 'Venue Partner' | 'Other';
-export const businessCategories: BusinessCategory[] = ['Corporate Sponsor', 'Grant Provider', 'Service Partner', 'Technology Provider', 'Venue Partner', 'Other'];
+export type BusinessCategory = 'Professional Services' | 'Restaurant' | 'Retail' | 'Health & Wellness' | 'Entertainment' | 'Other';
+export const businessCategories: BusinessCategory[] = ['Professional Services', 'Restaurant', 'Retail', 'Health & Wellness', 'Entertainment', 'Other'];
 
 
 export interface Business {

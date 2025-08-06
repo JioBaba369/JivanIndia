@@ -231,7 +231,7 @@ export default function UserPublicProfilePage() {
                                 <TabsList className="grid w-full" style={{gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`}}>
                                     {tabs.map(tab => (
                                         <TabsTrigger key={tab.value} value={tab.value}>
-                                            {tab.label} {tab.count > 0 || tab.value === 'community-activity' ? `(${tab.count})` : ''}
+                                            {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
                                         </TabsTrigger>
                                     ))}
                                 </TabsList>

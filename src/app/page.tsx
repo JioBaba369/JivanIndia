@@ -74,11 +74,11 @@ export default function HomePage() {
 
   const categoryLinks = [
     { href: '/events', icon: Calendar, label: 'Events' },
-    { href: '/deals', icon: Tag, label: 'Fundraisers' },
+    { href: '/deals', icon: Tag, label: 'Deals' },
     { href: '/communities', icon: Users, label: 'Communities' },
-    { href: '/businesses', icon: Building, label: 'Partners' },
-    { href: '/careers', icon: Briefcase, label: 'Volunteer Hub' },
-    { href: '/sponsors', icon: Heart, label: 'Donor Central' },
+    { href: '/businesses', icon: Building, label: 'Businesses' },
+    { href: '/careers', icon: Briefcase, label: 'Careers' },
+    { href: '/movies', icon: Film, label: 'Movies' },
   ];
 
 
@@ -98,13 +98,13 @@ export default function HomePage() {
         </div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
             <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
-                <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">Unite your mission, amplify your impact</h1>
-                <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-200">Revolutionize your non-profit’s operations by uniting donors, volunteers, beneficiaries, and staff on an integrated platform designed to maximize your collective impact.</p>
+                <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">The Heartbeat of Our Community</h1>
+                <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-200">Discover local events, connect with community groups, support businesses, and find deals all in one place.</p>
                  <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
                     <div className="flex flex-col sm:flex-row gap-2">
                         <Input 
                             type="search"
-                            placeholder="Search for anything..."
+                            placeholder="Search for events, businesses..."
                             className="flex-grow text-lg text-black"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -196,7 +196,7 @@ export default function HomePage() {
       
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-            <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Fundraisers</h2>
+            <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Deals</h2>
              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {isLoadingDeals ? <DealSkeletons /> : (
                 latestDeals.length > 0 ? (
@@ -241,15 +241,15 @@ export default function HomePage() {
                   ))
               ) : (
                 <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full">
-                  <h3 className="font-headline text-xl font-semibold">No Active Fundraisers</h3>
-                  <p className="text-muted-foreground mt-2">No active fundraisers right now. Check back soon or create one!</p>
+                  <h3 className="font-headline text-xl font-semibold">No Active Deals</h3>
+                  <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or create one!</p>
                 </div>
               ))}
             </div>
              <div className="text-center mt-12">
                 <Button asChild>
                     <Link href="/deals">
-                    See All Fundraisers <ArrowRight className="ml-2 h-4 w-4" />
+                    See All Deals <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
             </div>

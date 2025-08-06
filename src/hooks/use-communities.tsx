@@ -11,7 +11,7 @@ export interface Community {
   id: string;
   slug: string;
   name: string;
-  type: 'Environmental' | 'Animal Welfare' | 'Human Rights' | 'Arts & Culture' | 'Community Development' | 'Health' | 'Education' | 'Other';
+  type: 'Social' | 'Cultural' | 'Business' | 'Religious' | 'Charitable' | 'Regional' | 'Professional' | 'Other';
   description: string;
   fullDescription: string;
   imageUrl: string;
