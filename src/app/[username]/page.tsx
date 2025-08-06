@@ -135,23 +135,10 @@ export default function UserPublicProfilePage() {
                                     <AvatarImage src={profileUser.profileImageUrl} alt={profileUser.name} />
                                     <AvatarFallback className="font-headline text-5xl">{getInitials(profileUser.name)}</AvatarFallback>
                                 </Avatar>
-                                <div className="absolute -bottom-2 -right-8 flex gap-2">
-                                    {profileUser.currentLocation?.country && (
+                                {hasOriginLocation && (
                                     <Tooltip>
-                                        <TooltipTrigger>
-                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <CountryFlag countryName={profileUser.currentLocation.country} />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Current: {[profileUser.currentLocation?.city, profileUser.currentLocation?.state, profileUser.currentLocation?.country].filter(Boolean).join(', ')}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                    )}
-                                     {hasOriginLocation && (
-                                     <Tooltip>
-                                        <TooltipTrigger>
-                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
+                                        <TooltipTrigger className="absolute -bottom-2 -left-4">
+                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden border">
                                                 <CountryFlag countryName="India" />
                                             </div>
                                         </TooltipTrigger>
@@ -159,8 +146,19 @@ export default function UserPublicProfilePage() {
                                             <p>Origin: {[profileUser.originLocation?.indiaDistrict, profileUser.originLocation?.indiaState, 'India'].filter(Boolean).join(', ')}</p>
                                         </TooltipContent>
                                     </Tooltip>
-                                     )}
-                                </div>
+                                )}
+                                {profileUser.currentLocation?.country && (
+                                <Tooltip>
+                                    <TooltipTrigger className="absolute -bottom-2 -right-4">
+                                        <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden border">
+                                            <CountryFlag countryName={profileUser.currentLocation.country} />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Current: {[profileUser.currentLocation?.city, profileUser.currentLocation?.state, profileUser.currentLocation?.country].filter(Boolean).join(', ')}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                                )}
                             </div>
 
                             <h1 className="font-headline text-4xl font-bold mt-4">{profileUser.name}</h1>
