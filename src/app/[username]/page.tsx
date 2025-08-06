@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -109,20 +110,6 @@ export default function UserPublicProfilePage() {
         }
     };
 
-    const CountryFlag = ({ countryCode }: { countryCode?: string }) => {
-        if (!countryCode) return null;
-        return (
-            <Image
-                src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
-                width={24}
-                height={18}
-                alt={`${countryCode} flag`}
-                className="rounded-sm object-cover"
-                data-ai-hint="country flag"
-            />
-        )
-    }
-
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
              <TooltipProvider>
@@ -139,8 +126,8 @@ export default function UserPublicProfilePage() {
                                     {profileUser.currentLocation?.country && (
                                     <Tooltip>
                                         <TooltipTrigger>
-                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center">
-                                                <CountryFlag countryCode={profileUser.currentLocation.country} />
+                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
+                                                <Image src="https://placehold.co/32x32.png" alt="Current country flag colors" width={32} height={32} className="object-cover" data-ai-hint="country flag abstract" />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -151,8 +138,8 @@ export default function UserPublicProfilePage() {
                                      {profileUser.originLocation?.indiaState && (
                                      <Tooltip>
                                         <TooltipTrigger>
-                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center">
-                                                <CountryFlag countryCode="IN" />
+                                            <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
+                                                <Image src="https://placehold.co/32x32.png" alt="Indian flag colors" width={32} height={32} className="object-cover" data-ai-hint="India flag abstract" />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
