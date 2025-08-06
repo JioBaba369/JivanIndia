@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, PlusCircle, Briefcase, Building, DollarSign } from "lucide-react";
+import { MapPin, Search, PlusCircle, Briefcase, Building, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
@@ -41,90 +41,79 @@ export default function CareersPage() {
   }, [jobs, searchQuery, locationQuery, jobType]);
 
   return (
-    <div className="flex flex-col">
-      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
-        <div className="container mx-auto px-4">
-          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
-            Career Opportunities
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Find your next role within our vibrant community of businesses and organizations.
-          </p>
-           <Button asChild size="lg" className="mt-8">
-            <Link href="/careers/new">
-              <PlusCircle className="mr-2 h-5 w-5"/>
-              Post a Job Opening
-            </Link>
-          </Button>
+    <div className="container mx-auto py-12">
+        <div className="space-y-4 mb-8">
+            <h1 className="font-headline text-4xl font-bold">Career Opportunities</h1>
+            <p className="text-lg text-muted-foreground">Find your next role in our community-focused job board.</p>
         </div>
-      </section>
-
-      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-4">
-               <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-                <div className="relative lg:col-span-2">
-                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by job title or company..."
-                    className="pl-10 text-base"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+        <div className="rounded-lg bg-card p-4 shadow-md">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
+                        placeholder="Search Jobs..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Location"
-                    className="pl-10 text-base"
-                    value={locationQuery}
-                    onChange={(e) => setLocationQuery(e.target.value)}
-                  />
+                <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
+                        placeholder="Location (e.g. San Jose)"
+                         value={locationQuery}
+                        onChange={(e) => setLocationQuery(e.target.value)}
+                    />
                 </div>
-                <Select value={jobType} onValueChange={setJobType}>
-                  <SelectTrigger className="text-base">
-                    <SelectValue placeholder="All Job Types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {jobTypes.map((type, index) => (
-                      <SelectItem key={index} value={type}>
-                        {type === 'all' ? 'All Job Types' : type}
-                      </SelectItem>
+                 <Select value={jobType} onValueChange={setJobType}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {jobTypes.map((cat, index) => (
+                        <SelectItem key={index} value={cat}>
+                        {cat === 'all' ? 'All Job Types' : cat}
+                        </SelectItem>
                     ))}
-                  </SelectContent>
+                    </SelectContent>
                 </Select>
-              </div>
-            </CardContent>
-          </Card>
+                <Button className="w-full">
+                    <Search className="mr-2 h-4 w-4" />
+                    Apply Filters
+                </Button>
+            </div>
         </div>
-      </div>
-      
-      <section className="container mx-auto px-4 py-12">
-        <div className="space-y-6">
+        <div className="space-y-8 mt-8">
           {filteredJobs.length > 0 ? filteredJobs.map((job) => (
-            <Card key={job.id} className="transition-all hover:shadow-lg">
+            <Card key={job.id} className="transition-shadow hover:shadow-lg">
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start">
                         <div>
-                            <Badge variant="secondary">{job.type}</Badge>
-                            <h3 className="font-headline text-xl font-bold mt-2 hover:text-primary"><a href={job.applicationUrl} target="_blank" rel="noopener noreferrer">{job.title}</a></h3>
-                            <div className="mt-2 flex flex-col md:flex-row md:items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-                                <div className="flex items-center gap-2"><Building className="h-4 w-4"/> {job.companyName}</div>
-                                <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {job.location}</div>
-                                {job.salary && <div className="flex items-center gap-2"><DollarSign className="h-4 w-4"/> {job.salary}</div>}
-                            </div>
+                            <h3 className="font-headline text-2xl font-semibold tracking-tight">{job.title}</h3>
+                            <div className="text-md text-muted-foreground">{job.companyName}</div>
                         </div>
-                        <div className="flex items-center md:justify-end">
-                            <Button asChild>
-                                <a href={job.applicationUrl} target="_blank" rel="noopener noreferrer">
-                                    <Briefcase className="mr-2"/>
-                                    Apply Now
-                                </a>
-                            </Button>
-                        </div>
+                        <Badge variant="secondary">{job.type}</Badge>
                     </div>
+                     <p className="text-muted-foreground line-clamp-2 mt-4">{job.description}</p>
+                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                           <MapPin className="h-4 w-4 text-primary"/>
+                           <span>{job.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <Briefcase className="h-4 w-4 text-primary"/>
+                           <span>{job.type}</span>
+                        </div>
+                     </div>
                 </CardContent>
+                <div className="flex items-center p-6 pt-0">
+                    <Button asChild variant="link" className="p-0 h-auto">
+                        <a href={job.applicationUrl} target="_blank" rel="noopener noreferrer">
+                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                        </a>
+                    </Button>
+                </div>
             </Card>
           )) : (
              <div className="rounded-lg border-2 border-dashed py-16 text-center">
@@ -138,7 +127,6 @@ export default function CareersPage() {
             </div>
           )}
         </div>
-      </section>
     </div>
   );
 }
