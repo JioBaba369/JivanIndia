@@ -131,7 +131,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
     const newCommunity = { id: docRef.id, ...newCommunityData } as Community;
     
-    // Set the user's affiliation in both the database and local state
     await setAffiliation(newCommunity.id, newCommunity.name, newCommunity.slug);
 
     setCommunities(prev => [...prev, newCommunity]);

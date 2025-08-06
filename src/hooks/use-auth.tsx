@@ -109,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setIsLoading(true);
       setFirebaseUser(fbUser);
       if (fbUser) {
         const userDocRef = doc(firestore, 'users', fbUser.uid);
@@ -118,19 +119,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           const adminUids = await getAdminUids();
           userData.isAdmin = adminUids.includes(fbUser.uid);
-          
-          // If user has an affiliation, ensure the slug is present.
+
+          // If user has an affiliation, ensure the slug is present by fetching it.
           if (userData.affiliation && userData.affiliation.orgId && !userData.affiliation.orgSlug) {
               const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
               const communityDocSnap = await getDoc(communityDocRef);
               if (communityDocSnap.exists()) {
                   const communityData = communityDocSnap.data();
                   if(communityData && communityData.slug) {
-                      userData.affiliation.orgSlug = communityData.slug;
+                      const updatedAffiliation = { ...userData.affiliation, orgSlug: communityData.slug };
+                      await updateDoc(userDocRef, { affiliation: updatedAffiliation });
+                      setUser({ ...userData, affiliation: updatedAffiliation });
+                  } else {
+                     setUser(userData);
                   }
+              } else {
+                 setUser(userData);
               }
+          } else {
+             setUser(userData);
           }
-          setUser(userData);
         }
       } else {
         setUser(null);
@@ -192,7 +200,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setAffiliation = async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        await updateUser({ affiliation });
+        const userDocRef = doc(firestore, 'users', user.uid);
+        await updateDoc(userDocRef, { affiliation });
+        setUser(prevUser => prevUser ? { ...prevUser, affiliation } : null);
     }
   };
 
