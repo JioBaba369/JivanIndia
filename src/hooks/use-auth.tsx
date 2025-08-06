@@ -40,6 +40,7 @@ export interface User {
   savedDeals?: string[];
   savedProviders?: string[];
   savedSponsors?: string[];
+  savedMovies?: string[];
   
   notificationPreferences?: {
     eventsNearby: boolean;
@@ -48,7 +49,7 @@ export interface User {
   calendarSyncEnabled?: boolean;
 }
 
-export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedProviders' | 'savedSponsors';
+export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedProviders' | 'savedSponsors' | 'savedMovies';
 
 
 interface AuthContextType {
@@ -87,6 +88,11 @@ interface AuthContextType {
   saveSponsor: (sponsorId: string) => void;
   unsaveSponsor: (sponsorId: string) => void;
   isSponsorSaved: (sponsorId: string) => boolean;
+
+  savedMovies: string[];
+  saveMovie: (movieId: string) => void;
+  unsaveMovie: (movieId: string) => void;
+  isMovieSaved: (movieId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -180,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       savedDeals: [],
       savedProviders: [],
       savedSponsors: [],
+      savedMovies: [],
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
     setUser(newUser);
@@ -259,6 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved, list: savedDeals } = createSaveFunctions('savedDeals');
   const { saveItem: saveProvider, unsaveItem: unsaveProvider, isItemSaved: isProviderSaved, list: savedProviders } = createSaveFunctions('savedProviders');
   const { saveItem: saveSponsor, unsaveItem: unsaveSponsor, isItemSaved: isSponsorSaved, list: savedSponsors } = createSaveFunctions('savedSponsors');
+  const { saveItem: saveMovie, unsaveItem: unsaveMovie, isItemSaved: isMovieSaved, list: savedMovies } = createSaveFunctions('savedMovies');
 
   const value = { 
     user,
@@ -276,6 +284,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     savedDeals, saveDeal, unsaveDeal, isDealSaved,
     savedProviders, saveProvider, unsaveProvider, isProviderSaved,
     savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
+    savedMovies, saveMovie, unsaveMovie, isMovieSaved,
   };
 
   return (

@@ -7,12 +7,13 @@ import { useMemo } from 'react';
 import { useEvents } from '@/hooks/use-events';
 import { useCommunities } from '@/hooks/use-communities';
 import { useDeals } from '@/hooks/use-deals';
+import { useMovies } from '@/hooks/use-movies';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin } from 'lucide-react';
+import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -26,10 +27,12 @@ export default function ProfilePage() {
   const { events: allEvents } = useEvents();
   const { communities: allCommunities } = useCommunities();
   const { deals: allDeals } = useDeals();
+  const { movies: allMovies } = useMovies();
 
   const savedEvents = useMemo(() => allEvents.filter(event => user?.savedEvents?.includes(String(event.id))), [allEvents, user]);
   const joinedCommunities = useMemo(() => allCommunities.filter(org => user?.joinedCommunities?.includes(org.id)), [allCommunities, user]);
   const savedDeals = useMemo(() => allDeals.filter(deal => user?.savedDeals?.includes(deal.id)), [allDeals, user]);
+  const savedMovies = useMemo(() => allMovies.filter(movie => user?.savedMovies?.includes(movie.id)), [allMovies, user]);
   
   if (isLoading) {
     return <div className="container mx-auto px-4 py-12 text-center">Loading profile...</div>;
@@ -82,8 +85,9 @@ export default function ProfilePage() {
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="saved-events" className="w-full">
-                            <TabsList className="grid w-full grid-cols-3">
+                            <TabsList className="grid w-full grid-cols-4">
                                 <TabsTrigger value="saved-events"><Heart className="mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents.length})</TabsTrigger>
+                                <TabsTrigger value="saved-movies"><Film className="mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies.length})</TabsTrigger>
                                 <TabsTrigger value="joined-communities"><Users className="mr-2 h-4 w-4 hidden md:inline-block"/>Communities ({joinedCommunities.length})</TabsTrigger>
                                 <TabsTrigger value="saved-deals"><Tag className="mr-2 h-4 w-4 hidden md:inline-block"/>Deals ({savedDeals.length})</TabsTrigger>
                             </TabsList>
@@ -112,6 +116,34 @@ export default function ProfilePage() {
                                         <h3 className="font-headline text-lg">No Saved Events</h3>
                                         <p className="text-muted-foreground mt-2">You haven't saved any events yet.</p>
                                         <Button asChild variant="secondary" className="mt-4"><Link href="/events">Explore Events</Link></Button>
+                                    </div>
+                                )}
+                            </TabsContent>
+                             <TabsContent value="saved-movies" className="mt-6">
+                                {savedMovies.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {savedMovies.map((movie) => (
+                                            <Card key={movie.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
+                                                <Link href={`/movies/${movie.id}`} className="flex h-full flex-col">
+                                                    <div className="relative h-40 w-full">
+                                                        <Image src={movie.imageUrl} alt={movie.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="movie poster"/>
+                                                    </div>
+                                                    <CardContent className="flex flex-grow flex-col p-4">
+                                                        <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{movie.title}</h3>
+                                                        <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                             <div className="flex items-center gap-2"><Film className="h-4 w-4" /><span>{movie.genre}</span></div>
+                                                             <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{movie.rating} / 5.0</span></div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Link>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                                        <h3 className="font-headline text-lg">No Saved Movies</h3>
+                                        <p className="text-muted-foreground mt-2">You haven't saved any movies yet.</p>
+                                        <Button asChild variant="secondary" className="mt-4"><Link href="/movies">Explore Movies</Link></Button>
                                     </div>
                                 )}
                             </TabsContent>

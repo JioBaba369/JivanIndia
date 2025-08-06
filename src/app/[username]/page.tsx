@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart, Film } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -24,6 +24,7 @@ import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
 import { useDeals } from '@/hooks/use-deals';
+import { useMovies } from '@/hooks/use-movies';
 import { getInitials, formatUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import CountryFlag from '@/components/feature/country-flag';
@@ -40,6 +41,7 @@ export default function UserPublicProfilePage() {
     const { sponsors } = useSponsors();
     const { communities: allCommunities, getCommunityById } = useCommunities();
     const { deals: allDeals } = useDeals();
+    const { movies: allMovies } = useMovies();
 
     const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
     const [affiliatedCommunity, setAffiliatedCommunity] = useState<Community | null>(null);
@@ -67,6 +69,7 @@ export default function UserPublicProfilePage() {
     const userSavedEvents = useMemo(() => allEvents.filter(event => profileUser?.savedEvents?.includes(String(event.id))), [allEvents, profileUser]);
     const userJoinedCommunities = useMemo(() => allCommunities.filter(org => profileUser?.joinedCommunities?.includes(org.id)), [allCommunities, profileUser]);
     const userSavedDeals = useMemo(() => allDeals.filter(deal => profileUser?.savedDeals?.includes(deal.id)), [allDeals, profileUser]);
+    const userSavedMovies = useMemo(() => allMovies.filter(movie => profileUser?.savedMovies?.includes(movie.id)), [allMovies, profileUser]);
         
     const userAffiliatedEvents = useMemo(() => affiliatedCommunity
         ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
@@ -122,6 +125,12 @@ export default function UserPublicProfilePage() {
     const hasCurrentLocation = profileUser.currentLocation && (profileUser.currentLocation.city || profileUser.currentLocation.state || profileUser.currentLocation.country);
     const hasOriginLocation = profileUser.originLocation && (profileUser.originLocation.indiaDistrict || profileUser.originLocation.indiaState);
 
+    const tabs = [
+        { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length },
+        { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length },
+        { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length },
+        { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length },
+    ];
 
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
@@ -215,10 +224,10 @@ export default function UserPublicProfilePage() {
 
                          <div className="mt-12">
                             <Tabs defaultValue="saved-events" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-                                    <TabsTrigger value="saved-events">Saved Events ({userSavedEvents.length})</TabsTrigger>
-                                    <TabsTrigger value="saved-deals">Saved Deals ({userSavedDeals.length})</TabsTrigger>
-                                    <TabsTrigger value="joined-communities">Communities ({userJoinedCommunities.length})</TabsTrigger>
+                                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                                    {tabs.map(tab => (
+                                        <TabsTrigger key={tab.value} value={tab.value}>{tab.label} ({tab.count})</TabsTrigger>
+                                    ))}
                                     {affiliatedCommunity && <TabsTrigger value="community-activity">Affiliation</TabsTrigger>}
                                 </TabsList>
 
@@ -271,6 +280,32 @@ export default function UserPublicProfilePage() {
                                     ) : (
                                         <div className="rounded-lg border-2 border-dashed py-12 text-center">
                                             <p className="text-muted-foreground">This user hasn't saved any deals yet.</p>
+                                        </div>
+                                    )}
+                                </TabsContent>
+                                <TabsContent value="saved-movies" className="mt-6">
+                                     {userSavedMovies.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {userSavedMovies.map((movie) => (
+                                                <Card key={movie.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                    <Link href={`/movies/${movie.id}`} className="flex h-full flex-col">
+                                                        <div className="relative h-40 w-full">
+                                                        <Image src={movie.imageUrl} alt={movie.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="movie poster"/>
+                                                        </div>
+                                                        <CardContent className="flex flex-grow flex-col p-4">
+                                                            <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{movie.title}</h3>
+                                                            <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                                <div className="flex items-center gap-2"><Film className="h-4 w-4" /><span>{movie.genre}</span></div>
+                                                                <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{movie.rating} / 5.0</span></div>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Link>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                                            <p className="text-muted-foreground">This user hasn't saved any movies yet.</p>
                                         </div>
                                     )}
                                 </TabsContent>
