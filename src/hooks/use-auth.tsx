@@ -82,9 +82,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children, setIsLoading }: { children: ReactNode, setIsLoading: (isLoading: boolean) => void; }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -120,7 +121,7 @@ export function AuthProvider({ children, setIsLoading }: { children: ReactNode, 
     };
 
     performInitialLoad();
-  }, [setIsLoading]);
+  }, []);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -236,7 +237,7 @@ export function AuthProvider({ children, setIsLoading }: { children: ReactNode, 
   const value = { 
     user,
     firebaseUser,
-    isLoading: false, // isLoading is now managed in RootLayout
+    isLoading,
     signup,
     login, 
     logout, 
