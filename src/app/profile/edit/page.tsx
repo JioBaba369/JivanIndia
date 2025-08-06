@@ -25,13 +25,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
-const profileSchema = (isUsernameUnique: (username: string) => Promise<boolean>, originalUsername?: string) => z.object({
+const profileSchema = (isUsernameUnique: (username: string, originalUsername?: string) => Promise<boolean>, originalUsername?: string) => z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(50),
   username: z.string().min(3, "Username must be at least 3 characters.").max(30)
     .regex(/^[a-zA-Z0-9_.]+$/, "Username can only contain letters, numbers, underscores, and periods.")
     .refine(async (username) => {
-        if (username === originalUsername) return true;
-        return await isUsernameUnique(username);
+        return await isUsernameUnique(username, originalUsername);
     }, { message: "This username is already taken." }),
   email: z.string().email("Please enter a valid email address."),
   bio: z.string().max(160, "Bio cannot be longer than 160 characters.").optional(),
@@ -59,7 +58,8 @@ export default function EditProfilePage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const isUsernameUnique = async (username: string) => {
+  const isUsernameUnique = async (username: string, originalUsername?: string) => {
+    if (username === originalUsername) return true;
     if (!username) return true;
     const existingUser = await getUserByUsername(username);
     return !existingUser;
@@ -189,7 +189,7 @@ export default function EditProfilePage() {
                                         onChange={field.onChange}
                                         aspectRatio={1}
                                         toast={toast}
-                                        folderName="profile-pictures"
+                                        folderName={`profile-pictures/${user.uid}`}
                                         iconType="picture"
                                     />
                                 </FormControl>
