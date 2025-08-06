@@ -274,11 +274,11 @@ export default function CommunitiesPage() {
                     <div className="flex flex-col sm:flex-row">
                         <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">
                            <Image
-                                src={org.imageUrl}
+                                src={org.logoUrl}
                                 alt={org.name}
                                 fill
-                                className="object-cover transition-transform group-hover:scale-105"
-                                data-ai-hint="community photo"
+                                className="object-contain p-4 transition-transform group-hover:scale-105"
+                                data-ai-hint="community logo"
                             />
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4 sm:p-6">

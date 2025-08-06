@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,9 @@ import { useRouter, useParams } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { format, formatDistanceToNow, intervalToDuration, isValid } from 'date-fns';
 import { useMemo } from 'react';
+import { useCommunities } from "@/hooks/use-communities";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 
 export default function EventDetailPage() {
@@ -20,6 +23,9 @@ export default function EventDetailPage() {
   const { getEventById } = useEvents();
   const id = typeof params.id === 'string' ? params.id : '';
   const event = getEventById(id);
+  
+  const { getCommunityById } = useCommunities();
+  const organizer = getCommunityById(event?.organizerId || '');
 
   const { toast } = useToast();
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
@@ -177,16 +183,17 @@ export default function EventDetailPage() {
                   </section>
                 )}
 
-                <section className="mt-8">
+                {organizer && <section className="mt-8">
                    <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">
                      Organized by
                    </h3>
                    <Card>
                        <CardContent className="p-4">
-                           <Link href={`/c/${event.organizerId}`} className="group flex items-center gap-4">
-                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                               <Users className="h-6 w-6 text-muted-foreground" />
-                             </div>
+                           <Link href={`/c/${organizer.slug}`} className="group flex items-center gap-4">
+                             <Avatar className="h-12 w-12">
+                                <AvatarImage src={organizer.logoUrl} alt={organizer.name} />
+                                <AvatarFallback>{getInitials(organizer.name)}</AvatarFallback>
+                             </Avatar>
                              <div>
                                <p className="font-semibold group-hover:text-primary">{event.organizerName}</p>
                                <p className="text-sm text-muted-foreground">
@@ -196,7 +203,7 @@ export default function EventDetailPage() {
                            </Link>
                        </CardContent>
                    </Card>
-                </section>
+                </section>}
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">

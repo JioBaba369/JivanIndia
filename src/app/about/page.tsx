@@ -9,10 +9,23 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAbout } from "@/hooks/use-about";
 import { getInitials } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AboutUsPage() {
-  const { aboutContent } = useAbout();
+  const { aboutContent, isLoading } = useAbout();
   const { story, teamMembers } = aboutContent;
+
+  const TeamSkeleton = () => (
+    <Card className="border-none shadow-none text-center">
+      <CardContent className="flex flex-col items-center">
+        <Skeleton className="h-32 w-32 rounded-full mb-4" />
+        <Skeleton className="h-7 w-40 mb-2" />
+        <Skeleton className="h-5 w-24 mb-4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6 mt-2" />
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="bg-background">
@@ -44,9 +57,17 @@ export default function AboutUsPage() {
         <div className="max-w-4xl mx-auto">
             <h2 className="font-headline text-3xl font-bold text-center mb-4">Our Story</h2>
             <p className="text-center text-muted-foreground text-lg mb-10">JivanIndia.co was born from a simple idea: to bridge the gap between finding information and feeling connected.</p>
-            <div className="text-lg text-foreground/80 leading-relaxed space-y-4 text-left md:text-justify whitespace-pre-line">
-              {story}
-            </div>
+             {isLoading ? (
+                <div className="space-y-4">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-3/4" />
+                </div>
+            ) : (
+                <div className="text-lg text-foreground/80 leading-relaxed space-y-4 text-left md:text-justify whitespace-pre-line">
+                {story}
+                </div>
+            )}
         </div>
       </section>
 
@@ -80,28 +101,30 @@ export default function AboutUsPage() {
       </section>
 
        {/* Meet the Team Section */}
-       {teamMembers && teamMembers.length > 0 && (
-        <section className="py-16 md:py-24">
+       <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
                 <h2 className="font-headline text-3xl font-bold text-center mb-12">Meet the Team</h2>
-                <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
-                    {teamMembers.map((member) => (
-                        <Card key={member.name} className="border-none shadow-none text-center">
-                            <CardContent className="flex flex-col items-center">
-                            <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
+                    {isLoading ? (
+                        Array.from({length: 4}).map((_, i) => <TeamSkeleton key={i} />)
+                    ) : teamMembers && teamMembers.length > 0 ? (
+                        teamMembers.map((member) => (
+                            <Card key={member.name} className="border-none shadow-none text-center">
+                                <CardContent className="flex flex-col items-center p-0">
+                                <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
                                     <AvatarImage src={member.avatarUrl} alt={`Portrait of ${member.name}, ${member.role}`} data-ai-hint="portrait person" />
                                     <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                                 </Avatar>
                                 <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>
                                 <p className="font-semibold text-primary">{member.role}</p>
-                                <p className="text-muted-foreground mt-2">{member.bio}</p>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                <p className="text-muted-foreground mt-2 text-sm">{member.bio}</p>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : null}
                 </div>
             </div>
         </section>
-       )}
       
        {/* CTA Section */}
       <section className="bg-primary/10 py-16 md:py-24">

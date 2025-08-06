@@ -138,7 +138,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     if (!user?.isAdmin) throw new Error("Unauthorized");
     const updatedMembers = aboutContent.teamMembers.map(member => 
       member.id === memberId 
-        ? { ...member, ...updatedData } 
+        ? { id: member.id, ...updatedData } 
         : member
     );
     setAboutContent({ ...aboutContent, teamMembers: updatedMembers });
@@ -158,7 +158,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     updateStory,
     addTeamMember,
     updateTeamMember,
-deleteTeamMember,
+    deleteTeamMember,
   };
 
   return (

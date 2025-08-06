@@ -32,7 +32,7 @@ export default function ProfilePage() {
   } = useAuth();
   const { toast } = useToast();
   const { events: allEvents } = useEvents();
-  const { communities: allCommunities, getCommunityBySlug } = useCommunities();
+  const { communities: allCommunities, getCommunityById } = useCommunities();
   const { deals: allDeals } = useDeals();
   const { providers: allProviders } = useProviders();
   const { sponsors: allSponsors } = useSponsors();
@@ -82,7 +82,7 @@ export default function ProfilePage() {
   }
 
   const profileImageUrl = user.profileImageUrl;
-  const affiliatedCommunity = user.affiliation ? getCommunityBySlug(user.affiliation.orgId) : null;
+  const affiliatedCommunity = user.affiliation ? getCommunityById(user.affiliation.orgId) : null;
 
   return (
     <div className="min-h-[calc(100vh-128px)] bg-muted/40">
@@ -113,7 +113,7 @@ export default function ProfilePage() {
                                     Affiliation
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="text-center">
+                            <CardContent className="text-center p-4 pt-0">
                                 <p className="text-sm">You are affiliated with:</p>
                                 <Button variant="link" asChild className="h-auto p-0 font-semibold text-base">
                                     <Link href={`/c/${affiliatedCommunity.slug}`}>{user.affiliation.orgName}</Link>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
                                 <Card key={org.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
                                         <div className="aspect-square w-24 shrink-0 relative">
-                                            <Image src={org.imageUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="community photo"/>
+                                            <Image src={org.logoUrl} alt={org.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-2" data-ai-hint="community logo"/>
                                         </div>
                                         <div className="flex-grow">
                                             <Link href={`/c/${org.slug}`} className="group"><CardTitle className="font-headline text-lg leading-snug transition-colors group-hover:text-primary">{org.name}</CardTitle></Link>
@@ -294,7 +294,7 @@ export default function ProfilePage() {
                             {userSavedDeals.map((deal) => (
                                 <Card key={deal.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
-                                        <div className="aspect-square w-24 shrink-0 relative">
+                                        <div className="aspect-video w-24 shrink-0 relative">
                                             <Image src={deal.imageUrl} alt={deal.title} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="deal photo"/>
                                         </div>
                                         <div className="flex-grow">
@@ -333,7 +333,7 @@ export default function ProfilePage() {
                             {userSavedProviders.map((provider) => (
                                 <Card key={provider.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
-                                        <div className="aspect-square w-24 shrink-0 relative">
+                                        <div className="aspect-video w-24 shrink-0 relative">
                                             <Image src={provider.imageUrl} alt={provider.name} fill className="h-full w-full rounded-lg border bg-background object-cover" data-ai-hint="service photo"/>
                                         </div>
                                         <div className="flex-grow">
@@ -372,7 +372,7 @@ export default function ProfilePage() {
                             {userSavedSponsors.map((sponsor) => (
                                 <Card key={sponsor.id} className="transition-all hover:shadow-sm">
                                     <CardContent className="flex flex-col sm:flex-row items-start gap-4 p-4">
-                                        <div className="aspect-square w-24 shrink-0 relative">
+                                        <div className="aspect-video w-24 shrink-0 relative">
                                             <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="h-full w-full rounded-lg border bg-background object-contain p-1" data-ai-hint="sponsor logo"/>
                                         </div>
                                         <div className="flex-grow">

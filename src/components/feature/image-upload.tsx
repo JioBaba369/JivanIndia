@@ -85,33 +85,35 @@ export default function ImageUpload({
     try {
       const uploadTask = uploadBytesResumable(storageRef, blob);
 
-      await new Promise<void>((resolve, reject) => {
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadState(prevState => ({ ...prevState, progress }));
-          },
-          (error) => {
-            reject(error);
-          },
-          () => {
-            resolve();
-          }
-        );
-      });
-      
-      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-      onChange(downloadURL);
-      setUploadState({ isUploading: false, progress: 0 });
-      toast({
-        title: 'Image Uploaded!',
-        icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-      });
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadState(prevState => ({ ...prevState, progress }));
+        },
+        (error) => {
+            console.error("Upload error", error);
+            setUploadState({ isUploading: false, progress: 0 });
+            toast({
+                title: "Upload Failed",
+                description: "There was an error uploading your image. Please try again.",
+                variant: "destructive",
+            });
+        },
+        async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            onChange(downloadURL);
+            setUploadState({ isUploading: false, progress: 0 });
+            toast({
+                title: 'Image Uploaded!',
+                icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+            });
+        }
+      );
     } catch (error) {
       setUploadState({ isUploading: false, progress: 0 });
       toast({
         title: "Upload Failed",
-        description: "There was an error uploading your image. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
       console.error("Upload error", error);
