@@ -66,14 +66,15 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
   }, [fetchBusinesses]);
 
   const addBusiness = async (businessData: NewBusinessInput) => {
-    const newBusiness = {
+    const newBusinessForDb = {
       ...businessData,
       isVerified: true, // Admin-added businesses are auto-verified
       rating: 0,
       reviewCount: 0,
     };
-    const docRef = await addDoc(businessesCollectionRef, newBusiness);
-    setBusinesses(prev => [...prev, { id: docRef.id, ...newBusiness } as Business]);
+    const docRef = await addDoc(businessesCollectionRef, newBusinessForDb);
+    const newBusinessForState = { ...newBusinessForDb, id: docRef.id };
+    setBusinesses(prev => [...prev, newBusinessForState]);
   };
 
 
