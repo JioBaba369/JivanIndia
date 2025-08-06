@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember } from '@/hooks/use-about';
@@ -215,10 +216,14 @@ export default function AdminDashboardPage() {
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
                                         {event.status !== 'Approved' && (
-                                            <Button size="sm" onClick={() => handleEventStatusChange(event.id, 'Approved')}>Approve</Button>
+                                            <Button size="sm" onClick={() => handleEventStatusChange(event.id, 'Approved')}>
+                                                <Check className="mr-2 h-4 w-4" /> Approve
+                                            </Button>
                                         )}
                                         {event.status !== 'Archived' && (
-                                            <Button size="sm" variant="destructive" onClick={() => handleEventStatusChange(event.id, 'Archived')}>Archive</Button>
+                                            <Button size="sm" variant="destructive" onClick={() => handleEventStatusChange(event.id, 'Archived')}>
+                                                <Archive className="mr-2 h-4 w-4" /> Archive
+                                            </Button>
                                         )}
                                     </TableCell>
                                 </TableRow>
@@ -342,31 +347,4 @@ export default function AdminDashboardPage() {
                                                           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                           <AlertDialogDescription>
                                                             This will permanently delete {member.name} from the team. This action cannot be undone.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => handleDeleteTeamMember(member.id)}>Delete</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                                {aboutContent.teamMembers.length === 0 && (
-                                    <div className="text-center py-12 text-muted-foreground">
-                                        <p>No team members have been added yet.</p>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-            </Tabs>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+                                                          </
