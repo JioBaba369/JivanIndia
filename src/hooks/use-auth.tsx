@@ -20,7 +20,7 @@ export interface User {
     orgId: string;
     orgName: string;
     orgSlug: string;
-  };
+  } | null; // Allow null for no affiliation
   phone?: string;
   website?: string;
   currentLocation?: {
@@ -119,6 +119,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const adminUids = await getAdminUids();
           userData.isAdmin = adminUids.includes(fbUser.uid);
           
+          // If user has an affiliation, ensure the slug is present.
+          if (userData.affiliation && userData.affiliation.orgId && !userData.affiliation.orgSlug) {
+              const communityDocRef = doc(firestore, 'communities', userData.affiliation.orgId);
+              const communityDocSnap = await getDoc(communityDocRef);
+              if (communityDocSnap.exists()) {
+                  const communityData = communityDocSnap.data();
+                  if(communityData && communityData.slug) {
+                      userData.affiliation.orgSlug = communityData.slug;
+                  }
+              }
+          }
           setUser(userData);
         }
       } else {
@@ -142,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username,
       email: fbUser.email!,
       isAdmin: adminUids.includes(fbUser.uid),
+      affiliation: null,
       profileImageUrl: '',
       bio: '',
       phone: '',
@@ -179,10 +191,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setAffiliation = async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
-      const affiliation = { orgId, orgName, orgSlug };
-      await updateUser({ affiliation });
-      // This was the missing piece: ensure local state is updated.
-      setUser(prevUser => prevUser ? { ...prevUser, affiliation } : null);
+        const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
+        await updateUser({ affiliation });
     }
   };
 
