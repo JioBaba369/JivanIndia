@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
 import { UploadCloud, CheckCircle, ImageUp, Loader2, Camera, Pencil } from 'lucide-react';
-import ImageCropper from './image-cropper';
 import type { useToast } from '@/hooks/use-toast';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -32,8 +31,6 @@ export default function ImageUpload({
   folderName,
   className
 }: ImageUploadProps) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [isCropperOpen, setIsCropperOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadState, setUploadState] = useState({
@@ -48,8 +45,6 @@ export default function ImageUpload({
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageSrc(null);
-
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.size > IMAGE_MAX_SIZE_MB * 1024 * 1024) {
@@ -61,17 +56,11 @@ export default function ImageUpload({
         resetFileInput();
         return;
       }
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        setImageSrc(reader.result?.toString() || '');
-        setIsCropperOpen(true);
-      });
-      reader.readAsDataURL(file);
+      handleUpload(file);
     }
   };
 
-  const handleSave = async (blob: Blob) => {
-    setIsCropperOpen(false);
+  const handleUpload = async (file: File) => {
     resetFileInput();
     setUploadState({ isUploading: true, progress: 0 });
 
@@ -79,7 +68,7 @@ export default function ImageUpload({
     const storageRef = ref(storage, fileName);
     
     try {
-      const uploadTask = uploadBytesResumable(storageRef, blob);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on('state_changed',
         (snapshot) => {
@@ -116,11 +105,6 @@ export default function ImageUpload({
     }
   };
   
-  const handleCropperClose = () => {
-      setIsCropperOpen(false);
-      resetFileInput();
-  }
-  
   const isButtonVariant = aspectRatio === 1;
 
   const UploadButtonContent = () => {
@@ -137,7 +121,7 @@ export default function ImageUpload({
                 ) : (
                     <Camera className="mr-2 h-4 w-4" />
                 )}
-                <span>{uploadState.isUploading ? 'Uploading...' : 'Upload Picture'}</span>
+                <span>{uploadState.isUploading ? 'Uploading...' : 'Change Picture'}</span>
             </Button>
         )
     }
@@ -179,15 +163,6 @@ export default function ImageUpload({
 
   return (
     <>
-      {imageSrc && (
-        <ImageCropper
-          isOpen={isCropperOpen}
-          onClose={handleCropperClose}
-          imageSrc={imageSrc}
-          onSave={handleSave}
-          aspectRatio={aspectRatio}
-        />
-      )}
       <UploadButtonContent />
       <Input
         id={`image-input-${folderName}`}
