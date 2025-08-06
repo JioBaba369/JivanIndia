@@ -72,8 +72,8 @@ export default function RootLayout({
           spaceGrotesk.variable
         )}
       >
-        <AboutProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <AboutProvider>
             <CommunitiesProvider>
               <EventsProvider>
                 <ProvidersProvider>
@@ -96,8 +96,8 @@ export default function RootLayout({
                 </ProvidersProvider>
               </EventsProvider>
             </CommunitiesProvider>
-          </AuthProvider>
-        </AboutProvider>
+          </AboutProvider>
+        </AuthProvider>
       </body>
     </html>
   );
