@@ -1,11 +1,12 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { initialAboutContent } from './use-about'; // Import initial content to get admin list
 
 export interface User {
   uid: string;
@@ -18,6 +19,7 @@ export interface User {
   affiliation?: {
     orgId: string;
     orgName: string;
+    orgSlug: string;
   };
   phone?: string;
   website?: string;
@@ -53,8 +55,8 @@ interface AuthContextType {
   signup: (name: string, email: string, pass: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUser: (updatedData: Partial<User>) => void;
-  setAffiliation: (orgId: string, orgName: string) => void;
+  updateUser: (updatedData: Partial<User>) => Promise<void>;
+  setAffiliation: (orgId: string, orgName: string, orgSlug: string) => void;
   getUserByUsername: (username: string) => Promise<User | undefined>;
   
   savedEvents: string[];
@@ -85,6 +87,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to fetch the admin list
+const getAdminUids = async (): Promise<string[]> => {
+    try {
+        const aboutDocRef = doc(firestore, 'about', 'singleton');
+        const docSnap = await getDoc(aboutDocRef);
+        if (docSnap.exists() && docSnap.data()?.adminUids) {
+            return docSnap.data().adminUids;
+        }
+    } catch (error) {
+        console.error("Could not fetch admin UIDs", error);
+    }
+    // Fallback to initial content if Firestore fails
+    return initialAboutContent.adminUids || [];
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
@@ -97,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDocRef = doc(firestore, 'users', fbUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         if(userDocSnap.exists()) {
-          setUser(userDocSnap.data() as User);
+          const userData = userDocSnap.data() as User;
+          const adminUids = await getAdminUids();
+          userData.isAdmin = adminUids.includes(fbUser.uid);
+          setUser(userData);
         }
       } else {
         setUser(null);
@@ -111,12 +131,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
     const username = name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
+    
+    const adminUids = await getAdminUids();
+
     const newUser: User = {
       uid: fbUser.uid,
       name,
       username,
       email: fbUser.email!,
-      isAdmin: fbUser.uid === 'defDHmCjCdWvmGid9YYg3RJi01x2',
+      isAdmin: adminUids.includes(fbUser.uid),
       profileImageUrl: '',
       bio: '',
       phone: '',
@@ -152,9 +175,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setAffiliation = (orgId: string, orgName: string) => {
+  const setAffiliation = async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
-      updateUser({ affiliation: { orgId, orgName } });
+      await updateUser({ affiliation: { orgId, orgName, orgSlug } });
     }
   };
 

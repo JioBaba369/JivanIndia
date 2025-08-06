@@ -2,9 +2,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useAuth } from './use-auth';
+import type { User } from './use-auth';
 
 export interface Community {
   id: string;
@@ -35,6 +36,33 @@ export interface Community {
   updatedAt: string;
 }
 
+export const initialCommunities: Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'founderEmail'>[] = [
+    {
+        slug: "bay-area-tamil-sangam",
+        name: "Bay Area Tamil Sangam",
+        type: 'Cultural & Arts',
+        description: "Promoting Tamil language and culture in the Bay Area through events and community service.",
+        fullDescription: "Since its inception, the Bay Area Tamil Sangam has been a cornerstone for the Tamil-speaking community in Northern California. We are dedicated to preserving and promoting the rich heritage of Tamil language, literature, and culture. Through a variety of programs including cultural events, educational workshops, and community service initiatives, we aim to create a vibrant and supportive network for Tamils and friends of Tamil culture.",
+        imageUrl: "https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080",
+        logoUrl: "https://placehold.co/200x200.png",
+        region: "San Francisco Bay Area",
+        membersCount: 1250,
+        isVerified: true,
+        founded: "1985",
+        tags: ['cultural', 'tamil', 'bay-area', 'non-profit', 'family-friendly'],
+        address: "PO Box 1234, Fremont, CA 94538",
+        phone: "(510) 555-1234",
+        contactEmail: "contact@bayareatamilsangam.org",
+        website: "https://www.bayareatamilsangam.org",
+        socialMedia: {
+            twitter: "https://x.com/batamilsangam",
+            facebook: "https://facebook.com/batamilsangam"
+        },
+        founderUid: "defDHmCjCdWvmGid9YYg3RJi01x2"
+    },
+    // more communities...
+];
+
 export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail'>;
 
 interface CommunitiesContextType {
@@ -58,11 +86,21 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { user, updateUser } = useAuth();
 
-
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
     try {
       const querySnapshot = await getDocs(communitiesCollectionRef);
+       if (querySnapshot.empty) {
+        console.log("Communities collection is empty, seeding data...");
+        const batch = writeBatch(firestore);
+        initialCommunities.forEach(communityData => {
+            const docRef = doc(communitiesCollectionRef);
+            batch.set(docRef, { ...communityData, founderEmail: 'seed@jivanindia.co', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        });
+        await batch.commit();
+        await fetchCommunities(); // Re-fetch after seeding
+        return;
+      }
       const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
       setCommunities(communitiesData);
     } catch (error) {
@@ -96,6 +134,16 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const updatedData = { ...data, updatedAt: new Date().toISOString() };
     await updateDoc(communityDocRef, updatedData);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } as Community : c));
+     // Also update user's affiliation if name/slug changed
+    if (user && user.affiliation?.orgId === id && (data.name || data.slug)) {
+        await updateUser({
+            affiliation: {
+                orgId: id,
+                orgName: data.name || user.affiliation.orgName,
+                orgSlug: data.slug || user.affiliation.orgSlug
+            }
+        })
+    }
   };
   
   const deleteCommunity = async (id: string) => {

@@ -168,7 +168,7 @@ export default function NewCommunityPage() {
 
         try {
           const addedCommunity = await addCommunity(newCommunity, user.email);
-          await setAffiliation(addedCommunity.id, addedCommunity.name);
+          await setAffiliation(addedCommunity.id, addedCommunity.name, addedCommunity.slug);
           toast({
             title: 'Community Submitted!',
             description: `Your community "${values.name}" has been submitted for review.`,
@@ -215,7 +215,7 @@ export default function NewCommunityPage() {
           <CardContent>
              <p className="font-semibold">{user.affiliation.orgName}</p>
             <Button asChild className="mt-4">
-                <Link href={`/c/${user.affiliation.orgId}`}>View Your Community</Link>
+                <Link href={`/c/${user.affiliation.orgSlug}`}>View Your Community</Link>
             </Button>
           </CardContent>
         </Card>

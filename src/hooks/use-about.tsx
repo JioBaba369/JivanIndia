@@ -18,6 +18,7 @@ export interface TeamMember {
 export interface AboutContent {
   story: string;
   teamMembers: TeamMember[];
+  adminUids?: string[];
 }
 
 // Define initial content directly in the hook
@@ -60,7 +61,8 @@ Today, JivanIndia.co is more than just a website. It's a bustling hub, a digital
         bio: 'Vikram drives our growth, forging partnerships with businesses and sponsors that bring value to the community.',
         avatarUrl: 'https://placehold.co/400x400.png',
       },
-    ]
+    ],
+    adminUids: ['defDHmCjCdWvmGid9YYg3RJi01x2'],
 };
 
 
@@ -89,7 +91,12 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     try {
       const docSnap = await getDoc(aboutDocRef);
       if (docSnap.exists()) {
-        setAboutContent(docSnap.data() as AboutContent);
+        const data = docSnap.data() as AboutContent;
+        // Ensure adminUids exists, if not, use initial
+        if (!data.adminUids) {
+          data.adminUids = initialAboutContent.adminUids;
+        }
+        setAboutContent(data);
       } else {
         // If the document doesn't exist, create it with initial content
         console.log("About content not found, seeding with initial data...");
