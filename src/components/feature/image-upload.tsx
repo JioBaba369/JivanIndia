@@ -18,25 +18,19 @@ interface ImageUploadProps {
   onChange: (value: string) => void;
   aspectRatio: number;
   toast: ReturnType<typeof useToast>['toast'];
-  iconType?: 'banner' | 'logo' | 'picture';
-  folderName: string; // e.g., 'community-logos', 'event-banners'
+  folderName: string; 
+  className?: string;
 }
 
 const IMAGE_MAX_SIZE_MB = 10;
-
-const ICONS = {
-    banner: { component: <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Banner Image' },
-    logo: { component: <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />, text: 'Upload Logo' },
-    picture: { component: <Camera className="h-8 w-8 text-muted-foreground" />, text: 'Upload new picture' }
-};
 
 export default function ImageUpload({
   value,
   onChange,
   aspectRatio,
   toast,
-  iconType = 'logo',
   folderName,
+  className
 }: ImageUploadProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
@@ -126,11 +120,11 @@ export default function ImageUpload({
       setIsCropperOpen(false);
       resetFileInput();
   }
-
-  const icon = ICONS[iconType];
   
+  const isButtonVariant = aspectRatio === 1;
+
   const UploadButtonContent = () => {
-    if (iconType === 'picture') {
+    if (isButtonVariant) {
         return (
             <Button
                 type="button"
@@ -143,7 +137,7 @@ export default function ImageUpload({
                 ) : (
                     <Camera className="mr-2 h-4 w-4" />
                 )}
-                <span>{uploadState.isUploading ? 'Uploading...' : icon.text}</span>
+                <span>{uploadState.isUploading ? 'Uploading...' : 'Upload Picture'}</span>
             </Button>
         )
     }
@@ -152,7 +146,7 @@ export default function ImageUpload({
             role="button"
             aria-label="Upload image"
             tabIndex={0}
-            className="group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80"
+            className={`group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80 ${className}`}
             style={{ aspectRatio: `${aspectRatio}` }}
             onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
             onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
@@ -174,8 +168,8 @@ export default function ImageUpload({
                 </div>
             ) : (
             <div className="text-center p-4">
-                {icon.component}
-                <span className="text-muted-foreground text-sm">{icon.text}</span>
+                {aspectRatio > 1 ? <ImageUp className="h-8 w-8 text-muted-foreground mx-auto"/> : <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" /> }
+                <span className="text-muted-foreground text-sm">{aspectRatio > 1 ? 'Upload Banner' : 'Upload Logo'}</span>
                 <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
             </div>
             )}
@@ -196,7 +190,7 @@ export default function ImageUpload({
       )}
       <UploadButtonContent />
       <Input
-        id={`image-input-${aspectRatio}`}
+        id={`image-input-${folderName}`}
         type="file"
         className="hidden"
         ref={fileInputRef}
@@ -207,5 +201,3 @@ export default function ImageUpload({
     </>
   );
 }
-
-    

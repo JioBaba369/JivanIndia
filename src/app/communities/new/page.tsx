@@ -239,7 +239,6 @@ export default function NewCommunityPage() {
                             aspectRatio={1}
                             toast={toast}
                             folderName="community-logos"
-                            iconType="logo"
                           />
                         </FormControl>
                         <FormMessage />
@@ -259,7 +258,6 @@ export default function NewCommunityPage() {
                             aspectRatio={16/9}
                             toast={toast}
                             folderName="community-banners"
-                            iconType="banner"
                           />
                         </FormControl>
                         <FormMessage />

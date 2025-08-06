@@ -23,7 +23,7 @@ import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 const navLinks = [
-  { href: "/events", label: "Events" },
+  { href: "/", label: "What's On" },
   { href: "/communities", label: "Communities" },
   { href: "/businesses", label: "Businesses" },
   { href: "/movies", label: "Movies" },
@@ -33,7 +33,7 @@ const navLinks = [
 
 const NavLink = ({ href, label, onClick }: { href: string; label: string, onClick?: () => void }) => {
     const pathname = usePathname();
-    const isActive = pathname.startsWith(href) && (href !== "/" || pathname === "/");
+    const isActive = pathname === href;
     return (
       <Link
         href={href}
@@ -166,5 +166,3 @@ export default function Header() {
     </header>
   );
 }
-
-    

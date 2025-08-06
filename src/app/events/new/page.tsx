@@ -199,7 +199,6 @@ export default function NewEventPage() {
                                 onChange={field.onChange}
                                 aspectRatio={16 / 9}
                                 toast={toast}
-                                iconType="banner"
                                 folderName="event-banners"
                             />
                         </FormControl>

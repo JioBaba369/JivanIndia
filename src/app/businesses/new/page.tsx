@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -179,7 +180,6 @@ export default function NewBusinessEntryPage() {
                             aspectRatio={16/9}
                             toast={toast}
                             folderName="business-images"
-                            iconType="banner"
                           />
                         </FormControl>
                         <FormMessage />

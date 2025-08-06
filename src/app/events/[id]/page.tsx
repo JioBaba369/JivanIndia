@@ -127,9 +127,9 @@ export default function EventDetailPage() {
       );
     }
     return (
-      <Button size="lg" className="w-full">
+      <Button size="lg" className="w-full" disabled>
         <Ticket className="mr-2 h-4 w-4"/>
-        Register
+        Registration Closed
       </Button>
     );
   };
