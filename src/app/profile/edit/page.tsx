@@ -47,7 +47,6 @@ export default function EditProfilePage() {
   
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -69,7 +68,6 @@ export default function EditProfilePage() {
     setLanguages(user.languagesSpoken?.join(', ') || '');
     setInterests(user.interests?.join(', ') || '');
     setProfileImageUrl(user.profileImageUrl || '');
-    setImageError(false);
   }, [user, router, isAuthLoading]);
 
   const handleSubmit = useCallback(async (e: FormEvent) => {
@@ -158,19 +156,15 @@ export default function EditProfilePage() {
               <div className="flex items-center gap-6">
                 <Avatar className="h-24 w-24 border-4 border-primary">
                   <AvatarImage 
-                      src={imageError ? undefined : profileImageUrl} 
-                      alt="Profile preview" 
-                      onError={() => setImageError(true)}
+                      src={profileImageUrl} 
+                      alt={name || 'Profile preview'} 
                   />
                   <AvatarFallback className="font-headline text-3xl">{getInitials(name)}</AvatarFallback>
                 </Avatar>
                 <div className="w-full">
                   <ImageUpload
                     value={profileImageUrl}
-                    onChange={url => {
-                      setProfileImageUrl(url);
-                      setImageError(false);
-                    }}
+                    onChange={(url) => setProfileImageUrl(url)}
                     aspectRatio={1}
                     toast={toast}
                     folderName="profile-pictures"
