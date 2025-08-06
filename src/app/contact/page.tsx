@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import { firestore } from "@/lib/firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 export default function ContactUsPage() {
     const { toast } = useToast();
@@ -20,17 +22,41 @@ export default function ContactUsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!name || !email || !message) {
+            toast({
+                title: "Missing Information",
+                description: "Please fill out all fields.",
+                variant: "destructive",
+            });
+            return;
+        }
         setIsSubmitting(true);
-        // Simulate form submission
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsSubmitting(false);
-        toast({
-            title: "Message Sent!",
-            description: "Thank you for contacting us. We will get back to you shortly.",
-        });
-        setName('');
-        setEmail('');
-        setMessage('');
+        
+        try {
+            await addDoc(collection(firestore, "contacts"), {
+                name,
+                email,
+                message,
+                createdAt: serverTimestamp(),
+            });
+
+            toast({
+                title: "Message Sent!",
+                description: "Thank you for contacting us. We will get back to you shortly.",
+            });
+            setName('');
+            setEmail('');
+            setMessage('');
+        } catch (error) {
+            console.error("Error submitting contact form:", error);
+            toast({
+                title: "Submission Failed",
+                description: "An unexpected error occurred. Please try again later.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
   return (
