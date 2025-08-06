@@ -44,10 +44,10 @@ export default function AboutUsPage() {
         </div>
         <div className="container mx-auto px-4 relative">
           <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
-            Connecting the Heart of a Community
+            Empowering Those Who Do Good
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80 text-shadow">
-            Our mission is to create a central digital hub that supports, celebrates, and connects the Indian diaspora.
+            Our mission is to provide the digital tools and community platform for non-profits to thrive and amplify their impact.
           </p>
         </div>
       </section>
@@ -56,7 +56,7 @@ export default function AboutUsPage() {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto">
             <h2 className="font-headline text-3xl font-bold text-center mb-4">Our Story</h2>
-            <p className="text-center text-muted-foreground text-lg mb-10">JivanIndia.co was born from a simple idea: to bridge the gap between finding information and feeling connected.</p>
+            <p className="text-center text-muted-foreground text-lg mb-10">JivanIndia.co was born from a desire to support the pillars of our communities: the non-profit organizations that work tirelessly for the greater good.</p>
              {isLoading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-5 w-full" />
@@ -78,23 +78,23 @@ export default function AboutUsPage() {
             <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto text-center">
                 <div className="flex flex-col items-center">
                     <Sprout className="h-10 w-10 text-primary mb-4" />
-                    <h3 className="font-headline text-xl font-semibold">Community</h3>
-                    <p className="text-muted-foreground mt-2">To foster a sense of belonging and mutual support.</p>
+                    <h3 className="font-headline text-xl font-semibold">Empowerment</h3>
+                    <p className="text-muted-foreground mt-2">Providing tools and platforms for non-profits to succeed.</p>
                 </div>
                 <div className="flex flex-col items-center">
                     <LinkIcon className="h-10 w-10 text-primary mb-4" />
                     <h3 className="font-headline text-xl font-semibold">Connection</h3>
-                    <p className="text-muted-foreground mt-2">To bridge gaps and build meaningful relationships.</p>
+                    <p className="text-muted-foreground mt-2">Connecting organizations with volunteers, donors, and partners.</p>
                 </div>
                 <div className="flex flex-col items-center">
                     <Heart className="h-10 w-10 text-primary mb-4" />
-                    <h3 className="font-headline text-xl font-semibold">Celebration</h3>
-                    <p className="text-muted-foreground mt-2">To honor and share our rich cultural heritage.</p>
+                    <h3 className="font-headline text-xl font-semibold">Impact</h3>
+                    <p className="text-muted-foreground mt-2">Facilitating actions that lead to meaningful, positive change.</p>
                 </div>
                  <div className="flex flex-col items-center">
                     <Handshake className="h-10 w-10 text-primary mb-4" />
-                    <h3 className="font-headline text-xl font-semibold">Opportunity</h3>
-                    <p className="text-muted-foreground mt-2">To empower individuals and organizations to thrive.</p>
+                    <h3 className="font-headline text-xl font-semibold">Collaboration</h3>
+                    <p className="text-muted-foreground mt-2">Fostering a network of support and shared purpose.</p>
                 </div>
             </div>
         </div>
@@ -129,11 +129,11 @@ export default function AboutUsPage() {
        {/* CTA Section */}
       <section className="bg-primary/10 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
-             <h2 className="font-headline text-3xl font-bold">Join Our Journey</h2>
-             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Help us build the most comprehensive resource for the Indian community. Register your organization, post an event, or get in touch.</p>
+             <h2 className="font-headline text-3xl font-bold">Join Our Mission</h2>
+             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Help us build the most comprehensive resource for the non-profit community. Register your organization, post a volunteer opportunity, or get in touch.</p>
              <div className="mt-8 flex justify-center gap-4">
                 <Button asChild size="lg">
-                    <Link href="/communities/new">Register a Community</Link>
+                    <Link href="/communities/new">Register Your Non-Profit</Link>
                 </Button>
                 <Button asChild variant="secondary" size="lg">
                     <Link href="/contact">Contact Us</Link>

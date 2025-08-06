@@ -35,7 +35,11 @@ interface AboutContextType {
 const AboutContext = createContext<AboutContextType | undefined>(undefined);
 
 export function AboutProvider({ children }: { children: ReactNode }) {
-  const [aboutContent, setAboutContent] = useState<AboutContent>({ story: '', teamMembers: [], adminUids: [] });
+  const [aboutContent, setAboutContent] = useState<AboutContent>({ 
+    story: 'We saw the immense dedication of non-profit leaders, volunteers, and supporters. Yet, we also saw the operational hurdles they faced—fragmented tools, disconnected communication channels, and the constant struggle to engage their communities effectively.\n\nThis platform was created to solve that. We set out to build an all-in-one digital ecosystem where non-profits can manage their events, coordinate volunteers, run fundraisers, and communicate seamlessly with their audience. Our goal is to handle the technology so they can focus on what they do best: changing the world.', 
+    teamMembers: [], 
+    adminUids: [] 
+  });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { adminUids, setAdminUids } = useAdmins();
@@ -51,12 +55,10 @@ export function AboutProvider({ children }: { children: ReactNode }) {
           setAboutContent(data);
           setAdminUids(data.adminUids);
         } else {
-          setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [], adminUids: [] });
           setAdminUids([]);
         }
     } catch (error) {
         console.error("Error fetching about content: ", error);
-        setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [], adminUids: [] });
     } finally {
         setIsLoading(false);
     }

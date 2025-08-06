@@ -35,7 +35,7 @@ import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hook
 
 
 const formSchema = z.object({
-  name: z.string().min(3, "Business name must be at least 3 characters."),
+  name: z.string().min(3, "Partner name must be at least 3 characters."),
   category: z.enum(businessCategories),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
@@ -62,7 +62,7 @@ export default function NewBusinessEntryPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      category: 'Groceries & Spices',
+      category: 'Service Partner',
       description: '',
       fullDescription: '',
       imageUrl: '',
@@ -107,7 +107,7 @@ export default function NewBusinessEntryPage() {
         try {
           await addBusiness(newBusinessData);
           toast({
-              title: 'Listing Submitted!',
+              title: 'Partner Submitted!',
               description: `${values.name} has been added to the directory.`,
           });
           router.push('/businesses');
@@ -128,7 +128,7 @@ export default function NewBusinessEntryPage() {
         <Card className="mx-auto max-w-md">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
-                <CardDescription>You must be logged in to add a business listing.</CardDescription>
+                <CardDescription>You must be logged in to add a partner listing.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button asChild className="mt-2"><Link href="/login">Login</Link></Button>
@@ -159,9 +159,9 @@ export default function NewBusinessEntryPage() {
     <div className="container mx-auto px-4 py-12">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Create a New Business Listing</CardTitle>
+          <CardTitle className="font-headline text-3xl">Create a New Partner Listing</CardTitle>
           <CardDescription>
-            Add a trusted business, temple, or professional to the community directory. This feature is limited to community administrators.
+            Add a trusted business, sponsor, or professional to the partner directory. This feature is limited to community administrators.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -186,7 +186,7 @@ export default function NewBusinessEntryPage() {
                     </FormItem>
                   )}
                 />
-              <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Business/Place Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Fremont Hindu Temple" /></FormControl><FormMessage /></FormItem>)}/>
+              <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Partner/Place Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Fremont Hindu Temple" /></FormControl><FormMessage /></FormItem>)}/>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
                 <FormField name="region" control={form.control} render={({field}) => (<FormItem><FormLabel>Region *</FormLabel><FormControl><Input {...field} placeholder="e.g., San Francisco Bay Area" /></FormControl><FormMessage /></FormItem>)}/>
@@ -203,7 +203,7 @@ export default function NewBusinessEntryPage() {
               <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
                 <Button type="submit" disabled={isPending || !form.formState.isValid}>
-                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Adding...</> : "Add to Businesses"}
+                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Adding...</> : "Add to Partners"}
                 </Button>
               </div>
             </form>

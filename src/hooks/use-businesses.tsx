@@ -1,11 +1,12 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
-export type BusinessCategory = 'Temples & Worship' | 'Groceries & Spices' | 'Restaurants' | 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration' | 'Other';
-export const businessCategories: BusinessCategory[] = ['Temples & Worship', 'Groceries & Spices', 'Restaurants', 'Legal', 'Healthcare', 'Financial', 'Real Estate', 'Immigration', 'Other'];
+export type BusinessCategory = 'Corporate Sponsor' | 'Grant Provider' | 'Service Partner' | 'Technology Provider' | 'Venue Partner' | 'Other';
+export const businessCategories: BusinessCategory[] = ['Corporate Sponsor', 'Grant Provider', 'Service Partner', 'Technology Provider', 'Venue Partner', 'Other'];
 
 
 export interface Business {

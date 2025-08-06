@@ -83,8 +83,8 @@ export default function BusinessesPage() {
   return (
     <div className="container mx-auto py-12">
         <div className="space-y-4 mb-8">
-            <h1 className="font-headline text-4xl font-bold">Local Businesses</h1>
-            <p className="text-lg text-muted-foreground">Support local entrepreneurs and find great services in your community.</p>
+            <h1 className="font-headline text-4xl font-bold">Our Partners</h1>
+            <p className="text-lg text-muted-foreground">Find trusted partners and services to support your non-profit's mission.</p>
         </div>
         <div className="rounded-lg bg-card p-4 shadow-md">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -92,7 +92,7 @@ export default function BusinessesPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
-                        placeholder="Search Businesses..."
+                        placeholder="Search Partners..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
