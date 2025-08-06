@@ -11,6 +11,8 @@ import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ImageCropper from './image-cropper';
 
 interface ImageUploadProps {
   value?: string;
@@ -32,6 +34,7 @@ export default function ImageUpload({
   className
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [uploadState, setUploadState] = useState({
       isUploading: false,
@@ -56,19 +59,23 @@ export default function ImageUpload({
         resetFileInput();
         return;
       }
-      handleUpload(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleUpload = async (file: File) => {
-    resetFileInput();
+  const handleUpload = async (imageBlob: Blob) => {
+    setSelectedImage(null);
     setUploadState({ isUploading: true, progress: 0 });
 
     const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
     const storageRef = ref(storage, fileName);
     
     try {
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const uploadTask = uploadBytesResumable(storageRef, imageBlob, { contentType: 'image/jpeg' });
 
       uploadTask.on('state_changed',
         (snapshot) => {
@@ -173,6 +180,20 @@ export default function ImageUpload({
         accept="image/png, image/jpeg, image/webp"
         disabled={uploadState.isUploading}
       />
+       <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Crop Your Image</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <ImageCropper
+              imageSrc={selectedImage}
+              aspect={aspectRatio}
+              onCropComplete={handleUpload}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
