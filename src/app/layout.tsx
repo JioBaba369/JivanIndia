@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
 import type { Metadata } from "next";
 import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -22,6 +21,7 @@ import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
 import { PostSheet } from "@/components/layout/post-sheet";
 import { Loader2 } from 'lucide-react';
+import { AdminsProvider } from "@/hooks/use-admins";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -34,7 +34,7 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
 });
 
-function AppProviders({ children }: { children: React.ReactNode }) {
+function AppContent({ children }: { children: React.ReactNode }) {
   const { isLoading: isAuthLoading } = useAuth();
   
   if (isAuthLoading) {
@@ -66,38 +66,40 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <AboutProvider>
-          <AuthProvider>
-            <CommunitiesProvider>
-              <EventsProvider>
-                <BusinessesProvider>
-                  <SponsorsProvider>
-                    <DealsProvider>
-                      <MoviesProvider>
-                        <JobsProvider>
-                          <div className="relative flex min-h-screen flex-col">
-                            <Header />
-                            <main className="flex-1">
-                               <AppProviders>
-                                {children}
-                              </AppProviders>
-                            </main>
-                            <div className="md:hidden fixed bottom-6 right-6 z-50">
-                              <PostSheet />
+        <AdminsProvider>
+          <AboutProvider>
+            <AuthProvider>
+              <CommunitiesProvider>
+                <EventsProvider>
+                  <BusinessesProvider>
+                    <SponsorsProvider>
+                      <DealsProvider>
+                        <MoviesProvider>
+                          <JobsProvider>
+                            <div className="relative flex min-h-screen flex-col">
+                              <Header />
+                              <main className="flex-1">
+                                <AppContent>
+                                  {children}
+                                </AppContent>
+                              </main>
+                              <div className="md:hidden fixed bottom-6 right-6 z-50">
+                                <PostSheet />
+                              </div>
+                              <Footer />
                             </div>
-                            <Footer />
-                          </div>
-                          <Toaster />
-                          <CookieConsentBanner />
-                        </JobsProvider>
-                      </MoviesProvider>
-                    </DealsProvider>
-                  </SponsorsProvider>
-                </BusinessesProvider>
-              </EventsProvider>
-            </CommunitiesProvider>
-          </AuthProvider>
-        </AboutProvider>
+                            <Toaster />
+                            <CookieConsentBanner />
+                          </JobsProvider>
+                        </MoviesProvider>
+                      </DealsProvider>
+                    </SponsorsProvider>
+                  </BusinessesProvider>
+                </EventsProvider>
+              </CommunitiesProvider>
+            </AuthProvider>
+          </AboutProvider>
+        </AdminsProvider>
       </body>
     </html>
   );

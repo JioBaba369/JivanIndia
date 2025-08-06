@@ -6,7 +6,7 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useToast } from './use-toast';
-import { useAbout } from './use-about';
+import { useAdmins } from './use-admins';
 
 export interface User {
   uid: string;
@@ -90,9 +90,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { aboutContent } = useAbout();
+  const { adminUids, isLoading: isLoadingAdmins } = useAdmins();
 
   useEffect(() => {
+    if (isLoadingAdmins) return;
+
     setIsLoading(true);
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
@@ -102,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data() as User;
-          userData.isAdmin = aboutContent?.adminUids?.includes(fbUser.uid) || false;
+          userData.isAdmin = adminUids?.includes(fbUser.uid) || false;
           setUser(userData);
         } else {
           setUser(null);
@@ -111,7 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
       }
       
-      // Fetch all users for admin panel
       const usersCollectionRef = collection(firestore, 'users');
       const usersSnapshot = await getDocs(usersCollectionRef);
       setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data() } as User)));
@@ -120,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [aboutContent]);
+  }, [isLoadingAdmins, adminUids]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -132,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name,
       username,
       email: fbUser.email!,
-      isAdmin: aboutContent?.adminUids?.includes(fbUser.uid),
+      isAdmin: adminUids?.includes(fbUser.uid),
       affiliation: null,
       profileImageUrl: '',
       bio: '',

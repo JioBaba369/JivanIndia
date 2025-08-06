@@ -5,7 +5,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
-import { useAuth } from './use-auth';
+import { useAdmins } from './use-admins';
 
 export interface TeamMember {
   id: string;
@@ -38,6 +38,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const [aboutContent, setAboutContent] = useState<AboutContent>({ story: '', teamMembers: [], adminUids: [] });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { adminUids, setAdminUids } = useAdmins();
   
   const aboutDocRef = doc(firestore, 'about', 'singleton');
 
@@ -46,9 +47,12 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     try {
         const aboutDocSnap = await getDoc(aboutDocRef);
         if (aboutDocSnap.exists()) {
-        setAboutContent(aboutDocSnap.data() as AboutContent);
+          const data = aboutDocSnap.data() as AboutContent;
+          setAboutContent(data);
+          setAdminUids(data.adminUids);
         } else {
-        setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [], adminUids: [] });
+          setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [], adminUids: [] });
+          setAdminUids([]);
         }
     } catch (error) {
         console.error("Error fetching about content: ", error);
@@ -56,7 +60,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, [aboutDocRef]);
+  }, [aboutDocRef, setAdminUids]);
 
   useEffect(() => {
     fetchAboutContent();
@@ -129,13 +133,15 @@ export function AboutProvider({ children }: { children: ReactNode }) {
       const userDoc = querySnapshot.docs[0];
       const userId = userDoc.id;
 
-      if (aboutContent.adminUids.includes(userId)) {
+      if (adminUids.includes(userId)) {
           toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
           return;
       }
 
       await updateDoc(aboutDocRef, { adminUids: arrayUnion(userId) });
-      setAboutContent(prev => ({ ...prev, adminUids: [...prev.adminUids, userId] }));
+      const newAdminUids = [...adminUids, userId];
+      setAboutContent(prev => ({ ...prev, adminUids: newAdminUids }));
+      setAdminUids(newAdminUids);
       toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
 
     } catch (e) {
@@ -147,7 +153,9 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const removeAdmin = async (uid: string) => {
     try {
       await updateDoc(aboutDocRef, { adminUids: arrayRemove(uid) });
-      setAboutContent(prev => ({...prev, adminUids: prev.adminUids.filter(id => id !== uid) }));
+      const newAdminUids = adminUids.filter(id => id !== uid);
+      setAboutContent(prev => ({...prev, adminUids: newAdminUids }));
+      setAdminUids(newAdminUids);
       toast({ title: 'Admin Removed', description: 'Admin privileges have been revoked.' });
     } catch (e) {
       console.error("Error removing admin: ", e);
