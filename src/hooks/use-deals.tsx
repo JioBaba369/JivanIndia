@@ -1,9 +1,9 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import type { User } from './use-auth';
 
 export interface Deal {
   id: string;
@@ -14,13 +14,17 @@ export interface Deal {
   imageUrl: string;
   expires: string; 
   business: string;
-  businessId: string;
+  businessId: string; // This should be the community ID (slug or actual ID)
   businessLocation: string;
   businessWebsite: string;
   postedAt: string; 
+  submittedByUid: string;
 }
 
-const initialDealsData: Omit<Deal, 'id'>[] = [
+export type NewDealInput = Omit<Deal, 'id' | 'postedAt'>;
+
+
+const initialDealsData: Omit<Deal, 'id' | 'submittedByUid'>[] = [
     {
       title: "20% Off Your Entire Meal",
       description: "Enjoy a delicious 20% discount on your entire bill when you dine with us. Perfect for a family dinner or a night out with friends.",
@@ -79,6 +83,7 @@ interface DealsContextType {
   deals: Deal[];
   isLoading: boolean;
   getDealById: (id: string) => Deal | undefined;
+  addDeal: (deal: NewDealInput) => Promise<void>;
 }
 
 const DealsContext = createContext<DealsContextType | undefined>(undefined);
@@ -99,8 +104,8 @@ export function DealsProvider({ children }: { children: ReactNode }) {
             const seededDeals: Deal[] = [];
             initialDealsData.forEach((dealData) => {
                 const docRef = doc(dealsCollectionRef);
-                batch.set(docRef, dealData);
-                seededDeals.push({ id: docRef.id, ...dealData });
+                batch.set(docRef, { ...dealData, submittedByUid: 'seed_user' });
+                seededDeals.push({ id: docRef.id, ...dealData, submittedByUid: 'seed_user' });
             });
             await batch.commit();
             setDeals(seededDeals);
@@ -121,12 +126,21 @@ export function DealsProvider({ children }: { children: ReactNode }) {
     fetchDeals();
   }, [fetchDeals]);
 
+  const addDeal = async (dealData: NewDealInput) => {
+    const newDeal = {
+      ...dealData,
+      postedAt: new Date().toISOString(),
+    };
+    const docRef = await addDoc(dealsCollectionRef, newDeal);
+    setDeals(prev => [...prev, { id: docRef.id, ...newDeal } as Deal]);
+  };
+
   const getDealById = (id: string): Deal | undefined => {
     return deals.find(d => d.id === id);
   };
 
   return (
-    <DealsContext.Provider value={{ deals, isLoading, getDealById }}>
+    <DealsContext.Provider value={{ deals, isLoading, getDealById, addDeal }}>
       {children}
     </DealsContext.Provider>
   );

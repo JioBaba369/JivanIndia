@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
+import { useDeals, type NewDealInput } from '@/hooks/use-deals';
+import { useCommunities } from '@/hooks/use-communities';
 
 
 const formSchema = z.object({
@@ -51,6 +52,8 @@ export default function NewDealPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { addDeal } = useDeals();
+  const { getCommunityById } = useCommunities();
   
   const [isPending, startTransition] = useTransition();
 
@@ -77,16 +80,41 @@ export default function NewDealPage() {
       });
       return;
     }
+    const community = getCommunityById(user.affiliation.orgId);
+    if (!community) {
+      toast({
+        title: 'Community Not Found',
+        description: 'Could not find details for your affiliated community.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     startTransition(async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const newDealData: NewDealInput = {
+        ...values,
+        business: community.name,
+        businessId: community.id,
+        businessLocation: community.address || community.region,
+        businessWebsite: community.website || '',
+        submittedByUid: user.uid,
+      };
 
-      toast({
-        title: 'Deal Submitted!',
-        description: `Your deal "${values.title}" has been submitted for review.`,
-      });
-      
-      router.push('/deals');
+      try {
+        await addDeal(newDealData);
+        toast({
+          title: 'Deal Submitted!',
+          description: `Your deal "${values.title}" has been submitted for review.`,
+        });
+        router.push('/deals');
+      } catch (error) {
+        console.error("Deal submission error", error);
+        toast({
+          title: 'Submission Failed',
+          description: 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
+        });
+      }
     });
   };
 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -31,6 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { useJobs, type NewJobInput } from '@/hooks/use-jobs';
 
 
 const formSchema = z.object({
@@ -50,6 +50,7 @@ export default function NewJobPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { addJob } = useJobs();
   
   const [isPending, startTransition] = useTransition();
 
@@ -78,16 +79,31 @@ export default function NewJobPage() {
     }
     
     startTransition(async () => {
-   
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const newJobData: NewJobInput = {
+        ...values,
+        companyName: user.affiliation!.orgName,
+        companyId: user.affiliation!.orgId,
+        submittedByUid: user.uid,
+        salary: values.salary || '',
+      };
       
-      toast({
-        title: 'Job Submitted!',
-        description: `Your job posting for "${values.title}" has been submitted for review.`,
-      });
-      
-      form.reset();
-      router.push('/careers');
+      try {
+        await addJob(newJobData);
+        toast({
+          title: 'Job Submitted!',
+          description: `Your job posting for "${values.title}" has been submitted for review.`,
+        });
+        
+        form.reset();
+        router.push('/careers');
+      } catch (error) {
+         console.error("Job submission error", error);
+         toast({
+          title: 'Submission Failed',
+          description: 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
+        });
+      }
     });
   };
 

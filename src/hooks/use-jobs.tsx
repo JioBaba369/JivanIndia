@@ -1,26 +1,32 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { User } from './use-auth';
 
 export interface Job {
   id: string;
   title: string;
   companyName: string;
+  companyId: string;
   location: string;
   type: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
   salary?: string;
   description: string;
   applicationUrl: string;
   postedAt: string; // ISO 8601 date string
+  submittedByUid: string;
 }
 
-const initialJobsData: Omit<Job, 'id'>[] = [
+export type NewJobInput = Omit<Job, 'id' | 'postedAt'>;
+
+
+const initialJobsData: Omit<Job, 'id' | 'submittedByUid'>[] = [
     {
       title: "Senior Frontend Engineer",
       companyName: "Rani's Boutique",
+      companyId: "ranis-boutique",
       location: "San Francisco, CA",
       type: "Full-time",
       salary: "$150,000 - $180,000",
@@ -31,6 +37,7 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Marketing Manager",
       companyName: "Saffron Spice Restaurant",
+      companyId: "saffron-spice-restaurant",
       location: "Remote",
       type: "Part-time",
       description: "Join our team to lead marketing campaigns, manage social media, and drive growth for our beloved restaurant.",
@@ -40,6 +47,7 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Data Scientist",
       companyName: "Bollywood Cinemas",
+      companyId: "bollywood-cinemas",
       location: "New York, NY",
       type: "Full-time",
       salary: "$130,000 - $160,000",
@@ -50,6 +58,7 @@ const initialJobsData: Omit<Job, 'id'>[] = [
     {
       title: "Content Writer (Internship)",
       companyName: "Nirvana Yoga Studio",
+      companyId: "nirvana-yoga-studio",
       location: "Austin, TX",
       type: "Internship",
       description: "Create engaging content for our blog, social media, and newsletters. A great opportunity for aspiring writers passionate about wellness.",
@@ -63,6 +72,7 @@ interface JobsContextType {
   jobs: Job[];
   isLoading: boolean;
   getJobById: (id: string) => Job | undefined;
+  addJob: (job: NewJobInput) => Promise<void>;
 }
 
 const JobsContext = createContext<JobsContextType | undefined>(undefined);
@@ -83,8 +93,8 @@ export function JobsProvider({ children }: { children: ReactNode }) {
             const seededJobs: Job[] = [];
             initialJobsData.forEach((jobData) => {
                 const docRef = doc(jobsCollectionRef);
-                batch.set(docRef, jobData);
-                seededJobs.push({ id: docRef.id, ...jobData });
+                batch.set(docRef, {...jobData, submittedByUid: 'seed_user'});
+                seededJobs.push({ id: docRef.id, ...jobData, submittedByUid: 'seed_user' });
             });
             await batch.commit();
             setJobs(seededJobs);
@@ -104,13 +114,22 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+  
+  const addJob = async (jobData: NewJobInput) => {
+    const newJob = {
+      ...jobData,
+      postedAt: new Date().toISOString(),
+    };
+    const docRef = await addDoc(jobsCollectionRef, newJob);
+    setJobs(prev => [...prev, { id: docRef.id, ...newJob } as Job]);
+  };
 
   const getJobById = (id: string): Job | undefined => {
     return jobs.find(j => j.id === id);
   };
 
   return (
-    <JobsContext.Provider value={{ jobs, isLoading, getJobById }}>
+    <JobsContext.Provider value={{ jobs, isLoading, getJobById, addJob }}>
       {children}
     </JobsContext.Provider>
   );
