@@ -5,14 +5,14 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, getDocs, writeBatch, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
-export type ProviderCategory = 'Temples & Worship' | 'Groceries & Spices' | 'Restaurants' | 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration' | 'Other';
-export const providerCategories: ProviderCategory[] = ['Temples & Worship', 'Groceries & Spices', 'Restaurants', 'Legal', 'Healthcare', 'Financial', 'Real Estate', 'Immigration', 'Other'];
+export type BusinessCategory = 'Temples & Worship' | 'Groceries & Spices' | 'Restaurants' | 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration' | 'Other';
+export const businessCategories: BusinessCategory[] = ['Temples & Worship', 'Groceries & Spices', 'Restaurants', 'Legal', 'Healthcare', 'Financial', 'Real Estate', 'Immigration', 'Other'];
 
 
-export interface Provider {
+export interface Business {
   id: string;
   name: string;
-  category: ProviderCategory;
+  category: BusinessCategory;
   description: string;
   fullDescription: string;
   imageUrl: string;
@@ -30,9 +30,9 @@ export interface Provider {
   associatedCommunityId?: string; // Slug of the community
 }
 
-export type NewProviderInput = Omit<Provider, 'id' | 'isVerified' | 'rating' | 'reviewCount'>;
+export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount'>;
 
-export const initialProviders: Omit<Provider, 'id'>[] = [
+export const initialBusinesses: Omit<Business, 'id'>[] = [
     {
       name: "Fremont Hindu Temple",
       category: "Temples & Worship",
@@ -111,87 +111,87 @@ export const initialProviders: Omit<Provider, 'id'>[] = [
     },
 ];
 
-interface ProvidersContextType {
-  providers: Provider[];
+interface BusinessesContextType {
+  businesses: Business[];
   isLoading: boolean;
-  getProviderById: (id: string) => Provider | undefined;
-  addProvider: (provider: NewProviderInput) => Promise<void>;
+  getBusinessById: (id: string) => Business | undefined;
+  addBusiness: (business: NewBusinessInput) => Promise<void>;
 }
 
-const ProvidersContext = createContext<ProvidersContextType | undefined>(undefined);
+const BusinessesContext = createContext<BusinessesContextType | undefined>(undefined);
 
-const providersCollectionRef = collection(firestore, 'providers');
+const businessesCollectionRef = collection(firestore, 'businesses');
 
-export function ProvidersProvider({ children }: { children: ReactNode }) {
-  const [providers, setProviders] = useState<Provider[]>([]);
+export function BusinessesProvider({ children }: { children: ReactNode }) {
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProviders = useCallback(async () => {
+  const fetchBusinesses = useCallback(async () => {
     setIsLoading(true);
     try {
-        const querySnapshot = await getDocs(providersCollectionRef);
+        const querySnapshot = await getDocs(businessesCollectionRef);
         if (querySnapshot.empty) {
-            console.log("Providers collection is empty, seeding with initial data...");
+            console.log("Businesses collection is empty, seeding with initial data...");
             const batch = writeBatch(firestore);
-            const seededProviders: Provider[] = [];
-            initialProviders.forEach((providerData) => {
-                const docRef = doc(providersCollectionRef);
-                batch.set(docRef, providerData);
-                seededProviders.push({ id: docRef.id, ...providerData });
+            const seededBusinesses: Business[] = [];
+            initialBusinesses.forEach((businessData) => {
+                const docRef = doc(businessesCollectionRef);
+                batch.set(docRef, businessData);
+                seededBusinesses.push({ id: docRef.id, ...businessData });
             });
             await batch.commit();
-            setProviders(seededProviders);
-            console.log("Providers collection seeded successfully.");
+            setBusinesses(seededBusinesses);
+            console.log("Businesses collection seeded successfully.");
         } else {
-            const providersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Provider));
-            setProviders(providersData);
+            const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
+            setBusinesses(businessesData);
         }
     } catch (error) {
-        console.error("Failed to fetch or seed providers from Firestore", error);
-        setProviders([]);
+        console.error("Failed to fetch or seed businesses from Firestore", error);
+        setBusinesses([]);
     } finally {
         setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProviders();
-  }, [fetchProviders]);
+    fetchBusinesses();
+  }, [fetchBusinesses]);
 
-  const addProvider = async (providerData: NewProviderInput) => {
-    const newProvider = {
-      ...providerData,
-      isVerified: true, // Admin-added providers are auto-verified
+  const addBusiness = async (businessData: NewBusinessInput) => {
+    const newBusiness = {
+      ...businessData,
+      isVerified: true, // Admin-added businesses are auto-verified
       rating: 0,
       reviewCount: 0,
     };
-    const docRef = await addDoc(providersCollectionRef, newProvider);
-    setProviders(prev => [...prev, { id: docRef.id, ...newProvider } as Provider]);
+    const docRef = await addDoc(businessesCollectionRef, newBusiness);
+    setBusinesses(prev => [...prev, { id: docRef.id, ...newBusiness } as Business]);
   };
 
 
-  const getProviderById = (id: string) => {
-    return providers.find(provider => provider.id === id);
+  const getBusinessById = (id: string) => {
+    return businesses.find(business => business.id === id);
   };
 
   const value = {
-    providers,
+    businesses,
     isLoading,
-    getProviderById,
-    addProvider,
+    getBusinessById,
+    addBusiness,
   };
 
   return (
-    <ProvidersContext.Provider value={value}>
+    <BusinessesContext.Provider value={value}>
       {children}
-    </ProvidersContext.Provider>
+    </BusinessesContext.Provider>
   );
 }
 
-export function useProviders() {
-  const context = useContext(ProvidersContext);
+export function useBusinesses() {
+  const context = useContext(BusinessesContext);
   if (context === undefined) {
-    throw new Error('useProviders must be used within a ProvidersProvider');
+    throw new Error('useBusinesses must be used within a BusinessesProvider');
   }
   return context;
 }

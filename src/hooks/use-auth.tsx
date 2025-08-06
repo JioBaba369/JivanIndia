@@ -38,7 +38,7 @@ export interface User {
   savedEvents?: string[];
   joinedCommunities?: string[];
   savedDeals?: string[];
-  savedProviders?: string[];
+  savedBusinesses?: string[];
   savedSponsors?: string[];
   savedMovies?: string[];
   
@@ -49,7 +49,7 @@ export interface User {
   calendarSyncEnabled?: boolean;
 }
 
-export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedProviders' | 'savedSponsors' | 'savedMovies';
+export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedBusinesses' | 'savedSponsors' | 'savedMovies';
 
 
 interface AuthContextType {
@@ -79,10 +79,10 @@ interface AuthContextType {
   unsaveDeal: (dealId: string) => void;
   isDealSaved: (dealId: string) => boolean;
 
-  savedProviders: string[];
-  saveProvider: (providerId: string) => void;
-  unsaveProvider: (providerId: string) => void;
-  isProviderSaved: (providerId: string) => boolean;
+  savedBusinesses: string[];
+  saveBusiness: (businessId: string) => void;
+  unsaveBusiness: (businessId: string) => void;
+  isBusinessSaved: (businessId: string) => boolean;
 
   savedSponsors: string[];
   saveSponsor: (sponsorId: string) => void;
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       savedEvents: [],
       joinedCommunities: [],
       savedDeals: [],
-      savedProviders: [],
+      savedBusinesses: [],
       savedSponsors: [],
       savedMovies: [],
     };
@@ -264,7 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved, list: savedEvents } = createSaveFunctions('savedEvents');
   const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined, list: joinedCommunities } = createSaveFunctions('joinedCommunities');
   const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved, list: savedDeals } = createSaveFunctions('savedDeals');
-  const { saveItem: saveProvider, unsaveItem: unsaveProvider, isItemSaved: isProviderSaved, list: savedProviders } = createSaveFunctions('savedProviders');
+  const { saveItem: saveBusiness, unsaveItem: unsaveBusiness, isItemSaved: isBusinessSaved, list: savedBusinesses } = createSaveFunctions('savedBusinesses');
   const { saveItem: saveSponsor, unsaveItem: unsaveSponsor, isItemSaved: isSponsorSaved, list: savedSponsors } = createSaveFunctions('savedSponsors');
   const { saveItem: saveMovie, unsaveItem: unsaveMovie, isItemSaved: isMovieSaved, list: savedMovies } = createSaveFunctions('savedMovies');
 
@@ -282,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     savedEvents, saveEvent, unsaveEvent, isEventSaved,
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved,
-    savedProviders, saveProvider, unsaveProvider, isProviderSaved,
+    savedBusinesses, saveBusiness, unsaveBusiness, isBusinessSaved,
     savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
     savedMovies, saveMovie, unsaveMovie, isMovieSaved,
   };

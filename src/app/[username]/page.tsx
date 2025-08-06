@@ -19,7 +19,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import QRCode from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
-import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
@@ -28,6 +27,7 @@ import { useMovies } from '@/hooks/use-movies';
 import { getInitials, formatUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import CountryFlag from '@/components/feature/country-flag';
+import { useBusinesses } from '@/hooks/use-businesses';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -37,7 +37,7 @@ export default function UserPublicProfilePage() {
 
     const { getUserByUsername } = useAuth();
     const { events: allEvents } = useEvents();
-    const { providers } = useProviders();
+    const { businesses } = useBusinesses();
     const { sponsors } = useSponsors();
     const { communities: allCommunities, getCommunityById } = useCommunities();
     const { deals: allDeals } = useDeals();
@@ -75,9 +75,9 @@ export default function UserPublicProfilePage() {
         ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
         : [], [allEvents, affiliatedCommunity]);
     
-    const userAffiliatedProviders = useMemo(() => affiliatedCommunity
-        ? providers.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
-        : [], [providers, affiliatedCommunity]);
+    const userAffiliatedBusinesses = useMemo(() => affiliatedCommunity
+        ? businesses.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
+        : [], [businesses, affiliatedCommunity]);
 
     const userAffiliatedSponsors = useMemo(() => affiliatedCommunity
         ? sponsors.filter(s => s.eventsSponsored.some(e => allEvents.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
@@ -341,7 +341,7 @@ export default function UserPublicProfilePage() {
                                     <Tabs defaultValue="events" className="w-full">
                                         <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
                                             <TabsTrigger value="events">Events ({userAffiliatedEvents.length})</TabsTrigger>
-                                            <TabsTrigger value="providers">Providers ({userAffiliatedProviders.length})</TabsTrigger>
+                                            <TabsTrigger value="businesses">Businesses ({userAffiliatedBusinesses.length})</TabsTrigger>
                                             <TabsTrigger value="sponsors">Sponsors ({userAffiliatedSponsors.length})</TabsTrigger>
                                         </TabsList>
 
@@ -368,24 +368,24 @@ export default function UserPublicProfilePage() {
                                                 <div className="rounded-lg border-2 border-dashed py-12 text-center"><p className="text-muted-foreground">No events to display.</p></div>
                                             )}
                                         </TabsContent>
-                                        <TabsContent value="providers" className="mt-6">
-                                            {userAffiliatedProviders.length > 0 ? (
+                                        <TabsContent value="businesses" className="mt-6">
+                                            {userAffiliatedBusinesses.length > 0 ? (
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {userAffiliatedProviders.map((provider) => (
-                                                        <Card key={provider.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
-                                                            <Link href={`/providers/${provider.id}`} className="flex h-full flex-col">
-                                                                <div className="relative h-40 w-full"><Image src={provider.imageUrl} alt={provider.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="provider photo"/></div>
+                                                    {userAffiliatedBusinesses.map((business) => (
+                                                        <Card key={business.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
+                                                            <Link href={`/businesses/${business.id}`} className="flex h-full flex-col">
+                                                                <div className="relative h-40 w-full"><Image src={business.imageUrl} alt={business.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="business photo"/></div>
                                                                 <CardContent className="flex flex-grow flex-col p-4">
-                                                                    <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{provider.name}</h3>
-                                                                    <p className="text-sm font-semibold text-primary">{provider.category}</p>
-                                                                    <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{provider.rating.toFixed(1)} ({provider.reviewCount} reviews)</span></div>
+                                                                    <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{business.name}</h3>
+                                                                    <p className="text-sm font-semibold text-primary">{business.category}</p>
+                                                                    <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{business.rating.toFixed(1)} ({business.reviewCount} reviews)</span></div>
                                                                 </CardContent>
                                                             </Link>
                                                         </Card>
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <div className="rounded-lg border-2 border-dashed py-12 text-center"><p className="text-muted-foreground">No providers to display.</p></div>
+                                                <div className="rounded-lg border-2 border-dashed py-12 text-center"><p className="text-muted-foreground">No businesses to display.</p></div>
                                             )}
                                         </TabsContent>
                                         <TabsContent value="sponsors" className="mt-6">

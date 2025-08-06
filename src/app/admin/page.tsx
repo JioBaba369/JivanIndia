@@ -347,4 +347,26 @@ export default function AdminDashboardPage() {
                                                           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                           <AlertDialogDescription>
                                                             This will permanently delete {member.name} from the team. This action cannot be undone.
-                                                          </
+                                                          </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                          <AlertDialogAction onClick={() => handleDeleteTeamMember(member.id)}>Yes, delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                      </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
+            </Tabs>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
