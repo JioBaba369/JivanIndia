@@ -11,5 +11,9 @@ export default function ProvidersRedirectPage() {
         router.replace('/businesses');
     }, [router]);
 
-    return null;
+    return (
+        <div className="container mx-auto px-4 py-12 text-center">
+            <p>Redirecting...</p>
+        </div>
+    );
 }

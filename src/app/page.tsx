@@ -73,12 +73,12 @@ export default function HomePage() {
   );
 
   const categoryLinks = [
-    { href: '/events', label: 'Events' },
-    { href: '/deals', label: 'Deals' },
-    { href: '/communities', label: 'Communities' },
-    { href: '/businesses', label: 'Businesses' },
-    { href: '/movies', label: 'Movies' },
-    { href: '/careers', label: 'Careers' },
+    { href: '/events', icon: Calendar, label: 'Events' },
+    { href: '/deals', icon: Tag, label: 'Deals' },
+    { href: '/communities', icon: Users, label: 'Communities' },
+    { href: '/businesses', icon: Building, label: 'Businesses' },
+    { href: '/movies', icon: Film, label: 'Movies' },
+    { href: '/careers', icon: Briefcase, label: 'Careers' },
   ];
 
 

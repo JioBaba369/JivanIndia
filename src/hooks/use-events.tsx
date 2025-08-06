@@ -1,9 +1,11 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useCommunities } from '@/hooks/use-communities';
+import { useToast } from './use-toast';
 
 export interface Event {
   id: string;
@@ -44,6 +46,7 @@ const eventsCollectionRef = collection(firestore, 'events');
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
@@ -86,6 +89,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     setEvents(prev => prev.map(event =>
       event.id === eventId ? { ...event, ...updatedData } : event
     ));
+    toast({ title: 'Event Status Updated', description: `The event has been set to ${status}.` });
   };
 
   const value = {

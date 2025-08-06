@@ -39,7 +39,6 @@ export interface User {
   joinedCommunities?: string[];
   savedDeals?: string[];
   savedBusinesses?: string[];
-  savedSponsors?: string[];
   savedMovies?: string[];
   
   notificationPreferences?: {
@@ -64,27 +63,22 @@ interface AuthContextType {
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
-  savedEvents: string[];
   saveEvent: (eventId: string) => void;
   unsaveEvent: (eventId: string) => void;
   isEventSaved: (eventId: string) => boolean;
 
-  joinedCommunities: string[];
   joinCommunity: (orgId: string) => void;
   leaveCommunity: (orgId: string) => void;
   isCommunityJoined: (orgId: string) => boolean;
 
-  savedDeals: string[];
   saveDeal: (dealId: string) => void;
   unsaveDeal: (dealId: string) => void;
   isDealSaved: (dealId: string) => boolean;
 
-  savedBusinesses: string[];
   saveBusiness: (businessId: string) => void;
   unsaveBusiness: (businessId: string) => void;
   isBusinessSaved: (businessId: string) => boolean;
 
-  savedMovies: string[];
   saveMovie: (movieId: string) => void;
   unsaveMovie: (movieId: string) => void;
   isMovieSaved: (movieId: string) => boolean;
@@ -146,7 +140,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       joinedCommunities: [],
       savedDeals: [],
       savedBusinesses: [],
-      savedSponsors: [],
       savedMovies: [],
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
@@ -231,19 +224,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const createSaveFunctions = useCallback((listType: SaveableItem) => {
     const list = user?.[listType] || [];
-
     const saveItem = (itemId: string) => handleSaveOperation(listType, itemId, 'add');
     const unsaveItem = (itemId: string) => handleSaveOperation(listType, itemId, 'remove');
     const isItemSaved = (itemId: string) => list.includes(itemId);
-
-    return { saveItem, unsaveItem, isItemSaved, list };
+    return { saveItem, unsaveItem, isItemSaved };
   }, [user, handleSaveOperation]);
   
-  const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved, list: savedEvents } = createSaveFunctions('savedEvents');
-  const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined, list: joinedCommunities } = createSaveFunctions('joinedCommunities');
-  const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved, list: savedDeals } = createSaveFunctions('savedDeals');
-  const { saveItem: saveBusiness, unsaveItem: unsaveBusiness, isItemSaved: isBusinessSaved, list: savedBusinesses } = createSaveFunctions('savedBusinesses');
-  const { saveItem: saveMovie, unsaveItem: unsaveMovie, isItemSaved: isMovieSaved, list: savedMovies } = createSaveFunctions('savedMovies');
+  const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved } = createSaveFunctions('savedEvents');
+  const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined } = createSaveFunctions('joinedCommunities');
+  const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved } = createSaveFunctions('savedDeals');
+  const { saveItem: saveBusiness, unsaveItem: unsaveBusiness, isItemSaved: isBusinessSaved } = createSaveFunctions('savedBusinesses');
+  const { saveItem: saveMovie, unsaveItem: unsaveMovie, isItemSaved: isMovieSaved } = createSaveFunctions('savedMovies');
 
   const value = { 
     user,
@@ -256,11 +247,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAffiliation,
     getUserByUsername,
     isUsernameUnique,
-    savedEvents, saveEvent, unsaveEvent, isEventSaved,
-    joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
-    savedDeals, saveDeal, unsaveDeal, isDealSaved,
-    savedBusinesses, saveBusiness, unsaveBusiness, isBusinessSaved,
-    savedMovies, saveMovie, unsaveMovie, isMovieSaved,
+    saveEvent, unsaveEvent, isEventSaved,
+    joinCommunity, leaveCommunity, isCommunityJoined,
+    saveDeal, unsaveDeal, isDealSaved,
+    saveBusiness, unsaveBusiness, isBusinessSaved,
+    saveMovie, unsaveMovie, isMovieSaved,
   };
 
   return (

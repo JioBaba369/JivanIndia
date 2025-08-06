@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useToast } from './use-toast';
 
 export interface TeamMember {
   id: string;
@@ -20,7 +21,7 @@ export interface AboutContent {
 }
 
 interface AboutContextType {
-  aboutContent: AboutContent | null;
+  aboutContent: AboutContent;
   isLoading: boolean;
   updateStory: (newStory: string) => Promise<void>;
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
@@ -31,8 +32,9 @@ interface AboutContextType {
 const AboutContext = createContext<AboutContextType | undefined>(undefined);
 
 export function AboutProvider({ children, setAboutContentLoaded }: { children: ReactNode, setAboutContentLoaded: (loaded: boolean) => void }) {
-  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
+  const [aboutContent, setAboutContent] = useState<AboutContent>({ story: '', teamMembers: [] });
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
   const aboutDocRef = doc(firestore, 'about', 'singleton');
 
@@ -42,7 +44,8 @@ export function AboutProvider({ children, setAboutContentLoaded }: { children: R
     if (aboutDocSnap.exists()) {
       setAboutContent(aboutDocSnap.data() as AboutContent);
     } else {
-      setAboutContent(null);
+      // In a real app, you might initialize this document
+      setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [] });
     }
     setIsLoading(false);
     setAboutContentLoaded(true);
@@ -53,17 +56,17 @@ export function AboutProvider({ children, setAboutContentLoaded }: { children: R
   }, [fetchAboutContent]);
 
   const updateStory = async (newStory: string) => {
-    if (!aboutContent) return;
     try {
-        await updateDoc(aboutDocRef, { story: newStory });
-        setAboutContent(prev => prev ? { ...prev, story: newStory } : null);
+      await updateDoc(aboutDocRef, { story: newStory });
+      setAboutContent(prev => ({ ...prev, story: newStory }));
+      toast({ title: 'Success', description: 'Our Story has been updated.' });
     } catch(e) {
-        console.error("Error updating story: ", e);
+      console.error("Error updating story: ", e);
+      toast({ title: 'Error', description: 'Could not update story.', variant: 'destructive' });
     }
   };
 
   const addTeamMember = async (memberData: Omit<TeamMember, 'id'>) => {
-    if (!aboutContent) return;
     const newMember: TeamMember = {
       ...memberData,
       id: new Date().getTime().toString(),
@@ -71,14 +74,15 @@ export function AboutProvider({ children, setAboutContentLoaded }: { children: R
     const updatedMembers = [...aboutContent.teamMembers, newMember];
     try {
       await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
-      setAboutContent(prev => prev ? { ...prev, teamMembers: updatedMembers } : null);
+      setAboutContent(prev => ({ ...prev, teamMembers: updatedMembers }));
+      toast({ title: 'Success', description: 'Team member added.' });
     } catch(e) {
-        console.error("Error adding team member: ", e);
+      console.error("Error adding team member: ", e);
+      toast({ title: 'Error', description: 'Could not add team member.', variant: 'destructive' });
     }
   };
 
   const updateTeamMember = async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
-    if (!aboutContent) return;
     const updatedMembers = aboutContent.teamMembers.map(member => 
       member.id === memberId 
         ? { id: member.id, ...updatedData } 
@@ -86,20 +90,23 @@ export function AboutProvider({ children, setAboutContentLoaded }: { children: R
     );
      try {
         await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
-        setAboutContent(prev => prev ? { ...prev, teamMembers: updatedMembers } : null);
+        setAboutContent(prev => ({ ...prev, teamMembers: updatedMembers }));
+        toast({ title: 'Success', description: 'Team member updated.' });
     } catch(e) {
         console.error("Error updating team member: ", e);
+        toast({ title: 'Error', description: 'Could not update team member.', variant: 'destructive' });
     }
   };
 
   const deleteTeamMember = async (memberId: string) => {
-    if (!aboutContent) return;
     const updatedMembers = aboutContent.teamMembers.filter(member => member.id !== memberId);
     try {
         await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
-        setAboutContent(prev => prev ? { ...prev, teamMembers: updatedMembers } : null);
+        setAboutContent(prev => ({ ...prev, teamMembers: updatedMembers }));
+        toast({ title: 'Success', description: 'Team member removed.' });
     } catch (e) {
         console.error("Error deleting team member: ", e);
+        toast({ title: 'Error', description: 'Could not remove team member.', variant: 'destructive' });
     }
   };
 
