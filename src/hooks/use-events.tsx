@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -64,15 +65,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   }, [fetchEvents]);
 
   const addEvent = async (eventData: NewEventInput) => {
-    const affiliatedCommunity = getCommunityById(eventData.organizerId);
-    const status: Event['status'] = affiliatedCommunity?.isVerified ? 'Approved' : 'Pending';
-
     const now = new Date().toISOString();
     const newEventData = {
       ...eventData,
       createdAt: now,
       updatedAt: now,
-      status: status,
+      status: 'Pending' as Event['status'], // All events default to Pending
     };
     
     const docRef = await addDoc(eventsCollectionRef, newEventData);
