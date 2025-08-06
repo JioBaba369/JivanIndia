@@ -158,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username,
       email: fbUser.email!,
       isAdmin: adminUids.includes(fbUser.uid),
+      affiliation: undefined,
       profileImageUrl: '',
       bio: '',
       phone: '',
@@ -166,6 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       originLocation: { indiaState: '', indiaDistrict: '' },
       languagesSpoken: [],
       interests: [],
+      
       savedEvents: [],
       joinedCommunities: [],
       savedDeals: [],
@@ -196,7 +198,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const affiliation = { orgId, orgName, orgSlug };
       await updateUser({ affiliation });
-      setUser(prevUser => prevUser ? { ...prevUser, affiliation } : null);
     }
   };
 

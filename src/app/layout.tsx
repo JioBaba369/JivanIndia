@@ -74,8 +74,8 @@ export default function RootLayout({
       >
         <AboutProvider>
           <AuthProvider>
-            <EventsProvider>
-              <CommunitiesProvider>
+            <CommunitiesProvider>
+              <EventsProvider>
                 <ProvidersProvider>
                   <SponsorsProvider>
                     <DealsProvider>
@@ -94,8 +94,8 @@ export default function RootLayout({
                     </DealsProvider>
                   </SponsorsProvider>
                 </ProvidersProvider>
-              </CommunitiesProvider>
-            </EventsProvider>
+              </EventsProvider>
+            </CommunitiesProvider>
           </AuthProvider>
         </AboutProvider>
       </body>
