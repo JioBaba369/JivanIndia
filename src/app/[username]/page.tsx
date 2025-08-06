@@ -72,9 +72,14 @@ export default function UserPublicProfilePage() {
                     </CardHeader>
                     <CardContent>
                         <p>The user profile you are looking for does not exist.</p>
-                        <Button asChild className="mt-6">
-                            <Link href="/">Back to Home</Link>
-                        </Button>
+                        <div className="mt-6 flex justify-center gap-4">
+                            <Button asChild>
+                                <Link href="/">Back to Home</Link>
+                            </Button>
+                            <Button asChild variant="secondary">
+                                <Link href="/signup">Create Your Profile</Link>
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -383,4 +388,3 @@ export default function UserPublicProfilePage() {
             </TooltipProvider>
         </div>
     );
-}
