@@ -54,7 +54,7 @@ const CommunitiesContext = createContext<CommunitiesContextType | undefined>(und
 
 const communitiesCollectionRef = collection(firestore, 'communities');
 
-export function CommunitiesProvider({ children, setCommunitiesLoaded }: { children: ReactNode, setCommunitiesLoaded: (loaded: boolean) => void }) {
+export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -70,9 +70,8 @@ export function CommunitiesProvider({ children, setCommunitiesLoaded }: { childr
         setCommunities([]);
     } finally {
         setIsLoading(false);
-        setCommunitiesLoaded(true);
     }
-  }, [setCommunitiesLoaded]);
+  }, []);
 
   useEffect(() => {
     fetchCommunities();

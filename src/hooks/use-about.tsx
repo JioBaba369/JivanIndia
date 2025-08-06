@@ -31,7 +31,7 @@ interface AboutContextType {
 
 const AboutContext = createContext<AboutContextType | undefined>(undefined);
 
-export function AboutProvider({ children, setAboutContentLoaded }: { children: ReactNode, setAboutContentLoaded: (loaded: boolean) => void }) {
+export function AboutProvider({ children }: { children: ReactNode }) {
   const [aboutContent, setAboutContent] = useState<AboutContent>({ story: '', teamMembers: [] });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -40,16 +40,21 @@ export function AboutProvider({ children, setAboutContentLoaded }: { children: R
 
   const fetchAboutContent = useCallback(async () => {
     setIsLoading(true);
-    const aboutDocSnap = await getDoc(aboutDocRef);
-    if (aboutDocSnap.exists()) {
-      setAboutContent(aboutDocSnap.data() as AboutContent);
-    } else {
-      // In a real app, you might initialize this document
-      setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [] });
+    try {
+        const aboutDocSnap = await getDoc(aboutDocRef);
+        if (aboutDocSnap.exists()) {
+        setAboutContent(aboutDocSnap.data() as AboutContent);
+        } else {
+        // In a real app, you might initialize this document
+        setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [] });
+        }
+    } catch (error) {
+        console.error("Error fetching about content: ", error);
+        setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [] });
+    } finally {
+        setIsLoading(false);
     }
-    setIsLoading(false);
-    setAboutContentLoaded(true);
-  }, [aboutDocRef, setAboutContentLoaded]);
+  }, [aboutDocRef]);
 
   useEffect(() => {
     fetchAboutContent();

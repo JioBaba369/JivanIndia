@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { EventsProvider } from "@/hooks/use-events";
-import { CommunitiesProvider } from "@/hooks/use-communities";
-import { AboutProvider } from "@/hooks/use-about";
+import { CommunitiesProvider, useCommunities } from "@/hooks/use-communities";
+import { AboutProvider, useAbout } from "@/hooks/use-about";
 import "@/lib/firebase"; // Import to initialize services
 import CookieConsentBanner from "@/components/cookie-consent-banner";
 import { BusinessesProvider } from "@/hooks/use-businesses";
@@ -34,16 +34,31 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
 });
 
-// This is a client component, so we can't use metadata export
-// export const metadata: Metadata = { ... };
+function AppProviders({ children }: { children: React.ReactNode }) {
+  const { isLoading: isAuthLoading } = useAuth();
+  const { isLoading: isAboutLoading } = useAbout();
+  const { isLoading: isCommunitiesLoading } = useCommunities();
+  
+  const isAppLoading = isAuthLoading || isAboutLoading || isCommunitiesLoading;
 
+  return (
+    <>
+      {isAppLoading ? (
+        <div className="flex h-[calc(100vh-128px)] w-full items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : (
+        children
+      )}
+    </>
+  );
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -58,39 +73,35 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <AuthProvider setIsLoading={setIsLoading}>
+        <AuthProvider>
           <AboutProvider>
             <CommunitiesProvider>
-                <EventsProvider>
-                    <BusinessesProvider>
-                        <SponsorsProvider>
-                            <DealsProvider>
-                                <MoviesProvider>
-                                    <JobsProvider>
-                                        <div className="relative flex min-h-screen flex-col">
-                                            <Header />
-                                            <main className="flex-1">
-                                             {isLoading ? (
-                                                <div className="flex h-[calc(100vh-128px)] w-full items-center justify-center">
-                                                    <Loader2 className="h-8 w-8 animate-spin" />
-                                                </div>
-                                                ) : (
-                                                  children
-                                                )}
-                                            </main>
-                                            <div className="md:hidden fixed bottom-6 right-6 z-50">
-                                                <PostSheet />
-                                            </div>
-                                            <Footer />
-                                        </div>
-                                        <Toaster />
-                                        <CookieConsentBanner />
-                                    </JobsProvider>
-                                </MoviesProvider>
-                            </DealsProvider>
-                        </SponsorsProvider>
-                    </BusinessesProvider>
-                </EventsProvider>
+              <EventsProvider>
+                <BusinessesProvider>
+                  <SponsorsProvider>
+                    <DealsProvider>
+                      <MoviesProvider>
+                        <JobsProvider>
+                          <div className="relative flex min-h-screen flex-col">
+                            <Header />
+                            <main className="flex-1">
+                               <AppProviders>
+                                {children}
+                              </AppProviders>
+                            </main>
+                            <div className="md:hidden fixed bottom-6 right-6 z-50">
+                              <PostSheet />
+                            </div>
+                            <Footer />
+                          </div>
+                          <Toaster />
+                          <CookieConsentBanner />
+                        </JobsProvider>
+                      </MoviesProvider>
+                    </DealsProvider>
+                  </SponsorsProvider>
+                </BusinessesProvider>
+              </EventsProvider>
             </CommunitiesProvider>
           </AboutProvider>
         </AuthProvider>
