@@ -37,46 +37,14 @@ const playfairDisplay = Playfair_Display({
 // This is a client component, so we can't use metadata export
 // export const metadata: Metadata = { ... };
 
-function AppProviders({ children }: { children: React.ReactNode }) {
-  const [aboutContentLoaded, setAboutContentLoaded] = useState(false);
-  const [communitiesLoaded, setCommunitiesLoaded] = useState(false);
-
-  const allDataLoaded = aboutContentLoaded && communitiesLoaded;
-
-  return (
-    <AboutProvider setAboutContentLoaded={setAboutContentLoaded}>
-      <CommunitiesProvider setCommunitiesLoaded={setCommunitiesLoaded}>
-        <AuthProvider>
-          {allDataLoaded ? (
-            <EventsProvider>
-                <BusinessesProvider>
-                    <SponsorsProvider>
-                        <DealsProvider>
-                            <MoviesProvider>
-                                <JobsProvider>
-                                    {children}
-                                </JobsProvider>
-                            </MoviesProvider>
-                        </DealsProvider>
-                    </SponsorsProvider>
-                </BusinessesProvider>
-            </EventsProvider>
-          ) : (
-            <div className="flex h-[calc(100vh-128px)] w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          )}
-        </AuthProvider>
-      </CommunitiesProvider>
-    </AboutProvider>
-  )
-}
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -90,18 +58,42 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <AppProviders>
-            <div className="relative flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                 <div className="md:hidden fixed bottom-6 right-6 z-50">
-                    <PostSheet />
-                </div>
-                <Footer />
-            </div>
-            <Toaster />
-            <CookieConsentBanner />
-        </AppProviders>
+        <AuthProvider setIsLoading={setIsLoading}>
+          <AboutProvider>
+            <CommunitiesProvider>
+                <EventsProvider>
+                    <BusinessesProvider>
+                        <SponsorsProvider>
+                            <DealsProvider>
+                                <MoviesProvider>
+                                    <JobsProvider>
+                                        <div className="relative flex min-h-screen flex-col">
+                                            <Header />
+                                            <main className="flex-1">
+                                             {isLoading ? (
+                                                <div className="flex h-[calc(100vh-128px)] w-full items-center justify-center">
+                                                    <Loader2 className="h-8 w-8 animate-spin" />
+                                                </div>
+                                                ) : (
+                                                  children
+                                                )}
+                                            </main>
+                                            <div className="md:hidden fixed bottom-6 right-6 z-50">
+                                                <PostSheet />
+                                            </div>
+                                            <Footer />
+                                        </div>
+                                        <Toaster />
+                                        <CookieConsentBanner />
+                                    </JobsProvider>
+                                </MoviesProvider>
+                            </DealsProvider>
+                        </SponsorsProvider>
+                    </BusinessesProvider>
+                </EventsProvider>
+            </CommunitiesProvider>
+          </AboutProvider>
+        </AuthProvider>
       </body>
     </html>
   );
