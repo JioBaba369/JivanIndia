@@ -112,7 +112,7 @@ export default function ImageUpload({
     }
   };
   
-  const isButtonVariant = aspectRatio === 1;
+  const isButtonVariant = folderName === 'profile-pictures';
 
   const UploadButtonContent = () => {
     if (isButtonVariant) {

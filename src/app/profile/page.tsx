@@ -86,10 +86,10 @@ export default function ProfilePage() {
                     <CardContent>
                         <Tabs defaultValue="saved-events" className="w-full">
                             <TabsList className="grid w-full grid-cols-4">
-                                <TabsTrigger value="saved-events"><Heart className="mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents.length})</TabsTrigger>
-                                <TabsTrigger value="saved-movies"><Film className="mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies.length})</TabsTrigger>
-                                <TabsTrigger value="joined-communities"><Users className="mr-2 h-4 w-4 hidden md:inline-block"/>Communities ({joinedCommunities.length})</TabsTrigger>
-                                <TabsTrigger value="saved-deals"><Tag className="mr-2 h-4 w-4 hidden md:inline-block"/>Deals ({savedDeals.length})</TabsTrigger>
+                                <TabsTrigger value="saved-events"><Heart className="mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-movies"><Film className="mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="joined-communities"><Users className="mr-2 h-4 w-4 hidden md:inline-block"/>Communities ({joinedCommunities?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-deals"><Tag className="mr-2 h-4 w-4 hidden md:inline-block"/>Deals ({savedDeals?.length || 0})</TabsTrigger>
                             </TabsList>
                             <TabsContent value="saved-events" className="mt-6">
                                 {savedEvents.length > 0 ? (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -61,9 +62,9 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   }, [fetchSponsors]);
 
 
-  const getSponsorById = (id: string) => {
+  const getSponsorById = useCallback((id: string) => {
     return sponsors.find(sponsor => sponsor.id === id);
-  };
+  }, [sponsors]);
 
   const value = {
     sponsors,

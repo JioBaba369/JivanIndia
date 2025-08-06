@@ -5,9 +5,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useCa
 import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
 import { useAbout } from '@/hooks/use-about'; 
-import { useCommunities } from '@/hooks/use-communities';
 import { useToast } from './use-toast';
 
 export interface User {
@@ -51,7 +49,7 @@ export interface User {
   calendarSyncEnabled?: boolean;
 }
 
-export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedBusinesses' | 'savedSponsors' | 'savedMovies';
+export type SaveableItem = 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedBusinesses' | 'savedMovies';
 
 
 interface AuthContextType {
@@ -86,11 +84,6 @@ interface AuthContextType {
   unsaveBusiness: (businessId: string) => void;
   isBusinessSaved: (businessId: string) => boolean;
 
-  savedSponsors: string[];
-  saveSponsor: (sponsorId: string) => void;
-  unsaveSponsor: (sponsorId: string) => void;
-  isSponsorSaved: (sponsorId: string) => boolean;
-
   savedMovies: string[];
   saveMovie: (movieId: string) => void;
   unsaveMovie: (movieId: string) => void;
@@ -110,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
         setIsLoading(true);
         setFirebaseUser(fbUser);
-        if (fbUser) {
+        if (fbUser && aboutContent) {
             const userDocRef = doc(firestore, 'users', fbUser.uid);
             const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists()) {
@@ -127,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [aboutContent.adminUids]);
+  }, [aboutContent]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -139,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name,
       username,
       email: fbUser.email!,
-      isAdmin: aboutContent.adminUids?.includes(fbUser.uid),
+      isAdmin: aboutContent?.adminUids?.includes(fbUser.uid),
       affiliation: null,
       profileImageUrl: '',
       bio: '',
@@ -172,22 +165,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   };
   
-  const updateUser = async (updatedData: Partial<User>) => {
+  const updateUser = useCallback(async (updatedData: Partial<User>) => {
     if (user) {
       const userDocRef = doc(firestore, 'users', user.uid);
       await updateDoc(userDocRef, updatedData);
       setUser(prevUser => prevUser ? { ...prevUser, ...updatedData } : null);
     }
-  };
+  }, [user]);
 
-  const setAffiliation = async (orgId: string, orgName: string, orgSlug: string) => {
+  const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
         await updateUser({ affiliation });
     }
-  };
+  }, [user, updateUser]);
 
-  const getUserByUsername = async (username: string): Promise<User | undefined> => {
+  const getUserByUsername = useCallback(async (username: string): Promise<User | undefined> => {
     const usersRef = collection(firestore, 'users');
     const q = query(usersRef, where("username", "==", username));
     const querySnapshot = await getDocs(q);
@@ -195,9 +188,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return querySnapshot.docs[0].data() as User;
     }
     return undefined;
-  };
+  }, []);
 
-  const isUsernameUnique = async (username: string, currentUid?: string): Promise<boolean> => {
+  const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
     const usersRef = collection(firestore, 'users');
     const q = query(usersRef, where("username", "==", username));
     const querySnapshot = await getDocs(q);
@@ -206,35 +199,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true;
     }
     return false;
-  };
+  }, []);
 
-  const createSaveFunctions = (listType: SaveableItem) => {
+ const handleSaveOperation = useCallback(async (listType: SaveableItem, itemId: string, operation: 'add' | 'remove') => {
+    if (!user) return;
+
+    const userRef = doc(firestore, 'users', user.uid);
+    const updatePayload = {
+      [listType]: operation === 'add' ? arrayUnion(itemId) : arrayRemove(itemId)
+    };
+
+    try {
+      await updateDoc(userRef, updatePayload);
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        const currentList = prevUser[listType] || [];
+        const newList = operation === 'add'
+          ? [...currentList, itemId]
+          : currentList.filter(id => id !== itemId);
+        return { ...prevUser, [listType]: newList };
+      });
+    } catch (error) {
+      console.error(`Failed to ${operation} item ${itemId} for list ${listType}`, error);
+      toast({
+        title: "Update Failed",
+        description: "Your action could not be saved. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [user, toast]);
+
+  const createSaveFunctions = useCallback((listType: SaveableItem) => {
     const list = user?.[listType] || [];
 
-    const saveItem = async (itemId: string) => {
-        if (!user) return;
-        setUser(prevUser => prevUser ? { ...prevUser, [listType]: [...(prevUser[listType] || []), itemId] } : null);
-        const userRef = doc(firestore, 'users', user.uid);
-        await updateDoc(userRef, { [listType]: arrayUnion(itemId) });
-    };
-
-    const unsaveItem = async (itemId: string) => {
-        if (!user) return;
-        setUser(prevUser => prevUser ? { ...prevUser, [listType]: (prevUser[listType] || []).filter(id => id !== itemId) } : null);
-        const userRef = doc(firestore, 'users', user.uid);
-        await updateDoc(userRef, { [listType]: arrayRemove(itemId) });
-    };
-    
+    const saveItem = (itemId: string) => handleSaveOperation(listType, itemId, 'add');
+    const unsaveItem = (itemId: string) => handleSaveOperation(listType, itemId, 'remove');
     const isItemSaved = (itemId: string) => list.includes(itemId);
 
     return { saveItem, unsaveItem, isItemSaved, list };
-  };
+  }, [user, handleSaveOperation]);
   
   const { saveItem: saveEvent, unsaveItem: unsaveEvent, isItemSaved: isEventSaved, list: savedEvents } = createSaveFunctions('savedEvents');
   const { saveItem: joinCommunity, unsaveItem: leaveCommunity, isItemSaved: isCommunityJoined, list: joinedCommunities } = createSaveFunctions('joinedCommunities');
   const { saveItem: saveDeal, unsaveItem: unsaveDeal, isItemSaved: isDealSaved, list: savedDeals } = createSaveFunctions('savedDeals');
   const { saveItem: saveBusiness, unsaveItem: unsaveBusiness, isItemSaved: isBusinessSaved, list: savedBusinesses } = createSaveFunctions('savedBusinesses');
-  const { saveItem: saveSponsor, unsaveItem: unsaveSponsor, isItemSaved: isSponsorSaved, list: savedSponsors } = createSaveFunctions('savedSponsors');
   const { saveItem: saveMovie, unsaveItem: unsaveMovie, isItemSaved: isMovieSaved, list: savedMovies } = createSaveFunctions('savedMovies');
 
   const value = { 
@@ -252,7 +260,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     joinedCommunities, joinCommunity, leaveCommunity, isCommunityJoined,
     savedDeals, saveDeal, unsaveDeal, isDealSaved,
     savedBusinesses, saveBusiness, unsaveBusiness, isBusinessSaved,
-    savedSponsors, saveSponsor, unsaveSponsor, isSponsorSaved,
     savedMovies, saveMovie, unsaveMovie, isMovieSaved,
   };
 

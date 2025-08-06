@@ -103,11 +103,9 @@ export function CommunitiesProvider({ children, setCommunitiesLoaded }: { childr
   };
   
   const deleteCommunity = async (id: string) => {
-    // 1. Delete the community document
     const communityDocRef = doc(firestore, 'communities', id);
     await deleteDoc(communityDocRef);
 
-    // 2. Remove affiliation from any users linked to this community
     const usersRef = collection(firestore, 'users');
     const q = query(usersRef, where("affiliation.orgId", "==", id));
     const querySnapshot = await getDocs(q);
@@ -118,21 +116,20 @@ export function CommunitiesProvider({ children, setCommunitiesLoaded }: { childr
     });
     await batch.commit();
 
-    // 3. Update local state
     setCommunities(prev => prev.filter(c => c.id !== id));
   };
 
-  const getCommunityById = (id: string): Community | undefined => {
+  const getCommunityById = useCallback((id: string): Community | undefined => {
     return communities.find(c => c.id === id);
-  };
+  }, [communities]);
 
-  const getCommunityBySlug = (slug: string): Community | undefined => {
+  const getCommunityBySlug = useCallback((slug: string): Community | undefined => {
     return communities.find(c => c.slug === slug);
-  };
+  }, [communities]);
 
-  const isSlugUnique = (slug: string, currentId?: string): boolean => {
+  const isSlugUnique = useCallback((slug: string, currentId?: string): boolean => {
     return !communities.some(c => c.slug === slug && c.id !== currentId);
-  };
+  }, [communities]);
 
   const verifyCommunity = async (communityId: string): Promise<void> => {
     const communityDocRef = doc(firestore, 'communities', communityId);

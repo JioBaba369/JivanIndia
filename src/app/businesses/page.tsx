@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -126,7 +127,7 @@ export default function BusinessesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {filteredBusinesses.map(business => (
                 <Card key={business.id} className="flex flex-col overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl">
-                    <CardContent className="p-0">
+                    <Link href={`/businesses/${business.id}`} className="flex flex-col h-full">
                         <div className="relative h-48 w-full">
                             <Image
                                 src={business.imageUrl}
@@ -137,26 +138,26 @@ export default function BusinessesPage() {
                             />
                             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent text-primary-foreground hover:bg-primary/80 absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{business.category}</div>
                         </div>
-                    </CardContent>
-                    <div className="flex-grow p-4">
-                        <CardTitle className="mb-2 font-headline text-xl">
-                            <Link href={`/businesses/${business.id}`} className="hover:text-primary transition-colors">{business.name}</Link>
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
-                        <div className="mt-4 space-y-2">
-                            <div className="flex items-center text-sm text-muted-foreground">
-                                <MapPin className="mr-2 h-4 w-4 text-primary"/>
-                                <span>{business.region}</span>
+                        <CardContent className="flex-grow p-4">
+                            <CardTitle className="mb-2 font-headline text-xl">
+                                <Link href={`/businesses/${business.id}`} className="hover:text-primary transition-colors">{business.name}</Link>
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
+                            <div className="mt-4 space-y-2">
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <MapPin className="mr-2 h-4 w-4 text-primary"/>
+                                    <span>{business.region}</span>
+                                </div>
                             </div>
+                        </CardContent>
+                        <div className="flex items-center p-4 pt-0 mt-auto">
+                            <Button asChild variant="link" className="p-0 h-auto">
+                                <Link href={`/businesses/${business.id}`}>
+                                    View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
                         </div>
-                    </div>
-                    <div className="flex items-center p-4 pt-0">
-                        <Button asChild variant="link" className="p-0 h-auto">
-                            <Link href={`/businesses/${business.id}`}>
-                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                        </Button>
-                    </div>
+                    </Link>
                 </Card>
             ))}
         </div>

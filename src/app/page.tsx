@@ -73,12 +73,12 @@ export default function HomePage() {
   );
 
   const categoryLinks = [
-    { href: '/events', icon: Calendar, label: 'Events' },
-    { href: '/deals', icon: Tag, label: 'Deals' },
-    { href: '/communities', icon: Users, label: 'Communities' },
-    { href: '/businesses', icon: Building, label: 'Businesses' },
-    { href: '/movies', icon: Film, label: 'Movies' },
-    { href: '/careers', icon: Briefcase, label: 'Careers' },
+    { href: '/events', label: 'Events' },
+    { href: '/deals', label: 'Deals' },
+    { href: '/communities', label: 'Communities' },
+    { href: '/businesses', label: 'Businesses' },
+    { href: '/movies', label: 'Movies' },
+    { href: '/careers', label: 'Careers' },
   ];
 
 
@@ -114,7 +114,7 @@ export default function HomePage() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {categoryLinks.map(cat => <SelectItem key={cat.href} value={cat.href.substring(1)}>{cat.label}</SelectItem>)}
+                                {categoryLinks.map(cat => <SelectItem key={cat.label} value={cat.href.substring(1)}>{cat.label}</SelectItem>)}
                             </SelectContent>
                         </Select>
                         <Button type="submit" size="lg" className="text-lg">

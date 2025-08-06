@@ -90,18 +90,18 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <div className="relative flex min-h-screen flex-col">
-            <AppProviders>
-              <Header />
-              <main className="flex-1 pb-20 md:pb-0">{children}</main>
-              <div className="md:hidden fixed bottom-6 right-6 z-50">
-                  <PostSheet />
-              </div>
-              <Footer />
-            </AppProviders>
-        </div>
-        <Toaster />
-        <CookieConsentBanner />
+        <AppProviders>
+            <div className="relative flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                 <div className="md:hidden fixed bottom-6 right-6 z-50">
+                    <PostSheet />
+                </div>
+                <Footer />
+            </div>
+            <Toaster />
+            <CookieConsentBanner />
+        </AppProviders>
       </body>
     </html>
   );

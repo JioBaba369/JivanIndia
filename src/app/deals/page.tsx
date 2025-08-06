@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Search, Tag, Building, LayoutGrid, List } from "lucide-react";
@@ -126,15 +126,15 @@ export default function DealsPage() {
                     </div>
                     <CardContent className="flex flex-grow flex-col p-6">
                       <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                      <h3 className="font-headline mt-2 flex-grow text-xl font-bold group-hover:text-primary">{deal.title}</h3>
+                      <CardTitle className="font-headline mt-2 flex-grow text-xl group-hover:text-primary">{deal.title}</CardTitle>
                       <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                           <Building className="h-4 w-4" />
                           <span>{deal.business}</span>
                       </div>
-                        <Button variant="outline" className="mt-6 w-full">
-                          <Tag className="mr-2 h-4 w-4" />
-                          View Deal
-                        </Button>
+                      <Button variant="outline" className="mt-6 w-full">
+                        <Tag className="mr-2 h-4 w-4" />
+                        View Deal
+                      </Button>
                     </CardContent>
                   </Link>
                 </Card>

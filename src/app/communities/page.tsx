@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -239,23 +239,20 @@ export default function CommunitiesPage() {
                         />
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4">
-                        <p className="font-semibold text-primary">{org.type}</p>
-                        <div className="mt-1 flex items-center gap-2">
-                            <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
-                            {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
-                        </div>
-                        <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{org.description}</p>
-                        
-                        <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
+                            <CardTitle className="font-headline text-xl font-bold group-hover:text-primary">
+                                {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
+                                {org.name}
+                            </CardTitle>
+                            <p className="font-semibold text-primary">{org.type}</p>
+                            <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{org.description}</p>
+                            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                                 <Users className="h-4 w-4" />
                                 <span>{org.membersCount}</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="h-4 w-4" />
                                 <span>{org.region}</span>
                             </div>
-                        </div>
                         </CardContent>
                     </Link>
                     <div className="mt-auto flex gap-2 p-4 pt-0">
@@ -283,10 +280,10 @@ export default function CommunitiesPage() {
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                             <p className="font-semibold text-primary">{org.type}</p>
-                            <div className="mt-1 flex items-center gap-2">
-                                <h3 className="font-headline text-xl font-bold group-hover:text-primary">{org.name}</h3>
-                                {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
-                            </div>
+                            <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">
+                                 {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
+                                {org.name}
+                            </h3>
                             <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-2">{org.description}</p>
                             <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">

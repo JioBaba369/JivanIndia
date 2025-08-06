@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -116,9 +117,7 @@ export default function NewJobPage() {
                 <CardDescription>You must be logged in to post a job. Please log in to continue.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button asChild className="mt-2">
-                    <Link href="/login">Login</Link>
-                </Button>
+                <Button asChild className="mt-2"><Link href="/login">Login</Link></Button>
             </CardContent>
         </Card>
       </div>

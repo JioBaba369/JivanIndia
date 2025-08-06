@@ -19,25 +19,9 @@ export interface AboutContent {
   adminUids?: string[];
 }
 
-const defaultAboutContent: AboutContent = {
-    story: `JivanIndia.co began as a simple conversation among friends, new to a country far from home. We missed the vibrant festivals, the familiar flavors, and the easy camaraderie of our communities back in India. We found ourselves constantly searching—for local temples, for the best place to buy spices, for cultural events that felt like a piece of home.
-
-Information was scattered across countless websites, social media groups, and word-of-mouth recommendations. It was a chore to piece everything together. We dreamed of a single, reliable place where the Indian diaspora could connect, share, and thrive. A digital 'jivan'—a source of life and vitality for our community.
-
-That dream became JivanIndia.co.
-
-We started by building a simple calendar of events. As more people joined, we added a directory for community organizations, then a space for local businesses to share deals, and a section for the latest movies from home. It grew organically, fueled by the needs and contributions of people just like us.
-
-Today, JivanIndia.co is more than just a website. It's a bustling hub, a digital town square where traditions are celebrated, connections are forged, and the spirit of India is kept alive, no matter where we are in the world. Our journey is a testament to the power of community, and we invite you to be a part of it.`,
-    teamMembers: [],
-    adminUids: [],
-};
-
-
 interface AboutContextType {
-  aboutContent: AboutContent;
+  aboutContent: AboutContent | null;
   isLoading: boolean;
-  setAboutContent: (content: AboutContent) => void;
   updateStory: (newStory: string) => Promise<void>;
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
   updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
@@ -46,67 +30,82 @@ interface AboutContextType {
 
 const AboutContext = createContext<AboutContextType | undefined>(undefined);
 
-const ABOUT_DOC_ID = 'singleton';
-
 export function AboutProvider({ children, setAboutContentLoaded }: { children: ReactNode, setAboutContentLoaded: (loaded: boolean) => void }) {
-  const [aboutContent, setAboutContent] = useState<AboutContent>(defaultAboutContent);
+  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  const aboutDocRef = doc(firestore, 'about', ABOUT_DOC_ID);
+  const aboutDocRef = doc(firestore, 'about', 'singleton');
+
+  const fetchAboutContent = useCallback(async () => {
+    setIsLoading(true);
+    const aboutDocSnap = await getDoc(aboutDocRef);
+    if (aboutDocSnap.exists()) {
+      setAboutContent(aboutDocSnap.data() as AboutContent);
+    } else {
+      setAboutContent(null);
+    }
+    setIsLoading(false);
+    setAboutContentLoaded(true);
+  }, [aboutDocRef, setAboutContentLoaded]);
 
   useEffect(() => {
-    const fetchAndSeedAbout = async () => {
-        const aboutDocSnap = await getDoc(aboutDocRef);
-        if (aboutDocSnap.exists()) {
-            setAboutContent(aboutDocSnap.data() as AboutContent);
-        } else {
-             await setDoc(aboutDocRef, defaultAboutContent);
-             setAboutContent(defaultAboutContent);
-        }
-        setIsLoading(false);
-        setAboutContentLoaded(true);
-    };
-
-    fetchAndSeedAbout();
-  }, [setAboutContentLoaded, aboutDocRef]);
+    fetchAboutContent();
+  }, [fetchAboutContent]);
 
   const updateStory = async (newStory: string) => {
-    const updatedContent = { ...aboutContent, story: newStory };
-    setAboutContent(updatedContent);
-    await updateDoc(aboutDocRef, { story: newStory });
+    if (!aboutContent) return;
+    try {
+        await updateDoc(aboutDocRef, { story: newStory });
+        setAboutContent(prev => prev ? { ...prev, story: newStory } : null);
+    } catch(e) {
+        console.error("Error updating story: ", e);
+    }
   };
 
   const addTeamMember = async (memberData: Omit<TeamMember, 'id'>) => {
+    if (!aboutContent) return;
     const newMember: TeamMember = {
       ...memberData,
       id: new Date().getTime().toString(),
     };
     const updatedMembers = [...aboutContent.teamMembers, newMember];
-    const newContent = { ...aboutContent, teamMembers: updatedMembers }
-    setAboutContent(newContent);
-    await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
+    try {
+      await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
+      setAboutContent(prev => prev ? { ...prev, teamMembers: updatedMembers } : null);
+    } catch(e) {
+        console.error("Error adding team member: ", e);
+    }
   };
 
   const updateTeamMember = async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
+    if (!aboutContent) return;
     const updatedMembers = aboutContent.teamMembers.map(member => 
       member.id === memberId 
         ? { id: member.id, ...updatedData } 
         : member
     );
-    setAboutContent({ ...aboutContent, teamMembers: updatedMembers });
-    await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
+     try {
+        await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
+        setAboutContent(prev => prev ? { ...prev, teamMembers: updatedMembers } : null);
+    } catch(e) {
+        console.error("Error updating team member: ", e);
+    }
   };
 
   const deleteTeamMember = async (memberId: string) => {
+    if (!aboutContent) return;
     const updatedMembers = aboutContent.teamMembers.filter(member => member.id !== memberId);
-    setAboutContent({ ...aboutContent, teamMembers: updatedMembers });
-    await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
+    try {
+        await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
+        setAboutContent(prev => prev ? { ...prev, teamMembers: updatedMembers } : null);
+    } catch (e) {
+        console.error("Error deleting team member: ", e);
+    }
   };
 
   const value = {
     aboutContent,
     isLoading,
-    setAboutContent,
     updateStory,
     addTeamMember,
     updateTeamMember,
