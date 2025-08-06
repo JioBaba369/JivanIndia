@@ -1,10 +1,8 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { initialMoviesData } from '@/data/movies';
 
 export interface Movie {
   id: string;
@@ -49,23 +47,9 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(moviesCollectionRef);
-        if (querySnapshot.empty) {
-            console.log("Movies collection is empty, seeding with initial data...");
-            const batch = writeBatch(firestore);
-            const seededMovies: Movie[] = [];
-            initialMoviesData.forEach((movieData) => {
-                const docRef = doc(moviesCollectionRef);
-                batch.set(docRef, movieData);
-                seededMovies.push({ id: docRef.id, ...movieData });
-            });
-            await batch.commit();
-            setMovies(seededMovies);
-            console.log("Movies collection seeded successfully.");
-        } else {
-            setMovies(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie)));
-        }
+        setMovies(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie)));
     } catch (error) {
-        console.error("Failed to fetch or seed movies from Firestore", error);
+        console.error("Failed to fetch movies from Firestore", error);
         setMovies([]);
     } finally {
         setIsLoading(false);

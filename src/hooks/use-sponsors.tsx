@@ -1,10 +1,8 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { initialSponsors } from '@/data/sponsors';
 
 export type SponsorTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Supporter';
 
@@ -48,24 +46,10 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(sponsorsCollectionRef);
-        if (querySnapshot.empty) {
-            console.log("Sponsors collection is empty, seeding with initial data...");
-            const batch = writeBatch(firestore);
-            const seededSponsors: Sponsor[] = [];
-            initialSponsors.forEach((sponsorData) => {
-                const docRef = doc(sponsorsCollectionRef);
-                batch.set(docRef, sponsorData);
-                seededSponsors.push({ id: docRef.id, ...sponsorData });
-            });
-            await batch.commit();
-            setSponsors(seededSponsors);
-            console.log("Sponsors collection seeded successfully.");
-        } else {
-            const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
-            setSponsors(sponsorsData);
-        }
+        const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
+        setSponsors(sponsorsData);
     } catch (error) {
-        console.error("Failed to fetch or seed sponsors from Firestore", error);
+        console.error("Failed to fetch sponsors from Firestore", error);
         setSponsors([]);
     } finally {
         setIsLoading(false);

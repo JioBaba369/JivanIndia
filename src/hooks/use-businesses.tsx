@@ -1,10 +1,8 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, writeBatch, doc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { initialBusinesses } from '@/data/businesses';
 
 export type BusinessCategory = 'Temples & Worship' | 'Groceries & Spices' | 'Restaurants' | 'Legal' | 'Healthcare' | 'Financial' | 'Real Estate' | 'Immigration' | 'Other';
 export const businessCategories: BusinessCategory[] = ['Temples & Worship', 'Groceries & Spices', 'Restaurants', 'Legal', 'Healthcare', 'Financial', 'Real Estate', 'Immigration', 'Other'];
@@ -28,7 +26,7 @@ export interface Business {
     website: string;
     address: string;
   };
-  associatedCommunityId?: string; // Slug of the community
+  associatedCommunityId?: string; // ID of the community
 }
 
 export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount'>;
@@ -52,24 +50,10 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(businessesCollectionRef);
-        if (querySnapshot.empty) {
-            console.log("Businesses collection is empty, seeding with initial data...");
-            const batch = writeBatch(firestore);
-            const seededBusinesses: Business[] = [];
-            initialBusinesses.forEach((businessData) => {
-                const docRef = doc(businessesCollectionRef);
-                batch.set(docRef, businessData);
-                seededBusinesses.push({ id: docRef.id, ...businessData });
-            });
-            await batch.commit();
-            setBusinesses(seededBusinesses);
-            console.log("Businesses collection seeded successfully.");
-        } else {
-            const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
-            setBusinesses(businessesData);
-        }
+        const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
+        setBusinesses(businessesData);
     } catch (error) {
-        console.error("Failed to fetch or seed businesses from Firestore", error);
+        console.error("Failed to fetch businesses from Firestore", error);
         setBusinesses([]);
     } finally {
         setIsLoading(false);

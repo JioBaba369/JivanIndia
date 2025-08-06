@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -45,7 +44,6 @@ const eventsCollectionRef = collection(firestore, 'events');
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { getCommunityById } = useCommunities();
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);

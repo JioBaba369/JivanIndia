@@ -1,11 +1,9 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
-import { initialCommunities } from '@/data/communities';
 
 export interface Community {
   id: string;
@@ -54,7 +52,7 @@ const CommunitiesContext = createContext<CommunitiesContextType | undefined>(und
 
 const communitiesCollectionRef = collection(firestore, 'communities');
 
-export function CommunitiesProvider({ children }: { children: ReactNode }) {
+export function CommunitiesProvider({ children, setCommunitiesLoaded }: { children: ReactNode, setCommunitiesLoaded: (loaded: boolean) => void }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,36 +60,16 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(communitiesCollectionRef);
-        if (querySnapshot.empty) {
-            console.log("Communities collection is empty, seeding with initial data...");
-            const batch = writeBatch(firestore);
-            const seededCommunities: Community[] = [];
-            initialCommunities.forEach((communityData) => {
-                const docRef = doc(communitiesCollectionRef);
-                const now = new Date().toISOString();
-                const completeData = {
-                  ...communityData,
-                  createdAt: now,
-                  updatedAt: now,
-                  founderEmail: 'seed@jivanindia.co',
-                };
-                batch.set(docRef, completeData);
-                seededCommunities.push({ id: docRef.id, ...completeData });
-            });
-            await batch.commit();
-            setCommunities(seededCommunities);
-            console.log("Communities collection seeded successfully.");
-        } else {
-            const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
-            setCommunities(communitiesData);
-        }
+        const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+        setCommunities(communitiesData);
     } catch (error) {
-        console.error("Failed to fetch or seed communities from Firestore", error);
+        console.error("Failed to fetch communities from Firestore", error);
         setCommunities([]);
     } finally {
         setIsLoading(false);
+        setCommunitiesLoaded(true);
     }
-  }, []);
+  }, [setCommunitiesLoaded]);
 
   useEffect(() => {
     fetchCommunities();

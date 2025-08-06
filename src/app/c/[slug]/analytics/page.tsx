@@ -5,7 +5,6 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import AnalyticsCard from '@/components/feature/analytics-card';
-import { memberData, eventPerformanceData, topReferrersData } from '@/data/analytics';
 import { Users, CalendarCheck, BarChart2, TrendingUp, TrendingDown, ArrowRight, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useCommunities } from '@/hooks/use-communities';
@@ -14,6 +13,10 @@ import { useEffect, useState } from 'react';
 import type { Community } from '@/hooks/use-communities';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+
+const memberData: any[] = [];
+const eventPerformanceData: any[] = [];
+const topReferrersData: any[] = [];
 
 export default function AnalyticsDashboardPage() {
     const { user } = useAuth();
@@ -81,28 +84,28 @@ export default function AnalyticsDashboardPage() {
                     <AnalyticsCard
                         title="Total Members"
                         value={community?.membersCount.toLocaleString() || 'N/A'}
-                        change="+20.1% from last month"
+                        change="+0% from last month"
                         icon={<Users />}
                         trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
                     <AnalyticsCard
                         title="Active Members"
-                        value="1,250"
-                        change="+15% this week"
+                        value="0"
+                        change="+0% this week"
                         icon={<Users className="text-green-500"/>}
                          trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
                      <AnalyticsCard
                         title="Events This Month"
-                        value="5"
-                        change="-5% from last month"
+                        value="0"
+                        change="+0% from last month"
                         icon={<CalendarCheck />}
-                        trend={<TrendingDown className="h-4 w-4 text-red-500" />}
+                        trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
                     <AnalyticsCard
                         title="Engagement Rate"
-                        value="57.8%"
-                        change="+2.1% from last month"
+                        value="0%"
+                        change="+0% from last month"
                         icon={<BarChart2 />}
                         trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
@@ -116,6 +119,7 @@ export default function AnalyticsDashboardPage() {
                             <CardDescription>New members in the last 6 months.</CardDescription>
                         </CardHeader>
                         <CardContent>
+                           {memberData.length > 0 ? (
                             <div className="h-[300px] w-full">
                                 <ChartContainer config={memberChartConfig}>
                                     <BarChart data={memberData} accessibilityLayer>
@@ -127,6 +131,9 @@ export default function AnalyticsDashboardPage() {
                                     </BarChart>
                                 </ChartContainer>
                             </div>
+                           ) : (
+                            <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">No member data to display.</div>
+                           )}
                         </CardContent>
                     </Card>
                     <Card>
@@ -135,6 +142,7 @@ export default function AnalyticsDashboardPage() {
                             <CardDescription>Registration vs. Attendance for recent events.</CardDescription>
                         </CardHeader>
                          <CardContent>
+                          {eventPerformanceData.length > 0 ? (
                              <div className="h-[300px] w-full">
                                 <ChartContainer config={eventChartConfig}>
                                     <LineChart data={eventPerformanceData} accessibilityLayer>
@@ -154,6 +162,9 @@ export default function AnalyticsDashboardPage() {
                                     </LineChart>
                                 </ChartContainer>
                             </div>
+                            ) : (
+                               <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">No event data to display.</div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -165,6 +176,7 @@ export default function AnalyticsDashboardPage() {
                             <CardDescription>Where your new members are coming from.</CardDescription>
                         </CardHeader>
                         <CardContent>
+                          {topReferrersData.length > 0 ? (
                             <div className="space-y-4">
                                 {topReferrersData.map((referrer) => (
                                     <div key={referrer.source} className="flex items-center">
@@ -177,6 +189,9 @@ export default function AnalyticsDashboardPage() {
                                     </div>
                                 ))}
                             </div>
+                           ) : (
+                              <div className="h-[100px] w-full flex items-center justify-center text-muted-foreground">No referrer data to display.</div>
+                           )}
                         </CardContent>
                     </Card>
                 </div>
@@ -184,4 +199,3 @@ export default function AnalyticsDashboardPage() {
         </div>
     );
 }
-

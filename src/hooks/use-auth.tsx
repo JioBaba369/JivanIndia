@@ -4,10 +4,10 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import { initialAboutContent, type AboutContent } from '@/hooks/use-about'; 
-import { initialCommunities, type Community } from '@/hooks/use-communities';
+import type { AboutContent } from '@/hooks/use-about'; 
+import type { Community } from '@/hooks/use-communities';
 import { useToast } from './use-toast';
 
 export interface User {
@@ -58,8 +58,6 @@ interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
-  initialAboutData: AboutContent | null;
-  initialCommunitiesData: Community[];
   signup: (name: string, email: string, pass: string, country: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -101,89 +99,55 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children, aboutContent, communities, aboutContentLoaded, communitiesLoaded }: { 
+    children: ReactNode, 
+    aboutContent: AboutContent, 
+    communities: Community[],
+    aboutContentLoaded: boolean,
+    communitiesLoaded: boolean 
+}) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [initialAboutData, setInitialAboutData] = useState<AboutContent | null>(null);
-  const [initialCommunitiesData, setInitialCommunitiesData] = useState<Community[]>([]);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchInitialData = useCallback(async () => {
-    try {
-      // Fetch About Content
-      const aboutDocRef = doc(firestore, 'about', 'singleton');
-      const aboutDocSnap = await getDoc(aboutDocRef);
-      let aboutData;
-      if (aboutDocSnap.exists()) {
-        aboutData = aboutDocSnap.data() as AboutContent;
-      } else {
-        await setDoc(aboutDocRef, initialAboutContent);
-        aboutData = initialAboutContent;
-      }
-      setInitialAboutData(aboutData);
-      
-      // Fetch Communities
-      const communitiesCollectionRef = collection(firestore, 'communities');
-      const communitiesSnapshot = await getDocs(communitiesCollectionRef);
-      let communitiesData;
-      if (communitiesSnapshot.empty) {
-        const batch = writeBatch(firestore);
-        initialCommunities.forEach(communityData => {
-            const docRef = doc(communitiesCollectionRef);
-            batch.set(docRef, { ...communityData, founderEmail: 'seed@jivanindia.co', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-        });
-        await batch.commit();
-        const seededSnapshot = await getDocs(communitiesCollectionRef);
-        communitiesData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
-      } else {
-        communitiesData = communitiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
-      }
-      setInitialCommunitiesData(communitiesData);
+  const isLoading = isAuthLoading || !aboutContentLoaded || !communitiesLoaded;
 
-    } catch (error) {
-        console.error("Error fetching initial data:", error);
-    }
-  }, []);
-  
   useEffect(() => {
-    fetchInitialData().then(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-            setFirebaseUser(fbUser);
-            if (fbUser && initialAboutData && initialCommunitiesData) {
-                const userDocRef = doc(firestore, 'users', fbUser.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data() as User;
-                    userData.isAdmin = initialAboutData.adminUids?.includes(fbUser.uid) || false;
-                    setUser(userData);
-                } else {
-                    setUser(null); // User exists in Auth, but not in Firestore. Should not happen in normal flow.
-                }
+    if (!aboutContentLoaded) return;
+
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+        setFirebaseUser(fbUser);
+        if (fbUser) {
+            const userDocRef = doc(firestore, 'users', fbUser.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data() as User;
+                userData.isAdmin = aboutContent.adminUids?.includes(fbUser.uid) || false;
+                setUser(userData);
             } else {
                 setUser(null);
             }
-            setIsLoading(false);
-        });
-
-        return () => unsubscribe();
+        } else {
+            setUser(null);
+        }
+        setIsAuthLoading(false);
     });
-  }, [fetchInitialData, initialAboutData, initialCommunitiesData]);
 
+    return () => unsubscribe();
+  }, [aboutContentLoaded, aboutContent.adminUids]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
     const username = name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
     
-    const adminUids = initialAboutData?.adminUids || [];
-
     const newUser: User = {
       uid: fbUser.uid,
       name,
       username,
       email: fbUser.email!,
-      isAdmin: adminUids.includes(fbUser.uid),
+      isAdmin: aboutContent.adminUids?.includes(fbUser.uid),
       affiliation: null,
       profileImageUrl: '',
       bio: '',
@@ -284,9 +248,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = { 
     user,
     firebaseUser,
-    isLoading,
-    initialAboutData,
-    initialCommunitiesData,
+    isLoading: isAuthLoading,
     signup,
     login, 
     logout, 
