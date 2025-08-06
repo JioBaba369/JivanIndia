@@ -56,7 +56,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
-  setAffiliation: (orgId: string, orgName: string, orgSlug: string) => void;
+  setAffiliation: (orgId: string, orgName: string, orgSlug: string) => Promise<void>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
   
   savedEvents: string[];
@@ -168,10 +168,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const updateUser = async (updatedData: Partial<User>) => {
     if (user) {
-      const updatedUser = { ...user, ...updatedData };
-      setUser(updatedUser);
       const userDocRef = doc(firestore, 'users', user.uid);
       await updateDoc(userDocRef, updatedData);
+      // After updating Firestore, fetch the full document to ensure local state is in sync
+      const updatedDocSnap = await getDoc(userDocRef);
+      if (updatedDocSnap.exists()) {
+          const fullUserData = updatedDocSnap.data() as User;
+          const adminUids = await getAdminUids();
+          fullUserData.isAdmin = adminUids.includes(user.uid);
+          setUser(fullUserData);
+      }
     }
   };
 
