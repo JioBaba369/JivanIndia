@@ -388,3 +388,4 @@ export default function UserPublicProfilePage() {
             </TooltipProvider>
         </div>
     );
+}
