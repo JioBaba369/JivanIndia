@@ -22,7 +22,7 @@ interface ImageCropperProps {
   aspectRatio?: number;
 }
 
-const MAX_WIDTH = 1200;
+const MAX_WIDTH = 1024;
 
 export default function ImageCropper({
   isOpen,
@@ -97,7 +97,7 @@ export default function ImageCropper({
                 resolve(blob);
             },
             'image/jpeg',
-            0.90 // Slightly lower quality for better compression
+            0.85 // Lower quality for better compression
         );
     });
   };
