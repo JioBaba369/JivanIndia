@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef } from 'react';
@@ -12,6 +11,7 @@ import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
+import { useAuth } from '@/hooks/use-auth';
 
 interface ImageUploadProps {
   value?: string;
@@ -41,6 +41,7 @@ export default function ImageUpload({
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth(); // Get user for auth checks
 
   const [uploadState, setUploadState] = useState({
       isUploading: false,
@@ -77,11 +78,13 @@ export default function ImageUpload({
   const handleSave = async (blob: Blob) => {
     setIsCropperOpen(false);
     resetFileInput();
-    setUploadState({ isUploading: true, progress: 0 });
-
-    const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
+    
+    const finalFolderName = folderName === 'profile-pictures' && user ? `${folderName}/${user.uid}` : folderName;
+    const fileName = `${finalFolderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
     const storageRef = ref(storage, fileName);
     
+    setUploadState({ isUploading: true, progress: 0 });
+
     try {
       const uploadTask = uploadBytesResumable(storageRef, blob);
 
@@ -92,6 +95,7 @@ export default function ImageUpload({
             setUploadState(prevState => ({ ...prevState, progress }));
           },
           (error) => {
+            console.error("Firebase upload error:", error);
             reject(error);
           },
           () => {
@@ -102,19 +106,22 @@ export default function ImageUpload({
       
       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
       onChange(downloadURL);
-      setUploadState({ isUploading: false, progress: 0 });
       toast({
         title: 'Image Uploaded!',
         icon: <CheckCircle className="h-5 w-5 text-green-500" />,
       });
-    } catch (error) {
-      setUploadState({ isUploading: false, progress: 0 });
+    } catch (error: any) {
+      let description = "There was an error uploading your image. Please try again.";
+      if (error.code === 'storage/unauthorized') {
+        description = "You don't have permission to upload this file. Please ensure you are logged in.";
+      }
       toast({
         title: "Upload Failed",
-        description: "There was an error uploading your image. Please try again.",
+        description: description,
         variant: "destructive",
       });
-      console.error("Upload error", error);
+    } finally {
+        setUploadState({ isUploading: false, progress: 0 });
     }
   };
   
@@ -165,7 +172,7 @@ export default function ImageUpload({
             <div className="text-center p-4">
                 {icon.component}
                 <span className="text-muted-foreground text-sm">{icon.text}</span>
-                <p className="text-xs text-muted-foreground/80 mt-1">Up to ${IMAGE_MAX_SIZE_MB}MB</p>
+                <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
             </div>
             )}
         </Card>
