@@ -99,7 +99,7 @@ export default function HomePage() {
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
             <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
                 <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">Discover. Connect. Thrive.</h1>
-                <p className="mt-4 max-w-2xl text-lg md:text-xl text-slate-200">JivanIndia.co is your portal to the vibrant Indian community. Find events, deals, and connections near you.</p>
+                <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-200">JivanIndia.co is your portal to the vibrant Indian community. Find events, deals, and connections near you.</p>
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
                     <Button asChild size="lg" >
                         <Link href="/events">Explore Events</Link>
