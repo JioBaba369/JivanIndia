@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -181,37 +181,47 @@ export default function HomePage() {
       
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
-                <h2 className="font-headline text-3xl font-bold">Latest Community Deals</h2>
-                <Button variant="link" asChild>
-                    <Link href="/deals">View All <ArrowRight className="ml-2" /></Link>
-                </Button>
-            </div>
+            <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Deals</h2>
              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {isLoadingDeals ? <DealSkeletons /> : (
                 latestDeals.length > 0 ? (
                   latestDeals.map((deal) => (
                     <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                      <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
-                        <div className="relative h-56 w-full">
-                          <Image
+                      <CardHeader className="p-0">
+                        <div className="relative h-48 w-full">
+                           <Image
                             src={deal.imageUrl}
                             alt={deal.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint="deal photo"
                           />
+                          <Badge className="absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{deal.category}</Badge>
                         </div>
-                        <CardContent className="flex flex-grow flex-col p-6">
-                          <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                          <h3 className="font-headline mt-4 text-xl font-semibold group-hover:text-primary">{deal.title}</h3>
-                          <p className="flex-grow mt-2 text-muted-foreground text-sm">{deal.business}</p>
-                          <Button variant="secondary" className="mt-6 w-full">
-                            <Tag className="mr-2 h-4 w-4" />
-                            View Deal
+                      </CardHeader>
+                      <CardContent className="flex-grow p-4">
+                         <CardTitle className="mb-2 text-xl">
+                            <Link href={`/deals/${deal.id}`} className="hover:text-primary transition-colors">{deal.title}</Link>
+                         </CardTitle>
+                         <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
+                         <div className="mt-4 space-y-2">
+                            <div className="flex items-center text-sm text-muted-foreground">
+                                <Building className="mr-2 h-4 w-4 text-primary"/>
+                                <span>{deal.business}</span>
+                            </div>
+                             <div className="flex items-center text-sm text-muted-foreground">
+                                <Calendar className="mr-2 h-4 w-4 text-primary"/>
+                                <span>Expires {format(new Date(deal.expires), 'MM/dd/yyyy')}</span>
+                            </div>
+                         </div>
+                      </CardContent>
+                       <div className="flex items-center p-4 pt-0">
+                          <Button asChild variant="link" className="p-0 h-auto">
+                            <Link href={`/deals/${deal.id}`}>
+                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
                           </Button>
-                        </CardContent>
-                      </Link>
+                       </div>
                     </Card>
                   ))
               ) : (
@@ -220,6 +230,13 @@ export default function HomePage() {
                   <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or post a deal for your business!</p>
                 </div>
               ))}
+            </div>
+             <div className="text-center mt-12">
+                <Button asChild>
+                    <Link href="/deals">
+                    See All Deals <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
             </div>
         </div>
       </section>
