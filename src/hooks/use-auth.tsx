@@ -115,8 +115,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDocSnap = await getDoc(userDocRef);
         if(userDocSnap.exists()) {
           const userData = userDocSnap.data() as User;
+          
           const adminUids = await getAdminUids();
           userData.isAdmin = adminUids.includes(fbUser.uid);
+
           setUser(userData);
         }
       } else {
@@ -170,20 +172,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const userDocRef = doc(firestore, 'users', user.uid);
       await updateDoc(userDocRef, updatedData);
-      // After updating Firestore, fetch the full document to ensure local state is in sync
-      const updatedDocSnap = await getDoc(userDocRef);
-      if (updatedDocSnap.exists()) {
-          const fullUserData = updatedDocSnap.data() as User;
-          const adminUids = await getAdminUids();
-          fullUserData.isAdmin = adminUids.includes(user.uid);
-          setUser(fullUserData);
-      }
+      
+       setUser(prevUser => {
+        if (!prevUser) return null;
+        
+        // Deep merge for nested affiliation object
+        const newAffiliation = updatedData.affiliation !== undefined 
+          ? { ...(prevUser.affiliation || {}), ...updatedData.affiliation } as User['affiliation']
+          : prevUser.affiliation;
+
+        return {
+            ...prevUser,
+            ...updatedData,
+            affiliation: newAffiliation,
+        };
+      });
     }
   };
 
   const setAffiliation = async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
-      await updateUser({ affiliation: { orgId, orgName, orgSlug } });
+      const affiliation = { orgId, orgName, orgSlug };
+      await updateUser({ affiliation });
     }
   };
 

@@ -31,8 +31,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
+import type { SponsorTier } from '@/hooks/use-sponsors';
 
-const sponsorTiers = ['Platinum', 'Gold', 'Silver'] as const;
+const sponsorTiers: SponsorTier[] = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Supporter'];
 
 const formSchema = z.object({
   name: z.string().min(3, "Sponsor name must be at least 3 characters."),

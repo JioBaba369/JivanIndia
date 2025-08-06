@@ -5,13 +5,15 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
+export type SponsorTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Supporter';
+
 export interface Sponsor {
   id: string;
   name: string;
   logoUrl: string;
   website: string;
   industry: string;
-  tier: 'Platinum' | 'Gold' | 'Silver';
+  tier: SponsorTier;
   description: string;
   fullDescription: string;
   contactEmail: string;

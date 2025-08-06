@@ -69,7 +69,7 @@ interface CommunitiesContextType {
   communities: Community[];
   isLoading: boolean;
   addCommunity: (community: NewCommunityInput, founderEmail: string) => Promise<Community>;
-  updateCommunity: (id: string, data: Partial<Community>) => Promise<void>;
+  updateCommunity: (id: string, data: Partial<Omit<Community, 'id'>>) => Promise<void>;
   deleteCommunity: (id: string) => Promise<void>;
   getCommunityById: (id: string) => Community | undefined;
   getCommunityBySlug: (slug: string) => Community | undefined;
@@ -98,11 +98,14 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
             batch.set(docRef, { ...communityData, founderEmail: 'seed@jivanindia.co', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
         });
         await batch.commit();
-        await fetchCommunities(); // Re-fetch after seeding
-        return;
+        const seededSnapshot = await getDocs(communitiesCollectionRef);
+        const communitiesData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+        setCommunities(communitiesData);
+        console.log("Communities collection seeded successfully.");
+      } else {
+         const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
+         setCommunities(communitiesData);
       }
-      const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
-      setCommunities(communitiesData);
     } catch (error) {
       console.error("Failed to fetch communities from Firestore", error);
     } finally {
@@ -129,7 +132,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     return newCommunity;
   };
 
-  const updateCommunity = async (id: string, data: Partial<Community>) => {
+  const updateCommunity = async (id: string, data: Partial<Omit<Community, 'id'>>) => {
     const communityDocRef = doc(firestore, 'communities', id);
     const updatedData = { ...data, updatedAt: new Date().toISOString() };
     await updateDoc(communityDocRef, updatedData);
