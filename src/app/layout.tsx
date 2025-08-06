@@ -18,6 +18,7 @@ import MobileNav from "@/components/layout/mobile-nav";
 import { JobsProvider } from "@/hooks/use-jobs";
 import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
+import { PostSheet } from "@/components/layout/post-sheet";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -84,6 +85,9 @@ export default function RootLayout({
                           <div className="relative flex min-h-screen flex-col">
                             <Header />
                             <main className="flex-1 pb-20 md:pb-0">{children}</main>
+                             <div className="fixed bottom-6 right-6 z-50 md:hidden">
+                                <PostSheet />
+                             </div>
                             <Footer />
                           </div>
                           <Toaster />
