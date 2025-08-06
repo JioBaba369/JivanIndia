@@ -72,34 +72,34 @@ export default function RootLayout({
           playfairDisplay.variable
         )}
       >
-        <AboutProvider>
-          <CommunitiesProvider>
-            <AuthProvider>
-              <EventsProvider>
-                <BusinessesProvider>
-                  <SponsorsProvider>
-                    <DealsProvider>
-                      <MoviesProvider>
-                        <JobsProvider>
-                          <div className="relative flex min-h-screen flex-col">
-                            <Header />
-                            <main className="flex-1 pb-20 md:pb-0">{children}</main>
-                             <div className="md:hidden fixed bottom-6 right-6 z-50">
-                                <PostSheet />
-                             </div>
-                            <Footer />
-                          </div>
-                          <Toaster />
-                          <CookieConsentBanner />
-                        </JobsProvider>
-                      </MoviesProvider>
-                    </DealsProvider>
-                  </SponsorsProvider>
-                </BusinessesProvider>
-              </EventsProvider>
-            </AuthProvider>
-          </CommunitiesProvider>
-        </AboutProvider>
+        <AuthProvider>
+          <AboutProvider>
+            <CommunitiesProvider>
+                <EventsProvider>
+                  <BusinessesProvider>
+                    <SponsorsProvider>
+                      <DealsProvider>
+                        <MoviesProvider>
+                          <JobsProvider>
+                            <div className="relative flex min-h-screen flex-col">
+                              <Header />
+                              <main className="flex-1 pb-20 md:pb-0">{children}</main>
+                               <div className="md:hidden fixed bottom-6 right-6 z-50">
+                                  <PostSheet />
+                               </div>
+                              <Footer />
+                            </div>
+                            <Toaster />
+                            <CookieConsentBanner />
+                          </JobsProvider>
+                        </MoviesProvider>
+                      </DealsProvider>
+                    </SponsorsProvider>
+                  </BusinessesProvider>
+                </EventsProvider>
+            </CommunitiesProvider>
+          </AboutProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -21,7 +21,7 @@ export interface AboutContent {
   adminUids?: string[];
 }
 
-// Define initial content directly in the hook
+// This initial content is used for seeding the database if it's empty.
 export const initialAboutContent: AboutContent = {
     story: `JivanIndia.co began as a simple conversation among friends, new to a country far from home. We missed the vibrant festivals, the familiar flavors, and the easy camaraderie of our communities back in India. We found ourselves constantly searching—for local temples, for the best place to buy spices, for cultural events that felt like a piece of home.
 
@@ -69,6 +69,7 @@ Today, JivanIndia.co is more than just a website. It's a bustling hub, a digital
 interface AboutContextType {
   aboutContent: AboutContent;
   isLoading: boolean;
+  setAboutContent: (content: AboutContent) => void;
   updateStory: (newStory: string) => Promise<void>;
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
   updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
@@ -80,41 +81,23 @@ const AboutContext = createContext<AboutContextType | undefined>(undefined);
 const ABOUT_DOC_ID = 'singleton';
 
 export function AboutProvider({ children }: { children: ReactNode }) {
-  const [aboutContent, setAboutContent] = useState<AboutContent>(initialAboutContent);
+  const { initialAboutData, isLoading: isAuthLoading, user } = useAuth();
+  const [aboutContent, setAboutContent] = useState<AboutContent>(initialAboutData || initialAboutContent);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth(); // To ensure admin checks are against a loaded user
 
   const aboutDocRef = doc(firestore, 'about', ABOUT_DOC_ID);
 
-  const fetchContent = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const docSnap = await getDoc(aboutDocRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data() as AboutContent;
-        // Ensure adminUids exists, if not, use initial
-        if (!data.adminUids) {
-          data.adminUids = initialAboutContent.adminUids;
-        }
-        setAboutContent(data);
-      } else {
-        // If the document doesn't exist, create it with initial content
-        console.log("About content not found, seeding with initial data...");
-        await setDoc(aboutDocRef, initialAboutContent);
-        setAboutContent(initialAboutContent);
-        console.log("About content seeded successfully.");
-      }
-    } catch (error) {
-      console.error("Failed to fetch about content from Firestore", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [aboutDocRef]);
-
-
   useEffect(() => {
-    fetchContent();
-  }, [fetchContent]);
+    if (initialAboutData) {
+      setAboutContent(initialAboutData);
+      setIsLoading(false);
+    } else if (!isAuthLoading) {
+       // If auth is done loading and there's still no initial data, it might not exist.
+       // The AuthProvider should have handled seeding, so this is a fallback.
+       setAboutContent(initialAboutContent);
+       setIsLoading(false);
+    }
+  }, [initialAboutData, isAuthLoading]);
 
   const updateStory = async (newStory: string) => {
     if (!user?.isAdmin) throw new Error("Unauthorized");
@@ -130,7 +113,8 @@ export function AboutProvider({ children }: { children: ReactNode }) {
       id: new Date().getTime().toString(),
     };
     const updatedMembers = [...aboutContent.teamMembers, newMember];
-    setAboutContent({ ...aboutContent, teamMembers: updatedMembers });
+    const newContent = { ...aboutContent, teamMembers: updatedMembers }
+    setAboutContent(newContent);
     await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
   };
 
@@ -155,6 +139,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const value = {
     aboutContent,
     isLoading,
+    setAboutContent,
     updateStory,
     addTeamMember,
     updateTeamMember,
@@ -175,5 +160,3 @@ export function useAbout() {
   }
   return context;
 }
-
-    

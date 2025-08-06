@@ -2,10 +2,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from '@/hooks/use-auth';
 import type { User } from '@/hooks/use-auth';
+import { useAuth } from './use-auth';
 
 export interface Community {
   id: string;
@@ -83,38 +83,14 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoading: isAuthLoading, initialCommunitiesData } = useAuth();
 
-  const fetchCommunities = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const querySnapshot = await getDocs(communitiesCollectionRef);
-       if (querySnapshot.empty) {
-        console.log("Communities collection is empty, seeding data...");
-        const batch = writeBatch(firestore);
-        initialCommunities.forEach(communityData => {
-            const docRef = doc(communitiesCollectionRef);
-            batch.set(docRef, { ...communityData, founderEmail: 'seed@jivanindia.co', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-        });
-        await batch.commit();
-        const seededSnapshot = await getDocs(communitiesCollectionRef);
-        const communitiesData = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
-        setCommunities(communitiesData);
-        console.log("Communities collection seeded successfully.");
-      } else {
-         const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
-         setCommunities(communitiesData);
-      }
-    } catch (error) {
-      console.error("Failed to fetch communities from Firestore", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    fetchCommunities();
-  }, [fetchCommunities]);
+    if (initialCommunitiesData) {
+      setCommunities(initialCommunitiesData);
+    }
+  }, [initialCommunitiesData]);
 
   const addCommunity = async (communityData: NewCommunityInput, user: User): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
@@ -170,7 +146,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
   const contextValue = {
     communities,
-    isLoading,
+    isLoading: isAuthLoading, // Communities are now loaded via AuthProvider
     addCommunity,
     updateCommunity,
     deleteCommunity,
