@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight, Users, Building, Film, Briefcase } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -72,6 +72,15 @@ export default function HomePage() {
     ))
   );
 
+  const categoryLinks = [
+    { href: '/events', icon: Calendar, label: 'Events' },
+    { href: '/deals', icon: Tag, label: 'Deals' },
+    { href: '/communities', icon: Users, label: 'Communities' },
+    { href: '/directory', icon: Building, label: 'Businesses' },
+    { href: '/movies', icon: Film, label: 'Movies' },
+    { href: '/careers', icon: Briefcase, label: 'Careers' },
+  ];
+
 
   return (
     <div className="flex flex-col bg-background">
@@ -102,6 +111,22 @@ export default function HomePage() {
             </div>
         </div>
       </section>
+
+       <section className="py-16 md:py-24 bg-background">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
+            {categoryLinks.map(({ href, icon: Icon, label }) => (
+              <Link key={href} href={href} className="group">
+                <Card className="p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:-translate-y-2">
+                  <Icon className="h-10 w-10 mb-2 text-primary group-hover:text-accent-foreground" />
+                  <h3 className="font-semibold">{label}</h3>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
       <section className="bg-muted/40 py-16 md:py-24">
         <div className="container mx-auto px-4">
