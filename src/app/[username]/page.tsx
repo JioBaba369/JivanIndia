@@ -127,7 +127,7 @@ export default function UserPublicProfilePage() {
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <Image src="https://placehold.co/32x32.png" alt="Current country flag colors" width={32} height={32} className="object-cover" data-ai-hint="country flag abstract" />
+                                                <Image src="https://images.unsplash.com/photo-1542037104-924825a12745?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnbG9iZSUyMGVhcnRofGVufDB8fHx8MTc1NDQ2NTM1MXww&ixlib=rb-4.1.0&q=80&w=1080" alt="Globe" width={32} height={32} className="object-cover" data-ai-hint="globe world" />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -139,7 +139,7 @@ export default function UserPublicProfilePage() {
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <Image src="https://placehold.co/32x32.png" alt="Indian flag colors" width={32} height={32} className="object-cover" data-ai-hint="India flag abstract" />
+                                                <Image src="https://images.unsplash.com/photo-1562000823-746a5a04553c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYSUyMGZsYWd8ZW58MHx8fHwxNzU0NDY1NDg1fDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Indian flag" width={32} height={32} className="object-cover" data-ai-hint="India flag" />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
