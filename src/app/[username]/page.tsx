@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { useProviders } from '@/hooks/use-providers';
 import { useSponsors } from '@/hooks/use-sponsors';
-import { useCommunities } from '@/hooks/use-communities';
+import { useCommunities, type Community } from '@/hooks/use-communities';
 import { type User } from '@/hooks/use-auth';
 import { useDeals } from '@/hooks/use-deals';
 import { getInitials, formatUrl } from '@/lib/utils';
@@ -41,23 +41,33 @@ export default function UserPublicProfilePage() {
     const { communities: allCommunities, getCommunityById } = useCommunities();
     const { deals: allDeals } = useDeals();
 
-
     const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
+    const [affiliatedCommunity, setAffiliatedCommunity] = useState<Community | null>(null);
+    const [pageUrl, setPageUrl] = useState('');
 
     useEffect(() => {
-        if (username) {
-            getUserByUsername(username).then(foundUser => {
+        const fetchData = async () => {
+            if (username) {
+                const foundUser = await getUserByUsername(username);
                 setProfileUser(foundUser || null);
-            });
+
+                if (foundUser?.affiliation?.orgId) {
+                    const community = getCommunityById(foundUser.affiliation.orgId);
+                    setAffiliatedCommunity(community || null);
+                }
+            }
+        };
+
+        fetchData();
+        if (typeof window !== 'undefined') {
+            setPageUrl(window.location.href);
         }
-    }, [username, getUserByUsername]);
+    }, [username, getUserByUsername, getCommunityById]);
 
     const userSavedEvents = useMemo(() => allEvents.filter(event => profileUser?.savedEvents?.includes(String(event.id))), [allEvents, profileUser]);
     const userJoinedCommunities = useMemo(() => allCommunities.filter(org => profileUser?.joinedCommunities?.includes(org.id)), [allCommunities, profileUser]);
     const userSavedDeals = useMemo(() => allDeals.filter(deal => profileUser?.savedDeals?.includes(deal.id)), [allDeals, profileUser]);
-    
-    const affiliatedCommunity = useMemo(() => profileUser?.affiliation ? getCommunityById(profileUser.affiliation.orgId) : null, [profileUser, getCommunityById]);
-
+        
     const userAffiliatedEvents = useMemo(() => affiliatedCommunity
         ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
         : [], [allEvents, affiliatedCommunity]);
@@ -71,17 +81,13 @@ export default function UserPublicProfilePage() {
         : [], [sponsors, allEvents, affiliatedCommunity]);
         
     const copyToClipboard = () => {
-        if(typeof window !== 'undefined'){
-            navigator.clipboard.writeText(window.location.href);
-            toast({
-                title: "Link Copied!",
-                description: "Profile URL copied to clipboard.",
-            });
-        }
+        navigator.clipboard.writeText(pageUrl);
+        toast({
+            title: "Link Copied!",
+            description: "Profile URL copied to clipboard.",
+        });
     };
     
-    const pageUrl = (typeof window !== 'undefined') ? window.location.href : '';
-
     if (profileUser === undefined) {
       return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
@@ -134,7 +140,14 @@ export default function UserPublicProfilePage() {
                                     <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <CountryFlag countryName={profileUser.currentLocation.country} />
+                                                <Image
+                                                    src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnbG9iZXxlbnwwfHx8fDE3NTQ0NjQ2NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                                                    alt="Globe representing current country"
+                                                    width={32}
+                                                    height={32}
+                                                    className="object-cover h-full w-full"
+                                                    data-ai-hint="globe"
+                                                    />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -146,7 +159,14 @@ export default function UserPublicProfilePage() {
                                      <Tooltip>
                                         <TooltipTrigger>
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden">
-                                                <CountryFlag countryName="India" />
+                                                <Image
+                                                    src="https://images.unsplash.com/photo-1526489376599-b34b5aeab368?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmbGFnfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
+                                                    alt="Indian flag representing origin"
+                                                    width={32}
+                                                    height={32}
+                                                    className="object-cover h-full w-full"
+                                                    data-ai-hint="India flag"
+                                                />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -380,3 +400,5 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
+
+    
