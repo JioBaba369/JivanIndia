@@ -12,7 +12,7 @@ import { CommunitiesProvider } from "@/hooks/use-communities";
 import { AboutProvider } from "@/hooks/use-about";
 import "@/lib/firebase"; // Import to initialize services
 import CookieConsentBanner from "@/components/cookie-consent-banner";
-import { ProvidersProvider } from "@/hooks/use-providers";
+import { BusinessesProvider } from "@/hooks/use-businesses";
 import { SponsorsProvider } from "@/hooks/use-sponsors";
 import MobileNav from "@/components/layout/mobile-nav";
 import { JobsProvider } from "@/hooks/use-jobs";
@@ -76,7 +76,7 @@ export default function RootLayout({
           <AboutProvider>
             <CommunitiesProvider>
               <EventsProvider>
-                <ProvidersProvider>
+                <BusinessesProvider>
                   <SponsorsProvider>
                     <DealsProvider>
                       <MoviesProvider>
@@ -93,7 +93,7 @@ export default function RootLayout({
                       </MoviesProvider>
                     </DealsProvider>
                   </SponsorsProvider>
-                </ProvidersProvider>
+                </BusinessesProvider>
               </EventsProvider>
             </CommunitiesProvider>
           </AboutProvider>

@@ -76,7 +76,7 @@ export default function HomePage() {
     { href: '/events', icon: Calendar, label: 'Events' },
     { href: '/deals', icon: Tag, label: 'Deals' },
     { href: '/communities', icon: Users, label: 'Communities' },
-    { href: '/directory', icon: Building, label: 'Businesses' },
+    { href: '/businesses', icon: Building, label: 'Businesses' },
     { href: '/movies', icon: Film, label: 'Movies' },
     { href: '/careers', icon: Briefcase, label: 'Careers' },
   ];

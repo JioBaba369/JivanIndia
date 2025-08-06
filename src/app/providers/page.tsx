@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from "react";
@@ -8,7 +7,7 @@ export default function ProvidersRedirectPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/directory');
+        router.replace('/businesses');
     }, [router]);
 
     return (

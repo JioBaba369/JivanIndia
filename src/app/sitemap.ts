@@ -7,7 +7,7 @@ import { type Event } from '@/hooks/use-events';
 import { type User } from '@/hooks/use-auth';
 import { type Deal } from '@/hooks/use-deals';
 import { type Movie } from '@/hooks/use-movies';
-import { type Provider } from '@/hooks/use-providers';
+import { type Business } from '@/hooks/use-businesses';
 import { type Sponsor } from '@/hooks/use-sponsors';
 
 const BASE_URL = 'https://jivanindia.co';
@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/movies', 
     '/deals', 
     '/careers', 
-    '/directory', 
+    '/businesses', 
     '/sponsors',
     '/about', 
     '/contact', 
@@ -88,9 +88,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly' as 'weekly',
   }));
   
-  const providers = await fetchCollection<Provider>('providers');
-  const providerRoutes = providers.map(provider => ({
-    url: `${BASE_URL}/directory/${provider.id}`,
+  const businesses = await fetchCollection<Business>('businesses');
+  const businessRoutes = businesses.map(business => ({
+    url: `${BASE_URL}/businesses/${business.id}`,
     lastModified: new Date().toISOString(), // No timestamp on this data
     changeFrequency: 'monthly' as 'monthly',
   }));
@@ -109,7 +109,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...userRoutes,
     ...dealRoutes,
     ...movieRoutes,
-    ...providerRoutes,
+    ...businessRoutes,
     ...sponsorRoutes
   ];
 }
