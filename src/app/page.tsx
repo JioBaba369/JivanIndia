@@ -76,16 +76,27 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       <section className="relative bg-background py-24 md:py-32">
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
+            alt="A vibrant Indian festival with a large, joyful crowd"
+            fill
+            className="object-cover opacity-10"
+            priority
+            data-ai-hint="festival crowd"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        </div>
         <div className="container relative mx-auto px-4 text-center">
-          <h1 className="font-headline text-5xl font-bold md:text-7xl text-foreground">
+          <h1 className="font-headline text-5xl font-bold md:text-7xl text-foreground text-shadow">
             The Heart of the Indian Community
           </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-foreground/80">
+          <p className="mx-auto mt-6 max-w-3xl text-lg text-foreground/80 text-shadow">
             Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.
           </p>
           <div className="mt-10 max-w-2xl mx-auto">
             <form onSubmit={handleSearch}>
-              <div className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_auto_auto] p-2 rounded-lg bg-card/60 backdrop-blur-sm border">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_auto_auto] p-2 rounded-lg bg-card/80 backdrop-blur-sm border shadow-lg">
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -115,9 +126,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="space-y-16 md:space-y-24">
-          <div>
+      <section className="bg-muted/40 py-16 md:py-24">
+        <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
                 <h2 className="font-headline text-3xl font-bold">Upcoming Events</h2>
                 <Button variant="link" asChild>
@@ -128,7 +138,7 @@ export default function HomePage() {
               {isLoadingEvents ? <EventSkeletons /> : (
                 latestEvents.length > 0 ? (
                     latestEvents.map((event) => (
-                      <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl">
+                      <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
                         <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                           <div className="relative h-56 w-full">
                             <Image
@@ -157,16 +167,18 @@ export default function HomePage() {
                       </Card>
                     ))
                 ) : (
-                    <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center col-span-full">
+                    <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full">
                       <h3 className="font-headline text-xl font-semibold">No Events Yet</h3>
                       <p className="text-muted-foreground mt-2">No upcoming events right now. Check back soon or be the first to post one!</p>
                     </div>
                 )
               )}
             </div>
-          </div>
-          
-          <div>
+        </div>
+      </section>
+      
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
                 <h2 className="font-headline text-3xl font-bold">Latest Community Deals</h2>
                 <Button variant="link" asChild>
@@ -177,7 +189,7 @@ export default function HomePage() {
               {isLoadingDeals ? <DealSkeletons /> : (
                 latestDeals.length > 0 ? (
                   latestDeals.map((deal) => (
-                    <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl">
+                    <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
                       <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                         <div className="relative h-56 w-full">
                           <Image
@@ -201,13 +213,12 @@ export default function HomePage() {
                     </Card>
                   ))
               ) : (
-                <div className="rounded-lg border-2 border-dashed border-muted py-12 text-center col-span-full">
+                <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full">
                   <h3 className="font-headline text-xl font-semibold">No Deals Available</h3>
                   <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or post a deal for your business!</p>
                 </div>
               ))}
             </div>
-          </div>
         </div>
       </section>
     </div>
