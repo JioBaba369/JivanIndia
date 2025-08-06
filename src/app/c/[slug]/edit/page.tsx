@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -39,11 +40,15 @@ const DESC_MAX_LENGTH = 160;
 const FULL_DESC_MAX_LENGTH = 2000;
 const SLUG_MAX_LENGTH = 50;
 
-const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean, currentId?: string) => z.object({
+const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean) => z.object({
+  id: z.string(),
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
   slug: z.string().min(3, "URL must be at least 3 characters.").max(SLUG_MAX_LENGTH)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces.")
-    .refine((slug) => isSlugUnique(slug, currentId), {
+    .refine((slug, ctx) => {
+        const { id } = ctx.parent;
+        return isSlugUnique(slug, id)
+    }, {
       message: "This URL is already taken.",
     }),
   type: z.enum(['Cultural & Arts', 'Business & Commerce', 'Social & Non-Profit', 'Educational', 'Religious', 'Other']),
@@ -91,7 +96,7 @@ export default function EditCommunityPage() {
   }, [isSlugUnique]);
 
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(memoizedIsSlugUnique, community?.id)),
+    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
     mode: 'onChange',
   });
 
@@ -101,6 +106,7 @@ export default function EditCommunityPage() {
       if (foundCommunity) {
           setCommunity(foundCommunity);
           form.reset({
+              id: foundCommunity.id,
               name: foundCommunity.name || '',
               slug: foundCommunity.slug || '',
               type: foundCommunity.type || 'Other',
