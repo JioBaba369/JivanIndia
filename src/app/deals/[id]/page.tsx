@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,13 @@ export default function DealDetailPage() {
   const id = typeof params.id === 'string' ? params.id : '';
   const { getDealById, isLoading: isLoadingDeals } = useDeals();
   const deal = getDealById(id);
-  const { getCommunityBySlug, isLoading: isLoadingCommunities } = useCommunities();
+  const { getCommunityById, isLoading: isLoadingCommunities } = useCommunities();
   
   const { toast } = useToast();
   const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
   const router = useRouter();
 
-  const businessCommunity = getCommunityBySlug(deal?.businessId || '');
+  const businessCommunity = getCommunityById(deal?.businessId || '');
 
   const postedAt = useMemo(() => {
     if (!deal?.postedAt) return 'a while ago';

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -14,7 +15,7 @@ export interface Deal {
   imageUrl: string;
   expires: string; 
   business: string;
-  businessId: string; // This should be the community ID (slug or actual ID)
+  businessId: string; // This should be the community ID
   businessLocation: string;
   businessWebsite: string;
   postedAt: string; 
