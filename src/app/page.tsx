@@ -75,54 +75,31 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col bg-background">
-      <section className="relative bg-background py-24 md:py-32">
+      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           <Image 
             src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
             alt="A vibrant Indian festival with a large, joyful crowd"
             fill
-            className="object-cover opacity-10"
+            className="object-cover"
             priority
             data-ai-hint="festival crowd"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-        <div className="container relative mx-auto px-4 text-center">
-          <h1 className="font-headline text-5xl font-bold md:text-7xl text-foreground text-shadow">
-            The Heart of the Indian Community
-          </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-foreground/80 text-shadow">
-            Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.
-          </p>
-          <div className="mt-10 max-w-2xl mx-auto">
-            <form onSubmit={handleSearch}>
-              <div className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_auto_auto] p-2 rounded-lg bg-card/80 backdrop-blur-sm border shadow-lg">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                      placeholder="Search for events, deals, and more..."
-                      className="h-12 rounded-md border-0 bg-transparent pl-12 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
+            <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+                <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">Discover. Connect. Thrive.</h1>
+                <p className="mt-4 max-w-2xl text-lg md:text-xl text-slate-200">JivanIndia.co is your portal to the vibrant Indian community. Find events, deals, and connections near you.</p>
+                <div className="mt-8 flex flex-wrap justify-center gap-4">
+                    <Button asChild size="lg" >
+                        <Link href="/events">Explore Events</Link>
+                    </Button>
+                    <Button asChild size="lg" variant="secondary">
+                        <Link href="/communities">Join a Community</Link>
+                    </Button>
                 </div>
-                <Select value={searchCategory} onValueChange={setSearchCategory}>
-                  <SelectTrigger className="h-12 rounded-md border-0 text-base focus:ring-0 focus:ring-offset-0 bg-transparent">
-                      <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="events">Events</SelectItem>
-                      <SelectItem value="communities">Communities</SelectItem>
-                      <SelectItem value="deals">Deals</SelectItem>
-                      <SelectItem value="movies">Movies</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button type="submit" size="lg" className="h-12 w-full text-base">
-                    Search
-                </Button>
-              </div>
-            </form>
-          </div>
+            </div>
         </div>
       </section>
 
