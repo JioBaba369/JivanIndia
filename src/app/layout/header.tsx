@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,6 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getInitials } from "@/lib/utils";
@@ -23,6 +24,7 @@ import { getInitials } from "@/lib/utils";
 const navLinks = [
   { href: "/events", label: "What's On" },
   { href: "/communities", label: "Communities" },
+  { href: "/directory", label: "Directory" },
   { href: "/movies", label: "Movies" },
   { href: "/deals", label: "Deals" },
   { href: "/careers", label: "Careers" },
@@ -68,19 +70,33 @@ const UserActions = () => {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-           <DropdownMenuItem asChild>
-              <Link href="/dashboard">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
+          <DropdownMenuGroup>
+             <DropdownMenuItem asChild>
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
+              </DropdownMenuItem>
+             {user.username && <DropdownMenuItem asChild>
+              <Link href={`/${user.username}`}>
+                <User className="mr-2 h-4 w-4" />
+                <span>Public Profile</span>
               </Link>
-            </DropdownMenuItem>
-           {user.username && <DropdownMenuItem asChild>
-            <Link href={`/${user.username}`}>
-              <User className="mr-2 h-4 w-4" />
-              <span>Public Profile</span>
-            </Link>
-          </DropdownMenuItem>}
-          {user.isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+            </DropdownMenuItem>}
+             <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <Heart className="mr-2 h-4 w-4" />
+                  <span>Saved Items</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>My Communities</span>
+                </Link>
+              </DropdownMenuItem>
+            {user.isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => logout()}>
              <LogOut className="mr-2 h-4 w-4" />
