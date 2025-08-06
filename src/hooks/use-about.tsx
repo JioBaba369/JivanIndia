@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
@@ -45,7 +45,6 @@ export function AboutProvider({ children }: { children: ReactNode }) {
         if (aboutDocSnap.exists()) {
         setAboutContent(aboutDocSnap.data() as AboutContent);
         } else {
-        // In a real app, you might initialize this document
         setAboutContent({ story: 'Our story has not been written yet.', teamMembers: [] });
         }
     } catch (error) {

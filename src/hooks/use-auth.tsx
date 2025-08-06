@@ -89,38 +89,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const performInitialLoad = async () => {
-        setIsLoading(true);
-        try {
-            const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-                setFirebaseUser(fbUser);
-                if (fbUser) {
-                    const userDocRef = doc(firestore, 'users', fbUser.uid);
-                    const userDocSnap = await getDoc(userDocRef);
-                    const aboutSnap = await getDoc(doc(firestore, 'about', 'singleton'));
-                    const aboutContent = aboutSnap.data();
+    setIsLoading(true);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setFirebaseUser(fbUser);
+      if (fbUser) {
+        const userDocRef = doc(firestore, 'users', fbUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        const aboutSnap = await getDoc(doc(firestore, 'about', 'singleton'));
+        const aboutContent = aboutSnap.data();
 
-                    if (userDocSnap.exists()) {
-                        const userData = userDocSnap.data() as User;
-                        userData.isAdmin = aboutContent?.adminUids?.includes(fbUser.uid) || false;
-                        setUser(userData);
-                    } else {
-                        setUser(null);
-                    }
-                } else {
-                    setUser(null);
-                }
-                setIsLoading(false);
-            });
-
-            return () => unsubscribe();
-        } catch (error) {
-            console.error("Error during initial data load or auth setup:", error);
-            setIsLoading(false);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data() as User;
+          userData.isAdmin = aboutContent?.adminUids?.includes(fbUser.uid) || false;
+          setUser(userData);
+        } else {
+          setUser(null);
         }
-    };
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
 
-    performInitialLoad();
+    return () => unsubscribe();
   }, []);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {

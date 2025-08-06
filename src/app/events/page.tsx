@@ -101,7 +101,7 @@ export default function EventsPage() {
         {filteredEvents.length > 0 ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {filteredEvents.map((event) => {
-              const formattedDate = format(new Date(event.startDateTime), 'MMMM d, yyyy');
+              const formattedDate = format(new Date(event.startDateTime), 'PPp');
               return (
                  <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
                     <CardContent className="p-0">
