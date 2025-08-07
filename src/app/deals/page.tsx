@@ -103,7 +103,16 @@ export default function DealsPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        {filteredDeals.length > 0 ? (
+        {deals.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed py-16 text-center">
+              <Tag className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="font-headline text-xl font-semibold mt-4">No Deals Available</h3>
+              <p className="text-muted-foreground mt-2">There are currently no deals. Be the first to post one and support local businesses!</p>
+              <Button asChild className="mt-4">
+                  <Link href="/deals/new">Post a Deal</Link>
+              </Button>
+          </div>
+        ) : filteredDeals.length > 0 ? (
           <div className={cn(
             "gap-8",
             view === 'grid' 

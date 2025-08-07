@@ -85,7 +85,16 @@ export default function CareersPage() {
             </div>
         </div>
         <div className="space-y-8 mt-8">
-          {filteredJobs.length > 0 ? filteredJobs.map((job) => (
+          {jobs.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="font-headline text-xl font-semibold mt-4">No Job Openings</h3>
+                <p className="text-muted-foreground mt-2">There are currently no jobs posted. Check back soon for new opportunities!</p>
+                <Button asChild className="mt-4">
+                    <Link href="/careers/new">Post a Job</Link>
+                </Button>
+            </div>
+          ) : filteredJobs.length > 0 ? filteredJobs.map((job) => (
             <Card key={job.id} className="transition-shadow hover:shadow-lg">
                 <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row justify-between items-start">

@@ -88,7 +88,13 @@ export default function MoviesPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-       {filteredMovies.length > 0 ? (
+       {movies.length === 0 ? (
+        <div className="rounded-lg border-2 border-dashed py-16 text-center">
+          <Film className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="font-headline text-xl font-semibold mt-4">No Movies Listed</h3>
+          <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
+        </div>
+       ) : filteredMovies.length > 0 ? (
           <div className={cn(
             "gap-x-6 gap-y-10",
             view === 'grid' 

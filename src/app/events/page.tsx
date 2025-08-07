@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, PlusCircle, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, PlusCircle, ArrowRight, Megaphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -32,12 +32,11 @@ export default function EventsPage() {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
 
-  const eventCategories = ['all', ...Array.from(new Set(events.filter(e => e.status === 'Approved').map(event => event.eventType)))];
+  const approvedEvents = useMemo(() => events.filter(e => e.status === 'Approved'), [events]);
+  const eventCategories = ['all', ...Array.from(new Set(approvedEvents.map(event => event.eventType)))];
 
   const filteredEvents = useMemo(() => {
-    return events.filter(event => {
-      if (event.status !== 'Approved') return false;
-
+    return approvedEvents.filter(event => {
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,7 +50,7 @@ export default function EventsPage() {
 
       return matchesSearch && matchesLocation && matchesCategory;
     });
-  }, [events, searchQuery, locationQuery, category]);
+  }, [approvedEvents, searchQuery, locationQuery, category]);
 
   return (
     <div className="container mx-auto py-12">
@@ -98,7 +97,16 @@ export default function EventsPage() {
             </div>
         </Card>
         
-        {filteredEvents.length > 0 ? (
+        {approvedEvents.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                <Megaphone className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="font-headline text-xl font-semibold mt-4">No Events Yet</h3>
+                <p className="text-muted-foreground mt-2">No upcoming events have been posted. Be the first to share one!</p>
+                <Button asChild className="mt-4">
+                    <Link href="/events/new">Post an Event</Link>
+                </Button>
+            </div>
+        ) : filteredEvents.length > 0 ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {filteredEvents.map((event) => {
               const formattedDate = format(new Date(event.startDateTime), 'PPp');

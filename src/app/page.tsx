@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight, Users, Building, Film, Briefcase, Heart, Handshake } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight, Users, Building, Film, Briefcase, Heart, Handshake, Megaphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -185,8 +185,14 @@ export default function HomePage() {
                     ))
                 ) : (
                     <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full">
-                      <h3 className="font-headline text-xl font-semibold">No Events Yet</h3>
-                      <p className="text-muted-foreground mt-2">No upcoming events right now. Check back soon or be the first to post one!</p>
+                        <div className="flex justify-center mb-4">
+                            <Megaphone className="h-12 w-12 text-muted-foreground" />
+                        </div>
+                        <h3 className="font-headline text-xl font-semibold">Your Community's Stage is Empty</h3>
+                        <p className="text-muted-foreground mt-2">Be the first to share an event and bring everyone together.</p>
+                        <Button asChild className="mt-4">
+                            <Link href="/events/new">Post an Event</Link>
+                        </Button>
                     </div>
                 )
               )}
@@ -241,8 +247,14 @@ export default function HomePage() {
                   ))
               ) : (
                 <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full">
-                  <h3 className="font-headline text-xl font-semibold">No Active Deals</h3>
-                  <p className="text-muted-foreground mt-2">No active deals right now. Check back soon or create one!</p>
+                    <div className="flex justify-center mb-4">
+                        <Tag className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                    <h3 className="font-headline text-xl font-semibold">Unlock Community Savings</h3>
+                    <p className="text-muted-foreground mt-2">No deals are available right now. Be the first to post one!</p>
+                     <Button asChild className="mt-4">
+                        <Link href="/deals/new">Post a Deal</Link>
+                    </Button>
                 </div>
               ))}
             </div>

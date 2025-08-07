@@ -117,7 +117,7 @@ export default function CommunitiesPage() {
         </div>
       </section>
 
-      {featuredCommunities && featuredCommunities.length > 0 && (
+      {communities.length > 0 && featuredCommunities.length > 0 && (
         <section className="container mx-auto px-4 py-16">
           <h2 className="font-headline mb-8 text-3xl font-bold text-center">Featured Communities</h2>
           <Carousel
@@ -217,7 +217,16 @@ export default function CommunitiesPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        {filteredCommunities.length > 0 ? (
+        {communities.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="font-headline text-xl font-semibold mt-4">No Communities Yet</h3>
+                <p className="text-muted-foreground mt-2">This is where communities will appear. Be the first to register one!</p>
+                <Button asChild className="mt-4">
+                    <Link href="/communities/new">Register Your Community</Link>
+                </Button>
+            </div>
+        ) : filteredCommunities.length > 0 ? (
            <div className={cn(
              "gap-8",
              view === 'grid' 
