@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useAbout } from '@/hooks/use-about';
 import { Loader2 } from 'lucide-react';
@@ -11,17 +10,8 @@ import { PostSheet } from '@/components/layout/post-sheet';
 import CookieConsentBanner from '@/components/cookie-consent-banner';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, isLoading: isAuthLoading, setUser } = useAuth();
-  const { aboutContent, isLoading: isAboutLoading } = useAbout();
-
-  useEffect(() => {
-    if (user && aboutContent.adminUids.length > 0) {
-      const isAdmin = aboutContent.adminUids.includes(user.uid);
-      if (user.isAdmin !== isAdmin) {
-        setUser({ ...user, isAdmin });
-      }
-    }
-  }, [user, aboutContent.adminUids, setUser]);
+  const { isLoading: isAuthLoading } = useAuth();
+  const { isLoading: isAboutLoading } = useAbout();
 
   if (isAuthLoading || isAboutLoading) {
     return (

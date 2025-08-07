@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import AppShell from "@/components/layout/app-shell";
 import Providers from "@/components/layout/providers";
 
 const ptSans = PT_Sans({
@@ -39,9 +38,7 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <AppShell>
-            {children}
-          </AppShell>
+          {children}
         </Providers>
       </body>
     </html>

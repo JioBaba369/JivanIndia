@@ -23,6 +23,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { getInitials } from '@/lib/utils';
+import { firestore } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 
 const TeamMemberDialog = ({
@@ -134,13 +136,31 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => void }) => {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { user, users, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const { events, updateEventStatus } = useEvents();
   const { communities, verifyCommunity } = useCommunities();
   const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin } = useAbout();
   const { toast } = useToast();
 
+  const [users, setUsers] = useState<User[]>([]);
   const [story, setStory] = useState('');
+
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      try {
+        const usersCollectionRef = collection(firestore, 'users');
+        const usersSnapshot = await getDocs(usersCollectionRef);
+        setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User)));
+      } catch (error) {
+        console.error("Failed to fetch users", error);
+        toast({ title: 'Error', description: 'Could not fetch user list.', variant: 'destructive' });
+      }
+    };
+
+    if (user?.isAdmin) {
+      fetchAllUsers();
+    }
+  }, [user?.isAdmin, toast]);
 
   useEffect(() => {
     if (!isLoading && !user?.isAdmin) {
@@ -189,7 +209,7 @@ export default function AdminDashboardPage() {
   }
 
   const handleAddAdmin = async (email: string) => {
-    await addAdmin(email);
+    await addAdmin(email, users);
   }
 
   const handleRemoveAdmin = async (uid: string) => {

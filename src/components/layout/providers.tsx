@@ -9,6 +9,7 @@ import { SponsorsProvider } from "@/hooks/use-sponsors";
 import { JobsProvider } from "@/hooks/use-jobs";
 import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
+import AppShell from "./app-shell";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -21,7 +22,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                                 <DealsProvider>
                                     <MoviesProvider>
                                         <JobsProvider>
-                                            {children}
+                                            <AppShell>
+                                                {children}
+                                            </AppShell>
                                         </JobsProvider>
                                     </MoviesProvider>
                                 </DealsProvider>

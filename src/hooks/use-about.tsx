@@ -2,10 +2,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
-import { useAuth } from './use-auth';
+import { useAuth, type User } from './use-auth';
 
 export interface TeamMember {
   id: string;
@@ -28,7 +28,7 @@ interface AboutContextType {
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
   updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
   deleteTeamMember: (memberId: string) => Promise<void>;
-  addAdmin: (email: string) => Promise<void>;
+  addAdmin: (email: string, allUsers: User[]) => Promise<void>;
   removeAdmin: (uid: string) => Promise<void>;
 }
 
@@ -42,12 +42,10 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
   
   const aboutDocRef = doc(firestore, 'about', 'singleton');
 
   const fetchAboutContent = useCallback(async () => {
-    if (isAuthLoading) return;
     setIsLoading(true);
     try {
         const aboutDocSnap = await getDoc(aboutDocRef);
@@ -60,7 +58,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, [aboutDocRef, isAuthLoading]);
+  }, [aboutDocRef]);
 
   useEffect(() => {
     fetchAboutContent();
@@ -121,23 +119,22 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addAdmin = async (email: string) => {
-    const usersRef = collection(firestore, 'users');
-    const q = query(usersRef, where("email", "==", email));
-    try {
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        toast({ title: 'User Not Found', description: `No user found with the email: ${email}`, variant: 'destructive' });
+  const addAdmin = async (email: string, allUsers: User[]) => {
+    const userToAdd = allUsers.find(u => u.email === email);
+    
+    if (!userToAdd) {
+      toast({ title: 'User Not Found', description: `No user found with the email: ${email}`, variant: 'destructive' });
+      return;
+    }
+    
+    const userId = userToAdd.uid;
+
+    if (aboutContent.adminUids.includes(userId)) {
+        toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
         return;
-      }
-      const userDoc = querySnapshot.docs[0];
-      const userId = userDoc.id;
+    }
 
-      if (aboutContent.adminUids.includes(userId)) {
-          toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
-          return;
-      }
-
+    try {
       await updateDoc(aboutDocRef, { adminUids: arrayUnion(userId) });
       setAboutContent(prev => ({ ...prev, adminUids: [...prev.adminUids, userId] }));
       toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });

@@ -72,7 +72,7 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     const newBusinessForDb = {
       ...businessData,
       isVerified: true, // Admin-added businesses are auto-verified
-      rating: 0,
+      rating: 4.5, // Placeholder
       reviewCount: 0,
     };
     const docRef = await addDoc(businessesCollectionRef, newBusinessForDb);

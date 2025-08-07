@@ -49,10 +49,8 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  users: User[];
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
-  setUser: (user: User | null) => void;
   signup: (name: string, email: string, pass: string, country: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -86,24 +84,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  
-  const fetchAllUsers = useCallback(async () => {
-    try {
-        const usersCollectionRef = collection(firestore, 'users');
-        const usersSnapshot = await getDocs(usersCollectionRef);
-        setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data() } as User)));
-    } catch (error) {
-        console.error("Failed to fetch users", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAllUsers();
-  }, [fetchAllUsers]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
@@ -138,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name,
       username,
       email: fbUser.email!,
-      isAdmin: false, // Default to false, will be updated by AppContent
+      isAdmin: false,
       affiliation: null,
       profileImageUrl: '',
       bio: '',
@@ -156,7 +139,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
     setUser(newUser);
-    setUsers(prev => [...prev, newUser]); // Update users list
   }
 
   const login = async (email: string, pass: string) => {
@@ -216,7 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return { ...prevUser, [listType]: [...currentList, itemId] };
         });
     } catch (e) { console.error(e); }
-  }, [user]);
+  }, [user, setUser]);
 
   const unsaveItem = useCallback(async (listType: keyof User, itemId: string) => {
     if (!user) return;
@@ -229,7 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return { ...prevUser, [listType]: currentList.filter(id => id !== itemId) };
         });
     } catch (e) { console.error(e); }
-  }, [user]);
+  }, [user, setUser]);
 
   const isItemSaved = useCallback((listType: keyof User, itemId: string) => {
     if (!user || !user[listType]) return false;
@@ -238,10 +220,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = { 
     user,
-    users,
     firebaseUser,
     isLoading,
-    setUser,
     signup,
     login, 
     logout, 

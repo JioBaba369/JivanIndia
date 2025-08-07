@@ -6,6 +6,7 @@ import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, w
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
+import { generateSlug } from '@/lib/utils';
 
 export interface Community {
   id: string;
