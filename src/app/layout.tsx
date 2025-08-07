@@ -1,14 +1,8 @@
-
 import type { Metadata } from "next";
 import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import { Toaster } from "@/components/ui/toaster";
-import "@/lib/firebase"; // Import to initialize services
-import CookieConsentBanner from "@/components/cookie-consent-banner";
-import { PostSheet } from "@/components/layout/post-sheet";
+import AppShell from "@/components/layout/app-shell";
 import Providers from "@/components/layout/providers";
 
 const ptSans = PT_Sans({
@@ -45,18 +39,9 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <div className="fixed bottom-6 right-6 z-50 md:hidden">
-              <PostSheet />
-            </div>
-            <Footer />
-          </div>
-          <Toaster />
-          <CookieConsentBanner />
+          <AppShell>
+            {children}
+          </AppShell>
         </Providers>
       </body>
     </html>
