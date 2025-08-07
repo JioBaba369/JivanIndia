@@ -107,6 +107,7 @@ export default function NewDealPage() {
           title: 'Deal Submitted!',
           description: `Your deal "${values.title}" has been submitted for review.`,
         });
+        form.reset();
         router.push('/deals');
       } catch (error) {
         console.error("Deal submission error", error);

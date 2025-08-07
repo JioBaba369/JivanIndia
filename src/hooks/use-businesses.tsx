@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useAuth } from './use-auth';
 
 export type BusinessCategory = 'Professional Services' | 'Restaurant' | 'Retail' | 'Health & Wellness' | 'Entertainment' | 'Other';
 export const businessCategories: BusinessCategory[] = ['Professional Services', 'Restaurant', 'Retail', 'Health & Wellness', 'Entertainment', 'Other'];
@@ -36,7 +37,7 @@ interface BusinessesContextType {
   businesses: Business[];
   isLoading: boolean;
   getBusinessById: (id: string) => Business | undefined;
-  addBusiness: (business: NewBusinessInput) => Promise<void>;
+  addBusiness: (business: NewBusinessInput) => Promise<Business>;
 }
 
 const BusinessesContext = createContext<BusinessesContextType | undefined>(undefined);
@@ -46,8 +47,10 @@ const businessesCollectionRef = collection(firestore, 'businesses');
 export function BusinessesProvider({ children }: { children: ReactNode }) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isLoading: isAuthLoading } = useAuth();
 
   const fetchBusinesses = useCallback(async () => {
+    if (isAuthLoading) return;
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(businessesCollectionRef);
@@ -59,13 +62,13 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, []);
+  }, [isAuthLoading]);
 
   useEffect(() => {
     fetchBusinesses();
   }, [fetchBusinesses]);
 
-  const addBusiness = async (businessData: NewBusinessInput) => {
+  const addBusiness = async (businessData: NewBusinessInput): Promise<Business> => {
     const newBusinessForDb = {
       ...businessData,
       isVerified: true, // Admin-added businesses are auto-verified
@@ -75,12 +78,13 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     const docRef = await addDoc(businessesCollectionRef, newBusinessForDb);
     const newBusinessForState = { ...newBusinessForDb, id: docRef.id };
     setBusinesses(prev => [...prev, newBusinessForState]);
+    return newBusinessForState;
   };
 
 
-  const getBusinessById = (id: string) => {
+  const getBusinessById = useCallback((id: string) => {
     return businesses.find(business => business.id === id);
-  };
+  }, [businesses]);
 
   const value = {
     businesses,

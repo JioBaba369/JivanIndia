@@ -25,8 +25,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function HomePage() {
   const { events, isLoading: isLoadingEvents } = useEvents();
   const { deals, isLoading: isLoadingDeals } = useDeals();
-
-  const latestEvents = events.filter(e => e.status === 'Approved').slice(0, 3);
+  
+  const approvedEvents = events.filter(e => e.status === 'Approved');
+  const latestEvents = approvedEvents.slice(0, 3);
   const latestDeals = deals.slice(0, 3);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,11 +35,9 @@ export default function HomePage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery) {
-      router.push(`/${searchCategory}`);
-    } else {
-      router.push(`/${searchCategory}?q=${encodeURIComponent(searchQuery)}`);
-    }
+    const basePath = `/${searchCategory}`;
+    const query = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
+    router.push(`${basePath}${query}`);
   };
 
   const EventSkeletons = () => (
@@ -232,7 +231,7 @@ export default function HomePage() {
                             </div>
                              <div className="flex items-center text-sm text-muted-foreground">
                                 <Calendar className="mr-2 h-4 w-4 text-primary"/>
-                                <span>Expires {format(new Date(deal.expires), 'MM/dd/yyyy')}</span>
+                                <span>Expires {format(new Date(deal.expires), 'PP')}</span>
                             </div>
                          </div>
                       </CardContent>

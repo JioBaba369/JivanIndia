@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, useParams } from "next/navigation";
 import { format, formatDistanceToNow, isValid } from 'date-fns';
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useDeals } from "@/hooks/use-deals";
 import { useCommunities } from "@/hooks/use-communities";
 

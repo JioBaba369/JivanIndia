@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useAuth } from './use-auth';
 
 export interface Deal {
   id: string;
@@ -27,7 +28,7 @@ interface DealsContextType {
   deals: Deal[];
   isLoading: boolean;
   getDealById: (id: string) => Deal | undefined;
-  addDeal: (deal: NewDealInput) => Promise<void>;
+  addDeal: (deal: NewDealInput) => Promise<Deal>;
 }
 
 const DealsContext = createContext<DealsContextType | undefined>(undefined);
@@ -37,8 +38,10 @@ const dealsCollectionRef = collection(firestore, 'deals');
 export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isLoading: isAuthLoading } = useAuth();
 
   const fetchDeals = useCallback(async () => {
+    if(isAuthLoading) return;
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(dealsCollectionRef);
@@ -50,19 +53,21 @@ export function DealsProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, []);
+  }, [isAuthLoading]);
 
   useEffect(() => {
     fetchDeals();
   }, [fetchDeals]);
 
-  const addDeal = async (dealData: NewDealInput) => {
+  const addDeal = async (dealData: NewDealInput): Promise<Deal> => {
     const newDeal = {
       ...dealData,
       postedAt: new Date().toISOString(),
     };
     const docRef = await addDoc(dealsCollectionRef, newDeal);
-    setDeals(prev => [...prev, { id: docRef.id, ...newDeal } as Deal]);
+    const newDealWithId = { id: docRef.id, ...newDeal } as Deal;
+    setDeals(prev => [...prev, newDealWithId]);
+    return newDealWithId;
   };
 
   const getDealById = (id: string): Deal | undefined => {

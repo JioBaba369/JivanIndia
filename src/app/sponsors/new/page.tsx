@@ -24,14 +24,13 @@ import * as z from 'zod';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
-import type { SponsorTier } from '@/hooks/use-sponsors';
+import { useSponsors, type SponsorTier, type NewSponsorInput } from '@/hooks/use-sponsors';
 
 const sponsorTiers: SponsorTier[] = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Supporter'];
 
@@ -57,6 +56,7 @@ export default function NewSponsorPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { addSponsor } = useSponsors();
   
   const [isPending, startTransition] = useTransition();
 
@@ -91,16 +91,30 @@ export default function NewSponsorPage() {
     }
 
     startTransition(async () => {
-        // Here you would typically call a function to add the sponsor to your backend
-        // e.g., `addSponsor(values)`
-        await new Promise(resolve => setTimeout(resolve, 1500)); 
+        const newSponsorData: NewSponsorInput = {
+            ...values,
+            socialMedia: {
+                twitter: values.socialTwitter,
+                linkedin: values.socialLinkedin,
+                facebook: values.socialFacebook,
+            }
+        };
 
-        toast({
-            title: 'Sponsor Added!',
-            description: `${values.name} has been added as a new sponsor.`,
-        });
-        
-        router.push('/sponsors');
+        try {
+            await addSponsor(newSponsorData);
+            toast({
+                title: 'Sponsor Added!',
+                description: `${values.name} has been added as a new sponsor.`,
+            });
+            router.push('/sponsors');
+        } catch (error) {
+            console.error("Sponsor submission error", error);
+            toast({
+                title: 'Submission Failed',
+                description: 'An unexpected error occurred. Please try again.',
+                variant: 'destructive',
+            });
+        }
     });
   };
 

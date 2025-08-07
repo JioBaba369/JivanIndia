@@ -1,8 +1,10 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useAuth } from './use-auth';
 
 export interface Job {
   id: string;
@@ -25,7 +27,7 @@ interface JobsContextType {
   jobs: Job[];
   isLoading: boolean;
   getJobById: (id: string) => Job | undefined;
-  addJob: (job: NewJobInput) => Promise<void>;
+  addJob: (job: NewJobInput) => Promise<Job>;
 }
 
 const JobsContext = createContext<JobsContextType | undefined>(undefined);
@@ -35,37 +37,41 @@ const jobsCollectionRef = collection(firestore, 'jobs');
 export function JobsProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isLoading: isAuthLoading } = useAuth();
 
   const fetchJobs = useCallback(async () => {
+    if (isAuthLoading) return;
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(jobsCollectionRef);
         const jobsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
-        setJobs(jobsData);
+        setJobs(jobsData.sort((a,b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()));
     } catch (error) {
         console.error("Failed to fetch jobs from Firestore", error);
         setJobs([]);
     } finally {
         setIsLoading(false);
     }
-  }, []);
+  }, [isAuthLoading]);
 
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
   
-  const addJob = async (jobData: NewJobInput) => {
+  const addJob = async (jobData: NewJobInput): Promise<Job> => {
     const newJob = {
       ...jobData,
       postedAt: new Date().toISOString(),
     };
     const docRef = await addDoc(jobsCollectionRef, newJob);
-    setJobs(prev => [...prev, { id: docRef.id, ...newJob } as Job]);
+    const newJobWithId = { id: docRef.id, ...newJob } as Job;
+    setJobs(prev => [newJobWithId, ...prev]);
+    return newJobWithId;
   };
 
-  const getJobById = (id: string): Job | undefined => {
+  const getJobById = useCallback((id: string): Job | undefined => {
     return jobs.find(j => j.id === id);
-  };
+  }, [jobs]);
 
   return (
     <JobsContext.Provider value={{ jobs, isLoading, getJobById, addJob }}>

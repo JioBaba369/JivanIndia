@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export type SponsorTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Supporter';
@@ -30,10 +30,14 @@ export interface Sponsor {
   }>;
 }
 
+export type NewSponsorInput = Omit<Sponsor, 'id' | 'eventsSponsored'>;
+
+
 interface SponsorsContextType {
   sponsors: Sponsor[];
   isLoading: boolean;
   getSponsorById: (id: string) => Sponsor | undefined;
+  addSponsor: (sponsor: NewSponsorInput) => Promise<Sponsor>;
 }
 
 const SponsorsContext = createContext<SponsorsContextType | undefined>(undefined);
@@ -60,6 +64,14 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchSponsors();
   }, [fetchSponsors]);
+  
+  const addSponsor = async (sponsorData: NewSponsorInput): Promise<Sponsor> => {
+    const newSponsorData = { ...sponsorData, eventsSponsored: [] };
+    const docRef = await addDoc(sponsorsCollectionRef, newSponsorData);
+    const newSponsor = { id: docRef.id, ...newSponsorData } as Sponsor;
+    setSponsors(prev => [...prev, newSponsor]);
+    return newSponsor;
+  }
 
 
   const getSponsorById = useCallback((id: string) => {
@@ -70,6 +82,7 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
     sponsors,
     isLoading,
     getSponsorById,
+    addSponsor
   };
 
   return (

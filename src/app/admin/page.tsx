@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
   const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin } = useAbout();
   const { toast } = useToast();
 
-  const [story, setStory] = useState(aboutContent.story);
+  const [story, setStory] = useState('');
 
   useEffect(() => {
     if (!isLoading && !user?.isAdmin) {

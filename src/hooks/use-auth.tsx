@@ -6,7 +6,6 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useToast } from './use-toast';
-import { useAdmins } from './use-admins';
 
 export interface User {
   uid: string;
@@ -53,6 +52,7 @@ interface AuthContextType {
   users: User[];
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
+  setUser: (user: User | null) => void;
   signup: (name: string, email: string, pass: string, country: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -61,24 +61,24 @@ interface AuthContextType {
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
-  saveEvent: (eventId: string) => void;
-  unsaveEvent: (eventId: string) => void;
+  saveEvent: (eventId: string) => Promise<void>;
+  unsaveEvent: (eventId: string) => Promise<void>;
   isEventSaved: (eventId: string) => boolean;
 
-  joinCommunity: (orgId: string) => void;
-  leaveCommunity: (orgId: string) => void;
+  joinCommunity: (orgId: string) => Promise<void>;
+  leaveCommunity: (orgId: string) => Promise<void>;
   isCommunityJoined: (orgId: string) => boolean;
 
-  saveDeal: (dealId: string) => void;
-  unsaveDeal: (dealId: string) => void;
+  saveDeal: (dealId: string) => Promise<void>;
+  unsaveDeal: (dealId: string) => Promise<void>;
   isDealSaved: (dealId: string) => boolean;
 
-  saveBusiness: (businessId: string) => void;
-  unsaveBusiness: (businessId: string) => void;
+  saveBusiness: (businessId: string) => Promise<void>;
+  unsaveBusiness: (businessId: string) => Promise<void>;
   isBusinessSaved: (businessId: string) => boolean;
 
-  saveMovie: (movieId: string) => void;
-  unsaveMovie: (movieId: string) => void;
+  saveMovie: (movieId: string) => Promise<void>;
+  unsaveMovie: (movieId: string) => Promise<void>;
   isMovieSaved: (movieId: string) => boolean;
 }
 
@@ -90,38 +90,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { adminUids, isLoading: isLoadingAdmins } = useAdmins();
+  
+  const fetchAllUsers = useCallback(async () => {
+    try {
+        const usersCollectionRef = collection(firestore, 'users');
+        const usersSnapshot = await getDocs(usersCollectionRef);
+        setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data() } as User)));
+    } catch (error) {
+        console.error("Failed to fetch users", error);
+    }
+  }, []);
 
   useEffect(() => {
-    if (isLoadingAdmins) return;
+    fetchAllUsers();
+  }, [fetchAllUsers]);
 
-    setIsLoading(true);
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      setFirebaseUser(fbUser);
-      if (fbUser) {
-        const userDocRef = doc(firestore, 'users', fbUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
+        setIsLoading(true);
+        setFirebaseUser(fbUser);
+        if (fbUser) {
+            const userDocRef = doc(firestore, 'users', fbUser.uid);
+            const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data() as User;
-          userData.isAdmin = adminUids?.includes(fbUser.uid) || false;
-          setUser(userData);
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data() as User;
+                setUser(userData);
+            } else {
+                setUser(null);
+            }
         } else {
-          setUser(null);
+            setUser(null);
         }
-      } else {
-        setUser(null);
-      }
-      
-      const usersCollectionRef = collection(firestore, 'users');
-      const usersSnapshot = await getDocs(usersCollectionRef);
-      setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data() } as User)));
-      
-      setIsLoading(false);
+        setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, [isLoadingAdmins, adminUids]);
+  }, []);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -133,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name,
       username,
       email: fbUser.email!,
-      isAdmin: adminUids?.includes(fbUser.uid),
+      isAdmin: false, // Default to false, will be updated by AppContent
       affiliation: null,
       profileImageUrl: '',
       bio: '',
@@ -151,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
     setUser(newUser);
-    setUsers(prev => [...prev, newUser]);
+    setUsers(prev => [...prev, newUser]); // Update users list
   }
 
   const login = async (email: string, pass: string) => {
@@ -182,8 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, updateUser]);
 
   const getUserByUsername = useCallback(async (username: string): Promise<User | undefined> => {
-    const usersRef = collection(firestore, 'users');
-    const q = query(usersRef, where("username", "==", username));
+    const q = query(collection(firestore, 'users'), where("username", "==", username));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
         return querySnapshot.docs[0].data() as User;
@@ -192,8 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
-    const usersRef = collection(firestore, 'users');
-    const q = query(usersRef, where("username", "==", username));
+    const q = query(collection(firestore, 'users'), where("username", "==", username));
     const querySnapshot = await getDocs(q);
     if(querySnapshot.empty) return true;
     if(currentUid && querySnapshot.docs[0].id === currentUid) {
@@ -238,6 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     users,
     firebaseUser,
     isLoading,
+    setUser,
     signup,
     login, 
     logout, 

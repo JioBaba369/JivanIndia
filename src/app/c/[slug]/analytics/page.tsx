@@ -132,7 +132,12 @@ export default function AnalyticsDashboardPage() {
                                 </ChartContainer>
                             </div>
                            ) : (
-                            <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">No member data to display.</div>
+                            <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground text-center p-4">
+                                <div>
+                                <p>No member data to display.</p>
+                                <p className="text-xs mt-1">This chart will populate as new users join your community.</p>
+                                </div>
+                            </div>
                            )}
                         </CardContent>
                     </Card>
@@ -163,7 +168,12 @@ export default function AnalyticsDashboardPage() {
                                 </ChartContainer>
                             </div>
                             ) : (
-                               <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">No event data to display.</div>
+                               <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground text-center p-4">
+                                   <div>
+                                    <p>No event data to display.</p>
+                                    <p className="text-xs mt-1">This chart requires event attendance tracking.</p>
+                                   </div>
+                               </div>
                             )}
                         </CardContent>
                     </Card>
@@ -190,7 +200,12 @@ export default function AnalyticsDashboardPage() {
                                 ))}
                             </div>
                            ) : (
-                              <div className="h-[100px] w-full flex items-center justify-center text-muted-foreground">No referrer data to display.</div>
+                              <div className="h-[100px] w-full flex items-center justify-center text-muted-foreground text-center p-4">
+                                  <div>
+                                    <p>No referrer data to display.</p>
+                                    <p className="text-xs mt-1">Referral tracking is not yet implemented.</p>
+                                  </div>
+                              </div>
                            )}
                         </CardContent>
                     </Card>
