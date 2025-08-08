@@ -1,11 +1,10 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
-import { useAuth, type User } from './use-auth';
+import type { User } from './use-auth';
 
 export interface TeamMember {
   id: string;
@@ -52,13 +51,16 @@ export function AboutProvider({ children }: { children: ReactNode }) {
         if (aboutDocSnap.exists()) {
           const data = aboutDocSnap.data() as AboutContent;
           setAboutContent(data);
+        } else {
+          // If the document doesn't exist, create it with default values.
+          await setDoc(aboutDocRef, aboutContent);
         }
     } catch (error) {
         console.error("Error fetching about content: ", error);
     } finally {
         setIsLoading(false);
     }
-  }, [aboutDocRef]);
+  }, [aboutDocRef, aboutContent]);
 
   useEffect(() => {
     fetchAboutContent();

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember } from '@/hooks/use-about';
@@ -139,14 +138,16 @@ export default function AdminDashboardPage() {
   const { user, isLoading } = useAuth();
   const { events, updateEventStatus } = useEvents();
   const { communities, verifyCommunity } = useCommunities();
-  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin } = useAbout();
+  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
   const { toast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
+  const [isUsersLoading, setIsUsersLoading] = useState(true);
   const [story, setStory] = useState('');
 
   useEffect(() => {
     const fetchAllUsers = async () => {
+      setIsUsersLoading(true);
       try {
         const usersCollectionRef = collection(firestore, 'users');
         const usersSnapshot = await getDocs(usersCollectionRef);
@@ -154,6 +155,8 @@ export default function AdminDashboardPage() {
       } catch (error) {
         console.error("Failed to fetch users", error);
         toast({ title: 'Error', description: 'Could not fetch user list.', variant: 'destructive' });
+      } finally {
+        setIsUsersLoading(false);
       }
     };
 
@@ -232,13 +235,20 @@ export default function AdminDashboardPage() {
         default: return 'outline';
     }
   }
+  
+  const totalLoading = isLoading || isAboutLoading || (user?.isAdmin && isUsersLoading);
 
-  if (isLoading || !user?.isAdmin) {
+  if (totalLoading) {
     return (
-        <div className="container mx-auto px-4 py-12 text-center">
-            <p>Loading...</p>
+        <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     );
+  }
+
+  if (!user?.isAdmin) {
+      router.push('/');
+      return null;
   }
 
   const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

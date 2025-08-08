@@ -3,26 +3,50 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Default deny all access
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Default deny all
     match /{allPaths=**} {
       allow read, write: if false;
     }
 
-    // Allow public read access to all files so they can be displayed in the app
-    match /{folder}/{fileName} {
-      allow get: if true;
+    // Allow public read access to all image folders
+    match /profile-pictures/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    }
+    
+    match /event-banners/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
     }
 
-    // Restrict writes to authenticated users and specific folders
-    match /{folder}/{fileName} {
-      // User must be authenticated to upload any file
-      allow write: if request.auth != null
-        // File size must be less than 10MB
-        && request.resource.size < 10 * 1024 * 1024
-        // File must be an image
-        && request.resource.contentType.matches('image/.*')
-        // Folder must be one of the allowed types
-        && folder in ['profile-pictures', 'event-banners', 'community-logos', 'community-banners', 'deal-images', 'sponsor-logos', 'business-images'];
+    match /community-logos/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    }
+    
+    match /community-banners/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    }
+
+    match /business-images/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    }
+    
+    match /sponsor-logos/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    }
+
+    match /deal-images/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
     }
   }
 }

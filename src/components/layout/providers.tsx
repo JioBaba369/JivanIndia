@@ -19,7 +19,6 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAbout } from "@/hooks/use-about";
 
-
 function AppContent({ children }: { children: React.ReactNode }) {
     const { isLoading: isAuthLoading } = useAuth();
     const { isLoading: isAboutLoading } = useAbout();
@@ -50,7 +49,6 @@ function AppContent({ children }: { children: React.ReactNode }) {
         </div>
     );
 }
-
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (

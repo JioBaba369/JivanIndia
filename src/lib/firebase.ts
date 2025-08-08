@@ -1,4 +1,3 @@
-
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -15,11 +14,19 @@ const firebaseConfig = {
   measurementId: "G-X25J03DP77"
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Initialize Firebase
+let app: FirebaseApp;
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
+
 const auth = getAuth(app);
 const firestore = getFirestore(app);
 const storage = getStorage(app);
 
+// Initialize Analytics if supported
 if (typeof window !== 'undefined') {
   isSupported().then(supported => {
     if (supported) {
@@ -27,5 +34,6 @@ if (typeof window !== 'undefined') {
     }
   });
 }
+
 
 export { app, auth, firestore, storage };

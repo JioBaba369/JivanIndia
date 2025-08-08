@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -6,6 +5,8 @@ import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useToast } from './use-toast';
+import { generateSlug } from '@/lib/utils';
+
 
 export interface User {
   uid: string;
@@ -100,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const userData = userDocSnap.data() as User;
                 setUser(userData);
             } else {
+                // This case can happen if the user document hasn't been created yet after signup
                 setUser(null);
             }
         } else {
@@ -114,7 +116,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
-    const username = name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
+    
+    // Check for username uniqueness before assigning
+    let username = generateSlug(name);
+    let isUnique = await isUsernameUnique(username, fbUser.uid);
+    let attempts = 0;
+    while (!isUnique && attempts < 5) {
+        username = `${generateSlug(name)}${Math.floor(Math.random() * 1000)}`;
+        isUnique = await isUsernameUnique(username, fbUser.uid);
+        attempts++;
+    }
     
     const newUser: User = {
       uid: fbUser.uid,
@@ -172,7 +183,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const q = query(collection(firestore, 'users'), where("username", "==", username));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].data() as User;
+        const userData = querySnapshot.docs[0].data();
+        return { ...userData, uid: querySnapshot.docs[0].id } as User;
     }
     return undefined;
   }, []);
@@ -198,7 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return { ...prevUser, [listType]: [...currentList, itemId] };
         });
     } catch (e) { console.error(e); }
-  }, [user, setUser]);
+  }, [user]);
 
   const unsaveItem = useCallback(async (listType: keyof User, itemId: string) => {
     if (!user) return;
@@ -211,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return { ...prevUser, [listType]: currentList.filter(id => id !== itemId) };
         });
     } catch (e) { console.error(e); }
-  }, [user, setUser]);
+  }, [user]);
 
   const isItemSaved = useCallback((listType: keyof User, itemId: string) => {
     if (!user || !user[listType]) return false;

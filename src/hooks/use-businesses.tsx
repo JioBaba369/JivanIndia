@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -80,6 +79,7 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
 
 
   const getBusinessById = useCallback((id: string) => {
+    if (!id) return undefined;
     return businesses.find(business => business.id === id);
   }, [businesses]);
 

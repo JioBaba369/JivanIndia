@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -52,7 +51,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     try {
       const querySnapshot = await getDocs(eventsCollectionRef);
       const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-      setEvents(eventsData);
+      setEvents(eventsData.sort((a,b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()));
     } catch (error) {
       console.error("Failed to fetch events from Firestore", error);
     } finally {
@@ -74,10 +73,11 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     };
     
     const docRef = await addDoc(eventsCollectionRef, newEventData);
-    setEvents(prev => [...prev, { id: docRef.id, ...newEventData } as Event]);
+    setEvents(prev => [...prev, { id: docRef.id, ...newEventData } as Event].sort((a,b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()));
   };
 
   const getEventById = useCallback((id: string) => {
+    if (!id) return undefined;
     return events.find(event => event.id === id);
   }, [events]);
 

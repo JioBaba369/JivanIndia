@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -43,7 +42,7 @@ export function DealsProvider({ children }: { children: ReactNode }) {
     try {
         const querySnapshot = await getDocs(dealsCollectionRef);
         const dealsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
-        setDeals(dealsData);
+        setDeals(dealsData.sort((a,b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()));
     } catch (error) {
         console.error("Failed to fetch deals from Firestore", error);
         setDeals([]);
@@ -63,11 +62,12 @@ export function DealsProvider({ children }: { children: ReactNode }) {
     };
     const docRef = await addDoc(dealsCollectionRef, newDeal);
     const newDealWithId = { id: docRef.id, ...newDeal } as Deal;
-    setDeals(prev => [...prev, newDealWithId]);
+    setDeals(prev => [newDealWithId, ...prev].sort((a,b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()));
     return newDealWithId;
   };
 
   const getDealById = (id: string): Deal | undefined => {
+    if (!id) return undefined;
     return deals.find(d => d.id === id);
   };
 

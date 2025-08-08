@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -8,7 +7,7 @@ import { useAbout } from '@/hooks/use-about';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, isLoading: isAuthLoading, updateUser } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { aboutContent, isLoading: isAboutLoading } = useAbout();
   const router = useRouter();
 
@@ -24,11 +23,6 @@ export default function DashboardPage() {
     
     const isAdmin = aboutContent.adminUids.includes(user.uid);
     
-    // Update user object if admin status has changed
-    if (user.isAdmin !== isAdmin) {
-        updateUser({ isAdmin });
-    }
-
     if (isAdmin) {
       router.push('/admin');
     } else if (user.affiliation?.orgSlug) {
@@ -37,7 +31,7 @@ export default function DashboardPage() {
       router.push('/profile');
     }
     
-  }, [user, isAuthLoading, isAboutLoading, aboutContent.adminUids, router, updateUser]);
+  }, [user, isAuthLoading, isAboutLoading, aboutContent.adminUids, router]);
 
   return (
     <div className="flex h-[calc(100vh-128px)] items-center justify-center">

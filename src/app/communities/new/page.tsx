@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useTransition } from 'react';
+import { useEffect, useTransition, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
@@ -88,8 +87,12 @@ export default function NewCommunityPage() {
   
   const [isPending, startTransition] = useTransition();
 
+  const memoizedIsSlugUnique = useCallback((slug: string) => {
+    return isSlugUnique(slug);
+  }, [isSlugUnique]);
+
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(isSlugUnique)),
+    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
     defaultValues: {
       name: '',
       slug: '',

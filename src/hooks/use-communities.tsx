@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -6,7 +5,6 @@ import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, w
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
-import { generateSlug } from '@/lib/utils';
 
 export interface Community {
   id: string;
@@ -122,10 +120,12 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   };
 
   const getCommunityById = useCallback((id: string): Community | undefined => {
+    if (!id) return undefined;
     return communities.find(c => c.id === id);
   }, [communities]);
 
   const getCommunityBySlug = useCallback((slug: string): Community | undefined => {
+    if (!slug) return undefined;
     return communities.find(c => c.slug === slug);
   }, [communities]);
 
