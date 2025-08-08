@@ -109,7 +109,7 @@ export default function NewCommunityPage() {
       socialFacebook: '',
       socialLinkedin: '',
     },
-    mode: 'onBlur',
+    mode: 'onChange',
   });
 
   const nameValue = form.watch('name');

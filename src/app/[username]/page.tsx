@@ -126,14 +126,14 @@ export default function UserPublicProfilePage() {
     const hasOriginLocation = profileUser.originLocation && (profileUser.originLocation.indiaDistrict || profileUser.originLocation.indiaState);
 
     const tabs = [
-        { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length },
-        { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length },
-        { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length },
-        { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length },
+        { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length, icon: Calendar },
+        { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length, icon: Film },
+        { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag },
+        { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users },
     ];
     
     if (affiliatedCommunity && profileUser.affiliation) {
-        tabs.push({ value: 'community-activity', label: 'Affiliation', count: 0 }); // Count isn't displayed for this one
+        tabs.push({ value: 'community-activity', label: 'Affiliation', count: 0, icon: Building }); // Count isn't displayed for this one
     }
 
     return (
@@ -231,6 +231,7 @@ export default function UserPublicProfilePage() {
                                 <TabsList className="grid w-full" style={{gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`}}>
                                     {tabs.map(tab => (
                                         <TabsTrigger key={tab.value} value={tab.value}>
+                                            <tab.icon className="mr-2 h-4 w-4 hidden md:inline-block" />
                                             {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
                                         </TabsTrigger>
                                     ))}
