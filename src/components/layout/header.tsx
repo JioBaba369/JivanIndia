@@ -126,8 +126,8 @@ export default function Header() {
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-6">
+      <div className="container mx-auto flex h-16 items-center px-4">
+        <div className="flex items-center gap-6 mr-auto">
             <Logo as={Link} href="/" />
             <nav className="hidden items-center space-x-6 md:flex">
               {navLinks.map((link) => (
@@ -136,31 +136,29 @@ export default function Header() {
             </nav>
         </div>
         
-        <div className="flex items-center gap-2">
-            <div className="hidden md:flex">
-                <UserActions />
-            </div>
-            <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <Menu />
-                    <span className="sr-only">Toggle Menu</span>
-                </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-full max-w-xs p-6">
-                    <div className="mt-6 flex flex-col space-y-4">
-                        <UserActions />
-                        <DropdownMenuSeparator />
-                        <nav className="flex flex-col space-y-2">
-                            {navLinks.map((link) => (
-                            <NavLink key={link.href} {...link} onClick={() => setIsOpen(false)} />
-                            ))}
-                        </nav>
-                    </div>
-                </SheetContent>
-            </Sheet>
-            </div>
+        <div className="hidden md:flex">
+            <UserActions />
+        </div>
+        <div className="md:hidden">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+                <Menu />
+                <span className="sr-only">Toggle Menu</span>
+            </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-full max-w-xs p-6">
+                <div className="mt-6 flex flex-col space-y-4">
+                    <UserActions />
+                    <DropdownMenuSeparator />
+                    <nav className="flex flex-col space-y-2">
+                        {navLinks.map((link) => (
+                        <NavLink key={link.href} {...link} onClick={() => setIsOpen(false)} />
+                        ))}
+                    </nav>
+                </div>
+            </SheetContent>
+        </Sheet>
         </div>
       </div>
     </header>

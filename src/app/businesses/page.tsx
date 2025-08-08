@@ -89,11 +89,11 @@ export default function BusinessesPage() {
             <p className="text-lg text-muted-foreground">Find trusted local businesses and professional services in the community.</p>
         </div>
         <div className="rounded-lg bg-card p-4 shadow-md">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="relative">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="relative lg:col-span-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
+                        className="pl-10"
                         placeholder="Search Businesses..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -102,7 +102,7 @@ export default function BusinessesPage() {
                 <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-10"
+                        className="pl-10"
                         placeholder="Location (e.g. San Jose)"
                          value={locationQuery}
                         onChange={(e) => setLocationQuery(e.target.value)}
@@ -120,10 +120,6 @@ export default function BusinessesPage() {
                     ))}
                     </SelectContent>
                 </Select>
-                <Button className="w-full">
-                    <Search className="mr-2 h-4 w-4" />
-                    Apply Filters
-                </Button>
             </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
