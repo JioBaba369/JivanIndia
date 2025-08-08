@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
@@ -86,7 +86,13 @@ const TeamMemberDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="avatarUrl">Avatar URL</Label>
-            <Input id="avatarUrl" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
+             <ImageUpload
+                value={avatarUrl}
+                onChange={(url) => setAvatarUrl(url)}
+                aspectRatio={1}
+                toast={useToast().toast}
+                folderName="team-avatars"
+              />
           </div>
         </div>
         <DialogFooter>
@@ -278,360 +284,268 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-            <CardTitle className="font-headline text-3xl">Admin Dashboard</CardTitle>
-          </div>
-          <CardDescription>Manage all submitted content on the platform.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Tabs defaultValue="events" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
-                    <TabsTrigger value="events">Events ({sortedEvents.length})</TabsTrigger>
-                    <TabsTrigger value="communities">Communities ({sortedCommunities.length})</TabsTrigger>
-                    <TabsTrigger value="businesses">Businesses ({sortedBusinesses.length})</TabsTrigger>
-                    <TabsTrigger value="about">Site Management</TabsTrigger>
-                </TabsList>
-                <TabsContent value="events" className="mt-6">
-                    <div className="w-full overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                            <TableRow>
-                                <TableHead>Title</TableHead>
-                                <TableHead>Organizer</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                            {sortedEvents.map(event => (
-                                <TableRow key={event.id}>
-                                    <TableCell className="font-medium">
-                                        <Link href={`/events/${event.id}`} className="hover:underline" target="_blank">{event.title}</Link>
-                                    </TableCell>
-                                    <TableCell>{event.organizerName}</TableCell>
-                                    <TableCell>{format(new Date(event.startDateTime), 'PPp')}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                          <Badge variant={getEventStatusVariant(event.status)}>{event.status}</Badge>
-                                          {event.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right space-x-2">
-                                        {event.status === 'Approved' && (
-                                            <Button size="sm" variant="outline" onClick={() => updateEventFeaturedStatus(event.id, !event.isFeatured)}>
-                                                <Star className="mr-2 h-4 w-4" /> {event.isFeatured ? 'Un-Feature' : 'Feature'}
-                                            </Button>
-                                        )}
-                                        {event.status !== 'Approved' && (
-                                            <Button size="sm" onClick={() => handleEventStatusChange(event.id, 'Approved')}>
-                                                <Check className="mr-2 h-4 w-4" /> Approve
-                                            </Button>
-                                        )}
-                                        {event.status !== 'Archived' && (
-                                            <Button size="sm" variant="destructive" onClick={() => handleEventStatusChange(event.id, 'Archived')}>
-                                                <Archive className="mr-2 h-4 w-4" /> Archive
-                                            </Button>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                    {sortedEvents.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground">
-                            <p>No events have been submitted yet.</p>
-                        </div>
-                    )}
-                </TabsContent>
-                <TabsContent value="communities" className="mt-6">
-                    <div className="w-full overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Region</TableHead>
-                                    <TableHead>Founder Email</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {sortedCommunities.map(community => (
-                                    <TableRow key={community.id}>
-                                        <TableCell className="font-medium">
-                                          <Link href={`/c/${community.slug}`} className="hover:underline" target="_blank">{community.name}</Link>
-                                        </TableCell>
-                                        <TableCell>{community.region}</TableCell>
-                                        <TableCell>{community.founderEmail}</TableCell>
-                                        <TableCell>
-                                          <div className="flex items-center gap-2">
-                                            <Badge variant={community.isVerified ? 'default' : 'secondary'}>
-                                                {community.isVerified ? 'Verified' : 'Unverified'}
-                                            </Badge>
-                                             {community.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                                           </div>
-                                        </TableCell>
-                                        <TableCell className="text-right space-x-2">
-                                            {community.isVerified && (
-                                              <Button size="sm" variant="outline" onClick={() => updateCommunityFeaturedStatus(community.id, !community.isFeatured)}>
-                                                  <Star className="mr-2 h-4 w-4" /> {community.isFeatured ? 'Un-Feature' : 'Feature'}
-                                              </Button>
-                                            )}
-                                            {!community.isVerified && (
-                                                <Button size="sm" onClick={() => handleCommunityVerify(community.id)}>
-                                                    <CheckCircle2 className="mr-2 h-4 w-4"/>
-                                                    Verify
-                                                </Button>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                     {sortedCommunities.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground">
-                            <p>No communities have been created yet.</p>
-                        </div>
-                    )}
-                </TabsContent>
-                 <TabsContent value="businesses" className="mt-6">
-                    <div className="w-full overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Region</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {sortedBusinesses.map(business => (
-                                    <TableRow key={business.id}>
-                                        <TableCell className="font-medium">
-                                          <Link href={`/businesses/${business.id}`} className="hover:underline" target="_blank">{business.name}</Link>
-                                        </TableCell>
-                                        <TableCell>{business.category}</TableCell>
-                                        <TableCell>{business.region}</TableCell>
-                                        <TableCell>
-                                          <div className="flex items-center gap-2">
-                                            <Badge variant={business.isVerified ? 'default' : 'secondary'}>
-                                                {business.isVerified ? 'Verified' : 'Unverified'}
-                                            </Badge>
-                                             {business.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                                           </div>
-                                        </TableCell>
-                                        <TableCell className="text-right space-x-2">
-                                            {business.isVerified && (
-                                              <Button size="sm" variant="outline" onClick={() => updateBusinessFeaturedStatus(business.id, !business.isFeatured)}>
-                                                  <Star className="mr-2 h-4 w-4" /> {business.isFeatured ? 'Un-Feature' : 'Feature'}
-                                              </Button>
-                                            )}
-                                            {!business.isVerified && (
-                                                <Button size="sm" onClick={() => handleBusinessVerify(business.id)}>
-                                                    <CheckCircle2 className="mr-2 h-4 w-4"/>
-                                                    Verify
-                                                </Button>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                     {sortedBusinesses.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground">
-                            <p>No businesses have been created yet.</p>
-                        </div>
-                    )}
-                </TabsContent>
-                <TabsContent value="about" className="mt-6">
-                    <div className="space-y-8">
-                         {/* Site Branding Section */}
-                        <Card>
-                             <CardHeader>
-                                <CardTitle>Site Branding</CardTitle>
-                                <CardDescription>Manage your site's logo and favicon.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label>Site Logo</Label>
-                                    <ImageUpload
-                                        value={logoUrl}
-                                        onChange={(url) => setLogoUrl(url)}
-                                        aspectRatio={4/1}
-                                        toast={toast}
-                                        folderName="branding"
-                                        className="max-h-[100px]"
-                                    />
-                                    <p className="text-sm text-muted-foreground">Recommended: Transparent PNG or SVG, ~200x50px</p>
+        <div className="flex items-center gap-4 mb-6">
+            <ShieldCheck className="h-10 w-10 text-primary" />
+            <div>
+                <CardTitle className="font-headline text-3xl">Admin Dashboard</CardTitle>
+                <CardDescription>Welcome, {user.name}. Manage all content and settings.</CardDescription>
+            </div>
+        </div>
+        <Tabs defaultValue="content" className="w-full">
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+                <TabsTrigger value="content"><FileText className="mr-2"/>Content Moderation</TabsTrigger>
+                <TabsTrigger value="users"><Users className="mr-2"/>User Management</TabsTrigger>
+                <TabsTrigger value="settings"><Settings className="mr-2"/>Site Management</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="content" className="mt-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Content Moderation</CardTitle>
+                        <CardDescription>Review and manage all user-submitted content.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="events" className="w-full">
+                            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+                                <TabsTrigger value="events">Events ({sortedEvents.length})</TabsTrigger>
+                                <TabsTrigger value="communities">Communities ({sortedCommunities.length})</TabsTrigger>
+                                <TabsTrigger value="businesses">Businesses ({sortedBusinesses.length})</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="events" className="mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Title</TableHead>
+                                                <TableHead>Organizer</TableHead>
+                                                <TableHead>Date</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sortedEvents.map(event => (
+                                                <TableRow key={event.id}>
+                                                    <TableCell className="font-medium">
+                                                        <Link href={`/events/${event.id}`} className="hover:underline" target="_blank">{event.title}</Link>
+                                                    </TableCell>
+                                                    <TableCell>{event.organizerName}</TableCell>
+                                                    <TableCell>{format(new Date(event.startDateTime), 'PPp')}</TableCell>
+                                                    <TableCell><div className="flex items-center gap-2"><Badge variant={getEventStatusVariant(event.status)}>{event.status}</Badge>{event.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}</div></TableCell>
+                                                    <TableCell className="text-right space-x-2">
+                                                        {event.status === 'Approved' && (<Button size="sm" variant="outline" onClick={() => updateEventFeaturedStatus(event.id, !event.isFeatured)}><Star className="mr-2 h-4 w-4" /> {event.isFeatured ? 'Un-Feature' : 'Feature'}</Button>)}
+                                                        {event.status !== 'Approved' && (<Button size="sm" onClick={() => handleEventStatusChange(event.id, 'Approved')}><Check className="mr-2 h-4 w-4" /> Approve</Button>)}
+                                                        {event.status !== 'Archived' && (<Button size="sm" variant="destructive" onClick={() => handleEventStatusChange(event.id, 'Archived')}><Archive className="mr-2 h-4 w-4" /> Archive</Button>)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    {sortedEvents.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No events have been submitted yet.</p></div>}
                                 </div>
-                                 <div className="space-y-2">
-                                    <Label>Site Favicon</Label>
-                                     <ImageUpload
-                                        value={faviconUrl}
-                                        onChange={(url) => setFaviconUrl(url)}
-                                        aspectRatio={1}
-                                        toast={toast}
-                                        folderName="branding"
-                                        className="max-h-[100px]"
-                                    />
-                                     <p className="text-sm text-muted-foreground">Recommended: ICO or PNG file, 32x32px</p>
+                            </TabsContent>
+                            <TabsContent value="communities" className="mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Name</TableHead>
+                                                <TableHead>Region</TableHead>
+                                                <TableHead>Founder Email</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sortedCommunities.map(community => (
+                                                <TableRow key={community.id}>
+                                                    <TableCell className="font-medium"><Link href={`/c/${community.slug}`} className="hover:underline" target="_blank">{community.name}</Link></TableCell>
+                                                    <TableCell>{community.region}</TableCell>
+                                                    <TableCell>{community.founderEmail}</TableCell>
+                                                    <TableCell><div className="flex items-center gap-2"><Badge variant={community.isVerified ? 'default' : 'secondary'}>{community.isVerified ? 'Verified' : 'Unverified'}</Badge>{community.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}</div></TableCell>
+                                                    <TableCell className="text-right space-x-2">
+                                                        {community.isVerified && (<Button size="sm" variant="outline" onClick={() => updateCommunityFeaturedStatus(community.id, !community.isFeatured)}><Star className="mr-2 h-4 w-4" /> {community.isFeatured ? 'Un-Feature' : 'Feature'}</Button>)}
+                                                        {!community.isVerified && (<Button size="sm" onClick={() => handleCommunityVerify(community.id)}><CheckCircle2 className="mr-2 h-4 w-4"/>Verify</Button>)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    {sortedCommunities.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No communities have been created yet.</p></div>}
                                 </div>
-                                <Button onClick={() => handleAboutContentSave({ logoUrl, faviconUrl })}>Save Branding</Button>
-                            </CardContent>
-                        </Card>
+                            </TabsContent>
+                            <TabsContent value="businesses" className="mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Name</TableHead>
+                                                <TableHead>Category</TableHead>
+                                                <TableHead>Region</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sortedBusinesses.map(business => (
+                                                <TableRow key={business.id}>
+                                                    <TableCell className="font-medium"><Link href={`/businesses/${business.id}`} className="hover:underline" target="_blank">{business.name}</Link></TableCell>
+                                                    <TableCell>{business.category}</TableCell>
+                                                    <TableCell>{business.region}</TableCell>
+                                                    <TableCell><div className="flex items-center gap-2"><Badge variant={business.isVerified ? 'default' : 'secondary'}>{business.isVerified ? 'Verified' : 'Unverified'}</Badge>{business.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}</div></TableCell>
+                                                    <TableCell className="text-right space-x-2">
+                                                        {business.isVerified && (<Button size="sm" variant="outline" onClick={() => updateBusinessFeaturedStatus(business.id, !business.isFeatured)}><Star className="mr-2 h-4 w-4" /> {business.isFeatured ? 'Un-Feature' : 'Feature'}</Button>)}
+                                                        {!business.isVerified && (<Button size="sm" onClick={() => handleBusinessVerify(business.id)}><CheckCircle2 className="mr-2 h-4 w-4"/>Verify</Button>)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    {sortedBusinesses.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No businesses have been created yet.</p></div>}
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            </TabsContent>
 
-                        {/* Story Section */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Our Story</CardTitle>
-                                <CardDescription>Edit the story section that appears on the "About Us" page.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Textarea 
-                                    value={story}
-                                    onChange={(e) => setStory(e.target.value)}
-                                    rows={10}
-                                    className="whitespace-pre-line"
-                                />
-                                <Button onClick={() => handleAboutContentSave({ story })}>Save Story</Button>
-                            </CardContent>
-                        </Card>
-
-                        {/* Team Members Section */}
-                        <Card>
-                            <CardHeader>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <CardTitle>Meet the Team</CardTitle>
-                                        <CardDescription>Manage the team members displayed on the "About Us" page.</CardDescription>
-                                    </div>
-                                    <TeamMemberDialog onSave={handleAddTeamMember}>
-                                        <Button><UserPlus className="mr-2 h-4 w-4" /> Add Member</Button>
-                                    </TeamMemberDialog>
+            <TabsContent value="users" className="mt-6">
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                     <Card>
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <CardTitle>Platform Administrators</CardTitle>
+                                    <CardDescription>Manage users who have admin privileges.</CardDescription>
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Avatar</TableHead>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead>Role</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {aboutContent.teamMembers.map(member => (
-                                            <TableRow key={member.id}>
-                                                <TableCell>
-                                                    <Avatar>
-                                                        <AvatarImage src={member.avatarUrl} alt={member.name} />
-                                                        <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
-                                                    </Avatar>
-                                                </TableCell>
-                                                <TableCell className="font-medium">{member.name}</TableCell>
-                                                <TableCell>{member.role}</TableCell>
-                                                <TableCell className="text-right space-x-2">
-                                                    <TeamMemberDialog member={member} onSave={(data) => handleUpdateTeamMember(member.id, data)}>
-                                                      <Button variant="outline" size="icon"><Edit className="h-4 w-4" /></Button>
-                                                    </TeamMemberDialog>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive" size="icon"><Trash2 className="h-4 w-4" /></Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
+                                <AddAdminDialog onSave={handleAddAdmin} />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Avatar</TableHead>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Email</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {adminUsers.map(admin => (
+                                        <TableRow key={admin.uid}>
+                                            <TableCell><Avatar><AvatarImage src={admin.profileImageUrl} alt={admin.name} /><AvatarFallback>{getInitials(admin.name)}</AvatarFallback></Avatar></TableCell>
+                                            <TableCell className="font-medium">{admin.name}</TableCell>
+                                            <TableCell>{admin.email}</TableCell>
+                                            <TableCell className="text-right">
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild><Button variant="destructive" size="icon" disabled={admin.uid === user.uid}><UserX className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                                    <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            This will permanently delete {member.name} from the team. This action cannot be undone.
-                                                          </AlertDialogDescription>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>This will revoke admin privileges for {admin.name}. They will still be a regular user.</AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => handleDeleteTeamMember(member.id)}>Yes, delete</AlertDialogAction>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleRemoveAdmin(admin.uid)}>Yes, revoke</AlertDialogAction>
                                                         </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
-                         {/* Admins Section */}
-                        <Card>
-                            <CardHeader>
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <CardTitle>Platform Administrators</CardTitle>
-                                        <CardDescription>Manage users who have admin privileges.</CardDescription>
-                                    </div>
-                                    <AddAdminDialog onSave={handleAddAdmin} />
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Avatar</TableHead>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead>Email</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </TableCell>
                                         </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {adminUsers.map(admin => (
-                                            <TableRow key={admin.uid}>
-                                                <TableCell>
-                                                    <Avatar>
-                                                        <AvatarImage src={admin.profileImageUrl} alt={admin.name} />
-                                                        <AvatarFallback>{getInitials(admin.name)}</AvatarFallback>
-                                                    </Avatar>
-                                                </TableCell>
-                                                <TableCell className="font-medium">{admin.name}</TableCell>
-                                                <TableCell>{admin.email}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant="destructive" size="icon" disabled={admin.uid === user.uid}>
-                                                                <UserX className="h-4 w-4" />
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <CardTitle>Meet the Team</CardTitle>
+                                    <CardDescription>Manage team members on the "About Us" page.</CardDescription>
+                                </div>
+                                <TeamMemberDialog onSave={handleAddTeamMember}><Button><UserPlus className="mr-2 h-4 w-4" /> Add Member</Button></TeamMemberDialog>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Avatar</TableHead>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Role</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {aboutContent.teamMembers.map(member => (
+                                        <TableRow key={member.id}>
+                                            <TableCell><Avatar><AvatarImage src={member.avatarUrl} alt={member.name} /><AvatarFallback>{getInitials(member.name)}</AvatarFallback></Avatar></TableCell>
+                                            <TableCell className="font-medium">{member.name}</TableCell>
+                                            <TableCell>{member.role}</TableCell>
+                                            <TableCell className="text-right space-x-2">
+                                                <TeamMemberDialog member={member} onSave={(data) => handleUpdateTeamMember(member.id, data)}><Button variant="outline" size="icon"><Edit className="h-4 w-4" /></Button></TeamMemberDialog>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild><Button variant="destructive" size="icon"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                                    <AlertDialogContent>
                                                         <AlertDialogHeader>
-                                                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            This will revoke admin privileges for {admin.name}. They will still be a regular user.
-                                                          </AlertDialogDescription>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>This will permanently delete {member.name} from the team. This action cannot be undone.</AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => handleRemoveAdmin(admin.uid)}>Yes, revoke</AlertDialogAction>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteTeamMember(member.id)}>Yes, delete</AlertDialogAction>
                                                         </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-            </Tabs>
-        </CardContent>
-      </Card>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+            </TabsContent>
+            
+            <TabsContent value="settings" className="mt-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Site Branding</CardTitle>
+                            <CardDescription>Manage your site's logo and favicon.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="space-y-2">
+                                <Label>Site Logo</Label>
+                                <ImageUpload value={logoUrl} onChange={(url) => setLogoUrl(url)} aspectRatio={4/1} toast={toast} folderName="branding" className="max-h-[100px]"/>
+                                <p className="text-sm text-muted-foreground">Recommended: Transparent PNG, ~200x50px</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Site Favicon</Label>
+                                <ImageUpload value={faviconUrl} onChange={(url) => setFaviconUrl(url)} aspectRatio={1} toast={toast} folderName="branding" className="max-h-[100px]"/>
+                                <p className="text-sm text-muted-foreground">Recommended: ICO or PNG, 32x32px</p>
+                            </div>
+                            <Button onClick={() => handleAboutContentSave({ logoUrl, faviconUrl })}>Save Branding</Button>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Our Story</CardTitle>
+                            <CardDescription>Edit the story on the "About Us" page.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Textarea value={story} onChange={(e) => setStory(e.target.value)} rows={10} className="whitespace-pre-line" />
+                            <Button onClick={() => handleAboutContentSave({ story })}>Save Story</Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </TabsContent>
+        </Tabs>
     </div>
   );
 }
+
+    
