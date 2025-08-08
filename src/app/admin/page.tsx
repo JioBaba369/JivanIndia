@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
-import { useAbout, type TeamMember } from '@/hooks/use-about';
+import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ import { getInitials } from '@/lib/utils';
 import { firestore } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useBusinesses } from '@/hooks/use-businesses';
+import ImageUpload from '@/components/feature/image-upload';
 
 
 const TeamMemberDialog = ({
@@ -140,13 +141,16 @@ export default function AdminDashboardPage() {
   const { user, isLoading } = useAuth();
   const { events, updateEventStatus, updateEventFeaturedStatus } = useEvents();
   const { communities, verifyCommunity, updateCommunityFeaturedStatus } = useCommunities();
-  const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
+  const { aboutContent, updateAboutContent, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
   const { businesses, verifyBusiness, updateBusinessFeaturedStatus } = useBusinesses();
   const { toast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
   const [isUsersLoading, setIsUsersLoading] = useState(true);
+  
   const [story, setStory] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [faviconUrl, setFaviconUrl] = useState('');
 
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -175,8 +179,12 @@ export default function AdminDashboardPage() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    setStory(aboutContent.story);
-  }, [aboutContent.story]);
+    if (aboutContent) {
+        setStory(aboutContent.story);
+        setLogoUrl(aboutContent.logoUrl || '');
+        setFaviconUrl(aboutContent.faviconUrl || '');
+    }
+  }, [aboutContent]);
 
   const handleEventStatusChange = (eventId: string, newStatus: Event['status']) => {
     updateEventStatus(eventId, newStatus);
@@ -202,9 +210,9 @@ export default function AdminDashboardPage() {
     });
   };
 
-  const handleStorySave = () => {
-    updateStory(story);
-    toast({ title: 'About Page Updated', description: '"Our Story" has been saved.' });
+  const handleAboutContentSave = (data: Partial<AboutContent>) => {
+    updateAboutContent(data);
+    toast({ title: 'About Page Updated', description: 'Your changes have been saved.' });
   }
 
   const handleAddTeamMember = (data: Omit<TeamMember, 'id'>) => {
@@ -284,7 +292,7 @@ export default function AdminDashboardPage() {
                     <TabsTrigger value="events">Events ({sortedEvents.length})</TabsTrigger>
                     <TabsTrigger value="communities">Communities ({sortedCommunities.length})</TabsTrigger>
                     <TabsTrigger value="businesses">Businesses ({sortedBusinesses.length})</TabsTrigger>
-                    <TabsTrigger value="about">About Page</TabsTrigger>
+                    <TabsTrigger value="about">Site Management</TabsTrigger>
                 </TabsList>
                 <TabsContent value="events" className="mt-6">
                     <div className="w-full overflow-x-auto">
@@ -446,6 +454,41 @@ export default function AdminDashboardPage() {
                 </TabsContent>
                 <TabsContent value="about" className="mt-6">
                     <div className="space-y-8">
+                         {/* Site Branding Section */}
+                        <Card>
+                             <CardHeader>
+                                <CardTitle>Site Branding</CardTitle>
+                                <CardDescription>Manage your site's logo and favicon.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label>Site Logo</Label>
+                                    <ImageUpload
+                                        value={logoUrl}
+                                        onChange={(url) => setLogoUrl(url)}
+                                        aspectRatio={4/1}
+                                        toast={toast}
+                                        folderName="branding"
+                                        className="max-h-[100px]"
+                                    />
+                                    <p className="text-sm text-muted-foreground">Recommended: Transparent PNG or SVG, ~200x50px</p>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label>Site Favicon</Label>
+                                     <ImageUpload
+                                        value={faviconUrl}
+                                        onChange={(url) => setFaviconUrl(url)}
+                                        aspectRatio={1}
+                                        toast={toast}
+                                        folderName="branding"
+                                        className="max-h-[100px]"
+                                    />
+                                     <p className="text-sm text-muted-foreground">Recommended: ICO or PNG file, 32x32px</p>
+                                </div>
+                                <Button onClick={() => handleAboutContentSave({ logoUrl, faviconUrl })}>Save Branding</Button>
+                            </CardContent>
+                        </Card>
+
                         {/* Story Section */}
                         <Card>
                             <CardHeader>
@@ -459,7 +502,7 @@ export default function AdminDashboardPage() {
                                     rows={10}
                                     className="whitespace-pre-line"
                                 />
-                                <Button onClick={handleStorySave}>Save Story</Button>
+                                <Button onClick={() => handleAboutContentSave({ story })}>Save Story</Button>
                             </CardContent>
                         </Card>
 

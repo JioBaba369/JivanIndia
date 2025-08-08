@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import type { User } from './use-auth';
@@ -19,12 +19,14 @@ export interface AboutContent {
   story: string;
   teamMembers: TeamMember[];
   adminUids: string[];
+  logoUrl?: string;
+  faviconUrl?: string;
 }
 
 interface AboutContextType {
   aboutContent: AboutContent;
   isLoading: boolean;
-  updateStory: (newStory: string) => Promise<void>;
+  updateAboutContent: (data: Partial<AboutContent>) => Promise<void>;
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
   updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
   deleteTeamMember: (memberId: string) => Promise<void>;
@@ -38,7 +40,9 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const [aboutContent, setAboutContent] = useState<AboutContent>({ 
     story: 'We saw the immense dedication of community leaders, volunteers, and supporters. Yet, we also saw the operational hurdles they faced—fragmented tools, disconnected communication channels, and the constant struggle to engage their communities effectively.\n\nThis platform was created to solve that. We set out to build an all-in-one digital ecosystem where organizations can manage their events, coordinate volunteers, share deals, and communicate seamlessly with their audience. Our goal is to handle the technology so they can focus on what they do best: building community.', 
     teamMembers: [], 
-    adminUids: ["defDHmCjCdWvmGid9YYg3RJi01x2"] 
+    adminUids: ["defDHmCjCdWvmGid9YYg3RJi01x2"],
+    logoUrl: '',
+    faviconUrl: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -66,17 +70,17 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchAboutContent();
   }, [fetchAboutContent]);
-
-  const updateStory = async (newStory: string) => {
+  
+  const updateAboutContent = async (data: Partial<AboutContent>) => {
     try {
-      await updateDoc(aboutDocRef, { story: newStory });
-      setAboutContent(prev => ({ ...prev, story: newStory }));
-      toast({ title: 'Success', description: 'Our Story has been updated.' });
-    } catch(e) {
-      console.error("Error updating story: ", e);
-      toast({ title: 'Error', description: 'Could not update story.', variant: 'destructive' });
+      await updateDoc(aboutDocRef, data);
+      setAboutContent(prev => ({ ...prev, ...data }));
+    } catch (e) {
+      console.error("Error updating about content: ", e);
+      toast({ title: 'Error', description: 'Could not update site content.', variant: 'destructive' });
     }
-  };
+  }
+
 
   const addTeamMember = async (memberData: Omit<TeamMember, 'id'>) => {
     const newMember: TeamMember = {
@@ -84,14 +88,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
       id: new Date().getTime().toString(),
     };
     const updatedMembers = [...aboutContent.teamMembers, newMember];
-    try {
-      await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
-      setAboutContent(prev => ({ ...prev, teamMembers: updatedMembers }));
-      toast({ title: 'Success', description: 'Team member added.' });
-    } catch(e) {
-      console.error("Error adding team member: ", e);
-      toast({ title: 'Error', description: 'Could not add team member.', variant: 'destructive' });
-    }
+    await updateAboutContent({ teamMembers: updatedMembers });
   };
 
   const updateTeamMember = async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
@@ -100,26 +97,12 @@ export function AboutProvider({ children }: { children: ReactNode }) {
         ? { id: member.id, ...updatedData } 
         : member
     );
-     try {
-        await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
-        setAboutContent(prev => ({ ...prev, teamMembers: updatedMembers }));
-        toast({ title: 'Success', description: 'Team member updated.' });
-    } catch(e) {
-        console.error("Error updating team member: ", e);
-        toast({ title: 'Error', description: 'Could not update team member.', variant: 'destructive' });
-    }
+    await updateAboutContent({ teamMembers: updatedMembers });
   };
 
   const deleteTeamMember = async (memberId: string) => {
     const updatedMembers = aboutContent.teamMembers.filter(member => member.id !== memberId);
-    try {
-        await updateDoc(aboutDocRef, { teamMembers: updatedMembers });
-        setAboutContent(prev => ({ ...prev, teamMembers: updatedMembers }));
-        toast({ title: 'Success', description: 'Team member removed.' });
-    } catch (e) {
-        console.error("Error deleting team member: ", e);
-        toast({ title: 'Error', description: 'Could not remove team member.', variant: 'destructive' });
-    }
+    await updateAboutContent({ teamMembers: updatedMembers });
   };
 
   const addAdmin = async (email: string, allUsers: User[]) => {
@@ -162,7 +145,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const value = {
     aboutContent,
     isLoading,
-    updateStory,
+    updateAboutContent,
     addTeamMember,
     updateTeamMember,
     deleteTeamMember,

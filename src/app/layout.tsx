@@ -4,6 +4,9 @@ import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/layout/providers";
+import { getDoc, doc } from "firebase/firestore";
+import { firestore } from "@/lib/firebase";
+import { AboutContent } from "@/hooks/use-about";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -16,14 +19,28 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
 });
 
+export async function generateMetadata(): Promise<Metadata> {
+  let faviconUrl = '/favicon.ico';
+  try {
+    const aboutDoc = await getDoc(doc(firestore, 'about', 'singleton'));
+    if (aboutDoc.exists()) {
+      const aboutData = aboutDoc.data() as AboutContent;
+      if (aboutData.faviconUrl) {
+        faviconUrl = aboutData.faviconUrl;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch favicon from Firestore, using default.", error);
+  }
 
-export const metadata: Metadata = {
-  title: "JivanIndia.co - The Heartbeat of the Indian Community",
-  description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
-  icons: {
-    icon: '/favicon.ico',
-  },
-};
+  return {
+    title: "JivanIndia.co - The Heartbeat of the Indian Community",
+    description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
+    icons: {
+      icon: faviconUrl,
+    },
+  };
+}
 
 
 export default function RootLayout({
