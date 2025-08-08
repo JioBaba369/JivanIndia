@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -22,12 +23,13 @@ export interface Event {
   organizerId: string;
   organizerName: string;
   status: 'Pending' | 'Approved' | 'Archived';
+  isFeatured?: boolean;
   submittedByUid?: string;
   createdAt: string; 
   updatedAt?: string; 
 }
 
-export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status'>;
+export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'isFeatured'>;
 
 interface EventsContextType {
   events: Event[];
@@ -35,6 +37,7 @@ interface EventsContextType {
   addEvent: (event: NewEventInput) => Promise<void>;
   getEventById: (id: string) => Event | undefined;
   updateEventStatus: (eventId: string, status: Event['status']) => Promise<void>;
+  updateEventFeaturedStatus: (eventId: string, isFeatured: boolean) => Promise<void>;
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -70,6 +73,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       createdAt: now,
       updatedAt: now,
       status: 'Pending' as Event['status'], // All events default to Pending
+      isFeatured: false,
     };
     
     const docRef = await addDoc(eventsCollectionRef, newEventData);
@@ -83,12 +87,29 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   const updateEventStatus = async (eventId: string, status: Event['status']) => {
     const eventDocRef = doc(firestore, 'events', eventId);
-    const updatedData = { status, updatedAt: new Date().toISOString() };
+    const updatedData: { status: Event['status'], updatedAt: string, isFeatured?: boolean } = { status, updatedAt: new Date().toISOString() };
+    
+    // If event is not approved, it cannot be featured
+    if (status !== 'Approved') {
+        updatedData.isFeatured = false;
+    }
+
     await updateDoc(eventDocRef, updatedData);
+
     setEvents(prev => prev.map(event =>
       event.id === eventId ? { ...event, ...updatedData } : event
     ));
     toast({ title: 'Event Status Updated', description: `The event has been set to ${status}.` });
+  };
+  
+  const updateEventFeaturedStatus = async (eventId: string, isFeatured: boolean) => {
+    const eventDocRef = doc(firestore, 'events', eventId);
+    const updatedData = { isFeatured, updatedAt: new Date().toISOString() };
+    await updateDoc(eventDocRef, updatedData);
+    setEvents(prev => prev.map(event =>
+      event.id === eventId ? { ...event, ...updatedData } : event
+    ));
+     toast({ title: 'Event Updated', description: `The event has been ${isFeatured ? 'featured' : 'un-featured'}.` });
   };
 
   const value = {
@@ -97,6 +118,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     addEvent,
     getEventById,
     updateEventStatus,
+    updateEventFeaturedStatus,
   };
 
   return (

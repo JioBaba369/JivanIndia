@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2 } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember } from '@/hooks/use-about';
@@ -24,6 +25,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { getInitials } from '@/lib/utils';
 import { firestore } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { useBusinesses } from '@/hooks/use-businesses';
 
 
 const TeamMemberDialog = ({
@@ -136,9 +138,10 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => void }) => {
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
-  const { events, updateEventStatus } = useEvents();
-  const { communities, verifyCommunity } = useCommunities();
+  const { events, updateEventStatus, updateEventFeaturedStatus } = useEvents();
+  const { communities, verifyCommunity, updateCommunityFeaturedStatus } = useCommunities();
   const { aboutContent, updateStory, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
+  const { businesses, verifyBusiness, updateBusinessFeaturedStatus } = useBusinesses();
   const { toast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
@@ -188,6 +191,14 @@ export default function AdminDashboardPage() {
     toast({
         title: "Community Verified",
         description: "The community has been marked as verified.",
+    });
+  };
+
+  const handleBusinessVerify = (businessId: string) => {
+    verifyBusiness(businessId);
+    toast({
+      title: "Business Verified",
+      description: "The business has been marked as verified.",
     });
   };
 
@@ -253,6 +264,7 @@ export default function AdminDashboardPage() {
 
   const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const sortedBusinesses = [...businesses].sort((a,b) => a.name.localeCompare(b.name));
   const adminUsers = users.filter(u => aboutContent.adminUids?.includes(u.uid));
 
 
@@ -268,9 +280,10 @@ export default function AdminDashboardPage() {
         </CardHeader>
         <CardContent>
             <Tabs defaultValue="events" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+                <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
                     <TabsTrigger value="events">Events ({sortedEvents.length})</TabsTrigger>
                     <TabsTrigger value="communities">Communities ({sortedCommunities.length})</TabsTrigger>
+                    <TabsTrigger value="businesses">Businesses ({sortedBusinesses.length})</TabsTrigger>
                     <TabsTrigger value="about">About Page</TabsTrigger>
                 </TabsList>
                 <TabsContent value="events" className="mt-6">
@@ -294,9 +307,17 @@ export default function AdminDashboardPage() {
                                     <TableCell>{event.organizerName}</TableCell>
                                     <TableCell>{format(new Date(event.startDateTime), 'PPp')}</TableCell>
                                     <TableCell>
-                                        <Badge variant={getEventStatusVariant(event.status)}>{event.status}</Badge>
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant={getEventStatusVariant(event.status)}>{event.status}</Badge>
+                                          {event.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
+                                        {event.status === 'Approved' && (
+                                            <Button size="sm" variant="outline" onClick={() => updateEventFeaturedStatus(event.id, !event.isFeatured)}>
+                                                <Star className="mr-2 h-4 w-4" /> {event.isFeatured ? 'Un-Feature' : 'Feature'}
+                                            </Button>
+                                        )}
                                         {event.status !== 'Approved' && (
                                             <Button size="sm" onClick={() => handleEventStatusChange(event.id, 'Approved')}>
                                                 <Check className="mr-2 h-4 w-4" /> Approve
@@ -340,11 +361,19 @@ export default function AdminDashboardPage() {
                                         <TableCell>{community.region}</TableCell>
                                         <TableCell>{community.founderEmail}</TableCell>
                                         <TableCell>
+                                          <div className="flex items-center gap-2">
                                             <Badge variant={community.isVerified ? 'default' : 'secondary'}>
                                                 {community.isVerified ? 'Verified' : 'Unverified'}
                                             </Badge>
+                                             {community.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                                           </div>
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-right space-x-2">
+                                            {community.isVerified && (
+                                              <Button size="sm" variant="outline" onClick={() => updateCommunityFeaturedStatus(community.id, !community.isFeatured)}>
+                                                  <Star className="mr-2 h-4 w-4" /> {community.isFeatured ? 'Un-Feature' : 'Feature'}
+                                              </Button>
+                                            )}
                                             {!community.isVerified && (
                                                 <Button size="sm" onClick={() => handleCommunityVerify(community.id)}>
                                                     <CheckCircle2 className="mr-2 h-4 w-4"/>
@@ -360,6 +389,58 @@ export default function AdminDashboardPage() {
                      {sortedCommunities.length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
                             <p>No communities have been created yet.</p>
+                        </div>
+                    )}
+                </TabsContent>
+                 <TabsContent value="businesses" className="mt-6">
+                    <div className="w-full overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Region</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {sortedBusinesses.map(business => (
+                                    <TableRow key={business.id}>
+                                        <TableCell className="font-medium">
+                                          <Link href={`/businesses/${business.id}`} className="hover:underline" target="_blank">{business.name}</Link>
+                                        </TableCell>
+                                        <TableCell>{business.category}</TableCell>
+                                        <TableCell>{business.region}</TableCell>
+                                        <TableCell>
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant={business.isVerified ? 'default' : 'secondary'}>
+                                                {business.isVerified ? 'Verified' : 'Unverified'}
+                                            </Badge>
+                                             {business.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                                           </div>
+                                        </TableCell>
+                                        <TableCell className="text-right space-x-2">
+                                            {business.isVerified && (
+                                              <Button size="sm" variant="outline" onClick={() => updateBusinessFeaturedStatus(business.id, !business.isFeatured)}>
+                                                  <Star className="mr-2 h-4 w-4" /> {business.isFeatured ? 'Un-Feature' : 'Feature'}
+                                              </Button>
+                                            )}
+                                            {!business.isVerified && (
+                                                <Button size="sm" onClick={() => handleBusinessVerify(business.id)}>
+                                                    <CheckCircle2 className="mr-2 h-4 w-4"/>
+                                                    Verify
+                                                </Button>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                     {sortedBusinesses.length === 0 && (
+                        <div className="text-center py-12 text-muted-foreground">
+                            <p>No businesses have been created yet.</p>
                         </div>
                     )}
                 </TabsContent>

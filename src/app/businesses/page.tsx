@@ -38,7 +38,8 @@ export default function BusinessesPage() {
     }, [businesses]);
 
     const filteredBusinesses = useMemo(() => {
-        return businesses.filter(business => {
+        return businesses
+        .filter(business => {
           const matchesSearch =
             business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             business.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -48,7 +49,8 @@ export default function BusinessesPage() {
           const matchesCategory = category === 'all' || business.category === category;
     
           return matchesSearch && matchesLocation && matchesCategory;
-        });
+        })
+        .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }, [businesses, searchQuery, locationQuery, category]);
     
     const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, businessName: string, businessId: string) => {
@@ -126,7 +128,7 @@ export default function BusinessesPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {filteredBusinesses.map(business => (
-                <Card key={business.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
                     <Link href={`/businesses/${business.id}`} className="flex flex-col h-full">
                         <div className="relative h-48 w-full">
                             <Image
@@ -136,10 +138,12 @@ export default function BusinessesPage() {
                                 className="object-cover transition-transform group-hover:scale-105"
                                 sizes="100vw"
                             />
+                            {business.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                             <Badge variant="secondary" className="absolute right-3 top-3">{business.category}</Badge>
                         </div>
                         <CardContent className="flex-grow p-4">
                             <CardTitle className="mb-2 font-headline text-xl group-hover:text-primary">
+                                 {business.isVerified && <BadgeCheck className="mr-1 h-5 w-5 inline-block text-primary" />}
                                 {business.name}
                             </CardTitle>
                             <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>

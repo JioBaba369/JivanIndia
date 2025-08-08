@@ -5,6 +5,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
+import { useToast } from './use-toast';
 
 export interface Community {
   id: string;
@@ -18,6 +19,7 @@ export interface Community {
   region: string;
   membersCount: number;
   isVerified: boolean;
+  isFeatured?: boolean;
   founded: string;
   tags: string[];
   address: string;
@@ -35,7 +37,7 @@ export interface Community {
   updatedAt: string;
 }
 
-export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail'>;
+export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail' | 'isFeatured'>;
 
 interface CommunitiesContextType {
   communities: Community[];
@@ -47,6 +49,7 @@ interface CommunitiesContextType {
   getCommunityBySlug: (slug: string) => Community | undefined;
   isSlugUnique: (slug: string, currentId?: string) => boolean;
   verifyCommunity: (communityId: string) => Promise<void>;
+  updateCommunityFeaturedStatus: (communityId: string, isFeatured: boolean) => Promise<void>;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
@@ -56,6 +59,7 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -85,6 +89,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       createdAt: now,
       updatedAt: now,
       isVerified: false,
+      isFeatured: false,
       founderEmail: user.email,
     };
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
@@ -141,6 +146,16 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     ));
   };
 
+  const updateCommunityFeaturedStatus = async (communityId: string, isFeatured: boolean) => {
+    const communityDocRef = doc(firestore, 'communities', communityId);
+    await updateDoc(communityDocRef, { isFeatured });
+    setCommunities(prev => prev.map(c => c.id === communityId ? { ...c, isFeatured } : c));
+    toast({
+      title: 'Community Updated',
+      description: `Community has been ${isFeatured ? 'featured' : 'un-featured'}.`,
+    });
+  };
+
   const contextValue = {
     communities,
     isLoading,
@@ -151,6 +166,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     getCommunityBySlug,
     isSlugUnique,
     verifyCommunity,
+    updateCommunityFeaturedStatus,
   };
 
   return (

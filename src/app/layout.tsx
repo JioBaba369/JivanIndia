@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { PT_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -19,6 +20,9 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "JivanIndia.co - The Heartbeat of the Indian Community",
   description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 

@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, PlusCircle, ArrowRight, Megaphone } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, PlusCircle, ArrowRight, Megaphone, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { useEvents } from "@/hooks/use-events";
 import { useMemo, useState, useEffect } from "react";
 import { format } from 'date-fns';
 import { useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function EventsPage() {
   const { events } = useEvents();
@@ -36,7 +37,8 @@ export default function EventsPage() {
   const eventCategories = ['all', ...Array.from(new Set(approvedEvents.map(event => event.eventType)))];
 
   const filteredEvents = useMemo(() => {
-    return approvedEvents.filter(event => {
+    return approvedEvents
+    .filter(event => {
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,7 +51,8 @@ export default function EventsPage() {
       const matchesCategory = category === 'all' || event.eventType === category;
 
       return matchesSearch && matchesLocation && matchesCategory;
-    });
+    })
+    .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
   }, [approvedEvents, searchQuery, locationQuery, category]);
 
   return (
@@ -111,7 +114,7 @@ export default function EventsPage() {
             {filteredEvents.map((event) => {
               const formattedDate = format(new Date(event.startDateTime), 'PPp');
               return (
-                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                 <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
                     <CardContent className="p-0">
                         <div className="relative h-48 w-full">
                             <Image
@@ -122,6 +125,7 @@ export default function EventsPage() {
                             sizes="100vw"
                             data-ai-hint="event photo"
                             />
+                            {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                             <Badge className="absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{event.eventType}</Badge>
                         </div>
                     </CardContent>

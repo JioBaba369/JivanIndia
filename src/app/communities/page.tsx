@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle, LayoutGrid, List } from "lucide-react";
+import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle, LayoutGrid, List, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -45,7 +45,7 @@ export default function CommunitiesPage() {
     }, [searchParams]);
 
     const featuredCommunities = useMemo(() => {
-      return communities.filter(c => c.isVerified).slice(0, 5);
+      return communities.filter(c => c.isFeatured || c.isVerified).sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)).slice(0, 5);
     }, [communities]);
 
     const communityCategories = useMemo(() => {
@@ -64,7 +64,7 @@ export default function CommunitiesPage() {
           const matchesCategory = category === 'all' || community.type === category;
     
           return matchesSearch && matchesLocation && matchesCategory;
-        });
+        }).sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }, [communities, searchQuery, locationQuery, category]);
 
 
@@ -130,7 +130,7 @@ export default function CommunitiesPage() {
             <CarouselContent>
               {featuredCommunities.map((org) => (
                 <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
-                  <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
+                  <Card className={cn("flex h-full flex-col overflow-hidden transition-all hover:shadow-lg", org.isFeatured && "border-primary border-2")}>
                       <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
                           <div className="relative h-48 w-full">
                               <Image
@@ -141,6 +141,7 @@ export default function CommunitiesPage() {
                               priority
                               data-ai-hint="community photo"
                               />
+                              {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                           </div>
                           <CardContent className="flex flex-grow flex-col p-4">
                               <div className="flex items-center gap-2">
@@ -236,7 +237,7 @@ export default function CommunitiesPage() {
             {filteredCommunities.map((org) => {
                 const isJoined = isCommunityJoined(org.id);
                 return view === 'grid' ? (
-                <Card key={org.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl">
+                <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
                     <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
                         <div className="relative h-48 w-full">
                         <Image
@@ -246,6 +247,7 @@ export default function CommunitiesPage() {
                             className="object-cover transition-transform group-hover:scale-105"
                             data-ai-hint="community photo"
                         />
+                         {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4">
                             <CardTitle className="font-headline text-xl font-bold group-hover:text-primary">
@@ -275,7 +277,7 @@ export default function CommunitiesPage() {
                     </div>
                 </Card>
               ) : (
-                <Card key={org.id} className="group w-full overflow-hidden border transition-all hover:shadow-xl">
+                <Card key={org.id} className={cn("group w-full overflow-hidden border transition-all hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
                    <Link href={`/c/${org.slug}`}>
                     <div className="flex flex-col sm:flex-row">
                         <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">
@@ -290,6 +292,7 @@ export default function CommunitiesPage() {
                         <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                             <p className="font-semibold text-primary">{org.type}</p>
                             <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">
+                                 {org.isFeatured && <Star className="mr-2 h-5 w-5 inline-block text-yellow-400 fill-yellow-400" />}
                                  {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
                                 {org.name}
                             </h3>

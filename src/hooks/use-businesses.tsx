@@ -1,8 +1,10 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, addDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useToast } from './use-toast';
 
 export type BusinessCategory = 'Professional Services' | 'Restaurant' | 'Retail' | 'Health & Wellness' | 'Entertainment' | 'Other';
 export const businessCategories: BusinessCategory[] = ['Professional Services', 'Restaurant', 'Retail', 'Health & Wellness', 'Entertainment', 'Other'];
@@ -16,6 +18,7 @@ export interface Business {
   fullDescription: string;
   imageUrl: string;
   isVerified: boolean;
+  isFeatured?: boolean;
   region: string;
   rating: number;
   reviewCount: number;
@@ -29,13 +32,15 @@ export interface Business {
   associatedCommunityId?: string; // ID of the community
 }
 
-export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount'>;
+export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount' | 'isFeatured'>;
 
 interface BusinessesContextType {
   businesses: Business[];
   isLoading: boolean;
   getBusinessById: (id: string) => Business | undefined;
   addBusiness: (business: NewBusinessInput) => Promise<Business>;
+  verifyBusiness: (businessId: string) => Promise<void>;
+  updateBusinessFeaturedStatus: (businessId: string, isFeatured: boolean) => Promise<void>;
 }
 
 const BusinessesContext = createContext<BusinessesContextType | undefined>(undefined);
@@ -45,6 +50,7 @@ const businessesCollectionRef = collection(firestore, 'businesses');
 export function BusinessesProvider({ children }: { children: ReactNode }) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const fetchBusinesses = useCallback(async () => {
     setIsLoading(true);
@@ -67,7 +73,8 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
   const addBusiness = async (businessData: NewBusinessInput): Promise<Business> => {
     const newBusinessForDb = {
       ...businessData,
-      isVerified: true, // Admin-added businesses are auto-verified
+      isVerified: false, 
+      isFeatured: false,
       rating: 4.5, // Placeholder
       reviewCount: 0,
     };
@@ -83,11 +90,29 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     return businesses.find(business => business.id === id);
   }, [businesses]);
 
+  const verifyBusiness = async (businessId: string) => {
+    const businessDocRef = doc(firestore, 'businesses', businessId);
+    await updateDoc(businessDocRef, { isVerified: true });
+    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, isVerified: true } : b));
+  };
+  
+  const updateBusinessFeaturedStatus = async (businessId: string, isFeatured: boolean) => {
+    const businessDocRef = doc(firestore, 'businesses', businessId);
+    await updateDoc(businessDocRef, { isFeatured });
+    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, isFeatured } : b));
+    toast({
+      title: 'Business Updated',
+      description: `Business has been ${isFeatured ? 'featured' : 'un-featured'}.`,
+    });
+  };
+
   const value = {
     businesses,
     isLoading,
     getBusinessById,
     addBusiness,
+    verifyBusiness,
+    updateBusinessFeaturedStatus,
   };
 
   return (
