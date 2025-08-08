@@ -1,10 +1,10 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
-import { useToast } from './use-toast';
 
 export interface Community {
   id: string;
@@ -56,7 +56,6 @@ const communitiesCollectionRef = collection(firestore, 'communities');
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -140,7 +139,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     setCommunities(prev => prev.map(c => 
       c.id === communityId ? { ...c, isVerified: true, updatedAt: updatedData.updatedAt } as Community : c
     ));
-    toast({ title: 'Community Verified', description: 'The community has been successfully verified.' });
   };
 
   const contextValue = {

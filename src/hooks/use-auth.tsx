@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -6,6 +7,7 @@ import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndP
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
+import { useAbout } from './use-about';
 
 
 export interface User {
@@ -87,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { aboutContent } = useAbout();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -99,9 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data() as User;
-                setUser(userData);
+                const isAdmin = aboutContent.adminUids?.includes(userData.uid) || false;
+                setUser({ ...userData, isAdmin });
             } else {
-                // This case can happen if the user document hasn't been created yet after signup
                 setUser(null);
             }
         } else {
@@ -111,13 +114,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [aboutContent.adminUids]);
 
   const signup = async (name: string, email: string, pass: string, country: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
     
-    // Check for username uniqueness before assigning
     let username = generateSlug(name);
     let isUnique = await isUsernameUnique(username, fbUser.uid);
     let attempts = 0;

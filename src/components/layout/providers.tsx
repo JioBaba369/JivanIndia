@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react';
 import { AuthProvider } from "@/hooks/use-auth";
 import { EventsProvider } from "@/hooks/use-events";
 import { CommunitiesProvider } from "@/hooks/use-communities";
@@ -19,7 +20,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAbout } from "@/hooks/use-about";
 
-function AppContent({ children }: { children: React.ReactNode }) {
+function AppShell({ children }: { children: React.ReactNode }) {
     const { isLoading: isAuthLoading } = useAuth();
     const { isLoading: isAboutLoading } = useAbout();
 
@@ -52,8 +53,8 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
-        <AuthProvider>
-            <AboutProvider>
+        <AboutProvider>
+            <AuthProvider>
                 <CommunitiesProvider>
                     <EventsProvider>
                         <BusinessesProvider>
@@ -61,9 +62,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                                 <DealsProvider>
                                     <MoviesProvider>
                                         <JobsProvider>
-                                            <AppContent>
+                                            <AppShell>
                                                 {children}
-                                            </AppContent>
+                                            </AppShell>
                                         </JobsProvider>
                                     </MoviesProvider>
                                 </DealsProvider>
@@ -71,7 +72,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                         </BusinessesProvider>
                     </EventsProvider>
                 </CommunitiesProvider>
-            </AboutProvider>
-        </AuthProvider>
+            </AuthProvider>
+        </AboutProvider>
     )
 }

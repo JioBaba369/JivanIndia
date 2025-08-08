@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import type { User } from './use-auth';
@@ -60,7 +60,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, [aboutDocRef, aboutContent]);
+  }, []);
 
   useEffect(() => {
     fetchAboutContent();

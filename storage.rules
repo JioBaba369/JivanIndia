@@ -2,51 +2,41 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Helper function to check if user is authenticated
-    function isAuthenticated() {
+  
+    function isAuth() {
       return request.auth != null;
     }
     
-    // Default deny all
+    // Default deny all reads and writes
     match /{allPaths=**} {
       allow read, write: if false;
     }
 
-    // Allow public read access to all image folders
-    match /profile-pictures/{fileName} {
+    // Allow public read on all files in these folders
+    match /profile-pictures/{allPaths=**} {
       allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    }
+    match /event-banners/{allPaths=**} {
+      allow read: if true;
+    }
+    match /community-logos/{allPaths=**} {
+      allow read: if true;
+    }
+    match /community-banners/{allPaths=**} {
+      allow read: if true;
+    }
+    match /deal-images/{allPaths=**} {
+      allow read: if true;
+    }
+    match /sponsor-logos/{allPaths=**} {
+      allow read: if true;
     }
     
-    match /event-banners/{fileName} {
-      allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
-    }
-
-    match /community-logos/{fileName} {
-      allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
-    }
-    
-    match /community-banners/{fileName} {
-      allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
-    }
-
-    match /business-images/{fileName} {
-      allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
-    }
-    
-    match /sponsor-logos/{fileName} {
-      allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
-    }
-
-    match /deal-images/{fileName} {
-      allow read: if true;
-      allow write: if isAuthenticated() && request.resource.size < 5 * 1024 * 1024; // Max 5MB
+    // Allow write only for authenticated users and enforce file size/type
+    match /{folder}/{fileName} {
+      allow write: if isAuth()
+                   && request.resource.size < 10 * 1024 * 1024 // 10 MB limit
+                   && request.resource.contentType.matches('image/.*');
     }
   }
 }
