@@ -4,7 +4,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from './use-auth';
 
 export type BusinessCategory = 'Professional Services' | 'Restaurant' | 'Retail' | 'Health & Wellness' | 'Entertainment' | 'Other';
 export const businessCategories: BusinessCategory[] = ['Professional Services', 'Restaurant', 'Retail', 'Health & Wellness', 'Entertainment', 'Other'];
@@ -47,10 +46,8 @@ const businessesCollectionRef = collection(firestore, 'businesses');
 export function BusinessesProvider({ children }: { children: ReactNode }) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { isLoading: isAuthLoading } = useAuth();
 
   const fetchBusinesses = useCallback(async () => {
-    if (isAuthLoading) return;
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(businessesCollectionRef);
@@ -62,7 +59,7 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, [isAuthLoading]);
+  }, []);
 
   useEffect(() => {
     fetchBusinesses();

@@ -4,7 +4,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from './use-auth';
 
 export interface Deal {
   id: string;
@@ -38,10 +37,8 @@ const dealsCollectionRef = collection(firestore, 'deals');
 export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { isLoading: isAuthLoading } = useAuth();
 
   const fetchDeals = useCallback(async () => {
-    if(isAuthLoading) return;
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(dealsCollectionRef);
@@ -53,7 +50,7 @@ export function DealsProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, [isAuthLoading]);
+  }, []);
 
   useEffect(() => {
     fetchDeals();

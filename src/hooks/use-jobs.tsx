@@ -4,7 +4,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
-import { useAuth } from './use-auth';
 
 export interface Job {
   id: string;
@@ -37,10 +36,8 @@ const jobsCollectionRef = collection(firestore, 'jobs');
 export function JobsProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { isLoading: isAuthLoading } = useAuth();
 
   const fetchJobs = useCallback(async () => {
-    if (isAuthLoading) return;
     setIsLoading(true);
     try {
         const querySnapshot = await getDocs(jobsCollectionRef);
@@ -52,7 +49,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
     } finally {
         setIsLoading(false);
     }
-  }, [isAuthLoading]);
+  }, []);
 
   useEffect(() => {
     fetchJobs();
