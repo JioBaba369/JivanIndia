@@ -64,7 +64,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} JivanIndia.community. Built with love for the community. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} JivanIndia.co. Built with love for the community. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -21,9 +21,8 @@ export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
             </svg>
         </div>
         <span className="font-headline text-2xl font-bold">
-            JivanIndia.
-            <span className="text-muted-foreground">co</span>
-            <span className="text-muted-foreground">mmunity</span>
+            JivanIndia
+            <span className="text-primary">.co</span>
         </span>
     </>
   );
@@ -32,13 +31,13 @@ export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
   const wrapperProps = Component === 'a' ? { href: '/' } : {};
   
   return (
-    <WrapperComponent aria-label="JivanIndia.community homepage" {...wrapperProps}>
+    <WrapperComponent aria-label="JivanIndia.co homepage" {...wrapperProps}>
         <div className="flex items-center gap-2" {...props}>
             {aboutContent.logoUrl ? (
                 <div className="relative h-10 w-40">
                     <Image
                         src={aboutContent.logoUrl}
-                        alt="JivanIndia.community Logo"
+                        alt="JivanIndia.co Logo"
                         fill
                         className="object-contain"
                         sizes="160px"

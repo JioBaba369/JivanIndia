@@ -206,7 +206,9 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
                     <div className="mt-6 flex flex-col space-y-4">
-                        <UserActions />
+                        <div onClick={() => setIsOpen(false)}>
+                            <UserActions />
+                        </div>
                         <DropdownMenuSeparator />
                         <nav className="flex flex-col space-y-2">
                              <SheetClose asChild><Link href="/" className="text-lg font-medium">Home</Link></SheetClose>

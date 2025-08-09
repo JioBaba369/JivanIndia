@@ -21,7 +21,7 @@ const config = {
     extend: {
       fontFamily: {
         body: ['var(--font-pt-sans)', 'sans-serif'],
-        headline: ['var(--font-playfair-display)', 'serif'],
+        headline: ['var(--font-space-grotesk)', 'sans-serif'],
       },
       textShadow: {
         DEFAULT: '0 1px 3px rgba(0,0,0,0.5)',
