@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
@@ -71,24 +71,15 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     const eventsCollectionRef = collection(firestore, 'events');
-    const isAdmin = user?.roles?.includes('admin');
-    let q;
-
-    if (isAdmin) {
-      q = eventsCollectionRef;
-    } else {
-      q = query(eventsCollectionRef, where('status', '==', 'Approved'));
+    let q = query(eventsCollectionRef, orderBy('startDateTime', 'desc'));
+    
+    // Non-admins only see approved events
+    if (!user?.roles.includes('admin')) {
+        q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
     }
     
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         let fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        
-        fetchedEvents = fetchedEvents.sort((a, b) => {
-            const dateA = new Date(a.startDateTime).getTime();
-            const dateB = new Date(b.startDateTime).getTime();
-            return dateB - dateA;
-        });
-
         setEvents(fetchedEvents);
         setIsLoading(false);
     }, (err) => {
