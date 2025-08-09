@@ -4,7 +4,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -89,6 +89,12 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
+              <DropdownMenuItem asChild onClick={handleItemClick}>
+                  <Link href="/profile/edit">
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>Edit Profile</span>
+                  </Link>
+              </DropdownMenuItem>
               {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
