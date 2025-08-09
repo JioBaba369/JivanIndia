@@ -78,6 +78,7 @@ export default function ImageUpload({
                   description: "There was an error uploading your image. Please try again.",
                   variant: "destructive",
               });
+              resetFileInput();
           },
           async () => {
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -87,6 +88,7 @@ export default function ImageUpload({
                   title: 'Image Uploaded!',
                   icon: <CheckCircle className="h-5 w-5 text-green-500" />,
               });
+              resetFileInput();
           }
         );
       } catch (error) {
@@ -97,6 +99,7 @@ export default function ImageUpload({
           variant: "destructive",
         });
         console.error("Upload error", error);
+        resetFileInput();
       }
     }
   };

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -12,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star } from 'lucide-react';
+import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star, User as UserIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -67,16 +68,24 @@ export default function ProfilePage() {
                         {user.bio && <p className="text-sm mt-4 text-foreground/80">{user.bio}</p>}
                     </CardContent>
                     <CardContent className="p-4 border-t">
-                         <Button asChild className="w-full">
-                            <Link href="/profile/edit">
-                                <Edit className="mr-2"/>
-                                Edit Profile
-                            </Link>
-                        </Button>
-                        <Button variant="ghost" className="w-full mt-2" onClick={handleLogout}>
-                            <LogOut className="mr-2"/>
-                            Logout
-                        </Button>
+                         <div className="flex flex-col gap-2">
+                             <Button asChild className="w-full">
+                                <Link href={`/${user.username}`}>
+                                    <UserIcon className="mr-2"/>
+                                    View Public Profile
+                                </Link>
+                            </Button>
+                             <Button asChild variant="outline" className="w-full">
+                                <Link href="/profile/edit">
+                                    <Edit className="mr-2"/>
+                                    Edit Profile
+                                </Link>
+                            </Button>
+                            <Button variant="ghost" className="w-full" onClick={handleLogout}>
+                                <LogOut className="mr-2"/>
+                                Logout
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </aside>

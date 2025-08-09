@@ -23,12 +23,13 @@ import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navLinks = [
-  { href: "/", label: "What's On" },
+  { href: "/events", label: "Events" },
   { href: "/communities", label: "Communities" },
   { href: "/businesses", label: "Businesses" },
   { href: "/movies", label: "Movies" },
   { href: "/deals", label: "Deals" },
   { href: "/careers", label: "Careers" },
+  { href: "/sponsors", label: "Sponsors" },
 ];
 
 const NavLink = ({ href, label, onClick }: { href: string; label: string, onClick?: () => void }) => {
@@ -85,13 +86,13 @@ const UserActions = () => {
               </Link>
             </DropdownMenuItem>}
              <DropdownMenuItem asChild>
-                <Link href="/profile">
+                <Link href="/profile?tab=saved-events">
                   <Heart className="mr-2 h-4 w-4" />
                   <span>Saved Items</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/profile">
+                <Link href="/profile?tab=joined-communities">
                   <Users className="mr-2 h-4 w-4" />
                   <span>My Communities</span>
                 </Link>
