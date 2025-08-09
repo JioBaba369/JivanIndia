@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,7 @@ const formSchema = (isSlugUnique: (slug: string) => boolean) => z.object({
   type: z.enum(communityTypes),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
   fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(FULL_DESC_MAX_LENGTH, `Full description must be ${FULL_DESC_MAX_LENGTH} characters or less.`),
+  country: z.string().min(2, "Country is required."),
   region: z.string().min(2, "Region is required."),
   founded: z.string().min(4, "Please enter a valid year.").max(4, "Please enter a valid year."),
   tags: z.string().optional(),
@@ -99,6 +101,7 @@ export default function NewCommunityPage() {
       type: 'Other',
       description: '',
       fullDescription: '',
+      country: user?.currentLocation?.country || '',
       region: '',
       founded: '',
       tags: '',
@@ -139,6 +142,7 @@ export default function NewCommunityPage() {
           type: values.type,
           description: values.description,
           fullDescription: values.fullDescription,
+          country: values.country,
           region: values.region,
           imageUrl: values.bannerUrl,
           logoUrl: values.logoUrl,
@@ -336,28 +340,42 @@ export default function NewCommunityPage() {
                       />
                        <FormField
                           control={form.control}
-                          name="region"
+                          name="founded"
                           render={({ field }) => (
                               <FormItem>
-                                  <FormLabel>Region *</FormLabel>
+                                  <FormLabel>Year Founded *</FormLabel>
                                   <FormControl>
-                                      <Input placeholder="e.g., San Francisco Bay Area" {...field} />
+                                      <Input placeholder="e.g., 2010" {...field} />
                                   </FormControl>
                                   <FormMessage />
                               </FormItem>
                           )}
                       />
                   </div>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <FormField
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <FormField
                         control={form.control}
-                        name="founded"
+                        name="country"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Year Founded *</FormLabel>
+                                <FormLabel>Country *</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g., 2010" {...field} />
+                                    <Input placeholder="e.g., USA, Canada" {...field} />
                                 </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="region"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Region *</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., San Francisco Bay Area" {...field} />
+                                </FormControl>
+                                 <FormDescription>State, province, or metropolitan area.</FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}

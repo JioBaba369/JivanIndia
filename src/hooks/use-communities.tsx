@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -16,6 +17,7 @@ export interface Community {
   imageUrl: string;
   logoUrl: string;
   region: string;
+  country: string; // New field
   membersCount: number;
   isVerified: boolean;
   isFeatured?: boolean;

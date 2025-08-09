@@ -28,6 +28,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCommunities } from "@/hooks/use-communities";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useCountry, ALL_COUNTRIES_VALUE } from "@/hooks/use-country";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
@@ -35,6 +36,7 @@ export default function CommunitiesPage() {
     const router = useRouter();
     const { communities } = useCommunities();
     const searchParams = useSearchParams();
+    const { selectedCountry } = useCountry();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [locationQuery, setLocationQuery] = useState('');
@@ -63,10 +65,12 @@ export default function CommunitiesPage() {
           const matchesLocation = community.region.toLowerCase().includes(locationQuery.toLowerCase());
     
           const matchesCategory = category === 'all' || community.type === category;
+
+          const matchesCountry = selectedCountry === ALL_COUNTRIES_VALUE || community.country === selectedCountry;
     
-          return matchesSearch && matchesLocation && matchesCategory;
+          return matchesSearch && matchesLocation && matchesCategory && matchesCountry;
         }).sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-    }, [communities, searchQuery, locationQuery, category]);
+    }, [communities, searchQuery, locationQuery, category, selectedCountry]);
 
 
     const handleJoinToggle = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {

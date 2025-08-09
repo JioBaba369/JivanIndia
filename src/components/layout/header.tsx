@@ -21,13 +21,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useNotifications } from "@/hooks/use-notifications";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import NotificationBell from "./notification-bell";
+import CountrySelector from "./country-selector";
 
 const navLinks = [
   { href: "/events", label: "Events" },
@@ -149,6 +144,7 @@ export default function Header() {
         </div>
         
         <div className="flex items-center gap-2">
+            <CountrySelector />
             <div className="hidden md:flex">
                 <UserActions />
             </div>
