@@ -1,8 +1,9 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Flag } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Flag, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -86,7 +87,7 @@ export default function CommunityDetailPage() {
   }
 
   const orgIsJoined = user ? isCommunityJoined(community.id) : false;
-  const isFounder = user?.uid === community.founderUid;
+  const isManager = user?.roles.includes('community-manager') && user?.affiliation?.orgId === community.id;
 
   return (
     <div className="bg-background">
@@ -163,23 +164,28 @@ export default function CommunityDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    {isFounder && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <Button size="lg" asChild>
-                              <Link href={`/c/${community.slug}/edit`}>
-                                  <Edit className="mr-2 h-4 w-4"/>
-                                  Edit
-                              </Link>
-                          </Button>
-                           <Button size="lg" variant="outline" asChild>
-                              <Link href={`/c/${community.slug}/analytics`}>
-                                  <BarChart2 className="mr-2 h-4 w-4"/>
-                                  Analytics
-                              </Link>
-                          </Button>
-                        </div>
+                    {isManager && (
+                        <Card>
+                            <CardContent className="p-4">
+                                <h3 className="font-headline font-semibold mb-2">Manager Dashboard</h3>
+                                <div className="flex flex-col gap-2">
+                                     <Button asChild>
+                                        <Link href={`/c/${community.slug}/edit`}>
+                                            <Edit className="mr-2 h-4 w-4"/>
+                                            Edit Community
+                                        </Link>
+                                    </Button>
+                                    <Button variant="outline" asChild>
+                                        <Link href={`/c/${community.slug}/analytics`}>
+                                            <BarChart2 className="mr-2 h-4 w-4"/>
+                                            View Analytics
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
                     )}
-                    {!isFounder && (
+                    {!isManager && (
                         <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
                             <Bookmark className="mr-2 h-4 w-4"/>
                             {orgIsJoined ? "Leave Community" : "Join Community"}
@@ -206,7 +212,7 @@ export default function CommunityDetailPage() {
                         <p className="text-muted-foreground text-sm">{community.founded}</p>
                       </div>
                     </div>
-                     {!isFounder && (
+                     {!isManager && (
                         <div className="pt-2 border-t">
                             <ReportDialog contentId={community.id} contentType="Community" contentTitle={community.name} triggerVariant="ghost"/>
                         </div>

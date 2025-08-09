@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -159,6 +160,8 @@ export default function AdminDashboardPage() {
   const [logoUrl, setLogoUrl] = useState('');
   const [faviconUrl, setFaviconUrl] = useState('');
 
+  const hasAdminRole = user?.roles.includes('admin');
+
   useEffect(() => {
     const fetchAllUsers = async () => {
       setIsUsersLoading(true);
@@ -174,16 +177,16 @@ export default function AdminDashboardPage() {
       }
     };
 
-    if (user?.isAdmin) {
+    if (hasAdminRole) {
       fetchAllUsers();
     }
-  }, [user?.isAdmin, toast]);
+  }, [hasAdminRole, toast]);
 
   useEffect(() => {
-    if (!isLoading && !user?.isAdmin) {
+    if (!isLoading && !hasAdminRole) {
       router.push('/');
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, hasAdminRole, router]);
 
   useEffect(() => {
     if (aboutContent) {
@@ -262,7 +265,7 @@ export default function AdminDashboardPage() {
     }
   }
   
-  const totalLoading = isLoading || isAboutLoading || isReportsLoading || (user?.isAdmin && isUsersLoading);
+  const totalLoading = isLoading || isAboutLoading || isReportsLoading || (hasAdminRole && isUsersLoading);
 
   if (totalLoading) {
     return (
@@ -272,7 +275,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (!user?.isAdmin) {
+  if (!hasAdminRole) {
       router.push('/');
       return null;
   }

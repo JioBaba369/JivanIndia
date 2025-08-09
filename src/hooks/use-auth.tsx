@@ -10,12 +10,14 @@ import { generateSlug } from '@/lib/utils';
 import { useAbout } from './use-about';
 
 
+export type UserRole = 'admin' | 'community-manager';
+
 export interface User {
   uid: string;
   name: string;
   username: string;
   email: string;
-  isAdmin?: boolean;
+  roles: UserRole[];
   profileImageUrl?: string;
   bio?: string;
   affiliation?: {
@@ -101,9 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const userDocSnap = await getDoc(userDocRef);
 
             if (userDocSnap.exists()) {
-                const userData = userDocSnap.data() as User;
-                const isAdmin = aboutContent.adminUids?.includes(userData.uid) || false;
-                setUser({ ...userData, isAdmin });
+                const userData = userDocSnap.data() as Omit<User, 'roles'> & { roles?: UserRole[] };
+                
+                const roles: UserRole[] = userData.roles || [];
+                if (aboutContent.adminUids?.includes(userData.uid) && !roles.includes('admin')) {
+                    roles.push('admin');
+                }
+                
+                setUser({ ...userData, roles });
             } else {
                 setUser(null);
             }
@@ -134,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name,
       username,
       email: fbUser.email!,
-      isAdmin: false,
+      roles: [],
       affiliation: null,
       profileImageUrl: '',
       bio: '',
@@ -177,7 +184,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        await updateUser({ affiliation });
+        const roles = user.roles || [];
+        if (affiliation && !roles.includes('community-manager')) {
+            roles.push('community-manager');
+        } else if (!affiliation) {
+            const index = roles.indexOf('community-manager');
+            if (index > -1) {
+                roles.splice(index, 1);
+            }
+        }
+        await updateUser({ affiliation, roles });
     }
   }, [user, updateUser]);
 

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -51,6 +52,7 @@ const UserActions = () => {
   const { user, logout } = useAuth();
   
   if (user) {
+    const isAdmin = user.roles?.includes('admin');
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -95,7 +97,7 @@ const UserActions = () => {
                   <span>My Communities</span>
                 </Link>
               </DropdownMenuItem>
-            {user.isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+            {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => logout()}>
