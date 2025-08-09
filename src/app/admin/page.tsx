@@ -357,8 +357,18 @@ export default function AdminDashboardPage() {
       return null;
   }
 
-  const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt.toDate()).getTime() - new Date(a.createdAt.toDate()).getTime());
-  const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt.toDate()).getTime() - new Date(a.createdAt.toDate()).getTime());
+  const sortedEvents = [...events].sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+    return dateB - dateA;
+  });
+
+  const sortedCommunities = [...communities].sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+    return dateB - dateA;
+  });
+  
   const sortedBusinesses = [...businesses].sort((a,b) => a.name.localeCompare(b.name));
   const pendingReports = reports.filter(r => r.status === 'pending');
 
@@ -722,3 +732,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
