@@ -149,7 +149,7 @@ export default function UserPublicProfilePage() {
                                 </Avatar>
                                 {hasOriginLocation && (
                                     <Tooltip>
-                                        <TooltipTrigger className="absolute -bottom-2 -left-4">
+                                        <TooltipTrigger className="absolute top-1/2 -translate-y-1/2 -left-10">
                                             <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden border">
                                                 <CountryFlag countryName="India" />
                                             </div>
@@ -161,7 +161,7 @@ export default function UserPublicProfilePage() {
                                 )}
                                 {profileUser.currentLocation?.country && (
                                 <Tooltip>
-                                    <TooltipTrigger className="absolute -bottom-2 -right-4">
+                                    <TooltipTrigger className="absolute top-1/2 -translate-y-1/2 -right-10">
                                         <div className="w-8 h-8 rounded-full bg-background shadow-md flex items-center justify-center overflow-hidden border">
                                             <CountryFlag countryName={profileUser.currentLocation.country} />
                                         </div>
