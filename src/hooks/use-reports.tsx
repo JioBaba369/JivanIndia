@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query, orderBy, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
@@ -40,32 +40,32 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchReports = useCallback(() => {
+  const fetchReports = useCallback(async () => {
     if (!user || !user.roles.includes('admin')) {
       setReports([]);
       setIsLoading(false);
-      return () => {};
+      return;
     }
 
     setIsLoading(true);
-    const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    try {
+      const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
       const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
       setReports(reportsData);
-      setIsLoading(false);
-    }, (error) => {
-      console.error("Failed to fetch reports from Firestore", error);
-      toast({ title: 'Error', description: 'Could not fetch reports.', variant: 'destructive' });
-      setIsLoading(false);
-    });
-
-    return unsubscribe;
+    } catch (error) {
+       console.error("Failed to fetch reports from Firestore", error);
+       toast({ title: 'Error', description: 'Could not fetch reports.', variant: 'destructive' });
+    } finally {
+        setIsLoading(false);
+    }
   }, [toast, user]);
 
   useEffect(() => {
-    const unsubscribe = fetchReports();
-    return () => unsubscribe();
-  }, [fetchReports]);
+    if(user?.roles.includes('admin')) {
+        fetchReports();
+    }
+  }, [fetchReports, user]);
 
   const addReport = useCallback(async (reportData: NewReportInput) => {
     try {
@@ -85,7 +85,12 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     const reportDocRef = doc(firestore, 'reports', reportId);
     try {
       await updateDoc(reportDocRef, { status });
-      // State will be updated by the onSnapshot listener
+      // Manually update the state after a successful update
+      setReports(prevReports => 
+        prevReports.map(report => 
+          report.id === reportId ? { ...report, status } : report
+        )
+      );
       toast({
         title: `Report ${status.charAt(0).toUpperCase() + status.slice(1)}`,
         description: `The report has been marked as ${status}.`,
