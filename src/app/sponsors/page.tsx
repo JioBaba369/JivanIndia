@@ -105,7 +105,14 @@ export default function SponsorsPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        {filteredSponsors.length > 0 ? (
+        {sponsors.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed py-16 text-center">
+            <Handshake className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="font-headline text-xl font-semibold mt-4">No Sponsors Yet</h3>
+            <p className="text-muted-foreground mt-2">Interested in sponsoring the community? Contact us!</p>
+            {user?.isAdmin && <Button asChild className="mt-4"><Link href="/sponsors/new">Add a Sponsor</Link></Button>}
+          </div>
+        ) : filteredSponsors.length > 0 ? (
            <div className={cn(
             "gap-8",
             view === 'grid' 
