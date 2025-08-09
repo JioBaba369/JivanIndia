@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -227,7 +228,6 @@ export default function AdminDashboardPage() {
   const { deals } = useDeals();
   const { jobs } = useJobs();
   const { sponsors } = useSponsors();
-  
   const { toast } = useToast();
 
   const [adminUsers, setAdminUsers] = useState<User[]>([]);
@@ -241,6 +241,26 @@ export default function AdminDashboardPage() {
   const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
   
   const hasAdminRole = user?.roles.includes('admin');
+  
+  const eventsWithSponsorCount = useMemo(() => events.map(event => ({
+    ...event,
+    sponsorCount: sponsors.filter(s => s.eventsSponsored.some(e => e.eventId === event.id)).length
+  })), [events, sponsors]);
+
+  const filteredEvents = useMemo(() => {
+    return eventsWithSponsorCount
+      .filter(event => countryFilter === ALL_COUNTRIES_VALUE || event.location.country === countryFilter)
+      .filter(event => {
+        if (sponsorCountFilter === 'all') return true;
+        if (sponsorCountFilter === 'none') return event.sponsorCount === 0;
+        if (sponsorCountFilter === 'sponsored') return event.sponsorCount > 0;
+        return true;
+      });
+  }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
+
+  const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
+  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.region.includes(countryFilter)), [businesses, countryFilter]);
+  const pendingReports = useMemo(() => reports.filter(r => r.status === 'pending'), [reports]);
 
   useEffect(() => {
     if (!isLoading && !hasAdminRole) {
@@ -254,11 +274,22 @@ export default function AdminDashboardPage() {
         setIsUsersLoading(true);
         try {
           const usersCollectionRef = collection(firestore, 'users');
-          // Firestore 'in' queries are limited to 10 items. For more, chunking is needed.
-          const adminUidsChunk = aboutContent.adminUids.slice(0, 10);
-          const q = query(usersCollectionRef, where('__name__', 'in', adminUidsChunk));
-          const usersSnapshot = await getDocs(q);
-          setAdminUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User)));
+          // Firestore 'in' queries are limited to 10 items per chunk.
+          const adminUidsChunks: string[][] = [];
+          for (let i = 0; i < aboutContent.adminUids.length; i += 10) {
+              adminUidsChunks.push(aboutContent.adminUids.slice(i, i + 10));
+          }
+          
+          const userPromises = adminUidsChunks.map(chunk => 
+            getDocs(query(usersCollectionRef, where('__name__', 'in', chunk)))
+          );
+          
+          const userSnapshots = await Promise.all(userPromises);
+          const adminUsersData = userSnapshots.flatMap(snapshot => 
+            snapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User))
+          );
+          
+          setAdminUsers(adminUsersData);
         } catch (error) {
           console.error("Failed to fetch admin users", error);
           toast({ title: 'Error', description: 'Could not fetch admin user list.', variant: 'destructive' });
@@ -362,27 +393,6 @@ export default function AdminDashboardPage() {
   if (!hasAdminRole) {
       return null;
   }
-
-  const eventsWithSponsorCount = events.map(event => ({
-    ...event,
-    sponsorCount: sponsors.filter(s => s.eventsSponsored.some(e => e.eventId === event.id)).length
-  }));
-
-  const filteredEvents = useMemo(() => {
-    return eventsWithSponsorCount
-      .filter(event => countryFilter === ALL_COUNTRIES_VALUE || event.location.country === countryFilter)
-      .filter(event => {
-        if (sponsorCountFilter === 'all') return true;
-        if (sponsorCountFilter === 'none') return event.sponsorCount === 0;
-        if (sponsorCountFilter === 'sponsored') return event.sponsorCount > 0;
-        return true;
-      });
-  }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
-
-  const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
-  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.region.includes(countryFilter)), [businesses, countryFilter]);
-
-  const pendingReports = reports.filter(r => r.status === 'pending');
 
   const contentTabs = [
     { value: "events", label: "Events", count: filteredEvents.length, icon: Calendar },
