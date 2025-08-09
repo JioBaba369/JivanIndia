@@ -64,7 +64,6 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   const fetchEvents = useCallback(() => {
     if (isAuthLoading) {
-        // Don't fetch until auth state is resolved
         return () => {};
     }
 
