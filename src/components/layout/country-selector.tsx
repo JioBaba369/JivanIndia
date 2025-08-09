@@ -1,61 +1,90 @@
-
 'use client';
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react';
-import { useCommunities } from '@/hooks/use-communities';
-import { useMemo } from 'react';
-import CountryFlag from '../feature/country-flag';
-import { ALL_COUNTRIES_VALUE } from '@/hooks/use-country';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useCountries } from '@/hooks/use-countries';
 
 interface CountrySelectorProps {
-    selectedCountry: string;
-    setSelectedCountry: (country: string) => void;
+  value: string;
+  onValueChange: (value: string) => void;
+  className?: string;
 }
 
-export default function CountrySelector({ selectedCountry, setSelectedCountry }: CountrySelectorProps) {
-  const { communities } = useCommunities();
+export default function CountrySelector({
+  value,
+  onValueChange,
+  className,
+}: CountrySelectorProps) {
+  const { countries } = useCountries();
+  const [open, setOpen] = useState(false);
 
-  const availableCountries = useMemo(() => {
-    const countries = new Set(communities.map(c => c.country).filter(Boolean));
-    return [ALL_COUNTRIES_VALUE, ...Array.from(countries).sort()];
-  }, [communities]);
+  const countryOptions = countries.map((country) => ({
+    value: country.name,
+    label: country.name,
+  }));
+
+  const selectedLabel =
+    countryOptions.find((option) => option.value === value)?.label ||
+    'Select country...';
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-full md:w-auto">
-          <Globe className="mr-2 h-4 w-4" />
-          <span>{selectedCountry}</span>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn('w-full justify-between', className)}
+        >
+          {selectedLabel}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Select a Country</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={selectedCountry} onValueChange={setSelectedCountry}>
-          {availableCountries.map(country => (
-            <DropdownMenuRadioItem key={country} value={country} className="gap-2">
-              {country !== ALL_COUNTRIES_VALUE ? (
-                <div className="w-5 h-4 rounded-sm overflow-hidden flex items-center justify-center">
-                    <CountryFlag countryName={country} />
-                </div>
-              ) : (
-                <Globe className="h-4 w-4" />
-              )}
-              <span>{country}</span>
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search country..." />
+          <CommandList>
+            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandGroup>
+              {countryOptions.map((option) => (
+                <CommandItem
+                  key={option.value}
+                  value={option.value}
+                  onSelect={(currentValue) => {
+                    onValueChange(
+                      currentValue === value ? '' : currentValue
+                    );
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      value === option.value ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
+                  {option.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

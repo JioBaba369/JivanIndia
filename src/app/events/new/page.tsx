@@ -35,6 +35,7 @@ import ImageUpload from '@/components/feature/image-upload';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useCommunities } from '@/hooks/use-communities';
 import { useSponsors, type SponsorTier } from '@/hooks/use-sponsors';
+import CountrySelector from '@/components/layout/country-selector';
 
 
 const eventTypes = ['Cultural', 'Religious', 'Professional', 'Sports', 'Festival', 'Workshop', 'Food', 'Other'] as const;
@@ -52,7 +53,7 @@ const formSchema = z.object({
   endDateTime: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid end date is required." }),
   venueName: z.string().min(3, "Venue name is required.").max(100),
   address: z.string().min(10, "A full address is required.").max(200),
-  country: z.string().min(2, "Country is required."),
+  country: z.string().min(1, "Country is required."),
   state: z.string().min(2, "State/Province is required."),
   city: z.string().min(2, "City is required."),
   description: z.string().min(50, "Description must be at least 50 characters.").max(2000),
@@ -341,7 +342,7 @@ export default function NewEventPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><Input placeholder="e.g., USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>State/Province *</FormLabel><FormControl><Input placeholder="e.g., California" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input placeholder="e.g., San Francisco" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>

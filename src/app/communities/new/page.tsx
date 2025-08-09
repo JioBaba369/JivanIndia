@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import ImageUpload from '@/components/feature/image-upload';
 import { generateSlug } from '@/lib/utils';
+import CountrySelector from '@/components/layout/country-selector';
 
 // Constants
 const NAME_MAX_LENGTH = 100;
@@ -54,7 +55,6 @@ const COMMUNITY_DOMAIN = process.env.NEXT_PUBLIC_COMMUNITY_DOMAIN || 'https://ji
 
 // Explicitly define community types for TypeScript safety
 const communityTypes = ['Social', 'Cultural', 'Business', 'Religious', 'Charitable', 'Regional', 'Professional', 'Other'] as const;
-type CommunityType = typeof communityTypes[number];
 
 // Zod schema for form validation
 const formSchema = (isSlugUnique: (slug: string) => Promise<boolean>) =>
@@ -77,7 +77,7 @@ const formSchema = (isSlugUnique: (slug: string) => Promise<boolean>) =>
       .string()
       .min(50, 'Full description must be at least 50 characters.')
       .max(FULL_DESC_MAX_LENGTH, `Full description must be ${FULL_DESC_MAX_LENGTH} characters or less.`),
-    country: z.string().min(2, 'Country is required.'),
+    country: z.string().min(1, 'Country is required.'),
     region: z.string().min(2, 'Region is required.'),
     founded: z
       .string()
@@ -433,7 +433,7 @@ export default function NewCommunityPage() {
                       <FormItem>
                         <FormLabel>Country *</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., USA, Canada" {...field} aria-required="true" />
+                          <CountrySelector value={field.value} onValueChange={field.onChange} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

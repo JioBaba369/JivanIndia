@@ -16,34 +16,62 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import CountrySelector from "@/components/layout/country-selector";
+
+const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters."),
+  confirmPassword: z.string(),
+  country: z.string().min(1, "Country is required."),
+  state: z.string().min(2, "State/Province is required."),
+  city: z.string().min(2, "City is required."),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match.",
+  path: ["confirmPassword"],
+});
+
 
 export default function SignupPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [country, setCountry] = useState('');
-  const [state, setState] = useState('');
-  const [city, setCity] = useState('');
   const { signup } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      country: '',
+      state: '',
+      city: '',
+    },
+    mode: 'onChange'
+  });
+
+  const handleSubmit = (values: z.infer<typeof formSchema>) => {
     setError(null);
 
     startTransition(async () => {
       try {
-        await signup(name, email, password, country, state, city);
+        await signup(values.name, values.email, values.password, values.country, values.state, values.city);
         toast({
           title: "Account Created!",
           description: "Welcome! You have been successfully signed up.",
@@ -73,94 +101,46 @@ export default function SignupPage() {
   return (
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl">Sign Up</CardTitle>
-            <CardDescription>
-              Create an account to join the community.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="full-name">Full Name</Label>
-                <Input 
-                  id="full-name" 
-                  placeholder="Max" 
-                  required 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input id="country" required value={country} onChange={(e) => setCountry(e.target.value)} disabled={isPending}/>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <CardHeader>
+              <CardTitle className="font-headline text-2xl">Sign Up</CardTitle>
+              <CardDescription>
+                Create an account to join the community.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="grid gap-4">
+                <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} placeholder="Max" disabled={isPending} /></FormControl><FormMessage/></FormItem>)} />
+                <FormField name="email" control={form.control} render={({field}) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} type="email" placeholder="m@example.com" disabled={isPending} /></FormControl><FormMessage/></FormItem>)} />
+                <FormField name="country" control={form.control} render={({field}) => (<FormItem><FormLabel>Country</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage/></FormItem>)} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField name="state" control={form.control} render={({field}) => (<FormItem><FormLabel>State/Province</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage/></FormItem>)} />
+                  <FormField name="city" control={form.control} render={({field}) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} disabled={isPending} /></FormControl><FormMessage/></FormItem>)} />
                 </div>
-                 <div className="grid gap-2">
-                    <Label htmlFor="state">State/Province</Label>
-                    <Input id="state" required value={state} onChange={(e) => setState(e.target.value)} disabled={isPending}/>
-                </div>
+                <FormField name="password" control={form.control} render={({field}) => (<FormItem><FormLabel>Password</FormLabel><FormControl><Input {...field} type="password" disabled={isPending} /></FormControl><FormMessage/></FormItem>)} />
+                <FormField name="confirmPassword" control={form.control} render={({field}) => (<FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input {...field} type="password" disabled={isPending} /></FormControl><FormMessage/></FormItem>)} />
               </div>
-               <div className="grid gap-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} disabled={isPending}/>
+            </CardContent>
+            <CardFooter className="flex-col">
+              <Button type="submit" className="w-full" disabled={isPending || !form.formState.isValid}>
+                {isPending && <Loader2 className="mr-2 animate-spin" />}
+                Create Account
+              </Button>
+              <div className="mt-4 text-center text-sm">
+                Already have an account?{" "}
+                <Link href="/login" className="underline">
+                  Login
+                </Link>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-               <div className="grid gap-2">
-                <Label htmlFor="confirm-password">Confirm Password</Label>
-                <Input 
-                  id="confirm-password" 
-                  type="password" 
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex-col">
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 animate-spin" />}
-              Create Account
-            </Button>
-            <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/login" className="underline">
-                Login
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </div>
   );

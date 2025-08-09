@@ -18,9 +18,11 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 import CookieConsentBanner from '@/components/cookie-consent-banner';
+import { CountriesProvider } from '@/hooks/use-countries';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
+      <CountriesProvider>
         <AboutProvider>
             <AuthProvider>
                 <ReportsProvider>
@@ -54,6 +56,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 </ReportsProvider>
             </AuthProvider>
         </AboutProvider>
+      </CountriesProvider>
     )
 }
     

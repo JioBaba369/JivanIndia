@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import CountrySelector from '@/components/layout/country-selector';
 
 
 const NAME_MAX_LENGTH = 100;
@@ -55,7 +56,7 @@ const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean)
   type: z.enum(communityTypes),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
   fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(FULL_DESC_MAX_LENGTH, `Full description must be ${FULL_DESC_MAX_LENGTH} characters or less.`),
-  country: z.string().min(2, "Country is required."),
+  country: z.string().min(1, "Country is required."),
   region: z.string().min(2, "Region is required."),
   founded: z.string().min(4, "Please enter a valid year.").max(4, "Please enter a valid year."),
   tags: z.string().optional(),
@@ -361,17 +362,20 @@ export default function EditCommunityPage() {
                       />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
+                       <FormField
                           control={form.control}
                           name="country"
                           render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Country *</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder="e.g., USA, Canada" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
+                            <FormItem>
+                              <FormLabel>Country *</FormLabel>
+                              <FormControl>
+                                <CountrySelector
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
                           )}
                         />
                         <FormField

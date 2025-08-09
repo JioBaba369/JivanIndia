@@ -32,6 +32,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import CountrySelector from '@/components/layout/country-selector';
+import { useCountries } from '@/hooks/use-countries';
 
 const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>, currentUid?: string) => z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -201,7 +203,7 @@ export default function EditProfilePage() {
                   <h3 className="font-headline text-lg font-semibold border-b pb-2">Location</h3>
                    <p className="text-sm text-muted-foreground">Your current location helps us personalize your experience.</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField control={form.control} name="currentCountry" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input placeholder="e.g., USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="currentCountry" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><CountrySelector value={field.value || ''} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="currentState" render={({ field }) => (<FormItem><FormLabel>State / Province</FormLabel><FormControl><Input placeholder="e.g., California" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="currentCity" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input placeholder="e.g., San Francisco" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   </div>
