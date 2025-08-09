@@ -97,6 +97,7 @@ export default function ImageUpload({
               setPreview(downloadURL);
               toast({
                   title: 'Image Uploaded!',
+                  description: 'Your image has been successfully uploaded.',
                   icon: <CheckCircle className="h-5 w-5 text-green-500" />,
               });
               resetFileInput();
