@@ -132,8 +132,8 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
             {categoryLinks.map(({ href, icon: Icon, label }) => (
               <Link key={href} href={href} className="group">
-                <Card className="p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:-translate-y-2">
-                  <Icon className="h-10 w-10 mb-2 text-primary group-hover:text-accent-foreground" />
+                <Card className="p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:-translate-y-2 shadow-sm hover:shadow-lg">
+                  <Icon className="h-10 w-10 mb-2 text-primary" />
                   <h3 className="font-semibold">{label}</h3>
                 </Card>
               </Link>
