@@ -11,7 +11,8 @@ import { SponsorsProvider } from "@/hooks/use-sponsors";
 import { JobsProvider } from "@/hooks/use-jobs";
 import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
-import { ReportsProvider } from "@/hooks/use-reports"; // Import ReportsProvider
+import { ReportsProvider } from "@/hooks/use-reports";
+import { NotificationsProvider } from '@/hooks/use-notifications';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
@@ -23,6 +24,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <AboutProvider>
             <AuthProvider>
                 <ReportsProvider>
+                  <NotificationsProvider>
                     <CommunitiesProvider>
                         <EventsProvider>
                             <BusinessesProvider>
@@ -49,6 +51,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                             </BusinessesProvider>
                         </EventsProvider>
                     </CommunitiesProvider>
+                  </NotificationsProvider>
                 </ReportsProvider>
             </AuthProvider>
         </AboutProvider>
