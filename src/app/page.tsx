@@ -96,7 +96,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center" style={{ backgroundColor: '#00A7FF' }}>
+      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center bg-blue-500">
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
           <div className="p-8 rounded-lg">
             <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">The Heartbeat of Our Community</h1>
@@ -124,7 +124,7 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" size="lg" className="text-lg bg-[#14F518] text-black hover:bg-[#14F518]/90" aria-label="Search">
+                <Button type="submit" size="lg" className="text-lg bg-green-500 text-black hover:bg-green-500/90" aria-label="Search">
                   <Search className="mr-2" />
                   Search
                 </Button>
@@ -151,7 +151,7 @@ export default function HomePage() {
       </section>
 
       {/* Upcoming Events */}
-      <section className="py-16 md:py-24" style={{ backgroundColor: '#FF45EB' }}>
+      <section className="py-16 md:py-24 bg-pink-500">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="font-headline text-3xl font-bold text-white">Upcoming Events</h2>
