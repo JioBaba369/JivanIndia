@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical } from "lucide-react";
+import { Calendar, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ReportDialog from "@/components/feature/report-dialog";
 
 export default function EventsPage() {
-  const { events } = useEvents();
+  const { events, isLoading } = useEvents();
   const { user } = useAuth();
   const searchParams = useSearchParams();
   
@@ -108,7 +108,11 @@ export default function EventsPage() {
             </div>
         </Card>
         
-        {approvedEvents.length === 0 ? (
+        {isLoading ? (
+            <div className="flex h-64 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        ) : approvedEvents.length === 0 ? (
             <div className="rounded-lg border-2 border-dashed py-16 text-center">
                 <Megaphone className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="font-headline text-xl font-semibold mt-4">No Events Yet</h3>

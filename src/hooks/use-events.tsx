@@ -52,23 +52,52 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   useEffect(() => {
-    setIsLoading(true);
+    if (isAuthLoading) {
+      return; // Wait for authentication to resolve
+    }
     
-    // Admins can see all events for moderation purposes
-    const canSeeAll = user?.roles.includes('admin');
+    setIsLoading(true);
 
-    const q = canSeeAll 
-      ? query(eventsCollectionRef, orderBy('createdAt', 'desc'))
-      : query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
+    const isAdmin = user?.roles?.includes('admin');
+    const isManager = user?.roles?.includes('community-manager');
+
+    let q;
+    if (isAdmin) {
+      // Admins see all events for moderation
+      q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
+    } else if (isManager) {
+      // Managers see approved events AND their own pending/archived events
+       q = query(eventsCollectionRef, where('organizerId', '==', user.affiliation?.orgId));
+    } else {
+      // General users only see approved events
+      q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
+    }
     
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
-        const eventsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        setEvents(eventsData);
-        setIsLoading(false);
+        const eventsData: Event[] = [];
+        querySnapshot.forEach(doc => {
+            eventsData.push({ id: doc.id, ...doc.data() } as Event);
+        });
+
+        // If a manager, we need to also get all other approved events
+        if (isManager && !isAdmin) {
+            const approvedQuery = query(eventsCollectionRef, where('status', '==', 'Approved'));
+            getDocs(approvedQuery).then(approvedSnapshot => {
+                const approvedEventsData = approvedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+                // Combine and remove duplicates
+                const allManagerEvents = [...eventsData, ...approvedEventsData];
+                const uniqueEvents = Array.from(new Map(allManagerEvents.map(e => [e.id, e])).values());
+                setEvents(uniqueEvents);
+                setIsLoading(false);
+            });
+        } else {
+            setEvents(eventsData);
+            setIsLoading(false);
+        }
       },
       (error) => {
         console.error("Failed to fetch events from Firestore", error);
@@ -77,14 +106,14 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, isAuthLoading]);
 
   const addEvent = async (eventData: NewEventInput) => {
     const newEventData = {
       ...eventData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      status: 'Pending' as Event['status'], // All events default to Pending
+      status: 'Pending' as Event['status'],
       isFeatured: false,
     };
     
@@ -103,7 +132,6 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const eventDocRef = doc(firestore, 'events', eventId);
     const updatedData: { status: Event['status'], updatedAt: any, isFeatured?: boolean } = { status, updatedAt: serverTimestamp() };
     
-    // If event is not approved, it cannot be featured
     if (status !== 'Approved') {
         updatedData.isFeatured = false;
     }
@@ -115,9 +143,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   
   const updateEventFeaturedStatus = async (eventId: string, isFeatured: boolean) => {
     const eventDocRef = doc(firestore, 'events', eventId);
-    const updatedData = { isFeatured, updatedAt: serverTimestamp() };
     await updateDoc(eventDocRef, updatedData);
-     toast({ title: 'Event Updated', description: `The event has been ${isFeatured ? 'featured' : 'un-featured'}.` });
+    toast({ title: 'Event Updated', description: `The event has been ${isFeatured ? 'featured' : 'un-featured'}.` });
   };
 
   const value = {
