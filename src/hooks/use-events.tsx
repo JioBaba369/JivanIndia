@@ -52,50 +52,54 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    if (isAuthLoading) {
-      return; // Wait for authentication to resolve
-    }
-    
+  const fetchEvents = useCallback(async () => {
     setIsLoading(true);
-    let q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
     
-    const unsubscribe = onSnapshot(q, async (approvedSnapshot) => {
-        let allEvents: Event[] = approvedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        
-        if (user) {
-            const isAdmin = user.roles?.includes('admin');
-            const isManager = user.roles?.includes('community-manager');
+    let q;
+    const isAdmin = user?.roles?.includes('admin');
+    const isManager = user?.roles?.includes('community-manager');
 
-            if (isAdmin) {
-                // Admins see all events, so we fetch all and merge
-                const allEventsSnapshot = await getDocs(query(eventsCollectionRef, orderBy('createdAt', 'desc')));
-                allEvents = allEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-            } else if (isManager && user.affiliation?.orgId) {
-                // Managers see all their own events plus all other approved events
-                const managerEventsQuery = query(eventsCollectionRef, where('organizerId', '==', user.affiliation.orgId));
-                const managerEventsSnapshot = await getDocs(managerEventsQuery);
-                const managerEvents = managerEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-                
-                // Combine and remove duplicates, favoring the manager's (potentially unapproved) version
-                const combined = [...managerEvents, ...allEvents];
-                allEvents = Array.from(new Map(combined.map(e => [e.id, e])).values());
-            }
-        }
+    if (isAdmin) {
+        q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
+    } else {
+        q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
+    }
+
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+        let fetchedEvents: Event[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         
-        setEvents(allEvents);
+        if (user && isManager && !isAdmin && user.affiliation?.orgId) {
+            // Fetch manager-specific events and merge them
+            const managerQuery = query(eventsCollectionRef, where('organizerId', '==', user.affiliation.orgId));
+            const managerEventsSnapshot = await getDocs(managerQuery);
+            const managerEvents = managerEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+            
+            const combined = [...managerEvents, ...fetchedEvents];
+            const uniqueEvents = Array.from(new Map(combined.map(e => [e.id, e])).values());
+            setEvents(uniqueEvents);
+        } else {
+            setEvents(fetchedEvents);
+        }
+
         setIsLoading(false);
-    },
-    (error) => {
+    }, (error) => {
         console.error("Failed to fetch events from Firestore", error);
         toast({ title: "Error", description: "Could not fetch events.", variant: "destructive" });
         setIsLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [user, isAuthLoading, toast]);
+    return unsubscribe;
+
+  }, [user, toast]);
+  
+  useEffect(() => {
+    const unsubscribePromise = fetchEvents();
+    return () => {
+        unsubscribePromise.then(unsub => unsub());
+    };
+  }, [fetchEvents]);
 
 
   const addEvent = async (eventData: NewEventInput) => {
