@@ -14,9 +14,30 @@ import type { Community } from '@/hooks/use-communities';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-const memberData: any[] = [];
-const eventPerformanceData: any[] = [];
-const topReferrersData: any[] = [];
+const memberData = [
+  { month: 'Jan', members: 186 },
+  { month: 'Feb', members: 305 },
+  { month: 'Mar', members: 237 },
+  { month: 'Apr', members: 73 },
+  { month: 'May', members: 209 },
+  { month: 'Jun', members: 214 },
+];
+
+const eventPerformanceData = [
+    { name: 'Diwali Gala', registrations: 240, attendance: 190 },
+    { name: 'Holi Fest', registrations: 300, attendance: 250 },
+    { name: 'Startup Meet', registrations: 150, attendance: 120 },
+    { name: 'Food Fair', registrations: 400, attendance: 350 },
+    { name: 'Charity Run', registrations: 500, attendance: 450 },
+];
+
+const topReferrersData = [
+    { source: 'Direct Link', count: 450, percentage: 45 },
+    { source: 'Google Search', count: 250, percentage: 25 },
+    { source: 'Facebook', count: 150, percentage: 15 },
+    { source: 'Instagram', count: 100, percentage: 10 },
+    { source: 'Other', count: 50, percentage: 5 },
+];
 
 export default function AnalyticsDashboardPage() {
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -92,28 +113,28 @@ export default function AnalyticsDashboardPage() {
                     <AnalyticsCard
                         title="Total Members"
                         value={community?.membersCount.toLocaleString() || 'N/A'}
-                        change="+0% from last month"
+                        change="+22% from last month"
                         icon={<Users />}
                         trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
                     <AnalyticsCard
                         title="Active Members"
-                        value="0"
-                        change="+0% this week"
+                        value="670"
+                        change="-5% this week"
                         icon={<Users className="text-green-500"/>}
-                         trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
+                         trend={<TrendingDown className="h-4 w-4 text-destructive" />}
                     />
                      <AnalyticsCard
                         title="Events This Month"
-                        value="0"
-                        change="+0% from last month"
+                        value="4"
+                        change="+2 from last month"
                         icon={<CalendarCheck />}
                         trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
                     <AnalyticsCard
                         title="Engagement Rate"
-                        value="0%"
-                        change="+0% from last month"
+                        value="57%"
+                        change="+3% from last month"
                         icon={<BarChart2 />}
                         trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
                     />
