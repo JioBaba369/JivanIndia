@@ -51,7 +51,7 @@ export default function FestivalsPage() {
             Indian Festivals & Important Days
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80 text-shadow">
-            Explore the vibrant celebrations and significant dates in the Indian calendar.
+            Explore the vibrant celebrations, holidays, and significant dates in the Indian calendar.
           </p>
         </div>
       </section>
@@ -85,7 +85,7 @@ export default function FestivalsPage() {
       
       <section className="container mx-auto px-4 py-12">
        {isLoading ? (
-         <div className="text-center"><p>Loading festivals...</p></div>
+         <div className="text-center"><p>Loading calendar...</p></div>
        ) : filteredFestivals.length > 0 ? (
           <div className="space-y-6">
             {filteredFestivals.map(festival => (
@@ -121,8 +121,8 @@ export default function FestivalsPage() {
           </div>
        ) : (
         <div className="rounded-lg border-2 border-dashed py-16 text-center">
-            <h3 className="font-headline text-xl font-semibold">No Festivals Found</h3>
-            <p className="text-muted-foreground mt-2">No festivals match your criteria. Try adjusting your search.</p>
+            <h3 className="font-headline text-xl font-semibold">No Dates Found</h3>
+            <p className="text-muted-foreground mt-2">No dates match your criteria. Try adjusting your search.</p>
         </div>
        )}
       </section>

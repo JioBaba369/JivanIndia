@@ -7,7 +7,7 @@ export interface Festival {
   name: string;
   description: string;
   date: string; // ISO 8601 format for a specific day, can be recurring
-  type: 'Religious' | 'Cultural' | 'National' | 'Seasonal';
+  type: 'Religious' | 'Cultural' | 'National Holiday' | 'State Holiday' | 'Seasonal';
   country: string[]; // Countries where it's widely celebrated
   state: string[]; // Indian states where it's significant
 }
@@ -29,10 +29,15 @@ const festivalData: Festival[] = [
     { name: 'Onam', description: 'A major annual harvest festival celebrated in Kerala.', date: '2024-09-15', type: 'Cultural', country: ['India'], state: ['Kerala'] },
     { name: 'Pongal', description: 'A multi-day harvest festival of South India.', date: '2025-01-14', type: 'Cultural', country: ['India'], state: ['Tamil Nadu'] },
     { name: 'Baisakhi', description: 'Marks the Sikh New Year and the spring harvest festival.', date: '2025-04-14', type: 'Cultural', country: ['India', 'Canada', 'UK'], state: ['Punjab'] },
-    { name: 'Republic Day', description: 'Honors the date on which the Constitution of India came into effect.', date: '2025-01-26', type: 'National', country: ['India', 'Global'], state: ['All'] },
-    { name: 'Independence Day', description: 'Commemorates the independence of India from the United Kingdom.', date: '2024-08-15', type: 'National', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Republic Day', description: 'Honors the date on which the Constitution of India came into effect.', date: '2025-01-26', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Independence Day', description: 'Commemorates the independence of India from the United Kingdom.', date: '2024-08-15', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Gandhi Jayanti', description: 'Celebrates the birthday of Mahatma Gandhi.', date: '2024-10-02', type: 'National Holiday', country: ['India'], state: ['All'] },
     { name: 'Durga Puja', description: 'A major Hindu festival celebrating the goddess Durga.', date: '2024-10-09', type: 'Religious', country: ['India'], state: ['West Bengal', 'Tripura', 'Assam'] },
     { name: 'Christmas', description: 'An annual festival commemorating the birth of Jesus Christ.', date: '2024-12-25', type: 'Religious', country: ['India', 'Global'], state: ['Goa', 'Kerala', 'Mizoram'] },
+    { name: 'Good Friday', description: 'A Christian holiday commemorating the crucifixion of Jesus.', date: '2025-04-18', type: 'Religious', country: ['India', 'Global'], state: ['Kerala', 'Goa', 'Nagaland'] },
+    { name: 'Buddha Purnima', description: 'Commemorates the birth of Gautama Buddha.', date: '2025-05-12', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Maharashtra Day', description: 'Celebrates the formation of the state of Maharashtra.', date: '2025-05-01', type: 'State Holiday', country: ['India'], state: ['Maharashtra'] },
+    { name: 'Karnataka Rajyotsava', description: 'Celebrates the formation of the state of Karnataka.', date: '2024-11-01', type: 'State Holiday', country: ['India'], state: ['Karnataka'] },
 ];
 
 
