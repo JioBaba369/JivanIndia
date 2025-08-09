@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import NotificationBell from "./notification-bell";
 import {
   NavigationMenu,
@@ -206,23 +206,21 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
                     <div className="mt-6 flex flex-col space-y-4">
-                        <div className="w-full">
-                         <UserActions />
-                        </div>
+                        <UserActions />
                         <DropdownMenuSeparator />
                         <nav className="flex flex-col space-y-2">
-                            <Link href="/" onClick={() => setIsOpen(false)} className="text-lg font-medium">Home</Link>
+                             <SheetClose asChild><Link href="/" className="text-lg font-medium">Home</Link></SheetClose>
                             <h4 className="font-semibold pt-4">For You</h4>
                             {forYouLinks.map((link) => (
-                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
+                               <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
                             ))}
                             <h4 className="font-semibold pt-4">For Business</h4>
                              {forBusinessLinks.map((link) => (
-                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
+                                <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
                             ))}
                             <h4 className="font-semibold pt-4">Resources</h4>
                              {resourcesLinks.map((link) => (
-                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
+                                <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
                             ))}
                         </nav>
                     </div>

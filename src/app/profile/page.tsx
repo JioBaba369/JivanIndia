@@ -71,12 +71,14 @@ export default function ProfilePage() {
                     </CardContent>
                     <CardContent className="p-4 border-t">
                          <div className="flex flex-col gap-2">
-                             <Button asChild className="w-full">
-                                <Link href={`/${user.username}`}>
-                                    <UserIcon className="mr-2"/>
-                                    View Public Profile
-                                </Link>
-                            </Button>
+                             {user.username && (
+                                <Button asChild className="w-full">
+                                    <Link href={`/${user.username}`}>
+                                        <UserIcon className="mr-2"/>
+                                        View Public Profile
+                                    </Link>
+                                </Button>
+                             )}
                              <Button asChild variant="outline" className="w-full">
                                 <Link href="/profile/edit">
                                     <Edit className="mr-2"/>

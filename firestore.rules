@@ -4,86 +4,97 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Helper function to check for admin role
+    // Helper functions
+    function isUserAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(uid) {
+      return isUserAuthenticated() && request.auth.uid == uid;
+    }
+
     function isAdmin() {
-      return get(/databases/$(database)/documents/about/singleton).data.adminUids.has(request.auth.uid);
+      // Admins are defined in the /about/singleton document
+      return isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids;
     }
     
-    // Helper function to check ownership
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    function isCommunityManager(communityId) {
+       return isUserAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == communityId;
     }
 
-    // Public content, readable by all
-    match /{publicCollection}/{docId} where publicCollection in ['events', 'communities', 'businesses', 'deals', 'movies', 'sponsors', 'festivals', 'jobs'] {
-      allow read: if true;
-      allow write: if false; // Writing is handled by more specific rules below or should be done via backend functions
-    }
-    
-    match /about/singleton {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-
-    // User profiles
-    match /users/{userId} {
-      // Anyone can read a user's public profile
-      allow read: if true;
-      // Only the owner of the profile can create or update it
-      allow write: if isOwner(userId);
-    }
-
-    // Creating new content
+    // Public collections: anyone can read.
     match /events/{eventId} {
-       // Allow read for everyone is covered by the public rule
-       allow create: if request.auth != null; // Must be logged in to create
-       allow update, delete: if isAdmin() || isOwner(resource.data.submittedByUid);
+      allow read: if true;
+      allow create: if isUserAuthenticated() && request.resource.data.organizerId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId;
+      allow update, delete: if isAdmin() || isCommunityManager(resource.data.organizerId);
     }
     
     match /communities/{communityId} {
-        // Allow read for everyone is covered by the public rule
-        allow create: if request.auth != null; // Must be logged in to create
-        allow update, delete: if isAdmin() || isOwner(resource.data.founderUid);
+      allow read: if true;
+      allow create: if isUserAuthenticated() && request.resource.data.founderUid == request.auth.uid;
+      allow update: if isUserAuthenticated() && (resource.data.founderUid == request.auth.uid || isAdmin());
+      allow delete: if isAdmin() || (isUserAuthenticated() && resource.data.founderUid == request.auth.uid);
+    }
+
+    match /users/{userId} {
+        allow read: if true;
+        allow create: if isUser(userId);
+        allow update: if isUser(userId) || isAdmin();
     }
     
-     match /businesses/{businessId} {
-        // Allow read for everyone is covered by the public rule
-        allow create: if isAdmin(); // Only admins can create businesses
-        allow update, delete: if isAdmin();
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
     }
     
     match /sponsors/{sponsorId} {
-        // Allow read for everyone is covered by the public rule
-        allow create: if isAdmin();
-        allow update, delete: if isAdmin();
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isUserAuthenticated() && request.resource.data.businessId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId;
+      allow update, delete: if isAdmin() || isCommunityManager(resource.data.businessId);
     }
     
-     match /deals/{dealId} {
-        // Allow read for everyone is covered by the public rule
-        allow create: if request.auth != null;
-        allow update, delete: if isAdmin() || isOwner(resource.data.submittedByUid);
+    match /movies/{movieId} {
+        allow read: if true;
+        // Movies are generally managed by admins
+        allow create, update, delete: if isAdmin();
     }
     
     match /jobs/{jobId} {
-       // Allow read for everyone is covered by the public rule
-       allow create: if request.auth != null;
-       allow update, delete: if isAdmin() || isOwner(resource.data.submittedByUid);
+        allow read: if true;
+        allow create: if isUserAuthenticated();
+        allow update, delete: if isUser(resource.data.submittedByUid) || isAdmin();
     }
     
-    // User-generated content like reports and notifications
-    match /reports/{reportId} {
-        allow create: if request.auth != null; // Must be logged in to report
-        allow read, update, delete: if isAdmin(); // Only admins can manage reports
-    }
-    
+    // Notifications: Read-only for the user they belong to
     match /notifications/{notificationId} {
-        allow read, update, delete: if isOwner(resource.data.userId); // Only the recipient can interact with their notifications
-        allow create: if false; // Notifications are created by the system (or admin actions), not directly by users
+      allow read: if isUser(resource.data.userId);
+      allow create: if isUserAuthenticated(); // Can be created by server functions or specific user actions
+      allow update: if isUser(resource.data.userId); // User can mark as read
+      allow delete: if false; // Notifications are generally not deleted by users
     }
     
+    // Reports: Write-only for users, read/update for admins
+    match /reports/{reportId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isUserAuthenticated();
+    }
+    
+    // Contact submissions: Write-only for anyone, read for admins
     match /contacts/{contactId} {
-        allow create: if true; // Anyone can send a message
-        allow read, update, delete: if isAdmin();
+        allow read, delete: if isAdmin();
+        allow create: if true;
+    }
+
+    // Site configuration: Read for everyone, write only for admins
+    match /about/singleton {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
