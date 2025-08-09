@@ -588,8 +588,10 @@ export default function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                          <div className="w-full overflow-x-auto">
-                           {isReportsLoading && reports.length === 0 ? (
+                           {isReportsLoading ? (
                              <div className="text-center py-12 text-muted-foreground flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin mr-2"/> Loading reports...</div>
+                           ) : pendingReports.length === 0 ? (
+                                <div className="text-center py-12 text-muted-foreground"><p>No pending reports. Great job!</p></div>
                            ) : (
                             <Table>
                                 <TableHeader>
@@ -620,7 +622,6 @@ export default function AdminDashboardPage() {
                                 </TableBody>
                             </Table>
                            )}
-                            {!isReportsLoading && pendingReports.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No pending reports. Great job!</p></div>}
                         </div>
                     </CardContent>
                 </Card>

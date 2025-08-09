@@ -29,7 +29,6 @@ interface ReportsContextType {
   isLoading: boolean;
   addReport: (report: NewReportInput) => Promise<void>;
   updateReportStatus: (reportId: string, status: ReportStatus) => Promise<void>;
-  fetchReports: () => void;
 }
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined);
@@ -64,6 +63,8 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if(user?.roles.includes('admin')) {
         fetchReports();
+    } else {
+        setIsLoading(false);
     }
   }, [fetchReports, user]);
 
@@ -101,7 +102,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
-  const value = { reports, isLoading, addReport, updateReportStatus, fetchReports };
+  const value = { reports, isLoading, addReport, updateReportStatus };
 
   return (
     <ReportsContext.Provider value={value}>
