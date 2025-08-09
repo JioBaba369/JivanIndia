@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export type SponsorTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Supporter';
@@ -28,9 +28,10 @@ export interface Sponsor {
     eventId: string;
     contribution: string;
   }>;
+  createdAt: any;
 }
 
-export type NewSponsorInput = Omit<Sponsor, 'id' | 'eventsSponsored'>;
+export type NewSponsorInput = Omit<Sponsor, 'id' | 'eventsSponsored' | 'createdAt'>;
 
 
 interface SponsorsContextType {
@@ -47,29 +48,29 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchSponsors = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const querySnapshot = await getDocs(sponsorsCollectionRef);
+    const unsubscribe = onSnapshot(sponsorsCollectionRef, 
+      (querySnapshot) => {
         const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
         setSponsors(sponsorsData);
-    } catch (error) {
+        setIsLoading(false);
+      },
+      (error) => {
         console.error("Failed to fetch sponsors from Firestore", error);
         setSponsors([]);
-    } finally {
         setIsLoading(false);
-    }
+      }
+    );
+    
+    return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    fetchSponsors();
-  }, [fetchSponsors]);
   
   const addSponsor = async (sponsorData: NewSponsorInput): Promise<Sponsor> => {
-    const newSponsorData = { ...sponsorData, eventsSponsored: [] };
+    const newSponsorData = { ...sponsorData, eventsSponsored: [], createdAt: serverTimestamp() };
     const docRef = await addDoc(sponsorsCollectionRef, newSponsorData);
-    const newSponsor = { id: docRef.id, ...newSponsorData } as Sponsor;
-    setSponsors(prev => [...prev, newSponsor]);
+    const newSponsor = { id: docRef.id, ...newSponsorData, createdAt: new Date() } as Sponsor;
+    // No need to set state here, onSnapshot will handle it.
     return newSponsor;
   }
 

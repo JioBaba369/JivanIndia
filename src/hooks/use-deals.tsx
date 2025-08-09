@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Deal {
@@ -17,7 +17,7 @@ export interface Deal {
   businessId: string; // This should be the community ID
   businessLocation: string;
   businessWebsite: string;
-  postedAt: string; 
+  postedAt: any; 
   submittedByUid: string;
 }
 
@@ -38,32 +38,34 @@ export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchDeals = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const querySnapshot = await getDocs(dealsCollectionRef);
+    const q = query(dealsCollectionRef, orderBy('postedAt', 'desc'));
+
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
         const dealsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Deal));
-        setDeals(dealsData.sort((a,b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()));
-    } catch (error) {
+        setDeals(dealsData);
+        setIsLoading(false);
+      },
+      (error) => {
         console.error("Failed to fetch deals from Firestore", error);
         setDeals([]);
-    } finally {
         setIsLoading(false);
-    }
-  }, []);
+      }
+    );
 
-  useEffect(() => {
-    fetchDeals();
-  }, [fetchDeals]);
+    return () => unsubscribe();
+  }, []);
 
   const addDeal = async (dealData: NewDealInput): Promise<Deal> => {
     const newDeal = {
       ...dealData,
-      postedAt: new Date().toISOString(),
+      postedAt: serverTimestamp(),
     };
     const docRef = await addDoc(dealsCollectionRef, newDeal);
-    const newDealWithId = { id: docRef.id, ...newDeal } as Deal;
-    setDeals(prev => [newDealWithId, ...prev].sort((a,b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()));
+    const newDealWithId = { id: docRef.id, ...newDeal, postedAt: new Date() } as Deal;
+    // No need to set state here, onSnapshot will do it
     return newDealWithId;
   };
 

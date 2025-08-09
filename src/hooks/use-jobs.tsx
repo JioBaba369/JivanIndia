@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Job {
@@ -15,7 +15,7 @@ export interface Job {
   salary?: string;
   description: string;
   applicationUrl: string;
-  postedAt: string; // ISO 8601 date string
+  postedAt: any; // ISO 8601 date string
   submittedByUid: string;
 }
 
@@ -37,32 +37,33 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchJobs = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const querySnapshot = await getDocs(jobsCollectionRef);
+    const q = query(jobsCollectionRef, orderBy('postedAt', 'desc'));
+    const unsubscribe = onSnapshot(q,
+      (querySnapshot) => {
         const jobsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
-        setJobs(jobsData.sort((a,b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()));
-    } catch (error) {
+        setJobs(jobsData);
+        setIsLoading(false);
+      },
+      (error) => {
         console.error("Failed to fetch jobs from Firestore", error);
         setJobs([]);
-    } finally {
         setIsLoading(false);
-    }
-  }, []);
+      }
+    );
 
-  useEffect(() => {
-    fetchJobs();
-  }, [fetchJobs]);
+    return () => unsubscribe();
+  }, []);
   
   const addJob = async (jobData: NewJobInput): Promise<Job> => {
     const newJob = {
       ...jobData,
-      postedAt: new Date().toISOString(),
+      postedAt: serverTimestamp(),
     };
     const docRef = await addDoc(jobsCollectionRef, newJob);
-    const newJobWithId = { id: docRef.id, ...newJob } as Job;
-    setJobs(prev => [newJobWithId, ...prev]);
+    const newJobWithId = { id: docRef.id, ...newJob, postedAt: new Date() } as Job;
+    // No need to manually update state with onSnapshot
     return newJobWithId;
   };
 

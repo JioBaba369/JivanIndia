@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import type { User } from './use-auth';
@@ -49,32 +49,32 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   
   const aboutDocRef = doc(firestore, 'about', 'singleton');
 
-  const fetchAboutContent = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const aboutDocSnap = await getDoc(aboutDocRef);
-        if (aboutDocSnap.exists()) {
-          const data = aboutDocSnap.data() as AboutContent;
+    const unsubscribe = onSnapshot(aboutDocRef, 
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() as AboutContent;
           setAboutContent(data);
         } else {
           // If the document doesn't exist, create it with default values.
-          await setDoc(aboutDocRef, aboutContent);
+          setDoc(aboutDocRef, aboutContent);
         }
-    } catch (error) {
-        console.error("Error fetching about content: ", error);
-    } finally {
         setIsLoading(false);
-    }
-  }, []);
+      }, 
+      (error) => {
+        console.error("Error fetching about content: ", error);
+        setIsLoading(false);
+      }
+    );
 
-  useEffect(() => {
-    fetchAboutContent();
-  }, [fetchAboutContent]);
+    return () => unsubscribe();
+  }, []);
   
   const updateAboutContent = async (data: Partial<AboutContent>) => {
     try {
       await updateDoc(aboutDocRef, data);
-      setAboutContent(prev => ({ ...prev, ...data }));
+      // No need to set state here, onSnapshot will do it
     } catch (e) {
       console.error("Error updating about content: ", e);
       toast({ title: 'Error', description: 'Could not update site content.', variant: 'destructive' });
@@ -125,8 +125,6 @@ export function AboutProvider({ children }: { children: ReactNode }) {
 
     try {
       await updateDoc(aboutDocRef, { adminUids: arrayUnion(userId) });
-      // The user's roles will update on next login, but we can update our local state
-      setAboutContent(prev => ({ ...prev, adminUids: [...prev.adminUids, userId] }));
       toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
 
     } catch (e) {
@@ -138,7 +136,6 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   const removeAdmin = async (uid: string) => {
     try {
       await updateDoc(aboutDocRef, { adminUids: arrayRemove(uid) });
-      setAboutContent(prev => ({ ...prev, adminUids: prev.adminUids.filter(id => id !== uid) }));
       toast({ title: 'Admin Removed', description: 'Admin privileges have been revoked.' });
     } catch (e) {
       console.error("Error removing admin: ", e);

@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
@@ -30,9 +30,10 @@ export interface Business {
     address: string;
   };
   associatedCommunityId?: string; // ID of the community
+  createdAt?: any;
 }
 
-export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount' | 'isFeatured'>;
+export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount' | 'isFeatured' | 'createdAt'>;
 
 interface BusinessesContextType {
   businesses: Business[];
@@ -52,23 +53,23 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchBusinesses = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const querySnapshot = await getDocs(businessesCollectionRef);
+    const unsubscribe = onSnapshot(businessesCollectionRef, 
+      (querySnapshot) => {
         const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
         setBusinesses(businessesData);
-    } catch (error) {
+        setIsLoading(false);
+      }, 
+      (error) => {
         console.error("Failed to fetch businesses from Firestore", error);
         setBusinesses([]);
-    } finally {
         setIsLoading(false);
-    }
-  }, []);
+      }
+    );
 
-  useEffect(() => {
-    fetchBusinesses();
-  }, [fetchBusinesses]);
+    return () => unsubscribe();
+  }, []);
 
   const addBusiness = async (businessData: NewBusinessInput): Promise<Business> => {
     const newBusinessForDb = {
@@ -77,11 +78,11 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
       isFeatured: false,
       rating: 4.5, // Placeholder
       reviewCount: 0,
+      createdAt: serverTimestamp(),
     };
     const docRef = await addDoc(businessesCollectionRef, newBusinessForDb);
-    const newBusinessForState = { ...newBusinessForDb, id: docRef.id };
-    setBusinesses(prev => [...prev, newBusinessForState]);
-    return newBusinessForState;
+    // We don't need to update state manually, onSnapshot will do it.
+    return { ...newBusinessForDb, id: docRef.id, createdAt: new Date() } as Business;
   };
 
 
@@ -93,13 +94,13 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
   const verifyBusiness = async (businessId: string) => {
     const businessDocRef = doc(firestore, 'businesses', businessId);
     await updateDoc(businessDocRef, { isVerified: true });
-    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, isVerified: true } : b));
+    // No need to set state here, onSnapshot will do it
   };
   
   const updateBusinessFeaturedStatus = async (businessId: string, isFeatured: boolean) => {
     const businessDocRef = doc(firestore, 'businesses', businessId);
     await updateDoc(businessDocRef, { isFeatured });
-    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, isFeatured } : b));
+    // No need to set state here, onSnapshot will do it
     toast({
       title: 'Business Updated',
       description: `Business has been ${isFeatured ? 'featured' : 'un-featured'}.`,

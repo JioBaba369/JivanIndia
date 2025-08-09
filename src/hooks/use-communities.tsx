@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, arrayRemove } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
@@ -34,8 +34,8 @@ export interface Community {
   };
   founderUid: string;
   founderEmail: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail' | 'isFeatured'>;
@@ -62,49 +62,46 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchCommunities = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const querySnapshot = await getDocs(communitiesCollectionRef);
+    const unsubscribe = onSnapshot(communitiesCollectionRef, 
+      (querySnapshot) => {
         const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
         setCommunities(communitiesData);
-    } catch (error) {
+        setIsLoading(false);
+      },
+      (error) => {
         console.error("Failed to fetch communities from Firestore", error);
         setCommunities([]);
-    } finally {
         setIsLoading(false);
-    }
+      }
+    );
+    
+    return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    fetchCommunities();
-  }, [fetchCommunities]);
 
 
   const addCommunity = async (communityData: NewCommunityInput, user: User): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
 
-    const now = new Date().toISOString();
     const newCommunityData = {
       ...communityData,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
       isVerified: false,
       isFeatured: false,
       founderEmail: user.email,
     };
     const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
-    const newCommunity = { id: docRef.id, ...newCommunityData } as Community;
+    const newCommunity = { id: docRef.id, ...newCommunityData, createdAt: new Date(), updatedAt: new Date() } as Community;
     
-    setCommunities(prev => [...prev, newCommunity]);
     return newCommunity;
   };
 
   const updateCommunity = async (id: string, data: Partial<Omit<Community, 'id'>>) => {
     const communityDocRef = doc(firestore, 'communities', id);
-    const updatedData = { ...data, updatedAt: new Date().toISOString() };
+    const updatedData = { ...data, updatedAt: serverTimestamp() };
     await updateDoc(communityDocRef, updatedData);
-    setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...updatedData } as Community : c));
   };
   
   const deleteCommunity = async (id: string) => {
@@ -122,8 +119,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
         });
         await batch.commit();
     }
-
-    setCommunities(prev => prev.filter(c => c.id !== id));
   };
 
   const getCommunityById = useCallback((id: string): Community | undefined => {
@@ -142,17 +137,13 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
   const verifyCommunity = async (communityId: string): Promise<void> => {
     const communityDocRef = doc(firestore, 'communities', communityId);
-    const updatedData = { isVerified: true, updatedAt: new Date().toISOString() };
+    const updatedData = { isVerified: true, updatedAt: serverTimestamp() };
     await updateDoc(communityDocRef, updatedData);
-    setCommunities(prev => prev.map(c => 
-      c.id === communityId ? { ...c, isVerified: true, updatedAt: updatedData.updatedAt } as Community : c
-    ));
   };
 
   const updateCommunityFeaturedStatus = async (communityId: string, isFeatured: boolean) => {
     const communityDocRef = doc(firestore, 'communities', communityId);
     await updateDoc(communityDocRef, { isFeatured });
-    setCommunities(prev => prev.map(c => c.id === communityId ? { ...c, isFeatured } : c));
     toast({
       title: 'Community Updated',
       description: `Community has been ${isFeatured ? 'featured' : 'un-featured'}.`,

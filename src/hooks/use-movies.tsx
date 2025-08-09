@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 
 export interface Movie {
@@ -11,7 +11,7 @@ export interface Movie {
   genre: string;
   imageUrl: string;
   rating: number;
-  postedAt: string;
+  postedAt: any;
   details: {
     synopsis: string;
     duration: string;
@@ -44,22 +44,24 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchMovies = useCallback(async () => {
+  useEffect(() => {
     setIsLoading(true);
-    try {
-        const querySnapshot = await getDocs(moviesCollectionRef);
+    const q = query(moviesCollectionRef, orderBy('postedAt', 'desc'));
+
+    const unsubscribe = onSnapshot(q,
+      (querySnapshot) => {
         setMovies(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Movie)));
-    } catch (error) {
+        setIsLoading(false);
+      },
+      (error) => {
         console.error("Failed to fetch movies from Firestore", error);
         setMovies([]);
-    } finally {
         setIsLoading(false);
-    }
-  }, []);
+      }
+    );
 
-  useEffect(() => {
-    fetchMovies();
-  }, [fetchMovies]);
+    return () => unsubscribe();
+  }, []);
 
   const getMovieById = (id: string): Movie | undefined => {
     return movies.find(m => m.id === id);
