@@ -13,6 +13,7 @@ import { MoviesProvider } from "@/hooks/use-movies";
 import { DealsProvider } from "@/hooks/use-deals";
 import { ReportsProvider } from "@/hooks/use-reports";
 import { NotificationsProvider } from '@/hooks/use-notifications';
+import { FestivalsProvider } from '@/hooks/use-festivals';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
@@ -31,15 +32,17 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                                     <DealsProvider>
                                         <MoviesProvider>
                                             <JobsProvider>
-                                                <div className="relative flex min-h-screen flex-col">
-                                                    <Header />
-                                                    <main className="flex-1">
-                                                        {children}
-                                                    </main>
-                                                    <Footer />
-                                                    <Toaster />
-                                                    <CookieConsentBanner />
-                                                </div>
+                                                <FestivalsProvider>
+                                                    <div className="relative flex min-h-screen flex-col">
+                                                        <Header />
+                                                        <main className="flex-1">
+                                                            {children}
+                                                        </main>
+                                                        <Footer />
+                                                        <Toaster />
+                                                        <CookieConsentBanner />
+                                                    </div>
+                                                </FestivalsProvider>
                                             </JobsProvider>
                                         </MoviesProvider>
                                     </DealsProvider>

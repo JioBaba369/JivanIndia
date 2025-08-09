@@ -55,6 +55,8 @@ export default function Footer() {
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
                 <li><Link href="/legal" className="text-muted-foreground hover:text-primary">Legal Center</Link></li>
+                <li><Link href="/india" className="text-muted-foreground hover:text-primary">About India</Link></li>
+                <li><Link href="/festivals" className="text-muted-foreground hover:text-primary">Festivals</Link></li>
               </ul>
             </div>
           </div>
