@@ -22,7 +22,7 @@ export default function Logo({ as: Component = 'div', href, className, ...props 
              <Heart className="h-full w-full fill-current"/>
         </div>
         <span className={cn("font-headline text-2xl font-bold", className)}>
-            <span>JivanIndia</span>
+            <span style={{color: '#FF3334'}}>JivanIndia</span>
             <span className="text-primary">.co</span>
         </span>
     </>
