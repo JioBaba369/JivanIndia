@@ -16,21 +16,20 @@ export default function DashboardPage() {
     }
 
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
     
     const isAdmin = user.roles.includes('admin');
     
     if (isAdmin) {
-      router.push('/admin');
+      router.replace('/admin');
     } else if (user.affiliation?.orgSlug) {
-      router.push(`/c/${user.affiliation.orgSlug}`);
+      router.replace(`/c/${user.affiliation.orgSlug}`);
     } else if (user.username) {
-      router.push(`/${user.username}`);
-    }
-     else {
-      router.push('/profile');
+      router.replace(`/${user.username}`);
+    } else {
+      router.replace('/profile');
     }
     
   }, [user, isLoading]);
