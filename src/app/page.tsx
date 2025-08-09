@@ -96,22 +96,11 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-            alt="A vibrant Indian festival with a large, joyful crowd"
-            fill
-            className="object-cover"
-            priority
-            data-ai-hint="festival crowd"
-          />
-          <div className="absolute inset-0 bg-black/30" />
-        </div>
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
-          <div className="bg-black/40 p-8 rounded-lg backdrop-blur-sm">
+      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center bg-primary">
+        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
+          <div className="p-8 rounded-lg">
             <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">The Heartbeat of Our Community</h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-200">
+            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90">
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
             <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
@@ -135,7 +124,7 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" size="lg" className="text-lg" aria-label="Search">
+                <Button type="submit" size="lg" className="text-lg bg-secondary text-secondary-foreground hover:bg-secondary/90" aria-label="Search">
                   <Search className="mr-2" />
                   Search
                 </Button>
