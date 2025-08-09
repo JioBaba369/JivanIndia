@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart, Film } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart, Film, Edit } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -35,7 +35,7 @@ export default function UserPublicProfilePage() {
     const { toast } = useToast();
     const username = typeof params.username === 'string' ? params.username : '';
 
-    const { getUserByUsername } = useAuth();
+    const { user: currentUser, getUserByUsername } = useAuth();
     const { events: allEvents } = useEvents();
     const { businesses } = useBusinesses();
     const { sponsors } = useSponsors();
@@ -122,6 +122,7 @@ export default function UserPublicProfilePage() {
         );
     }
     
+    const isProfileOwner = currentUser?.uid === profileUser?.uid;
     const hasCurrentLocation = profileUser.currentLocation && (profileUser.currentLocation.city || profileUser.currentLocation.state || profileUser.currentLocation.country);
     const hasOriginLocation = profileUser.originLocation && (profileUser.originLocation.indiaDistrict || profileUser.originLocation.indiaState);
 
@@ -224,6 +225,13 @@ export default function UserPublicProfilePage() {
                                     </div>
                                 </DialogContent>
                             </Dialog>
+                            {isProfileOwner && (
+                                <Button asChild variant="secondary">
+                                    <Link href="/profile/edit">
+                                        <Edit className="mr-2 h-4 w-4"/> Edit Profile
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
 
                          <div className="mt-12">
