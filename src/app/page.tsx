@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight, Users, Building, Film, Briefcase, Heart, Handshake, Megaphone } from "lucide-react";
+import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight, Users, Building, Film, Briefcase, Heart, Handshake, Megaphone, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -21,13 +21,14 @@ import { format } from "date-fns";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   const { events, isLoading: isLoadingEvents } = useEvents();
   const { deals, isLoading: isLoadingDeals } = useDeals();
   
   const approvedEvents = events.filter(e => e.status === 'Approved');
-  const latestEvents = approvedEvents.slice(0, 3);
+  const latestEvents = approvedEvents.filter(e => new Date(e.startDateTime) > new Date()).sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()).slice(0, 3);
   const latestDeals = deals.slice(0, 3);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -154,7 +155,7 @@ export default function HomePage() {
               {isLoadingEvents ? <EventSkeletons /> : (
                 latestEvents.length > 0 ? (
                     latestEvents.map((event) => (
-                      <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
+                      <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
                         <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                           <div className="relative h-56 w-full">
                             <Image
@@ -164,6 +165,7 @@ export default function HomePage() {
                               className="object-cover transition-transform duration-300 group-hover:scale-105"
                               data-ai-hint="event photo"
                             />
+                             {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                           </div>
                           <CardContent className="flex flex-grow flex-col p-6">
                             <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
@@ -207,7 +209,7 @@ export default function HomePage() {
                 latestDeals.length > 0 ? (
                   latestDeals.map((deal) => (
                     <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                      <CardHeader className="p-0">
+                       <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                         <div className="relative h-48 w-full">
                            <Image
                             src={deal.imageUrl}
@@ -216,13 +218,10 @@ export default function HomePage() {
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint="deal photo"
                           />
-                          <Badge className="absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{deal.category}</Badge>
+                          <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
                         </div>
-                      </CardHeader>
                       <CardContent className="flex-grow p-4">
-                         <CardTitle className="mb-2 text-xl">
-                            <Link href={`/deals/${deal.id}`} className="hover:text-primary transition-colors">{deal.title}</Link>
-                         </CardTitle>
+                         <CardTitle className="mb-2 text-xl group-hover:text-primary">{deal.title}</CardTitle>
                          <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
                          <div className="mt-4 space-y-2">
                             <div className="flex items-center text-sm text-muted-foreground">
@@ -235,13 +234,14 @@ export default function HomePage() {
                             </div>
                          </div>
                       </CardContent>
-                       <div className="flex items-center p-4 pt-0">
+                       <div className="flex items-center p-4 pt-0 mt-auto">
                           <Button asChild variant="link" className="p-0 h-auto">
                             <Link href={`/deals/${deal.id}`}>
                                 View Details <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                           </Button>
                        </div>
+                      </Link>
                     </Card>
                   ))
               ) : (

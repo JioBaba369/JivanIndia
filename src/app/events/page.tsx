@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -20,9 +20,11 @@ import { useMemo, useState, useEffect } from "react";
 import { format } from 'date-fns';
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function EventsPage() {
   const { events } = useEvents();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,10 +95,14 @@ export default function EventsPage() {
                     ))}
                     </SelectContent>
                 </Select>
-                <Button className="w-full">
-                    <Search className="mr-2 h-4 w-4" />
-                    Apply Filters
-                </Button>
+                 {user?.affiliation && (
+                    <Button asChild>
+                        <Link href="/events/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Post an Event
+                        </Link>
+                    </Button>
+                )}
             </div>
         </Card>
         
@@ -115,7 +121,7 @@ export default function EventsPage() {
               const formattedDate = format(new Date(event.startDateTime), 'PPp');
               return (
                  <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
-                    <CardContent className="p-0">
+                    <Link href={`/events/${event.id}`} className="flex flex-col h-full">
                         <div className="relative h-48 w-full">
                             <Image
                             src={event.imageUrl}
@@ -126,32 +132,30 @@ export default function EventsPage() {
                             data-ai-hint="event photo"
                             />
                             {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                            <Badge className="absolute right-3 top-3 bg-primary/80 backdrop-blur-sm">{event.eventType}</Badge>
+                            <Badge variant="secondary" className="absolute right-3 top-3">{event.eventType}</Badge>
                         </div>
-                    </CardContent>
-                    <CardContent className="flex-grow p-4">
-                        <h3 className="mb-2 font-headline text-xl">
-                            <Link href={`/events/${event.id}`} className="hover:text-primary transition-colors">{event.title}</Link>
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
-                        <div className="mt-4 space-y-2">
-                            <div className="flex items-center text-sm text-muted-foreground">
-                                <Calendar className="mr-2 h-4 w-4 text-primary"/>
-                                <span>{formattedDate}</span>
+                        <CardContent className="flex-grow p-4">
+                            <h3 className="mb-2 font-headline text-xl group-hover:text-primary transition-colors">{event.title}</h3>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                            <div className="mt-4 space-y-2">
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <Calendar className="mr-2 h-4 w-4 text-primary"/>
+                                    <span>{formattedDate}</span>
+                                </div>
+                                 <div className="flex items-center text-sm text-muted-foreground">
+                                    <MapPin className="mr-2 h-4 w-4 text-primary"/>
+                                    <span>{event.location.venueName}</span>
+                                </div>
                             </div>
-                             <div className="flex items-center text-sm text-muted-foreground">
-                                <MapPin className="mr-2 h-4 w-4 text-primary"/>
-                                <span>{event.location.venueName}</span>
-                            </div>
+                        </CardContent>
+                        <div className="flex items-center p-4 pt-0 mt-auto">
+                            <Button asChild variant="link" className="p-0 h-auto">
+                                <Link href={`/events/${event.id}`}>
+                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
                         </div>
-                    </CardContent>
-                    <div className="flex items-center p-4 pt-0">
-                        <Button asChild variant="link" className="p-0 h-auto">
-                            <Link href={`/events/${event.id}`}>
-                            View Details <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                        </Button>
-                    </div>
+                    </Link>
                 </Card>
               ) 
             })}
