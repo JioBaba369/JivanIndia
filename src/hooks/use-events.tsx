@@ -2,9 +2,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
+import { useAuth } from './use-auth';
 
 export interface Event {
   id: string;
@@ -51,10 +52,17 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsLoading(true);
-    const q = query(eventsCollectionRef, orderBy('startDateTime', 'desc'));
+    
+    // Admins and community managers can see all events for moderation
+    const canSeeAll = user?.roles.includes('admin') || user?.roles.includes('community-manager');
+
+    const q = canSeeAll 
+      ? query(eventsCollectionRef, orderBy('createdAt', 'desc'))
+      : query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
     
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
@@ -69,7 +77,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const addEvent = async (eventData: NewEventInput) => {
     const newEventData = {
