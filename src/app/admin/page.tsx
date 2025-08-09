@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -240,39 +239,38 @@ export default function AdminDashboardPage() {
   
   const [countryFilter, setCountryFilter] = useState(ALL_COUNTRIES_VALUE);
   const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
-
+  
   const hasAdminRole = user?.roles.includes('admin');
-
-  useEffect(() => {
-    const fetchAdminUsers = async () => {
-      if (!aboutContent.adminUids.length) {
-        setIsUsersLoading(false);
-        return
-      };
-      setIsUsersLoading(true);
-      try {
-        const usersCollectionRef = collection(firestore, 'users');
-        const q = query(usersCollectionRef, where('__name__', 'in', aboutContent.adminUids));
-        const usersSnapshot = await getDocs(q);
-        setAdminUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User)));
-      } catch (error) {
-        console.error("Failed to fetch admin users", error);
-        toast({ title: 'Error', description: 'Could not fetch admin user list.', variant: 'destructive' });
-      } finally {
-        setIsUsersLoading(false);
-      }
-    };
-
-    if (hasAdminRole) {
-      fetchAdminUsers();
-    }
-  }, [hasAdminRole, aboutContent.adminUids, toast]);
 
   useEffect(() => {
     if (!isLoading && !hasAdminRole) {
       router.push('/');
     }
   }, [user, isLoading, hasAdminRole, router]);
+
+  useEffect(() => {
+    if (aboutContent.adminUids && aboutContent.adminUids.length > 0 && hasAdminRole) {
+      const fetchAdminUsers = async () => {
+        setIsUsersLoading(true);
+        try {
+          const usersCollectionRef = collection(firestore, 'users');
+          // Firestore 'in' queries are limited to 10 items. For more, chunking is needed.
+          const adminUidsChunk = aboutContent.adminUids.slice(0, 10);
+          const q = query(usersCollectionRef, where('__name__', 'in', adminUidsChunk));
+          const usersSnapshot = await getDocs(q);
+          setAdminUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User)));
+        } catch (error) {
+          console.error("Failed to fetch admin users", error);
+          toast({ title: 'Error', description: 'Could not fetch admin user list.', variant: 'destructive' });
+        } finally {
+          setIsUsersLoading(false);
+        }
+      };
+      fetchAdminUsers();
+    } else {
+        setIsUsersLoading(false);
+    }
+  }, [hasAdminRole, aboutContent.adminUids, toast]);
 
   useEffect(() => {
     if (aboutContent) {
@@ -395,6 +393,14 @@ export default function AdminDashboardPage() {
     { value: "careers", label: "Careers", count: jobs.length, icon: Briefcase },
   ];
 
+  const mainTabs = [
+    { value: "content", label: "Content", icon: FileText },
+    { value: "reports", label: "Reports", count: pendingReports.length, icon: AlertTriangle },
+    { value: "users", label: "Users", icon: Users },
+    { value: "settings", label: "Site", icon: Settings },
+    { value: "checklist", label: "Launch", icon: ClipboardCheck },
+  ];
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -406,12 +412,14 @@ export default function AdminDashboardPage() {
             </div>
         </div>
         <Tabs defaultValue="content" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 md:grid-cols-5">
-                <TabsTrigger value="content"><FileText className="mr-2"/>Content Moderation</TabsTrigger>
-                <TabsTrigger value="reports"><AlertTriangle className="mr-2"/>Reports ({pendingReports.length})</TabsTrigger>
-                <TabsTrigger value="users"><Users className="mr-2"/>User Management</TabsTrigger>
-                <TabsTrigger value="settings"><Settings className="mr-2"/>Site Management</TabsTrigger>
-                <TabsTrigger value="checklist"><ClipboardCheck className="mr-2"/>Launch Checklist</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+                {mainTabs.map(tab => (
+                    <TabsTrigger key={tab.value} value={tab.value}>
+                        <tab.icon className="mr-2 h-4 w-4" />
+                        <span className="hidden sm:inline">{tab.label}</span>
+                        {tab.count ? ` (${tab.count})` : ''}
+                    </TabsTrigger>
+                ))}
             </TabsList>
             
             <TabsContent value="content" className="mt-6">
@@ -423,7 +431,7 @@ export default function AdminDashboardPage() {
                     <CardContent>
                         <Tabs defaultValue="events" className="w-full">
                              <div className="flex flex-col md:flex-row gap-4 justify-between items-center p-4 border-b">
-                                <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+                                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
                                     {contentTabs.map(tab => (
                                         <TabsTrigger key={tab.value} value={tab.value}>
                                             <tab.icon className="mr-2 h-4 w-4" />
@@ -431,7 +439,7 @@ export default function AdminDashboardPage() {
                                         </TabsTrigger>
                                     ))}
                                 </TabsList>
-                                <div className="flex gap-2 w-full md:w-auto">
+                                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                                     <CountrySelector selectedCountry={countryFilter} setSelectedCountry={setCountryFilter} />
                                     <Select value={sponsorCountFilter} onValueChange={setSponsorCountFilter}>
                                         <SelectTrigger className="w-full md:w-[180px]">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -96,7 +95,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center bg-primary/10">
+      <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center bg-primary/10">
          <div className="absolute inset-0">
             <Image 
                 src="https://images.unsplash.com/photo-1617634667363-554158b4e76a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmZXN0aXZhbCUyMGRlY29yYXRpb25zfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
@@ -108,10 +107,10 @@ export default function HomePage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         </div>
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center">
-          <div className="p-8 rounded-lg">
-            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Jivan: An Indian Community, For The People, By The People</h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-foreground/90 text-shadow">
+        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center px-4">
+          <div className="p-4 md:p-8 rounded-lg">
+            <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Jivan: An Indian Community, For The People, By The People</h1>
+            <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-foreground/90 text-shadow">
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
             <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
@@ -138,7 +137,7 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" size="icon" className="rounded-full w-12 h-12" aria-label="Search">
+                <Button type="submit" size="icon" className="rounded-full w-10 h-10 sm:w-12 sm:h-12" aria-label="Search">
                   <Search />
                 </Button>
               </div>
@@ -149,14 +148,14 @@ export default function HomePage() {
       </section>
 
       {/* Category Links */}
-      <section className="py-16 md:py-24 bg-muted/20">
-        <div className="container mx-auto">
+      <section className="py-12 md:py-20 bg-muted/20">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
             {categoryLinks.map(({ href, icon: Icon, label }) => (
               <Link key={href} href={href} className="group" aria-label={`Explore ${label}`}>
-                <Card className="p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-card hover:-translate-y-2 shadow-sm hover:shadow-primary/20 hover:border-primary/50">
-                  <Icon className="h-10 w-10 mb-2 text-primary" />
-                  <h3 className="font-semibold">{label}</h3>
+                <Card className="p-4 sm:p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-card hover:-translate-y-2 shadow-sm hover:shadow-primary/20 hover:border-primary/50">
+                  <Icon className="h-8 w-8 sm:h-10 sm:w-10 mb-2 text-primary" />
+                  <h3 className="font-semibold text-sm sm:text-base">{label}</h3>
                 </Card>
               </Link>
             ))}
@@ -165,7 +164,7 @@ export default function HomePage() {
       </section>
 
       {/* Upcoming Events */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-12 md:py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="font-headline text-3xl font-bold">Upcoming Events</h2>
@@ -243,7 +242,7 @@ export default function HomePage() {
       </section>
 
       {/* Latest Deals */}
-      <section className="py-16 md:py-24 bg-muted/20">
+      <section className="py-12 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
           <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Deals</h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

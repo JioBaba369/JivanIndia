@@ -54,8 +54,8 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
         <NotificationBell />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10">
                 {user.profileImageUrl ? <AvatarImage src={user.profileImageUrl} alt={user.name} /> : <AvatarFallback>{getInitials(user.name)}</AvatarFallback>}
               </Avatar>
             </Button>
@@ -103,7 +103,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
   }
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-1 sm:space-x-2">
       <Button variant="ghost" asChild onClick={handleItemClick}>
         <Link href="/login">Login</Link>
       </Button>
@@ -119,11 +119,38 @@ export default function Header() {
   const [isOpen, setIsOpen] = React.useState(false);
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center px-4">
-        <div className="mr-auto flex items-center gap-6">
-            <Logo as={Link} href="/" />
-             <NavigationMenu className="hidden md:flex">
+        <div className="flex items-center gap-2 md:gap-6">
+            <div className="md:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Open menu">
+                    <Menu />
+                    <span className="sr-only">Toggle Menu</span>
+                </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-full max-w-xs p-6">
+                    <div className="mb-8">
+                       <Logo as={Link} href="/" onClick={() => setIsOpen(false)} />
+                    </div>
+                    <div className="flex flex-col space-y-4">
+                        <nav className="flex flex-col space-y-2">
+                             {mainNavLinks.map((link) => (
+                               <SheetClose asChild key={link.href}><Link href={link.href} className="text-lg font-medium text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
+                            ))}
+                        </nav>
+                        <DropdownMenuSeparator />
+                        <UserActions onLinkClick={() => setIsOpen(false)} />
+                    </div>
+                </SheetContent>
+            </Sheet>
+            </div>
+            <Logo as={Link} href="/" className="hidden md:flex" />
+        </div>
+
+        <div className="flex-1 justify-center hidden md:flex">
+             <NavigationMenu>
                 <NavigationMenuList>
                     {mainNavLinks.map((link) => (
                         <NavigationMenuItem key={link.href}>
@@ -138,32 +165,8 @@ export default function Header() {
             </NavigationMenu>
         </div>
         
-        <div className="flex items-center gap-2">
-            <div className="hidden md:flex">
-                <UserActions />
-            </div>
-            <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <Menu />
-                    <span className="sr-only">Toggle Menu</span>
-                </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-full max-w-xs p-6">
-                    <div className="mt-6 flex flex-col space-y-4">
-                        <UserActions onLinkClick={() => setIsOpen(false)} />
-                        <DropdownMenuSeparator />
-                        <nav className="flex flex-col space-y-2">
-                             <SheetClose asChild><Link href="/" className="text-lg font-medium">Home</Link></SheetClose>
-                             {mainNavLinks.map((link) => (
-                               <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
-                            ))}
-                        </nav>
-                    </div>
-                </SheetContent>
-            </Sheet>
-            </div>
+        <div className="hidden md:flex items-center gap-2">
+            <UserActions />
         </div>
       </div>
     </header>
