@@ -209,7 +209,7 @@ export default function HomePage() {
                 latestDeals.length > 0 ? (
                   latestDeals.map((deal) => (
                     <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                       <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
+                      <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                         <div className="relative h-48 w-full">
                            <Image
                             src={deal.imageUrl}
@@ -220,27 +220,25 @@ export default function HomePage() {
                           />
                           <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
                         </div>
-                      <CardContent className="flex-grow p-4">
-                         <CardTitle className="mb-2 text-xl group-hover:text-primary">{deal.title}</CardTitle>
-                         <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
-                         <div className="mt-4 space-y-2">
-                            <div className="flex items-center text-sm text-muted-foreground">
-                                <Building className="mr-2 h-4 w-4 text-primary"/>
-                                <span>{deal.business}</span>
+                        <CardContent className="flex flex-grow flex-col p-4">
+                            <CardTitle className="mb-2 text-xl group-hover:text-primary">{deal.title}</CardTitle>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
+                            <div className="mt-4 space-y-2">
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <Building className="mr-2 h-4 w-4 text-primary"/>
+                                    <span>{deal.business}</span>
+                                </div>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <Calendar className="mr-2 h-4 w-4 text-primary"/>
+                                    <span>Expires {format(new Date(deal.expires), 'PP')}</span>
+                                </div>
                             </div>
-                             <div className="flex items-center text-sm text-muted-foreground">
-                                <Calendar className="mr-2 h-4 w-4 text-primary"/>
-                                <span>Expires {format(new Date(deal.expires), 'PP')}</span>
-                            </div>
-                         </div>
-                      </CardContent>
-                       <div className="flex items-center p-4 pt-0 mt-auto">
-                          <Button asChild variant="link" className="p-0 h-auto">
-                            <Link href={`/deals/${deal.id}`}>
-                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                          </Button>
-                       </div>
+                        </CardContent>
+                        <div className="flex items-center p-4 pt-0 mt-auto">
+                            <span className="text-primary font-semibold hover:underline">
+                                View Details <ArrowRight className="ml-1 inline-block h-4 w-4" />
+                            </span>
+                        </div>
                       </Link>
                     </Card>
                   ))
