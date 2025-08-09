@@ -353,7 +353,7 @@ export default function AdminDashboardPage() {
   
   const totalLoading = isLoading || isAboutLoading || isReportsLoading || (hasAdminRole && isUsersLoading);
 
-  if (totalLoading && !reports.length) { // Avoid full screen loader if reports are already there
+  if (totalLoading && !user) {
     return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
