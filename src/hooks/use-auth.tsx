@@ -217,18 +217,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
         const batch = writeBatch(firestore);
         const userRef = doc(firestore, 'users', user.uid);
-        const communityRef = doc(firestore, 'communities', orgId);
 
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        let roles: UserRole[] = [...(user.roles || [])].filter(r => r !== 'community-manager');
+        let newRoles: UserRole[] = [...(user.roles || [])].filter(r => r !== 'community-manager');
         
         if (affiliation) {
-            roles.push('community-manager');
-            batch.update(userRef, { affiliation, roles: arrayUnion('community-manager') });
+            newRoles.push('community-manager');
+            const communityRef = doc(firestore, 'communities', orgId);
             batch.update(communityRef, { membersCount: arrayUnion(user.uid) });
-        } else {
-             batch.update(userRef, { affiliation, roles: arrayRemove('community-manager') });
         }
+        
+        batch.update(userRef, { affiliation, roles: newRoles });
         await batch.commit();
     }
   }, [user]);
@@ -260,7 +259,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [firebaseUser]);
 
   const isItemSaved = useCallback((listType: keyof User, itemId: string) => {
-    if (!user || !user[listType]) return false;
+    if (!user || !Array.isArray(user[listType])) return false;
     return (user[listType] as string[]).includes(itemId);
   }, [user]);
 
