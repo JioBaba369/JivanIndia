@@ -57,8 +57,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsLoading(true);
     
-    // Admins and community managers can see all events for moderation
-    const canSeeAll = user?.roles.includes('admin') || user?.roles.includes('community-manager');
+    // Admins can see all events for moderation purposes
+    const canSeeAll = user?.roles.includes('admin');
 
     const q = canSeeAll 
       ? query(eventsCollectionRef, orderBy('createdAt', 'desc'))
