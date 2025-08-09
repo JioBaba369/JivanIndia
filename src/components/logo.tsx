@@ -22,7 +22,7 @@ export default function Logo({ as: Component = 'div', href, ...props }: LogoProp
             </svg>
         </div>
         <span className="font-headline text-2xl font-bold">
-            JivanIndia
+            <span style={{ color: '#FF3334' }}>JivanIndia</span>
             <span className="text-primary">.co</span>
         </span>
     </>
