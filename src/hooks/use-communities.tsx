@@ -82,19 +82,37 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const addCommunity = useCallback(async (communityData: NewCommunityInput, user: User): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
 
+    const batch = writeBatch(firestore);
+    
+    // 1. Create new community document
+    const newCommunityRef = doc(collection(firestore, 'communities'));
+    const newCommunityForDb = {
+      ...communityData,
+      id: newCommunityRef.id,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      isVerified: false,
+      isFeatured: false,
+      founderEmail: user.email,
+    };
+    batch.set(newCommunityRef, newCommunityForDb);
+
+    // 2. Update user's affiliation
+    const userRef = doc(firestore, 'users', user.uid);
+    batch.update(userRef, {
+      affiliation: {
+        orgId: newCommunityRef.id,
+        orgName: communityData.name,
+        orgSlug: communityData.slug,
+      },
+      roles: arrayUnion('community-manager')
+    });
+
     try {
-        const newCommunityData = {
-          ...communityData,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          isVerified: false,
-          isFeatured: false,
-          founderEmail: user.email,
-        };
-        const docRef = await addDoc(collection(firestore, 'communities'), newCommunityData);
-        return { id: docRef.id, ...newCommunityData, createdAt: new Date(), updatedAt: new Date() } as Community;
+        await batch.commit();
+        return { ...newCommunityForDb, createdAt: new Date(), updatedAt: new Date() } as Community;
     } catch (error) {
-        console.error("Error adding community:", error);
+        console.error("Error adding community and updating user:", error);
         toast({ title: "Error", description: "Failed to create community.", variant: "destructive" });
         throw error;
     }
