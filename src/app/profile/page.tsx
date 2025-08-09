@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo, useEffect } from 'react';
 import { useEvents } from '@/hooks/use-events';
 import { useCommunities } from '@/hooks/use-communities';
 import { useDeals } from '@/hooks/use-deals';
@@ -20,9 +19,13 @@ import { format } from 'date-fns';
 import { getInitials } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
+type TabValue = 'saved-events' | 'saved-movies' | 'joined-communities' | 'saved-deals';
+
 export default function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get('tab') as TabValue) || 'saved-events';
 
   const { events: allEvents } = useEvents();
   const { communities: allCommunities } = useCommunities();
@@ -84,7 +87,7 @@ export default function ProfilePage() {
                         <CardDescription>Manage your saved items and community involvement.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue="saved-events" className="w-full">
+                        <Tabs defaultValue={initialTab} className="w-full">
                             <TabsList className="grid w-full grid-cols-4">
                                 <TabsTrigger value="saved-events"><Heart className="mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents?.length || 0})</TabsTrigger>
                                 <TabsTrigger value="saved-movies"><Film className="mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies?.length || 0})</TabsTrigger>

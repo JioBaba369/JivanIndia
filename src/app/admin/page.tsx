@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -459,14 +458,12 @@ export default function AdminDashboardPage() {
             <TabsContent value="users" className="mt-6">
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                      <Card>
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <CardTitle>Platform Administrators</CardTitle>
-                                    <CardDescription>Manage users who have admin privileges.</CardDescription>
-                                </div>
-                                <AddAdminDialog onSave={handleAddAdmin} />
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>Platform Administrators</CardTitle>
+                                <CardDescription>Manage users who have admin privileges.</CardDescription>
                             </div>
+                            <AddAdminDialog onSave={handleAddAdmin} />
                         </CardHeader>
                         <CardContent>
                             <Table>
@@ -506,14 +503,12 @@ export default function AdminDashboardPage() {
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <CardTitle>Meet the Team</CardTitle>
-                                    <CardDescription>Manage team members on the "About Us" page.</CardDescription>
-                                </div>
-                                <TeamMemberDialog onSave={handleAddTeamMember}><Button><UserPlus className="mr-2 h-4 w-4" /> Add Member</Button></TeamMemberDialog>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>Meet the Team</CardTitle>
+                                <CardDescription>Manage team members on the "About Us" page.</CardDescription>
                             </div>
+                            <TeamMemberDialog onSave={handleAddTeamMember}><Button><UserPlus className="mr-2 h-4 w-4" /> Add Member</Button></TeamMemberDialog>
                         </CardHeader>
                         <CardContent>
                             <Table>
@@ -594,5 +589,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
-    

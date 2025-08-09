@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -85,13 +84,13 @@ const UserActions = () => {
               </Link>
             </DropdownMenuItem>}
              <DropdownMenuItem asChild>
-                <Link href="/profile">
+                <Link href="/profile?tab=saved-events">
                   <Heart className="mr-2 h-4 w-4" />
                   <span>Saved Items</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/profile">
+                <Link href="/profile?tab=joined-communities">
                   <Users className="mr-2 h-4 w-4" />
                   <span>My Communities</span>
                 </Link>
@@ -127,7 +126,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center px-4">
-        <div className="flex items-center gap-6 mr-auto">
+        <div className="mr-auto flex items-center gap-6">
             <Logo as={Link} href="/" />
             <nav className="hidden items-center space-x-6 md:flex">
               {navLinks.map((link) => (
