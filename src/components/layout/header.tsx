@@ -119,7 +119,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = React.useState(false);
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 w-full border-b" style={{ backgroundColor: '#FFE00C' }}>
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="mr-auto flex items-center gap-6">
             <Logo as={Link} href="/" />
