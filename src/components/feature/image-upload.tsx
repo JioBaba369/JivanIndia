@@ -19,7 +19,7 @@ interface ImageUploadProps {
   onChange: (value: string) => void;
   aspectRatio: number;
   toast: ReturnType<typeof useToast>['toast'];
-  folderName: string; 
+  folderName: string;
   className?: string;
 }
 
@@ -31,17 +31,15 @@ export default function ImageUpload({
   aspectRatio,
   toast,
   folderName,
-  className
+  className,
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [preview, setPreview] = useState<string | undefined>(value);
   const [uploadState, setUploadState] = useState({
-      isUploading: false,
-      progress: 0,
+    isUploading: false,
+    progress: 0,
   });
 
-  const [preview, setPreview] = useState<string | undefined>(value);
-  
   useEffect(() => {
     if (value) {
       setPreview(value);
@@ -50,9 +48,9 @@ export default function ImageUpload({
 
   const resetFileInput = () => {
     if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      fileInputRef.current.value = '';
     }
-  }
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -66,119 +64,137 @@ export default function ImageUpload({
         resetFileInput();
         return;
       }
-      
+
       setPreview(URL.createObjectURL(file));
       setUploadState({ isUploading: true, progress: 0 });
 
-      const fileName = `${folderName}/${uuidv4()}.jpeg`;
+      const fileExtension = file.name.split('.').pop() || 'jpeg';
+      const fileName = `${folderName}/${uuidv4()}.${fileExtension}`;
       const storageRef = ref(storage, fileName);
-      
-      try {
-        const uploadTask = uploadBytesResumable(storageRef, file, { contentType: 'image/jpeg' });
 
-        uploadTask.on('state_changed',
+      try {
+        const uploadTask = uploadBytesResumable(storageRef, file, {
+          contentType: file.type,
+        });
+
+        uploadTask.on(
+          'state_changed',
           (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadState(prevState => ({ ...prevState, progress }));
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadState((prevState) => ({ ...prevState, progress }));
           },
           (error) => {
-              console.error("Upload error", error);
-              setUploadState({ isUploading: false, progress: 0 });
-              setPreview(value); // Revert preview on error
-              toast({
-                  title: "Upload Failed",
-                  description: "There was an error uploading your image. Please try again.",
-                  variant: "destructive",
-              });
-              resetFileInput();
+            console.error('Upload error', error);
+            setUploadState({ isUploading: false, progress: 0 });
+            setPreview(value); // Revert preview on error
+            toast({
+              title: 'Upload Failed',
+              description:
+                'There was an error uploading your image. Please try again.',
+              variant: 'destructive',
+            });
+            resetFileInput();
           },
           async () => {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              onChange(downloadURL);
-              setUploadState({ isUploading: false, progress: 0 });
-              setPreview(downloadURL);
-              toast({
-                  title: 'Image Uploaded!',
-                  description: 'Your image has been successfully uploaded.',
-                  icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-              });
-              resetFileInput();
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            onChange(downloadURL);
+            setUploadState({ isUploading: false, progress: 0 });
+            setPreview(downloadURL);
+            toast({
+              title: 'Image Uploaded!',
+              description: 'Your image has been successfully uploaded.',
+              icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+            });
+            resetFileInput();
           }
         );
       } catch (error) {
         setUploadState({ isUploading: false, progress: 0 });
         setPreview(value); // Revert preview on error
         toast({
-          title: "Upload Failed",
-          description: "An unexpected error occurred. Please try again.",
-          variant: "destructive",
+          title: 'Upload Failed',
+          description: 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
         });
-        console.error("Upload error", error);
+        console.error('Upload error', error);
         resetFileInput();
       }
     }
   };
-  
+
   const isButtonVariant = folderName === 'profile-pictures';
 
   const UploadButtonContent = () => {
     if (isButtonVariant) {
-        return (
-            <Button
-                type="button"
-                variant="outline"
-                onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
-                disabled={uploadState.isUploading}
-            >
-                {uploadState.isUploading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
-                ) : (
-                    <Camera className="mr-2 h-4 w-4" />
-                )}
-                <span>{uploadState.isUploading ? 'Uploading...' : 'Change Picture'}</span>
-            </Button>
-        )
+      return (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
+          disabled={uploadState.isUploading}
+        >
+          {uploadState.isUploading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Camera className="mr-2 h-4 w-4" />
+          )}
+          <span>{uploadState.isUploading ? 'Uploading...' : 'Change Picture'}</span>
+        </Button>
+      );
     }
     return (
-        <Card
-            role="button"
-            aria-label="Upload image"
-            tabIndex={0}
-            className={cn(
-                "group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80",
-                className
+      <Card
+        role="button"
+        aria-label="Upload image"
+        tabIndex={0}
+        className={cn(
+          'group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80',
+          className
+        )}
+        style={{ aspectRatio: `${aspectRatio}` }}
+        onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
+        onKeyDown={(e) =>
+          e.key === 'Enter' &&
+          !uploadState.isUploading &&
+          fileInputRef.current?.click()
+        }
+      >
+        {preview && (
+          <>
+            <Image src={preview} alt="Preview" fill className="object-cover" />
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 text-white">
+                <Pencil className="h-5 w-5" /> Change
+              </div>
+            </div>
+          </>
+        )}
+        {uploadState.isUploading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 text-center w-full bg-background/80">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Uploading...</p>
+            <Progress value={uploadState.progress} className="w-3/4" />
+          </div>
+        )}
+        {!preview && !uploadState.isUploading && (
+          <div className="text-center p-4">
+            {aspectRatio > 1 ? (
+              <ImageUp className="h-8 w-8 text-muted-foreground mx-auto" />
+            ) : (
+              <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" />
             )}
-            style={{ aspectRatio: `${aspectRatio}` }}
-            onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
-            onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
-            >
-            {preview && (
-              <>
-                <Image src={preview} alt="Preview" fill className="object-cover" />
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-center gap-2 text-white">
-                    <Pencil className="h-5 w-5"/> Change
-                  </div>
-                </div>
-              </>
-            )}
-            {uploadState.isUploading && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 text-center w-full bg-background/80">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary"/>
-                    <p className="text-sm text-muted-foreground">Uploading...</p>
-                    <Progress value={uploadState.progress} className="w-3/4" />
-                </div>
-            )}
-            {!preview && !uploadState.isUploading && (
-                <div className="text-center p-4">
-                    {aspectRatio > 1 ? <ImageUp className="h-8 w-8 text-muted-foreground mx-auto"/> : <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" /> }
-                    <span className="text-muted-foreground text-sm">{aspectRatio > 1 ? 'Upload Banner' : 'Upload Logo'}</span>
-                    <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
-                </div>
-            )}
-        </Card>
+            <span className="text-muted-foreground text-sm">
+              {aspectRatio > 1 ? 'Upload Banner' : 'Upload Logo'}
+            </span>
+            <p className="text-xs text-muted-foreground/80 mt-1">
+              Up to {IMAGE_MAX_SIZE_MB}MB
+            </p>
+          </div>
+        )}
+      </Card>
     );
-  }
+  };
 
   return (
     <div>

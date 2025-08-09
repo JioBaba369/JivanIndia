@@ -1,90 +1,117 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Helper Functions
-    function isSignedIn() {
+    // Helper functions
+    function isAuth() {
       return request.auth != null;
     }
 
-    function isDataOwner(userId) {
+    function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function isAdmin() {
-        return isSignedIn() && exists(/databases/$(database)/documents/about/singleton) && request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids;
+      // Check for the admin role on the user's document
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['admin']);
     }
-
-    function isCommunityManager(communityId) {
-        let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-        return 'community-manager' in userDoc.roles && userDoc.affiliation.orgId == communityId;
-    }
-
-    // Collections Rules
     
+    function isCommunityManager() {
+        return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['community-manager']);
+    }
+
+    function isAffiliatedWith(communityId) {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == communityId;
+    }
+
+    // Collection: users
     match /users/{userId} {
-      allow read: if isSignedIn();
-      allow create: if isDataOwner(userId);
-      allow update: if isDataOwner(userId);
+      allow read: if isAuth();
+      allow create: if isAuth() && isOwner(userId);
+      allow update: if isAuth() && isOwner(userId);
+      allow delete: if isAdmin(); // Only admins can delete users
     }
     
-    match /communities/{communityId} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update: if isCommunityManager(communityId) || isAdmin();
-      allow delete: if isCommunityManager(communityId) || isAdmin();
-    }
-    
-    match /events/{eventId} {
-      allow read: if resource.data.status == 'Approved' || isSignedIn();
-      allow create: if isSignedIn();
-      allow update: if isCommunityManager(resource.data.organizerId) || isAdmin();
-    }
-
-    match /deals/{dealId} {
-        allow read: if true;
-        allow create: if isCommunityManager(request.resource.data.businessId);
-    }
-    
-    match /movies/{movieId} {
-        allow read: if true;
-        allow create: if isAdmin();
-    }
-    
-    match /businesses/{businessId} {
-        allow read: if true;
-        allow create: if isAdmin();
-        allow update: if isAdmin();
-    }
-    
-    match /sponsors/{sponsorId} {
-        allow read: if true;
-        allow create: if isAdmin();
-    }
-    
-    match /jobs/{jobId} {
-        allow read: if true;
-        allow create: if isCommunityManager(request.resource.data.companyId);
-    }
-    
-    match /reports/{reportId} {
-      allow read, create, update: if isSignedIn();
-    }
-    
-    match /notifications/{notificationId} {
-        allow read, update: if isDataOwner(resource.data.userId);
-        allow create: if isSignedIn();
-    }
-
-    match /contacts/{contactId} {
-        allow create: if true;
-    }
-    
+    // Collection: about
     match /about/singleton {
         allow read: if true;
-        allow update: if isAdmin();
+        allow write: if isAdmin();
     }
+
+    // Collection: communities
+    match /communities/{communityId} {
+      allow read: if true;
+      allow create: if isAuth(); // Any authenticated user can attempt to create
+      allow update: if isAdmin() || (isAuth() && resource.data.founderUid == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+    
+    // Collection: events
+    match /events/{eventId} {
+      allow read: if resource.data.status == 'Approved' || isAdmin() || isAffiliatedWith(resource.data.organizerId);
+      allow create: if isCommunityManager();
+      allow update: if isAdmin() || isAffiliatedWith(resource.data.organizerId);
+      allow delete: if isAdmin();
+    }
+    
+    // Collection: deals
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isCommunityManager();
+      allow update: if isAdmin() || isAffiliatedWith(resource.data.businessId);
+      allow delete: if isAdmin();
+    }
+
+    // Collection: movies
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Collection: businesses
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Collection: sponsors
+    match /sponsors/{sponsorId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Collection: jobs
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if isCommunityManager();
+      allow update, delete: if isAdmin();
+    }
+    
+    // Collection: reports
+    match /reports/{reportId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAuth();
+    }
+    
+    // Collection: notifications
+    match /notifications/{notificationId} {
+      allow read, update: if isOwner(resource.data.userId);
+      allow create: if isCommunityManager() || isAdmin(); // Server-side logic handles creation
+      allow delete: if isAdmin();
+    }
+    
+    // Collection: contacts (for contact form submissions)
+    match /contacts/{contactId} {
+        allow read, delete: if isAdmin();
+        allow create: if true; // Open for public submissions
+    }
+    
+     // Collection: festivals
+    match /festivals/{festivalId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
   }
 }

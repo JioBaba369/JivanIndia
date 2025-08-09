@@ -1,65 +1,72 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-  
-    // Helper function to check file size (e.g., max 10MB)
-    function isImageSizeValid(maxSizeInMB) {
-      return request.resource.size < maxSizeInMB * 1024 * 1024;
+
+    function isAuth() {
+      return request.auth != null;
     }
 
-    // Helper function to check image type
-    function isImageTypeValid() {
-      return request.resource.contentType.matches('image/jpeg') ||
-             request.resource.contentType.matches('image/png') ||
-             request.resource.contentType.matches('image/webp');
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
-    // Default deny all reads and writes
-    match /{allPaths=**} {
-      allow read, write: if false;
+    function isAdmin() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['admin']);
     }
 
-    // Logged-in users can read any image
-    match /{folder}/{imageId} {
-      allow read: if request.auth != null;
+    function isCommunityManager() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['community-manager']);
     }
 
-    // Rules for Profile Pictures
+    function isFounderOf(communityId) {
+        return isAuth() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
+    }
+
+    function isAffiliatedWith(businessId) {
+        return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == businessId;
+    }
+    
+    // Public read access for all images
+    match /{folder}/{allPaths=**} {
+      allow read;
+    }
+
+    // Write rules for specific folders
     match /profile-pictures/{userId}/{fileName} {
-      allow write: if request.auth != null && request.auth.uid == userId
-                    && isImageSizeValid(5) && isImageTypeValid();
+      allow write: if isOwner(userId) && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
+    }
+
+    match /community-logos/{communityId}/{fileName} {
+      allow write: if (isFounderOf(communityId) || isAdmin()) && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
+    }
+
+    match /community-banners/{communityId}/{fileName} {
+      allow write: if (isFounderOf(communityId) || isAdmin()) && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
     }
     
-    // Rules for various content folders
-    // Only authenticated users can upload. More specific rules could be added if needed
-    // (e.g., only community managers can upload to community folders)
-    match /community-logos/{fileName} {
-       allow write: if request.auth != null && isImageSizeValid(5) && isImageTypeValid();
+    match /deal-images/{fileName} {
+      allow write: if (isCommunityManager() || isAdmin()) && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
     }
-    match /community-banners/{fileName} {
-       allow write: if request.auth != null && isImageSizeValid(10) && isImageTypeValid();
-    }
+
     match /event-banners/{fileName} {
-       allow write: if request.auth != null && isImageSizeValid(10) && isImageTypeValid();
-    }
-     match /deal-images/{fileName} {
-       allow write: if request.auth != null && isImageSizeValid(10) && isImageTypeValid();
-    }
-    match /business-images/{fileName} {
-       allow write: if request.auth != null && isImageSizeValid(10) && isImageTypeValid();
+        allow write: if (isCommunityManager() || isAdmin()) && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
     }
     
-    // Rules for Admins
-    match /team-avatars/{fileName} {
-       allow write: if request.auth != null && exists(/databases/(default)/documents/about/singleton) && request.auth.uid in get(/databases/(default)/documents/about/singleton).data.adminUids;
+    match /sponsor-logos/{fileName} {
+      allow write: if isAdmin() && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
     }
-     match /sponsor-logos/{fileName} {
-       allow write: if request.auth != null && exists(/databases/(default)/documents/about/singleton) && request.auth.uid in get(/databases/(default)/documents/about/singleton).data.adminUids;
-    }
+    
     match /branding/{fileName} {
-       allow write: if request.auth != null && exists(/databases/(default)/documents/about/singleton) && request.auth.uid in get(/databases/(default)/documents/about/singleton).data.adminUids;
+      allow write: if isAdmin() && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
+    }
+
+    match /team-avatars/{fileName} {
+      allow write: if isAdmin() && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
+    }
+
+     match /business-images/{fileName} {
+      allow write: if isAdmin() && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
     }
   }
 }
