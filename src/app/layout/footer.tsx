@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-card">
+    <footer className="border-t bg-background">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-12 text-center md:grid-cols-3 md:text-left">
           <div className="md:col-span-1">

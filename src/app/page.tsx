@@ -102,7 +102,7 @@ export default function HomePage() {
                 src="https://images.unsplash.com/photo-1617634667363-554158b4e76a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmZXN0aXZhbCUyMGRlY29yYXRpb25zfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Colorful Indian festival decorations"
                 fill
-                className="object-cover opacity-20"
+                className="object-cover opacity-10"
                 priority
                 data-ai-hint="festival decorations"
             />
@@ -115,18 +115,21 @@ export default function HomePage() {
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
             <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <label htmlFor="search-input" className="sr-only">Search for events, businesses, or more</label>
-                <Input
-                  id="search-input"
-                  type="search"
-                  placeholder="Search for events, businesses..."
-                  className="flex-grow text-lg"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <Card className="p-2 rounded-full shadow-lg">
+              <div className="flex items-center">
+                <div className="relative flex-grow">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      id="search-input"
+                      type="search"
+                      placeholder="Search for events, businesses..."
+                      className="pl-11 pr-2 w-full border-0 focus-visible:ring-0 text-base bg-transparent"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
                 <Select value={searchCategory} onValueChange={setSearchCategory}>
-                  <SelectTrigger className="w-full sm:w-[180px] text-lg" aria-label="Select search category">
+                  <SelectTrigger className="w-auto border-0 bg-transparent focus:ring-0 focus:bg-muted" aria-label="Select search category">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -135,23 +138,23 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" size="lg" className="text-lg" aria-label="Search">
-                  <Search className="mr-2" />
-                  Search
+                <Button type="submit" size="icon" className="rounded-full w-12 h-12" aria-label="Search">
+                  <Search />
                 </Button>
               </div>
+              </Card>
             </form>
           </div>
         </div>
       </section>
 
       {/* Category Links */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-16 md:py-24 bg-muted/20">
         <div className="container mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
             {categoryLinks.map(({ href, icon: Icon, label }) => (
               <Link key={href} href={href} className="group" aria-label={`Explore ${label}`}>
-                <Card className="p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-primary/10 hover:-translate-y-2 shadow-sm hover:shadow-lg">
+                <Card className="p-6 h-full flex flex-col items-center justify-center transition-all duration-300 hover:bg-card hover:-translate-y-2 shadow-sm hover:shadow-primary/20 hover:border-primary/50">
                   <Icon className="h-10 w-10 mb-2 text-primary" />
                   <h3 className="font-semibold">{label}</h3>
                 </Card>
@@ -162,7 +165,7 @@ export default function HomePage() {
       </section>
 
       {/* Upcoming Events */}
-      <section className="py-16 md:py-24 bg-muted/50">
+      <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="font-headline text-3xl font-bold">Upcoming Events</h2>
@@ -181,7 +184,7 @@ export default function HomePage() {
                   key={event.id}
                   className={cn(
                     "group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl bg-card",
-                    event.isFeatured && "border-primary border-2"
+                    event.isFeatured && "border-primary border-2 shadow-primary/10"
                   )}
                 >
                   <Link href={`/events/${event.id}`} className="flex h-full flex-col" aria-label={`View ${event.title}`}>
@@ -240,7 +243,7 @@ export default function HomePage() {
       </section>
 
       {/* Latest Deals */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-16 md:py-24 bg-muted/20">
         <div className="container mx-auto px-4">
           <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Deals</h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

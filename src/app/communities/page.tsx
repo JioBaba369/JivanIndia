@@ -191,54 +191,47 @@ export default function CommunitiesPage() {
         </section>
       )}
 
-      <div className="sticky top-[65px] z-30 border-t bg-background/80 py-4 backdrop-blur-md">
+      <div className="sticky top-[65px] z-30 border-t bg-background/95 backdrop-blur-sm py-4">
         <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-4">
-               <div className="flex flex-col gap-4 md:flex-row">
-                 <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="relative md:col-span-1">
-                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder="Search by name or keyword..."
-                        className="pl-10 text-base"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    </div>
-                    <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder="Location"
-                        className="pl-10 text-base"
-                        value={locationQuery}
-                        onChange={(e) => setLocationQuery(e.target.value)}
-                    />
-                    </div>
-                    <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="text-base">
-                        <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {communityCategories.map((cat, index) => (
-                        <SelectItem key={index} value={cat}>
-                            {cat === 'all' ? 'All Categories' : cat}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                 </div>
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                  placeholder="Search by name or keyword..."
+                  className="pl-10 text-base h-12"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Input
+                      placeholder="Location"
+                      className="pl-4 text-base h-12"
+                      value={locationQuery}
+                      onChange={(e) => setLocationQuery(e.target.value)}
+                  />
+                  <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="text-base h-12">
+                          <SelectValue placeholder="All Categories" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {communityCategories.map((cat, index) => (
+                          <SelectItem key={index} value={cat}>
+                              {cat === 'all' ? 'All Categories' : cat}
+                          </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
                   <div className="flex items-center gap-2">
-                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
-                      <LayoutGrid />
-                    </Button>
-                     <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
-                      <List />
-                    </Button>
+                      <Button variant={view === 'grid' ? 'secondary' : 'outline'} size="lg" onClick={() => setView('grid')} className="w-full h-12">
+                          <LayoutGrid />
+                      </Button>
+                      <Button variant={view === 'list' ? 'secondary' : 'outline'} size="lg" onClick={() => setView('list')} className="w-full h-12">
+                          <List />
+                      </Button>
                   </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
         </div>
       </div>
       
