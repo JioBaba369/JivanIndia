@@ -20,7 +20,11 @@ export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
                 <path d="M12.0007 5.25C10.0367 3.40714 7.15837 3.51429 5.38512 5.47857C3.61188 7.44286 3.61188 10.5571 5.38512 12.5214L12.0007 19.7143L18.6163 12.5214C20.3895 10.5571 20.3895 7.44286 18.6163 5.47857C16.843 3.51429 13.9647 3.40714 12.0007 5.25Z" className="text-primary" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
             </svg>
         </div>
-        <span className="font-headline text-2xl font-bold">JivanIndia.community</span>
+        <span className="font-headline text-2xl font-bold">
+            JivanIndia.
+            <span className="text-muted-foreground">co</span>
+            <span className="text-muted-foreground">mmunity</span>
+        </span>
     </>
   );
 
