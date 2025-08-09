@@ -2,70 +2,88 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
     
-    // Helper function to check if the requester is an admin
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
     function isAdmin() {
-      return get(/databases/$(database)/documents/about/singleton).data.adminUids.has(request.auth.uid);
+      // Check if the user's UID is in the adminUids list in the 'about/singleton' document
+      return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids;
     }
     
-    // Default deny all access to prevent accidental data exposure
-    match /{document=**} {
-      allow read, write: if false;
+    function isCommunityManager(communityId) {
+       return isSignedIn() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
     }
-
-    // USERS
-    // - Admins can read the full list of users for management.
-    // - Authenticated users can read any public user profile.
-    // - A user can only write to their own document.
-    match /users/{userId} {
-      allow read: if isAdmin() || request.auth != null;
-      allow write: if request.auth.uid == userId;
-    }
-
-    // ABOUT
-    // - The 'about' document is publicly readable.
-    // - Only admins can update the 'about' document.
+    
+    // About page content (story, team, admins)
     match /about/singleton {
         allow read: if true;
+        // Only admins can update this document (e.g., add team members, change story)
         allow write: if isAdmin();
     }
-
-    // EVENTS
-    // - Approved events are publicly readable.
-    // - Authenticated users can create new events.
-    // - Only the original submitter or an admin can update an event.
-    match /events/{eventId} {
-      allow read: if resource.data.status == 'Approved';
-      allow create: if request.auth != null;
-      allow update: if request.auth.uid == resource.data.submittedByUid || isAdmin();
+    
+    // Users collection
+    match /users/{userId} {
+      // Anyone can read a user's public profile
+      allow read: if true;
+      // Only the user themselves can create or update their own profile
+      allow write: if isOwner(userId);
     }
     
-    // COMMUNITIES
-    // - All communities are publicly readable.
-    // - Authenticated users can create new communities.
-    // - Only the founder or an admin can update or delete a community.
+    // Communities collection
     match /communities/{communityId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.founderUid || isAdmin();
-    }
-    
-    // DEALS
-    // - All deals are publicly readable.
-    // - Authenticated users can create new deals.
-    // - Only the original submitter or an admin can update a deal.
-    match /deals/{dealId} {
+        // Anyone can read community info
         allow read: if true;
-        allow create: if request.auth != null;
-        allow update: if request.auth.uid == resource.data.submittedByUid || isAdmin();
+        // Only authenticated users can create a new community
+        allow create: if isSignedIn();
+        // Only the founder can update or delete their own community
+        allow update, delete: if isCommunityManager(communityId) || isAdmin();
     }
     
-    // All other collections are publicly readable as a fallback.
-    // This includes movies, jobs, businesses, and sponsors.
-    // Creation/modification for these would be admin-only via the app logic.
-    match /{collection}/{docId} {
-      allow read: if true;
+    // Events collection
+    match /events/{eventId} {
+        // Anyone can read event details
+        allow read: if true;
+        // Only affiliated users (community managers) can create events
+        allow create: if isSignedIn() && request.resource.data.organizerId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId;
+        // Only admins can update events (approve, feature, etc.)
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
     }
 
+    // Businesses, Deals, Movies, Sponsors, Jobs: Public read, admin-only write
+    match /{collection}/{docId} where collection in ['businesses', 'deals', 'movies', 'sponsors', 'jobs'] {
+        allow read: if true;
+        // create, update, delete are restricted. 
+        // For this app, creation is handled by affiliated users and updates by admins through specific logic in use-cases.
+        // We will keep writes restricted to admins for now for simplicity.
+        allow write: if isAdmin();
+    }
+    
+    // Notifications: Read/write only by the user they belong to
+    match /notifications/{notificationId} {
+      allow read, write, delete: if isOwner(request.resource.data.userId);
+    }
+    
+    // Reports: Any signed-in user can create, only admins can update/delete
+    match /reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Contact form submissions
+    match /contacts/{contactId} {
+        // Only signed-in users can submit the form
+        allow create: if isSignedIn();
+        // Only admins can read contact submissions
+        allow read: if isAdmin();
+        allow write: if false; // prevent updates/deletes
+    }
   }
 }
