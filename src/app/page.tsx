@@ -124,7 +124,7 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" size="lg" className="text-lg bg-secondary text-secondary-foreground hover:bg-secondary/90" aria-label="Search">
+                <Button type="submit" size="lg" className="text-lg bg-[#14F518] text-black hover:bg-[#14F518]/90" aria-label="Search">
                   <Search className="mr-2" />
                   Search
                 </Button>
