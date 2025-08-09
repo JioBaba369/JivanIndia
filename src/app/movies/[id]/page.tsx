@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow, isValid } from "date-fns";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from "next/navigation";
 import { useMovies } from "@/hooks/use-movies";
 import { useCommunities } from "@/hooks/use-communities";
@@ -19,26 +19,23 @@ export default function MovieDetailPage() {
   const id = typeof params.id === 'string' ? params.id : '';
   const { getMovieById } = useMovies();
   const movie = getMovieById(id);
-  const [postedAt, setPostedAt] = useState('');
+  
   const { getCommunityBySlug } = useCommunities();
   const distributor = getCommunityBySlug(movie?.details.distributorId || '');
 
-
-  useEffect(() => {
-    if (movie?.postedAt) {
-        try {
-            const date = new Date(movie.postedAt);
-            if (isValid(date)) {
-                setPostedAt(formatDistanceToNow(date, { addSuffix: true }));
-            } else {
-                setPostedAt('a while ago');
-            }
-        } catch (error) {
-            console.error("Failed to parse date:", movie.postedAt);
-            setPostedAt('a while ago');
-        }
+  const postedAt = useMemo(() => {
+    if (!movie?.postedAt) return 'a while ago';
+    try {
+      const date = movie.postedAt.toDate();
+      if (isValid(date)) {
+        return formatDistanceToNow(date, { addSuffix: true });
+      }
+    } catch (error) {
+      console.error("Failed to parse date:", movie.postedAt, error);
     }
+    return 'a while ago';
   }, [movie?.postedAt]);
+
 
   if (!movie) {
     return (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -32,18 +33,18 @@ export default function EventDetailPage() {
   const router = useRouter();
 
   const createdAt = useMemo(() => {
-    if (event?.createdAt) {
-      try {
-        const date = new Date(event.createdAt);
+    if (!event?.createdAt) return 'a while ago';
+    try {
+        const date = event.createdAt.toDate();
         if (isValid(date)) {
-          return formatDistanceToNow(date, { addSuffix: true });
+            return formatDistanceToNow(date, { addSuffix: true });
         }
-      } catch (error) {
+    } catch (error) {
         console.error("Failed to parse date:", event.createdAt, error);
-      }
     }
     return 'a while ago';
-  }, [event?.createdAt]);
+}, [event?.createdAt]);
+
 
   const duration = useMemo(() => {
     if (event?.startDateTime && event?.endDateTime) {

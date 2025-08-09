@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export default function DealDetailPage() {
   const postedAt = useMemo(() => {
     if (!deal?.postedAt) return 'a while ago';
     try {
-      const date = new Date(deal.postedAt);
+      const date = deal.postedAt.toDate();
       return isValid(date) ? formatDistanceToNow(date, { addSuffix: true }) : 'a while ago';
     } catch (error) {
       console.error("Failed to parse date:", deal.postedAt);

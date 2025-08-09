@@ -12,7 +12,7 @@ import { useNotifications } from '@/hooks/use-notifications';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';
 import * as LucideIcons from 'lucide-react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 
@@ -56,7 +56,11 @@ export default function NotificationBell() {
                     </div>
                 ) : notifications.length > 0 ? (
                     <div className="divide-y">
-                    {notifications.map(n => (
+                    {notifications.map(n => {
+                        const createdAtDate = n.createdAt?.toDate ? n.createdAt.toDate() : null;
+                        const timeAgo = createdAtDate && isValid(createdAtDate) ? formatDistanceToNow(createdAtDate, { addSuffix: true }) : 'just now';
+
+                        return (
                         <Link
                             key={n.id}
                             href={n.link}
@@ -71,12 +75,13 @@ export default function NotificationBell() {
                                 <p className="font-semibold">{n.title}</p>
                                 <p className="text-sm text-muted-foreground">{n.description}</p>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    {formatDistanceToNow(new Date(n.createdAt.toDate()), { addSuffix: true })}
+                                    {timeAgo}
                                 </p>
                             </div>
                             {!n.isRead && <div className="mt-1 h-2 w-2 rounded-full bg-primary" />}
                         </Link>
-                    ))}
+                        )
+                    })}
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-full text-muted-foreground text-center p-4">

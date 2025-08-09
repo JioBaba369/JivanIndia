@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -289,8 +289,8 @@ export default function AdminDashboardPage() {
       return null;
   }
 
-  const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt.toDate()).getTime() - new Date(a.createdAt.toDate()).getTime());
+  const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt.toDate()).getTime() - new Date(a.createdAt.toDate()).getTime());
   const sortedBusinesses = [...businesses].sort((a,b) => a.name.localeCompare(b.name));
   const pendingReports = reports.filter(r => r.status === 'pending');
 
@@ -449,7 +449,7 @@ export default function AdminDashboardPage() {
                                             </TableCell>
                                             <TableCell className="max-w-sm whitespace-pre-wrap">{report.reason}</TableCell>
                                             <TableCell>
-                                                {formatDistanceToNow(report.createdAt.toDate(), { addSuffix: true })}
+                                                {isValid(report.createdAt.toDate()) ? formatDistanceToNow(report.createdAt.toDate(), { addSuffix: true }) : 'N/A'}
                                             </TableCell>
                                             <TableCell className="text-right space-x-2">
                                                 <Button size="sm" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>Dismiss</Button>
