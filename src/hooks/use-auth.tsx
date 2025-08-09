@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -64,9 +63,25 @@ interface AuthContextType {
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
-  saveItem: (listType: keyof User, itemId: string) => Promise<void>;
-  unsaveItem: (listType: keyof User, itemId: string) => Promise<void>;
-  isItemSaved: (listType: keyof User, itemId: string) => boolean;
+  saveEvent: (itemId: string) => Promise<void>;
+  unsaveEvent: (itemId: string) => Promise<void>;
+  isEventSaved: (itemId: string) => boolean;
+
+  joinCommunity: (itemId: string) => Promise<void>;
+  leaveCommunity: (itemId: string) => Promise<void>;
+  isCommunityJoined: (itemId: string) => boolean;
+
+  saveDeal: (itemId: string) => Promise<void>;
+  unsaveDeal: (itemId: string) => Promise<void>;
+  isDealSaved: (itemId: string) => boolean;
+
+  saveBusiness: (itemId: string) => Promise<void>;
+  unsaveBusiness: (itemId: string) => Promise<void>;
+  isBusinessSaved: (itemId: string) => boolean;
+
+  saveMovie: (itemId: string) => Promise<void>;
+  unsaveMovie: (itemId: string) => Promise<void>;
+  isMovieSaved: (itemId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -243,9 +258,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAffiliation,
     getUserByUsername,
     isUsernameUnique,
-    saveItem,
-    unsaveItem,
-    isItemSaved
+    saveEvent: (id: string) => saveItem('savedEvents', id),
+    unsaveEvent: (id: string) => unsaveItem('savedEvents', id),
+    isEventSaved: (id: string) => isItemSaved('savedEvents', id),
+    joinCommunity: (id: string) => saveItem('joinedCommunities', id),
+    leaveCommunity: (id: string) => unsaveItem('joinedCommunities', id),
+    isCommunityJoined: (id: string) => isItemSaved('joinedCommunities', id),
+    saveDeal: (id: string) => saveItem('savedDeals', id),
+    unsaveDeal: (id: string) => unsaveItem('savedDeals', id),
+    isDealSaved: (id: string) => isItemSaved('savedDeals', id),
+    saveBusiness: (id: string) => saveItem('savedBusinesses', id),
+    unsaveBusiness: (id: string) => unsaveItem('savedBusinesses', id),
+    isBusinessSaved: (id: string) => isItemSaved('savedBusinesses', id),
+    saveMovie: (id: string) => saveItem('savedMovies', id),
+    unsaveMovie: (id: string) => unsaveItem('savedMovies', id),
+    isMovieSaved: (id: string) => isItemSaved('savedMovies', id),
   };
 
   return (
