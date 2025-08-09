@@ -107,6 +107,7 @@ const TeamMemberDialog = ({
   onSave: (data: Omit<TeamMember, 'id'>) => void,
   children: React.ReactNode
 }) => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(member?.name || '');
   const [role, setRole] = useState(member?.role || '');
@@ -163,7 +164,7 @@ const TeamMemberDialog = ({
                 value={avatarUrl}
                 onChange={(url) => setAvatarUrl(url)}
                 aspectRatio={1}
-                toast={useToast().toast}
+                toast={toast}
                 folderName="team-avatars"
               />
           </div>
@@ -809,3 +810,6 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+
+    
