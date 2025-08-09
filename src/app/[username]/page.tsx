@@ -230,8 +230,8 @@ export default function UserPublicProfilePage() {
                             <Tabs defaultValue="saved-events" className="w-full">
                                 <TabsList className="grid w-full" style={{gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`}}>
                                     {tabs.map(tab => (
-                                        <TabsTrigger key={tab.value} value={tab.value}>
-                                            <tab.icon className="mr-2 h-4 w-4 hidden md:inline-block" />
+                                        <TabsTrigger key={tab.value} value={tab.value} className="text-xs md:text-sm whitespace-nowrap px-2">
+                                            <tab.icon className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block" />
                                             {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
                                         </TabsTrigger>
                                     ))}

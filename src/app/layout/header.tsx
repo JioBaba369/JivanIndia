@@ -2,10 +2,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users, Menu } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users, Menu, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,6 +21,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationBell from "./notification-bell";
 
 const navLinks = [
   { href: "/events", label: "Events" },
@@ -49,63 +50,81 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
     );
   };
 
-const UserActions = () => {
+const UserActions = React.memo(function UserActionsMemo() {
   const { user, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user === null) {
+      // Small delay to allow auth state to propagate before redirecting.
+      // This prevents redirecting before the user object is confirmed null.
+      const timer = setTimeout(() => {
+        if (!auth.currentUser) {
+           router.push('/');
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [user, router]);
   
   if (user) {
+    const isAdmin = user.roles?.includes('admin');
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              {user.profileImageUrl ? <AvatarImage src={user.profileImageUrl} alt={user.name} /> : <AvatarFallback>{getInitials(user.name)}</AvatarFallback>}
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-           <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user.name}</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {user.email}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-             <DropdownMenuItem asChild>
-                <Link href="/dashboard">
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </Link>
-              </DropdownMenuItem>
-             {user.username && <DropdownMenuItem asChild>
-              <Link href={`/${user.username}`}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Public Profile</span>
-              </Link>
-            </DropdownMenuItem>}
-             <DropdownMenuItem asChild>
-                <Link href="/profile?tab=saved-events">
-                  <Heart className="mr-2 h-4 w-4" />
-                  <span>Saved Items</span>
-                </Link>
-              </DropdownMenuItem>
+      <div className="flex items-center gap-1">
+        <NotificationBell />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                {user.profileImageUrl ? <AvatarImage src={user.profileImageUrl} alt={user.name} /> : <AvatarFallback>{getInitials(user.name)}</AvatarFallback>}
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{user.name}</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/profile?tab=joined-communities">
-                  <Users className="mr-2 h-4 w-4" />
-                  <span>My Communities</span>
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+              {user.username && <DropdownMenuItem asChild>
+                <Link href={`/${user.username}`}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Public Profile</span>
                 </Link>
-              </DropdownMenuItem>
-            {user.isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => logout()}>
-             <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              </DropdownMenuItem>}
+              <DropdownMenuItem asChild>
+                  <Link href="/profile?tab=saved-events">
+                    <Heart className="mr-2 h-4 w-4" />
+                    <span>Saved Items</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile?tab=joined-communities">
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>My Communities</span>
+                  </Link>
+                </DropdownMenuItem>
+              {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => logout()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     );
   }
 
@@ -119,7 +138,7 @@ const UserActions = () => {
       </Button>
     </div>
   );
-};
+});
 
 
 export default function Header() {
@@ -127,8 +146,8 @@ export default function Header() {
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-6">
+      <div className="container mx-auto flex h-16 items-center px-4">
+        <div className="mr-auto flex items-center gap-6">
             <Logo as={Link} href="/" />
             <nav className="hidden items-center space-x-6 md:flex">
               {navLinks.map((link) => (
@@ -167,3 +186,5 @@ export default function Header() {
     </header>
   );
 }
+
+    

@@ -49,7 +49,6 @@ export default function ProfilePage() {
   
   const handleLogout = () => {
       logout();
-      router.push('/');
   }
 
   return (
@@ -98,10 +97,10 @@ export default function ProfilePage() {
                     <CardContent>
                         <Tabs defaultValue={initialTab} className="w-full">
                             <TabsList className="grid w-full grid-cols-4">
-                                <TabsTrigger value="saved-events"><Heart className="mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents?.length || 0})</TabsTrigger>
-                                <TabsTrigger value="saved-movies"><Film className="mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies?.length || 0})</TabsTrigger>
-                                <TabsTrigger value="joined-communities"><Users className="mr-2 h-4 w-4 hidden md:inline-block"/>Communities ({joinedCommunities?.length || 0})</TabsTrigger>
-                                <TabsTrigger value="saved-deals"><Tag className="mr-2 h-4 w-4 hidden md:inline-block"/>Deals ({savedDeals?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-events" className="text-xs md:text-sm whitespace-nowrap px-1"><Heart className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-movies" className="text-xs md:text-sm whitespace-nowrap px-1"><Film className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="joined-communities" className="text-xs md:text-sm whitespace-nowrap px-1"><Users className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Communities ({joinedCommunities?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-deals" className="text-xs md:text-sm whitespace-nowrap px-1"><Tag className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Deals ({savedDeals?.length || 0})</TabsTrigger>
                             </TabsList>
                             <TabsContent value="saved-events" className="mt-6">
                                 {savedEvents.length > 0 ? (
