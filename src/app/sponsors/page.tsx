@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -127,7 +127,7 @@ export default function SponsorsPage() {
                         <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="absolute top-3 right-3">{sponsor.tier}</Badge>
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4">
-                        <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-4">{sponsor.name}</h3>
+                        <CardTitle className="font-headline text-xl group-hover:text-primary mt-4">{sponsor.name}</CardTitle>
                         <p className="font-semibold text-primary">{sponsor.industry}</p>
                         <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{sponsor.description}</p>
                         
@@ -155,7 +155,7 @@ export default function SponsorsPage() {
                             </div>
                             <CardContent className="flex-grow p-4 sm:p-6">
                                 <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="w-fit">{sponsor.tier}</Badge>
-                                <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-2">{sponsor.name}</h3>
+                                <CardTitle className="group-hover:text-primary mt-2">{sponsor.name}</CardTitle>
                                 <p className="font-semibold text-primary">{sponsor.industry}</p>
                                 <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{sponsor.description}</p>
                             </CardContent>

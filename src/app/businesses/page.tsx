@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useBusinesses } from "@/hooks/use-businesses";
 import type { Business } from "@/hooks/use-businesses";
+import { Badge } from "@/components/ui/badge";
 
 export default function BusinessesPage() {
     const { businesses } = useBusinesses();

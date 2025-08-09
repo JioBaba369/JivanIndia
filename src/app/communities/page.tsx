@@ -146,7 +146,7 @@ export default function CommunitiesPage() {
                           </div>
                           <CardContent className="flex flex-grow flex-col p-4">
                               <div className="flex items-center gap-2">
-                                  <h3 className="font-headline text-xl font-bold">{org.name}</h3>
+                                  <CardTitle className="font-headline">{org.name}</CardTitle>
                                   {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="font-semibold text-primary">{org.type}</p>
@@ -292,11 +292,11 @@ export default function CommunitiesPage() {
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                             <p className="font-semibold text-primary">{org.type}</p>
-                            <h3 className="font-headline text-xl font-bold group-hover:text-primary mt-1">
+                            <CardTitle className="group-hover:text-primary mt-1">
                                  {org.isFeatured && <Star className="mr-2 h-5 w-5 inline-block text-yellow-400 fill-yellow-400" />}
                                  {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
                                 {org.name}
-                            </h3>
+                            </CardTitle>
                             <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-2">{org.description}</p>
                             <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
@@ -339,5 +339,3 @@ export default function CommunitiesPage() {
     </div>
   );
 }
-
-    
