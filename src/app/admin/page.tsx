@@ -55,6 +55,10 @@ const TeamMemberDialog = ({
   }, [isOpen, member]);
 
   const handleSave = () => {
+    if (!name || !role) {
+      // Basic validation
+      return;
+    }
     onSave({ name, role, bio, avatarUrl });
     setIsOpen(false);
   };
@@ -112,6 +116,7 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => void }) => {
     const [email, setEmail] = useState('');
 
     const handleSave = () => {
+        if (!email) return;
         onSave(email);
         setIsOpen(false);
         setEmail('');
@@ -276,7 +281,6 @@ export default function AdminDashboardPage() {
   }
 
   if (!hasAdminRole) {
-      router.push('/');
       return null;
   }
 

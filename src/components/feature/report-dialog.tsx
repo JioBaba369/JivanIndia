@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -57,6 +58,10 @@ export default function ReportDialog({ contentId, contentType, contentTitle, tri
         contentLink: window.location.href,
         reason,
         reportedByUid: user.uid,
+      });
+      toast({
+        title: 'Report Submitted',
+        description: 'Thank you for your feedback. Our team will review it shortly.',
       });
       setIsOpen(false);
       setReason('');

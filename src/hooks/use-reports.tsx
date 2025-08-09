@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -7,7 +8,7 @@ import { useToast } from './use-toast';
 import type { User } from './use-auth';
 
 export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
-export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal' | 'Career';
+export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal';
 
 export interface Report {
   id: string;
@@ -65,11 +66,6 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       createdAt: serverTimestamp(),
     };
     await addDoc(reportsCollectionRef, newReport);
-    toast({
-      title: 'Report Submitted',
-      description: 'Thank you for your feedback. Our team will review it shortly.',
-    });
-    // No need to refetch here, admin will see it on next load/refresh
   };
 
   const updateReportStatus = async (reportId: string, status: ReportStatus) => {

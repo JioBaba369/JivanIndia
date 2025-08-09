@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock, Users, History, Building, Flag } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users, History, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +99,7 @@ export default function MovieDetailPage() {
                                 </div>
                             </div>
                         </div>
-                        <ReportDialog contentId={movie.id} contentType="Movie" contentTitle={movie.title} />
+                        <ReportDialog contentId={movie.id} contentType="Movie" contentTitle={movie.title} triggerVariant="ghost" />
                     </div>
                 </div>
 
