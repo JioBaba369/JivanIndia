@@ -96,11 +96,11 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center bg-primary">
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
+      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center" style={{ backgroundColor: '#00A7FF' }}>
+        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
           <div className="p-8 rounded-lg">
             <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">The Heartbeat of Our Community</h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90">
+            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-white/90">
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
             <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
@@ -151,17 +151,17 @@ export default function HomePage() {
       </section>
 
       {/* Upcoming Events */}
-      <section className="bg-muted/40 py-16 md:py-24">
+      <section className="py-16 md:py-24" style={{ backgroundColor: '#FF45EB' }}>
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="font-headline text-3xl font-bold">Upcoming Events</h2>
-            <Button variant="link" asChild>
+            <h2 className="font-headline text-3xl font-bold text-white">Upcoming Events</h2>
+            <Button variant="link" asChild className="text-white hover:text-white/80">
               <Link href="/events" aria-label="View all events">View All <ArrowRight className="ml-2" /></Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {eventsError ? (
-              <div className="col-span-full text-center text-destructive">Unable to load events. Please try again later.</div>
+              <div className="col-span-full text-center text-white">Unable to load events. Please try again later.</div>
             ) : isLoadingEvents ? (
               <CardSkeleton />
             ) : latestEvents.length > 0 ? (
@@ -169,7 +169,7 @@ export default function HomePage() {
                 <Card
                   key={event.id}
                   className={cn(
-                    "group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl",
+                    "group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl bg-card",
                     event.isFeatured && "border-primary border-2"
                   )}
                 >
@@ -213,13 +213,13 @@ export default function HomePage() {
                 </Card>
               ))
             ) : (
-              <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full">
+              <div className="rounded-lg border-2 border-dashed border-white/20 py-12 text-center col-span-full text-white">
                 <div className="flex justify-center mb-4">
-                  <Megaphone className="h-12 w-12 text-muted-foreground" />
+                  <Megaphone className="h-12 w-12" />
                 </div>
                 <h3 className="font-headline text-xl font-semibold">Your Community's Stage is Empty</h3>
-                <p className="text-muted-foreground mt-2">Be the first to share an event and bring everyone together.</p>
-                <Button asChild className="mt-4">
+                <p className="text-white/80 mt-2">Be the first to share an event and bring everyone together.</p>
+                <Button asChild className="mt-4" variant="secondary">
                   <Link href="/events/new" aria-label="Post a new event">Post an Event</Link>
                 </Button>
               </div>
