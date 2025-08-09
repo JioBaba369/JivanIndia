@@ -12,13 +12,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
-import { useCountry, ALL_COUNTRIES_VALUE } from '@/hooks/use-country';
 import { useCommunities } from '@/hooks/use-communities';
 import { useMemo } from 'react';
 import CountryFlag from '../feature/country-flag';
+import { ALL_COUNTRIES_VALUE } from '@/hooks/use-country';
 
-export default function CountrySelector() {
-  const { selectedCountry, setSelectedCountry } = useCountry();
+interface CountrySelectorProps {
+    selectedCountry: string;
+    setSelectedCountry: (country: string) => void;
+}
+
+export default function CountrySelector({ selectedCountry, setSelectedCountry }: CountrySelectorProps) {
   const { communities } = useCommunities();
 
   const availableCountries = useMemo(() => {
@@ -29,7 +33,7 @@ export default function CountrySelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="hidden md:flex">
+        <Button variant="outline" className="w-full md:w-auto">
           <Globe className="mr-2 h-4 w-4" />
           <span>{selectedCountry}</span>
         </Button>

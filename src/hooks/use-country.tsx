@@ -4,8 +4,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from './use-auth';
 
-const COUNTRY_STORAGE_KEY = 'jivanindia-selected-country';
-const ALL_COUNTRIES_VALUE = 'All Countries';
+export const ALL_COUNTRIES_VALUE = 'All Countries';
 
 interface CountryContextType {
   selectedCountry: string;
@@ -16,26 +15,18 @@ const CountryContext = createContext<CountryContextType | undefined>(undefined);
 
 export function CountryProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [selectedCountry, setSelectedCountryState] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-        return localStorage.getItem(COUNTRY_STORAGE_KEY) || ALL_COUNTRIES_VALUE;
-    }
-    return ALL_COUNTRIES_VALUE;
-  });
+  const [selectedCountry, setSelectedCountryState] = useState<string>(ALL_COUNTRIES_VALUE);
 
   useEffect(() => {
-    const storedCountry = localStorage.getItem(COUNTRY_STORAGE_KEY);
+    // This hook is now primarily for pages that need a global country context.
+    // The admin page will manage its own local state for filtering.
     if (user?.currentLocation?.country) {
       setSelectedCountryState(user.currentLocation.country);
-      localStorage.setItem(COUNTRY_STORAGE_KEY, user.currentLocation.country);
-    } else if (storedCountry) {
-        setSelectedCountryState(storedCountry);
     }
   }, [user?.currentLocation?.country]);
 
   const setSelectedCountry = useCallback((country: string) => {
     setSelectedCountryState(country);
-    localStorage.setItem(COUNTRY_STORAGE_KEY, country);
   }, []);
   
   const value = useMemo(() => ({
@@ -57,5 +48,3 @@ export function useCountry() {
   }
   return context;
 }
-
-export { ALL_COUNTRIES_VALUE };

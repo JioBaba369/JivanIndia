@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon, AlertTriangle, ClipboardCheck } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon, AlertTriangle, ClipboardCheck, Film, Tag, Briefcase } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
@@ -30,6 +30,13 @@ import ImageUpload from '@/components/feature/image-upload';
 import { useReports } from '@/hooks/use-reports';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useMovies } from '@/hooks/use-movies';
+import { useDeals } from '@/hooks/use-deals';
+import { useJobs } from '@/hooks/use-jobs';
+import { useSponsors } from '@/hooks/use-sponsors';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CountrySelector from '@/components/layout/country-selector';
+import { ALL_COUNTRIES_VALUE } from '@/hooks/use-country';
 
 
 interface ChecklistItemProps {
@@ -216,7 +223,12 @@ export default function AdminDashboardPage() {
   const { communities, verifyCommunity, updateCommunityFeaturedStatus } = useCommunities();
   const { aboutContent, updateAboutContent, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
   const { businesses, verifyBusiness, updateBusinessFeaturedStatus } = useBusinesses();
-  const { reports, updateReportStatus, isLoading: isReportsLoading, fetchReports } = useReports();
+  const { reports, updateReportStatus, isLoading: isReportsLoading } = useReports();
+  const { movies } = useMovies();
+  const { deals } = useDeals();
+  const { jobs } = useJobs();
+  const { sponsors } = useSponsors();
+  
   const { toast } = useToast();
 
   const [adminUsers, setAdminUsers] = useState<User[]>([]);
@@ -225,15 +237,11 @@ export default function AdminDashboardPage() {
   const [story, setStory] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [faviconUrl, setFaviconUrl] = useState('');
+  
+  const [countryFilter, setCountryFilter] = useState(ALL_COUNTRIES_VALUE);
+  const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
 
   const hasAdminRole = user?.roles.includes('admin');
-  
-  useEffect(() => {
-    if (hasAdminRole) {
-      fetchReports();
-    }
-  }, [hasAdminRole, fetchReports]);
-
 
   useEffect(() => {
     const fetchAdminUsers = async () => {
@@ -357,20 +365,35 @@ export default function AdminDashboardPage() {
       return null;
   }
 
-  const sortedEvents = [...events].sort((a, b) => {
-    const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-    const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-    return dateB - dateA;
-  });
+  const eventsWithSponsorCount = events.map(event => ({
+    ...event,
+    sponsorCount: sponsors.filter(s => s.eventsSponsored.some(e => e.eventId === event.id)).length
+  }));
 
-  const sortedCommunities = [...communities].sort((a, b) => {
-    const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-    const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-    return dateB - dateA;
-  });
-  
-  const sortedBusinesses = [...businesses].sort((a,b) => a.name.localeCompare(b.name));
+  const filteredEvents = useMemo(() => {
+    return eventsWithSponsorCount
+      .filter(event => countryFilter === ALL_COUNTRIES_VALUE || event.location.country === countryFilter)
+      .filter(event => {
+        if (sponsorCountFilter === 'all') return true;
+        if (sponsorCountFilter === 'none') return event.sponsorCount === 0;
+        if (sponsorCountFilter === 'sponsored') return event.sponsorCount > 0;
+        return true;
+      });
+  }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
+
+  const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
+  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.region.includes(countryFilter)), [businesses, countryFilter]);
+
   const pendingReports = reports.filter(r => r.status === 'pending');
+
+  const contentTabs = [
+    { value: "events", label: "Events", count: filteredEvents.length, icon: Calendar },
+    { value: "communities", label: "Communities", count: filteredCommunities.length, icon: Users },
+    { value: "businesses", label: "Businesses", count: filteredBusinesses.length, icon: Briefcase },
+    { value: "movies", label: "Movies", count: movies.length, icon: Film },
+    { value: "deals", label: "Deals", count: deals.length, icon: Tag },
+    { value: "careers", label: "Careers", count: jobs.length, icon: Briefcase },
+  ];
 
 
   return (
@@ -388,7 +411,7 @@ export default function AdminDashboardPage() {
                 <TabsTrigger value="reports"><AlertTriangle className="mr-2"/>Reports ({pendingReports.length})</TabsTrigger>
                 <TabsTrigger value="users"><Users className="mr-2"/>User Management</TabsTrigger>
                 <TabsTrigger value="settings"><Settings className="mr-2"/>Site Management</TabsTrigger>
-                 <TabsTrigger value="checklist"><ClipboardCheck className="mr-2"/>Launch Checklist</TabsTrigger>
+                <TabsTrigger value="checklist"><ClipboardCheck className="mr-2"/>Launch Checklist</TabsTrigger>
             </TabsList>
             
             <TabsContent value="content" className="mt-6">
@@ -399,11 +422,30 @@ export default function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="events" className="w-full">
-                            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-                                <TabsTrigger value="events">Events ({sortedEvents.length})</TabsTrigger>
-                                <TabsTrigger value="communities">Communities ({sortedCommunities.length})</TabsTrigger>
-                                <TabsTrigger value="businesses">Businesses ({sortedBusinesses.length})</TabsTrigger>
-                            </TabsList>
+                             <div className="flex flex-col md:flex-row gap-4 justify-between items-center p-4 border-b">
+                                <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+                                    {contentTabs.map(tab => (
+                                        <TabsTrigger key={tab.value} value={tab.value}>
+                                            <tab.icon className="mr-2 h-4 w-4" />
+                                            {tab.label} ({tab.count})
+                                        </TabsTrigger>
+                                    ))}
+                                </TabsList>
+                                <div className="flex gap-2 w-full md:w-auto">
+                                    <CountrySelector selectedCountry={countryFilter} setSelectedCountry={setCountryFilter} />
+                                    <Select value={sponsorCountFilter} onValueChange={setSponsorCountFilter}>
+                                        <SelectTrigger className="w-full md:w-[180px]">
+                                            <SelectValue placeholder="Filter by sponsors" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Sponsorships</SelectItem>
+                                            <SelectItem value="sponsored">Has Sponsors</SelectItem>
+                                            <SelectItem value="none">No Sponsors</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
                             <TabsContent value="events" className="mt-6">
                                 <div className="w-full overflow-x-auto">
                                     <Table>
@@ -411,18 +453,20 @@ export default function AdminDashboardPage() {
                                             <TableRow>
                                                 <TableHead>Title</TableHead>
                                                 <TableHead>Organizer</TableHead>
+                                                <TableHead>Sponsors</TableHead>
                                                 <TableHead>Date</TableHead>
                                                 <TableHead>Status</TableHead>
                                                 <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {sortedEvents.map(event => (
+                                            {filteredEvents.map(event => (
                                                 <TableRow key={event.id}>
                                                     <TableCell className="font-medium">
                                                         <Link href={`/events/${event.id}`} className="hover:underline" target="_blank">{event.title}</Link>
                                                     </TableCell>
                                                     <TableCell>{event.organizerName}</TableCell>
+                                                    <TableCell>{event.sponsorCount}</TableCell>
                                                     <TableCell>{format(new Date(event.startDateTime), 'PPp')}</TableCell>
                                                     <TableCell><div className="flex items-center gap-2"><Badge variant={getEventStatusVariant(event.status)}>{event.status}</Badge>{event.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}</div></TableCell>
                                                     <TableCell className="text-right space-x-2">
@@ -434,7 +478,7 @@ export default function AdminDashboardPage() {
                                             ))}
                                         </TableBody>
                                     </Table>
-                                    {sortedEvents.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No events have been submitted yet.</p></div>}
+                                    {filteredEvents.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No events match the current filters.</p></div>}
                                 </div>
                             </TabsContent>
                             <TabsContent value="communities" className="mt-6">
@@ -450,7 +494,7 @@ export default function AdminDashboardPage() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {sortedCommunities.map(community => (
+                                            {filteredCommunities.map(community => (
                                                 <TableRow key={community.id}>
                                                     <TableCell className="font-medium"><Link href={`/c/${community.slug}`} className="hover:underline" target="_blank">{community.name}</Link></TableCell>
                                                     <TableCell>{community.region}</TableCell>
@@ -464,7 +508,7 @@ export default function AdminDashboardPage() {
                                             ))}
                                         </TableBody>
                                     </Table>
-                                    {sortedCommunities.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No communities have been created yet.</p></div>}
+                                    {filteredCommunities.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No communities match the current filters.</p></div>}
                                 </div>
                             </TabsContent>
                             <TabsContent value="businesses" className="mt-6">
@@ -480,7 +524,7 @@ export default function AdminDashboardPage() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {sortedBusinesses.map(business => (
+                                            {filteredBusinesses.map(business => (
                                                 <TableRow key={business.id}>
                                                     <TableCell className="font-medium"><Link href={`/businesses/${business.id}`} className="hover:underline" target="_blank">{business.name}</Link></TableCell>
                                                     <TableCell>{business.category}</TableCell>
@@ -494,7 +538,40 @@ export default function AdminDashboardPage() {
                                             ))}
                                         </TableBody>
                                     </Table>
-                                    {sortedBusinesses.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No businesses have been created yet.</p></div>}
+                                    {filteredBusinesses.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No businesses match the current filters.</p></div>}
+                                </div>
+                            </TabsContent>
+                             <TabsContent value="movies" className="mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <Table>
+                                        <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Genre</TableHead><TableHead>Rating</TableHead><TableHead>Distributor</TableHead></TableRow></TableHeader>
+                                        <TableBody>
+                                            {movies.map(movie => (<TableRow key={movie.id}><TableCell><Link href={`/movies/${movie.id}`} className="hover:underline" target="_blank">{movie.title}</Link></TableCell><TableCell>{movie.genre}</TableCell><TableCell>{movie.rating}/5</TableCell><TableCell>{movie.details.distributor}</TableCell></TableRow>))}
+                                        </TableBody>
+                                    </Table>
+                                    {movies.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No movies have been added yet.</p></div>}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="deals" className="mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <Table>
+                                        <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Business</TableHead><TableHead>Category</TableHead><TableHead>Expires</TableHead></TableRow></TableHeader>
+                                        <TableBody>
+                                            {deals.map(deal => (<TableRow key={deal.id}><TableCell><Link href={`/deals/${deal.id}`} className="hover:underline" target="_blank">{deal.title}</Link></TableCell><TableCell>{deal.business}</TableCell><TableCell>{deal.category}</TableCell><TableCell>{format(new Date(deal.expires), 'PP')}</TableCell></TableRow>))}
+                                        </TableBody>
+                                    </Table>
+                                    {deals.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No deals have been added yet.</p></div>}
+                                </div>
+                            </TabsContent>
+                             <TabsContent value="careers" className="mt-6">
+                                <div className="w-full overflow-x-auto">
+                                    <Table>
+                                        <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Company</TableHead><TableHead>Location</TableHead><TableHead>Type</TableHead></TableRow></TableHeader>
+                                        <TableBody>
+                                            {jobs.map(job => (<TableRow key={job.id}><TableCell><a href={job.applicationUrl} className="hover:underline" target="_blank">{job.title}</a></TableCell><TableCell>{job.companyName}</TableCell><TableCell>{job.location}</TableCell><TableCell>{job.type}</TableCell></TableRow>))}
+                                        </TableBody>
+                                    </Table>
+                                    {jobs.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No jobs have been posted yet.</p></div>}
                                 </div>
                             </TabsContent>
                         </Tabs>
@@ -531,7 +608,7 @@ export default function AdminDashboardPage() {
                                             </TableCell>
                                             <TableCell className="max-w-sm whitespace-pre-wrap">{report.reason}</TableCell>
                                             <TableCell>
-                                                {isValid(report.createdAt.toDate()) ? formatDistanceToNow(report.createdAt.toDate(), { addSuffix: true }) : 'N/A'}
+                                                {isValid(report.createdAt?.toDate()) ? formatDistanceToNow(report.createdAt.toDate(), { addSuffix: true }) : 'N/A'}
                                             </TableCell>
                                             <TableCell className="text-right space-x-2">
                                                 <Button size="sm" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>Dismiss</Button>
