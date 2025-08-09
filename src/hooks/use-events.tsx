@@ -52,7 +52,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = useCallback(() => {
     setIsLoading(true);
     
     const eventsCollectionRef = collection(firestore, 'events');
@@ -61,42 +61,67 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     let q;
 
     if (isAdmin) {
-        q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
+      q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
+    } else if (user && isManager) {
+      // For managers, we fetch both approved events and their own pending events.
+      // This part remains complex and requires multiple queries handled below.
+      q = null; 
     } else {
-        q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
+      // For guests and regular users
+      q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
     }
+    
+    let unsubscribe: () => void = () => {};
 
-    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-        let fetchedEvents: Event[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        
-        if (user && isManager && !isAdmin && user.affiliation?.orgId) {
-            const managerQuery = query(eventsCollectionRef, where('organizerId', '==', user.affiliation.orgId));
-            const managerEventsSnapshot = await getDocs(managerQuery);
-            const managerEvents = managerEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-            
-            const combined = [...managerEvents, ...fetchedEvents];
-            const uniqueEvents = Array.from(new Map(combined.map(e => [e.id, e])).values());
-            setEvents(uniqueEvents);
-        } else {
+    if (q) {
+        unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
             setEvents(fetchedEvents);
-        }
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Failed to fetch events from Firestore:", error);
+            toast({ title: "Error", description: "Could not fetch events.", variant: "destructive" });
+            setIsLoading(false);
+        });
+    } else if (user && isManager) {
+        // Special logic for community managers to see their own + approved events
+        const fetchManagerEvents = async () => {
+            try {
+                const approvedQuery = query(eventsCollectionRef, where('status', '==', 'Approved'));
+                const approvedEventsSnap = await getDocs(approvedQuery);
+                let fetchedEvents: Event[] = approvedEventsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
 
+                if (user.affiliation?.orgId) {
+                    const managerQuery = query(eventsCollectionRef, where('organizerId', '==', user.affiliation.orgId));
+                    const managerEventsSnapshot = await getDocs(managerQuery);
+                    const managerEvents = managerEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+                    
+                    const combined = [...managerEvents, ...fetchedEvents];
+                    const uniqueEvents = Array.from(new Map(combined.map(e => [e.id, e])).values());
+                    setEvents(uniqueEvents.sort((a,b) => b.createdAt.toDate() - a.createdAt.toDate()));
+                } else {
+                    setEvents(fetchedEvents.sort((a,b) => b.createdAt.toDate() - a.createdAt.toDate()));
+                }
+            } catch(e) {
+                 console.error("Failed to fetch events for manager:", e);
+                 toast({ title: "Error", description: "Could not fetch manager events.", variant: "destructive" });
+            } finally {
+                 setIsLoading(false);
+            }
+        };
+        fetchManagerEvents();
+    } else {
+        // Default case for logged out user, show no events but don't error.
+        setEvents([]);
         setIsLoading(false);
-    }, (error) => {
-        console.error("Failed to fetch events from Firestore", error);
-        toast({ title: "Error", description: "Could not fetch events.", variant: "destructive" });
-        setIsLoading(false);
-    });
+    }
 
     return unsubscribe;
 
   }, [user, toast]);
   
   useEffect(() => {
-    let unsubscribe: () => void;
-    fetchEvents().then(unsub => {
-      unsubscribe = unsub;
-    });
+    const unsubscribe = fetchEvents();
     return () => {
       if (unsubscribe) {
         unsubscribe();
