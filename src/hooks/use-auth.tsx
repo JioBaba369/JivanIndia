@@ -114,12 +114,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
-                const userData = userDocSnap.data() as Omit<User, 'roles'> & { roles?: UserRole[] };
+                const userData = userDocSnap.data() as Omit<User, 'uid'>;
                 const roles: UserRole[] = userData.roles || [];
-                if (aboutContent.adminUids?.includes(userData.uid) && !roles.includes('admin')) {
+                
+                const isAdmin = aboutContent.adminUids?.includes(firebaseUser.uid);
+                if (isAdmin && !roles.includes('admin')) {
                     roles.push('admin');
+                } else if (!isAdmin && roles.includes('admin')) {
+                    const index = roles.indexOf('admin');
+                    roles.splice(index, 1);
                 }
-                setUser({ ...userData, roles });
+
+                setUser({ ...userData, uid: firebaseUser.uid, roles });
             } else {
                 setUser(null);
             }
@@ -141,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [firebaseUser, aboutContent.adminUids]);
 
   const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
+    if (!username) return false;
     const q = query(collection(firestore, 'users'), where("username", "==", username));
     const querySnapshot = await getDocs(q);
     if(querySnapshot.empty) return true;
@@ -209,14 +216,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        const roles = user.roles || [];
-        if (affiliation && !roles.includes('community-manager')) {
-            roles.push('community-manager');
-        } else if (!affiliation) {
-            const index = roles.indexOf('community-manager');
-            if (index > -1) {
-                roles.splice(index, 1);
+        let roles = [...(user.roles || [])];
+        
+        if (affiliation) {
+            if (!roles.includes('community-manager')) {
+                roles.push('community-manager');
             }
+        } else {
+            roles = roles.filter(role => role !== 'community-manager');
         }
         await updateUser({ affiliation, roles });
     }

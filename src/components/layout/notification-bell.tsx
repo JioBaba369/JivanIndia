@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCheck, Loader2, type LucideIcon } from 'lucide-react';
 import { useNotifications } from '@/hooks/use-notifications';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
 import * as LucideIcons from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow, isValid } from 'date-fns';
@@ -20,6 +20,7 @@ export default function NotificationBell() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useNotifications();
 
   const getIcon = (iconName: keyof typeof LucideIcons) => {
+    if (!iconName) return <Bell className="h-5 w-5 text-muted-foreground" />;
     const Icon = LucideIcons[iconName] as LucideIcon;
     return Icon ? <Icon className="h-5 w-5 text-muted-foreground" /> : <Bell className="h-5 w-5 text-muted-foreground" />;
   };

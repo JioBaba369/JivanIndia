@@ -21,7 +21,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { type MouseEvent, useState, useMemo, useEffect } from 'react';
+import type { MouseEvent } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -34,7 +35,7 @@ import ReportDialog from "@/components/feature/report-dialog";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
-    const { user } = useAuth();
+    const { user, isCommunityJoined, joinCommunity, leaveCommunity } = useAuth();
     const router = useRouter();
     const { communities, isLoading } = useCommunities();
     const searchParams = useSearchParams();
@@ -85,15 +86,15 @@ export default function CommunitiesPage() {
             return;
         }
         
-        const currentlyJoined = user.joinedCommunities?.includes(orgId);
+        const currentlyJoined = isCommunityJoined(orgId);
         if (currentlyJoined) {
-            user.leaveCommunity?.(orgId);
+            leaveCommunity(orgId);
             toast({
                 title: "Community Left",
                 description: `You have left ${orgName}.`,
             });
         } else {
-            user.joinCommunity?.(orgId);
+            joinCommunity(orgId);
             toast({
                 title: "Community Joined!",
                 description: `You have joined ${orgName}.`,
@@ -166,7 +167,7 @@ export default function CommunitiesPage() {
                               priority
                               data-ai-hint="community photo"
                               />
-                              {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                              {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                           </div>
                           <CardContent className="flex flex-grow flex-col p-4">
                               <div className="flex items-center gap-2">
@@ -245,7 +246,7 @@ export default function CommunitiesPage() {
         {isLoading ? <CommunitySkeletons /> : (
             filteredCommunities.length > 0 ? (
                 filteredCommunities.map((org) => {
-                    const isJoined = user?.joinedCommunities?.includes(org.id);
+                    const isJoined = isCommunityJoined(org.id);
                     return view === 'grid' ? (
                     <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
                         <div className="relative h-48 w-full">
@@ -257,7 +258,7 @@ export default function CommunitiesPage() {
                                     className="object-cover transition-transform group-hover:scale-105"
                                     data-ai-hint="community photo"
                                 />
-                                {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                                {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                              </Link>
                              <div className="absolute top-2 right-2">
                                 <DropdownMenu>
@@ -351,7 +352,7 @@ export default function CommunitiesPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleJoinToggle(e, org.name, org.id); }}>
+                                        <DropdownMenuItem onClick={(e) => { e.preventDefault(); handleJoinToggle(e, org.name, org.id); }}>
                                             <Bookmark className="mr-2 h-4 w-4" />
                                             {isJoined ? "Leave" : "Join"}
                                         </DropdownMenuItem>

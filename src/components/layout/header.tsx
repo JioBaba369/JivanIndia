@@ -92,7 +92,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
               {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { handleItemClick; logout(); }}>
+            <DropdownMenuItem onClick={() => { handleItemClick?.(undefined as any); logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -104,10 +104,10 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
 
   return (
     <div className="flex items-center space-x-1 sm:space-x-2">
-      <Button variant="ghost" asChild onClick={handleItemClick}>
+      <Button variant="ghost" asChild onClick={() => onLinkClick?.()}>
         <Link href="/login">Login</Link>
       </Button>
-      <Button asChild onClick={handleItemClick}>
+      <Button asChild onClick={() => onLinkClick?.()}>
         <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
@@ -122,7 +122,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="flex items-center gap-2 md:gap-6">
-            <div className="md:hidden">
+            <div className="flex md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Open menu">
@@ -165,8 +165,13 @@ export default function Header() {
             </NavigationMenu>
         </div>
         
-        <div className="hidden md:flex items-center gap-2">
-            <UserActions />
+        <div className="flex items-center gap-2">
+            <div className="hidden md:flex">
+                <UserActions />
+            </div>
+             <div className="md:hidden">
+                <NotificationBell />
+            </div>
         </div>
       </div>
     </header>

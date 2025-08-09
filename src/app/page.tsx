@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,39 +11,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, Tag, ArrowRight, Users, Building, Film, Briefcase, Megaphone, Star } from "lucide-react";
+import { Calendar, MapPin, Search, Tag, ArrowRight, Users, Building, Film, Briefcase, Megaphone, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { useDeals } from "@/hooks/use-deals";
 import { format } from "date-fns";
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
-// Define TypeScript interfaces for events and deals
-interface Event {
-  id: string;
-  status: string;
-  startDateTime: string;
-  imageUrl: string;
-  title: string;
-  eventType: string;
-  location: { venueName: string };
-  isFeatured?: boolean;
-}
-
-interface Deal {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  category: string;
-  business: string;
-  expires: string;
-}
 
 export default function HomePage() {
   const { events, isLoading: isLoadingEvents, error: eventsError } = useEvents();
@@ -51,13 +30,14 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('events');
 
-  // Filter and sort events
-  const approvedEvents = (events as Event[] || []).filter(e => e?.status === 'Approved');
-  const latestEvents = approvedEvents
+  const approvedEvents = useMemo(() => (events || []).filter(e => e?.status === 'Approved'), [events]);
+
+  const latestEvents = useMemo(() => approvedEvents
     .filter(e => e?.startDateTime && new Date(e.startDateTime) > new Date())
     .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
-    .slice(0, 3);
-  const latestDeals = (deals as Deal[] || []).slice(0, 3);
+    .slice(0, 3), [approvedEvents]);
+
+  const latestDeals = useMemo(() => (deals || []).slice(0, 3), [deals]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +46,6 @@ export default function HomePage() {
     router.push(`${basePath}${query}`);
   };
 
-  // Reusable Skeleton Component
   const CardSkeleton = ({ count = 3 }: { count?: number }) => (
     <>
       {Array.from({ length: count }).map((_, i) => (
@@ -94,7 +73,6 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col bg-background">
-      {/* Hero Section */}
       <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center bg-primary/10">
          <div className="absolute inset-0">
             <Image 
@@ -147,7 +125,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Links */}
       <section className="py-12 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
@@ -163,7 +140,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Upcoming Events */}
       <section className="py-12 md:py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
@@ -195,7 +171,7 @@ export default function HomePage() {
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                       {event.isFeatured && (
-                        <Badge className="absolute left-3 top-3">
+                        <Badge variant="default" className="absolute left-3 top-3">
                           <Star className="mr-1 h-3 w-3" /> Featured
                         </Badge>
                       )}
@@ -241,7 +217,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Latest Deals */}
       <section className="py-12 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
           <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Deals</h2>
@@ -269,7 +244,7 @@ export default function HomePage() {
                   </div>
                   <CardContent className="flex flex-grow flex-col p-4">
                     <Link href={`/deals/${deal.id}`} className="group/link flex-grow" aria-label={`View ${deal.title}`}>
-                      <CardTitle className="mb-2 text-xl group-hover/link:text-primary">{deal.title}</CardTitle>
+                      <h3 className="mb-2 text-xl font-bold group-hover/link:text-primary">{deal.title}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-2 flex-grow">{deal.description}</p>
                     </Link>
                     <div className="mt-4 space-y-2">

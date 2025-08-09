@@ -11,6 +11,7 @@ import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
   value?: string;
@@ -129,32 +130,37 @@ export default function ImageUpload({
             role="button"
             aria-label="Upload image"
             tabIndex={0}
-            className={`group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80 ${className}`}
+            className={cn(
+                "group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden border-2 border-dashed bg-muted hover:bg-muted/80",
+                className
+            )}
             style={{ aspectRatio: `${aspectRatio}` }}
             onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
             onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
             >
-            {value && !uploadState.isUploading ? (
-            <>
-              <Image src={value} alt="Preview" fill className="object-cover" />
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="flex items-center gap-2 text-white">
-                  <Pencil className="h-5 w-5"/> Change
+            {value && !uploadState.isUploading && (
+              <>
+                <Image src={value} alt="Preview" fill className="object-cover" />
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-2 text-white">
+                    <Pencil className="h-5 w-5"/> Change
+                  </div>
                 </div>
-              </div>
-            </>
-            ) : uploadState.isUploading ? (
+              </>
+            )}
+            {uploadState.isUploading && (
                 <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
                     <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                     <p className="text-sm text-muted-foreground">Uploading...</p>
                     <Progress value={uploadState.progress} className="w-full" />
                 </div>
-            ) : (
-            <div className="text-center p-4">
-                {aspectRatio > 1 ? <ImageUp className="h-8 w-8 text-muted-foreground mx-auto"/> : <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" /> }
-                <span className="text-muted-foreground text-sm">{aspectRatio > 1 ? 'Upload Banner' : 'Upload Logo'}</span>
-                <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
-            </div>
+            )}
+            {!value && !uploadState.isUploading && (
+                <div className="text-center p-4">
+                    {aspectRatio > 1 ? <ImageUp className="h-8 w-8 text-muted-foreground mx-auto"/> : <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" /> }
+                    <span className="text-muted-foreground text-sm">{aspectRatio > 1 ? 'Upload Banner' : 'Upload Logo'}</span>
+                    <p className="text-xs text-muted-foreground/80 mt-1">Up to {IMAGE_MAX_SIZE_MB}MB</p>
+                </div>
             )}
         </Card>
     );

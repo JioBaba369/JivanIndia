@@ -39,7 +39,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchReports = useCallback(async () => {
+  const fetchReports = useCallback(() => {
     setIsLoading(true);
     const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -59,10 +59,9 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     let unsubscribe: (() => void) | undefined;
     
     if (user?.roles.includes('admin')) {
-      fetchReports().then(unsub => {
-        unsubscribe = unsub;
-      });
+      unsubscribe = fetchReports();
     } else {
+      setReports([]);
       setIsLoading(false);
     }
     
@@ -71,7 +70,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
             unsubscribe();
         }
     }
-  }, [user, fetchReports]);
+  }, [user?.roles, fetchReports]);
 
   const addReport = useCallback(async (reportData: NewReportInput) => {
     try {
@@ -91,7 +90,6 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     const reportDocRef = doc(firestore, 'reports', reportId);
     try {
       await updateDoc(reportDocRef, { status });
-      // The onSnapshot listener will update the state automatically.
       toast({
         title: `Report ${status.charAt(0).toUpperCase() + status.slice(1)}`,
         description: `The report has been marked as ${status}.`,
