@@ -8,9 +8,10 @@ import { useAbout } from '@/hooks/use-about';
 
 interface LogoProps extends Omit<React.HTMLAttributes<HTMLElement>, 'as'> {
     as?: React.ElementType;
+    href?: string;
 }
 
-export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
+export default function Logo({ as: Component = 'div', href, ...props }: LogoProps) {
   const { aboutContent } = useAbout();
 
   const DefaultLogo = () => (
@@ -27,26 +28,35 @@ export default function Logo({ as: Component = 'div', ...props }: LogoProps) {
     </>
   );
 
-  const WrapperComponent = Component === 'a' ? Link : 'div';
-  const wrapperProps = Component === 'a' ? { href: '/' } : {};
+  const logoContent = (
+    <div className="flex items-center gap-2" {...props}>
+      {aboutContent.logoUrl ? (
+          <div className="relative h-10 w-40">
+              <Image
+                  src={aboutContent.logoUrl}
+                  alt="JivanIndia.co Logo"
+                  fill
+                  className="object-contain"
+                  sizes="160px"
+              />
+          </div>
+      ) : (
+          <DefaultLogo />
+      )}
+    </div>
+  );
   
+  if (Component === Link && href) {
+    return (
+        <Link href={href} aria-label="JivanIndia.co homepage">
+            {logoContent}
+        </Link>
+    );
+  }
+
   return (
-    <WrapperComponent aria-label="JivanIndia.co homepage" {...wrapperProps}>
-        <div className="flex items-center gap-2" {...props}>
-            {aboutContent.logoUrl ? (
-                <div className="relative h-10 w-40">
-                    <Image
-                        src={aboutContent.logoUrl}
-                        alt="JivanIndia.co Logo"
-                        fill
-                        className="object-contain"
-                        sizes="160px"
-                    />
-                </div>
-            ) : (
-                <DefaultLogo />
-            )}
-        </div>
-    </WrapperComponent>
+    <div {...props}>
+      {logoContent}
+    </div>
   );
 }
