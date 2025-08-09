@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -86,13 +85,13 @@ export default function EventsPage() {
             <h1 className="font-headline text-4xl font-bold">Upcoming Events</h1>
             <p className="text-lg text-muted-foreground">Discover cultural celebrations, professional meetups, concerts, and more.</p>
         </div>
-        <Card className="p-4 shadow-md mb-8" style={{backgroundColor: '#FFE00C'}}>
+        <Card className="p-4 shadow-md mb-8">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                     placeholder="Search Events..."
-                    className="pl-10 text-base md:text-sm text-foreground"
+                    className="pl-10 text-base md:text-sm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -101,13 +100,13 @@ export default function EventsPage() {
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                     placeholder="Location (e.g. San Jose)"
-                    className="pl-10 text-base md:text-sm text-foreground"
+                    className="pl-10 text-base md:text-sm"
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                     />
                 </div>
                 <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="text-foreground">
+                    <SelectTrigger>
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
