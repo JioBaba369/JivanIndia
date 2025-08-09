@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical } from "lucide-react";
+import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
@@ -92,64 +92,86 @@ export default function BusinessesPage() {
                 </Select>
             </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-            {filteredBusinesses.map(business => (
-                <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
-                    <div className="relative h-48 w-full">
-                        <Link href={`/businesses/${business.id}`}>
-                            <Image
-                                src={business.imageUrl}
-                                alt={business.name}
-                                fill
-                                className="object-cover transition-transform group-hover:scale-105"
-                                sizes="100vw"
-                            />
-                        </Link>
-                         {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
-                        <div className="absolute top-2 right-2">
-                             <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
-                                        <MoreVertical size={20} />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <ReportDialog 
-                                        contentId={business.id} 
-                                        contentType="Business" 
-                                        contentTitle={business.name} 
-                                        triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
-                                    />
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <Badge variant="secondary" className="absolute right-3 top-3">{business.category}</Badge>
-                    </div>
-                    <CardContent className="flex-grow p-4">
-                        <Link href={`/businesses/${business.id}`} className="group/link">
-                            <CardTitle className="mb-2 font-headline text-xl group-hover/link:text-primary">
-                                {business.isVerified && <BadgeCheck className="mr-1 h-5 w-5 inline-block text-primary" />}
-                                {business.name}
-                            </CardTitle>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
-                            <div className="mt-4 space-y-2">
-                                <div className="flex items-center text-sm text-muted-foreground">
-                                    <MapPin className="mr-2 h-4 w-4 text-primary"/>
-                                    <span>{business.region}</span>
-                                </div>
-                            </div>
-                        </Link>
-                    </CardContent>
-                    <div className="flex items-center p-4 pt-0 mt-auto">
-                        <Button asChild variant="link" className="p-0 h-auto">
+        
+        {businesses.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8">
+                <Building className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
+                <p className="text-muted-foreground mt-2">There are currently no businesses listed. Check back soon for new opportunities!</p>
+                {user?.isAdmin && <Button asChild className="mt-4">
+                    <Link href="/businesses/new">Add a Business</Link>
+                </Button>}
+            </div>
+        ) : filteredBusinesses.length > 0 ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                {filteredBusinesses.map(business => (
+                    <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
+                        <div className="relative h-48 w-full">
                             <Link href={`/businesses/${business.id}`}>
-                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                <Image
+                                    src={business.imageUrl}
+                                    alt={business.name}
+                                    fill
+                                    className="object-cover transition-transform group-hover:scale-105"
+                                    sizes="100vw"
+                                />
                             </Link>
-                        </Button>
-                    </div>
-                </Card>
-            ))}
-        </div>
+                            {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
+                            <div className="absolute top-2 right-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                            <MoreVertical size={20} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <ReportDialog 
+                                            contentId={business.id} 
+                                            contentType="Business" 
+                                            contentTitle={business.name} 
+                                            triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                        />
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                            <Badge variant="secondary" className="absolute right-3 top-3">{business.category}</Badge>
+                        </div>
+                        <CardContent className="flex-grow p-4">
+                            <Link href={`/businesses/${business.id}`} className="group/link">
+                                <CardTitle className="mb-2 font-headline text-xl group-hover/link:text-primary">
+                                    {business.isVerified && <BadgeCheck className="mr-1 h-5 w-5 inline-block text-primary" />}
+                                    {business.name}
+                                </CardTitle>
+                                <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
+                                <div className="mt-4 space-y-2">
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                        <MapPin className="mr-2 h-4 w-4 text-primary"/>
+                                        <span>{business.region}</span>
+                                    </div>
+                                </div>
+                            </Link>
+                        </CardContent>
+                        <div className="flex items-center p-4 pt-0 mt-auto">
+                            <Button asChild variant="link" className="p-0 h-auto">
+                                <Link href={`/businesses/${business.id}`}>
+                                    View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+        ) : (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8">
+                <h3 className="font-headline text-xl font-semibold">No Matching Businesses Found</h3>
+                <p className="text-muted-foreground mt-2">No businesses were found that match your criteria. Check back soon or adjust your filters.</p>
+                <Button variant="link" onClick={() => {
+                    setSearchQuery('');
+                    setLocationQuery('');
+                    setCategory('all');
+                }}>Clear Filters</Button>
+            </div>
+        )}
     </div>
   );
 }
