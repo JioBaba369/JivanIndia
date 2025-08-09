@@ -33,7 +33,7 @@ export default function DashboardPage() {
       router.push('/profile');
     }
     
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
 
   return (
     <div className="flex h-[calc(100vh-128px)] items-center justify-center">
