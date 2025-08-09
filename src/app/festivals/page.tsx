@@ -10,6 +10,11 @@ import { Calendar, Search, Globe, MapPin } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { useFestivals } from '@/hooks/use-festivals';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface GroupedFestivals {
+    [key: string]: ReturnType<typeof useFestivals>['festivals'];
+}
 
 export default function FestivalsPage() {
     const { festivals, isLoading } = useFestivals();
@@ -31,6 +36,21 @@ export default function FestivalsPage() {
             return matchesSearch && matchesCountry && matchesState && matchesMonth;
         });
     }, [festivals, searchQuery, selectedCountry, selectedState, selectedMonth]);
+
+    const groupedFestivals = useMemo(() => {
+        return filteredFestivals.reduce((acc: GroupedFestivals, festival) => {
+            const monthYear = new Date(festival.date).toLocaleString('default', { month: 'long', year: 'numeric' });
+            if (!acc[monthYear]) {
+                acc[monthYear] = [];
+            }
+            acc[monthYear].push(festival);
+            return acc;
+        }, {});
+    }, [filteredFestivals]);
+
+    const sortedMonths = useMemo(() => {
+        return Object.keys(groupedFestivals).sort((a, b) => new Date(a) as any - (new Date(b) as any));
+    }, [groupedFestivals]);
 
   return (
     <div className="flex flex-col">
@@ -85,38 +105,58 @@ export default function FestivalsPage() {
       
       <section className="container mx-auto px-4 py-12">
        {isLoading ? (
-         <div className="text-center"><p>Loading calendar...</p></div>
-       ) : filteredFestivals.length > 0 ? (
-          <div className="space-y-6">
-            {filteredFestivals.map(festival => (
-                <Card key={festival.name} className="overflow-hidden">
-                    <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row gap-6">
-                            <div className="flex-grow">
-                                <Badge variant="secondary">{festival.type}</Badge>
-                                <h2 className="font-headline text-2xl font-bold mt-2">{festival.name}</h2>
-                                <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-                                    <Calendar className="h-5 w-5 text-primary" />
-                                    <span>{new Date(festival.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                                </div>
-                                <p className="mt-4 text-foreground/80">{festival.description}</p>
-                            </div>
-                            <div className="flex-shrink-0 md:w-64">
-                                <h3 className="font-semibold mb-2">Primarily Celebrated In:</h3>
-                                <div className="space-y-2">
-                                     <div className="flex items-center gap-2 text-sm">
-                                        <Globe className="h-4 w-4 text-primary" />
-                                        <span>{festival.country.join(', ')}</span>
+          <div className="space-y-8">
+            {Array.from({length: 3}).map((_, i) => (
+                <div key={i}>
+                    <Skeleton className="h-8 w-48 mb-6" />
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Skeleton className="h-40 w-full"/>
+                        <Skeleton className="h-40 w-full"/>
+                    </div>
+                </div>
+            ))}
+          </div>
+       ) : sortedMonths.length > 0 ? (
+          <div className="space-y-12">
+            {sortedMonths.map(month => (
+                <div key={month}>
+                    <h2 className="font-headline text-3xl font-bold mb-6 border-b pb-3">{month}</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {groupedFestivals[month].map(festival => {
+                           const festivalDate = new Date(festival.date);
+                           const day = festivalDate.getDate();
+                           const weekday = festivalDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+                           return (
+                            <Card key={festival.name} className="overflow-hidden">
+                                <CardContent className="p-6 flex gap-6 items-start">
+                                    <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted">
+                                        <span className="text-3xl font-bold text-primary">{day}</span>
+                                        <span className="text-sm text-muted-foreground">{weekday.substring(0,3)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <MapPin className="h-4 w-4 text-primary" />
-                                        <span>{festival.state.join(', ')}</span>
+                                    <div className="flex-grow">
+                                        <Badge variant="secondary">{festival.type}</Badge>
+                                        <h3 className="font-headline text-xl font-bold mt-1">{festival.name}</h3>
+                                        <p className="mt-2 text-sm text-foreground/80">{festival.description}</p>
+                                        <div className="mt-4 pt-4 border-t space-y-2">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Globe className="h-4 w-4 text-primary" />
+                                                <span className="font-semibold">Countries:</span>
+                                                <span className="text-muted-foreground">{festival.country.join(', ')}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <MapPin className="h-4 w-4 text-primary" />
+                                                <span className="font-semibold">States:</span>
+                                                <span className="text-muted-foreground">{festival.state.join(', ')}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                                </CardContent>
+                            </Card>
+                           )
+                        })}
+                    </div>
+                </div>
             ))}
           </div>
        ) : (

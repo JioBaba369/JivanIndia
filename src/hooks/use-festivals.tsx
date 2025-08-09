@@ -47,7 +47,8 @@ export function FestivalsProvider({ children }: { children: ReactNode }) {
 
   const fetchFestivals = useCallback(() => {
     // In a real app, this could fetch from a DB. For now, we use static data.
-    setFestivals(festivalData);
+    const sortedData = [...festivalData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    setFestivals(sortedData);
     setIsLoading(false);
   }, []);
 
