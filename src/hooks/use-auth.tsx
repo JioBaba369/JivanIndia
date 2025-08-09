@@ -56,7 +56,7 @@ interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
-  signup: (name: string, email: string, pass: string, country: string) => Promise<void>;
+  signup: (name: string, email: string, pass: string, country: string, state: string, city: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, [aboutContent.adminUids]);
 
-  const signup = async (name: string, email: string, pass: string, country: string) => {
+  const signup = async (name: string, email: string, pass: string, country: string, state: string, city: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const fbUser = userCredential.user;
     
@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       bio: '',
       phone: '',
       website: '',
-      currentLocation: { country: country, state: '', city: '' },
+      currentLocation: { country, state, city },
       originLocation: { indiaState: '', indiaDistrict: '' },
       languagesSpoken: [],
       interests: [],
@@ -290,3 +290,5 @@ export function useAuth() {
   }
   return context;
 }
+
+    

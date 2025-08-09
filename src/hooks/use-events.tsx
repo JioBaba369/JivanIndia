@@ -14,6 +14,9 @@ export interface Event {
   location: {
     venueName: string;
     address: string;
+    country: string;
+    state: string;
+    city: string;
   };
   startDateTime: string; 
   endDateTime: string;
@@ -139,3 +142,5 @@ export function useEvents() {
   }
   return context;
 }
+
+    

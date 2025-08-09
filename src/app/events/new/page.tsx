@@ -45,6 +45,9 @@ const formSchema = z.object({
   endDateTime: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid end date is required." }),
   venueName: z.string().min(3, "Venue name is required.").max(100),
   address: z.string().min(10, "A full address is required.").max(200),
+  country: z.string().min(2, "Country is required."),
+  state: z.string().min(2, "State/Province is required."),
+  city: z.string().min(2, "City is required."),
   description: z.string().min(50, "Description must be at least 50 characters.").max(2000),
   tags: z.string().optional(),
   ticketLink: z.string().url().optional().or(z.literal('')),
@@ -75,6 +78,9 @@ export default function NewEventPage() {
       endDateTime: '',
       venueName: '',
       address: '',
+      country: user?.currentLocation?.country || '',
+      state: user?.currentLocation?.state || '',
+      city: user?.currentLocation?.city || '',
       description: '',
       tags: '',
       ticketLink: '',
@@ -111,6 +117,9 @@ export default function NewEventPage() {
           location: {
             venueName: values.venueName,
             address: values.address,
+            country: values.country,
+            state: values.state,
+            city: values.city,
           },
           description: values.description,
           organizerName: user.affiliation!.orgName,
@@ -308,7 +317,13 @@ export default function NewEventPage() {
                     />
                 </div>
                 
-                <FormField
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><Input placeholder="e.g., USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>State/Province *</FormLabel><FormControl><Input placeholder="e.g., California" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input placeholder="e.g., San Francisco" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+                
+                 <FormField
                     control={form.control}
                     name="venueName"
                     render={({ field }) => (
@@ -327,7 +342,7 @@ export default function NewEventPage() {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Address *</FormLabel>
+                        <FormLabel>Full Street Address *</FormLabel>
                         <FormControl>
                           <Input placeholder="e.g., 200 N Grand Ave, Los Angeles, CA 90012" {...field} />
                         </FormControl>
@@ -396,3 +411,5 @@ export default function NewEventPage() {
     </div>
   );
 }
+
+    

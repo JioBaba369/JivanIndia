@@ -25,6 +25,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
+  const [city, setCity] = useState('');
   const { signup } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -41,7 +43,7 @@ export default function SignupPage() {
 
     startTransition(async () => {
       try {
-        await signup(name, email, password, country);
+        await signup(name, email, password, country, state, city);
         toast({
           title: "Account Created!",
           description: "Welcome! You have been successfully signed up.",
@@ -108,17 +110,19 @@ export default function SignupPage() {
                   disabled={isPending}
                 />
               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="country">Country</Label>
+                    <Input id="country" required value={country} onChange={(e) => setCountry(e.target.value)} disabled={isPending}/>
+                </div>
+                 <div className="grid gap-2">
+                    <Label htmlFor="state">State/Province</Label>
+                    <Input id="state" required value={state} onChange={(e) => setState(e.target.value)} disabled={isPending}/>
+                </div>
+              </div>
                <div className="grid gap-2">
-                <Label htmlFor="country">Country</Label>
-                <Input
-                  id="country"
-                  type="text"
-                  placeholder="e.g., USA, Canada, UK"
-                  required
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  disabled={isPending}
-                />
+                <Label htmlFor="city">City</Label>
+                <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} disabled={isPending}/>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
@@ -161,3 +165,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+    
