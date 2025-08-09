@@ -6,15 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Search, PlusCircle, Briefcase, Building, ArrowRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useJobs } from "@/hooks/use-jobs";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function CareersPage() {
   const { jobs } = useJobs();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
@@ -78,10 +79,14 @@ export default function CareersPage() {
                     ))}
                     </SelectContent>
                 </Select>
-                <Button className="w-full">
-                    <Search className="mr-2 h-4 w-4" />
-                    Apply Filters
-                </Button>
+                 {user?.affiliation && (
+                    <Button asChild>
+                        <Link href="/careers/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Post a Job
+                        </Link>
+                    </Button>
+                )}
             </div>
         </div>
         <div className="space-y-8 mt-8">
@@ -90,9 +95,9 @@ export default function CareersPage() {
                 <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="font-headline text-xl font-semibold mt-4">No Job Openings</h3>
                 <p className="text-muted-foreground mt-2">There are currently no jobs posted. Check back soon for new opportunities!</p>
-                <Button asChild className="mt-4">
+                {user?.affiliation && <Button asChild className="mt-4">
                     <Link href="/careers/new">Post a Job</Link>
-                </Button>
+                </Button>}
             </div>
           ) : filteredJobs.length > 0 ? filteredJobs.map((job) => (
             <Card key={job.id} className="transition-shadow hover:shadow-lg">
