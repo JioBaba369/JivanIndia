@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, onSnapshot, writeBatch } from 'firebase/firestore';
 import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
 import { useAbout } from './use-about';
@@ -215,16 +215,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
+        const batch = writeBatch(firestore);
+        const userRef = doc(firestore, 'users', user.uid);
+        const communityRef = doc(firestore, 'communities', orgId);
+
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
         let roles: UserRole[] = [...(user.roles || [])].filter(r => r !== 'community-manager');
         
         if (affiliation) {
             roles.push('community-manager');
+            batch.update(userRef, { affiliation, roles: arrayUnion('community-manager') });
+            batch.update(communityRef, { membersCount: arrayUnion(user.uid) });
+        } else {
+             batch.update(userRef, { affiliation, roles: arrayRemove('community-manager') });
         }
-
-        await updateUser({ affiliation, roles });
+        await batch.commit();
     }
-  }, [user, updateUser]);
+  }, [user]);
 
   const getUserByUsername = useCallback(async (username: string): Promise<User | undefined> => {
     const q = query(collection(firestore, 'users'), where("username", "==", username));

@@ -43,7 +43,9 @@ export default function ImageUpload({
   const [preview, setPreview] = useState<string | undefined>(value);
   
   useEffect(() => {
-    setPreview(value);
+    if (value) {
+      setPreview(value);
+    }
   }, [value]);
 
   const resetFileInput = () => {
@@ -179,7 +181,7 @@ export default function ImageUpload({
   }
 
   return (
-    <>
+    <div>
       <UploadButtonContent />
       <Input
         id={`image-input-${folderName}`}
@@ -190,6 +192,6 @@ export default function ImageUpload({
         accept="image/png, image/jpeg, image/webp"
         disabled={uploadState.isUploading}
       />
-    </>
+    </div>
   );
 }
