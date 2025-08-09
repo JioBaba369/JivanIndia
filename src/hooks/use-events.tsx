@@ -38,6 +38,7 @@ export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'stat
 interface EventsContextType {
   events: Event[];
   isLoading: boolean;
+  error: Error | null;
   addEvent: (event: NewEventInput) => Promise<Event>;
   getEventById: (id: string) => Event | undefined;
   updateEventStatus: (eventId: string, status: Event['status']) => Promise<void>;
@@ -49,11 +50,18 @@ const EventsContext = createContext<EventsContextType | undefined>(undefined);
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   const fetchEvents = useCallback(() => {
+    if (isAuthLoading) {
+        // Don't fetch until auth state is resolved
+        return () => {};
+    }
+
     setIsLoading(true);
+    setError(null);
     
     const eventsCollectionRef = collection(firestore, 'events');
     const isAdmin = user?.roles?.includes('admin');
@@ -63,11 +71,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     if (isAdmin) {
       q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
     } else if (user && isManager) {
-      // For managers, we fetch both approved events and their own pending events.
-      // This part remains complex and requires multiple queries handled below.
       q = null; 
     } else {
-      // For guests and regular users
       q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
     }
     
@@ -78,13 +83,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
             const fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
             setEvents(fetchedEvents);
             setIsLoading(false);
-        }, (error) => {
-            console.error("Failed to fetch events from Firestore:", error);
-            toast({ title: "Error", description: "Could not fetch events.", variant: "destructive" });
+        }, (err) => {
+            console.error("Failed to fetch events from Firestore:", err);
+            setError(new Error("Could not fetch events."));
             setIsLoading(false);
         });
     } else if (user && isManager) {
-        // Special logic for community managers to see their own + approved events
         const fetchManagerEvents = async () => {
             try {
                 const approvedQuery = query(eventsCollectionRef, where('status', '==', 'Approved'));
@@ -104,28 +108,36 @@ export function EventsProvider({ children }: { children: ReactNode }) {
                 }
             } catch(e) {
                  console.error("Failed to fetch events for manager:", e);
-                 toast({ title: "Error", description: "Could not fetch manager events.", variant: "destructive" });
+                 setError(new Error("Could not fetch events."));
             } finally {
                  setIsLoading(false);
             }
         };
         fetchManagerEvents();
     } else {
-        // Default case for logged out user, show no events but don't error.
-        setEvents([]);
-        setIsLoading(false);
+        // For logged-out users, we run the public query
+        const publicQuery = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
+        unsubscribe = onSnapshot(publicQuery, (querySnapshot) => {
+            const fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+            setEvents(fetchedEvents);
+            setIsLoading(false);
+        }, (err) => {
+            console.error("Failed to fetch public events from Firestore:", err);
+            setError(new Error("Could not fetch events."));
+            setIsLoading(false);
+        });
     }
 
     return unsubscribe;
 
-  }, [user, toast]);
+  }, [user, isAuthLoading]);
   
   useEffect(() => {
     const unsubscribe = fetchEvents();
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+        if (unsubscribe) {
+            unsubscribe();
+        }
     };
   }, [fetchEvents]);
 
@@ -184,6 +196,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const value = {
     events,
     isLoading,
+    error,
     addEvent,
     getEventById,
     updateEventStatus,
