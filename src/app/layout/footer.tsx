@@ -33,21 +33,21 @@ export default function Footer() {
           </div>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 md:col-span-2">
             <div>
-              <h4 className="font-headline font-semibold">For You</h4>
+              <h4 className="font-headline font-semibold">Explore</h4>
               <ul className="mt-4 space-y-2">
-                <li><Link href="/events" className="text-muted-foreground hover:text-primary">What's On</Link></li>
-                <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
-                <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
-                <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
+                <li><Link href="/events" className="text-muted-foreground hover:text-primary">Events</Link></li>
+                <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
+                <li><Link href="/businesses" className="text-muted-foreground hover:text-primary">Businesses</Link></li>
+                 <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-headline font-semibold">For Business</h4>
-              <ul className="mt-4 space-y-2">
-                <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
-                <li><Link href="/businesses" className="text-muted-foreground hover:text-primary">Businesses</Link></li>
-                <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
-              </ul>
+                <h4 className="font-headline font-semibold">&nbsp;</h4>
+                <ul className="mt-4 space-y-2">
+                    <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
+                    <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
+                    <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
+                </ul>
             </div>
              <div>
               <h4 className="font-headline font-semibold">Resources</h4>
