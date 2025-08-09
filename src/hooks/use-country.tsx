@@ -18,8 +18,6 @@ export function CountryProvider({ children }: { children: ReactNode }) {
   const [selectedCountry, setSelectedCountryState] = useState<string>(ALL_COUNTRIES_VALUE);
 
   useEffect(() => {
-    // This hook is now primarily for pages that need a global country context.
-    // The admin page will manage its own local state for filtering.
     if (user?.currentLocation?.country) {
       setSelectedCountryState(user.currentLocation.country);
     }

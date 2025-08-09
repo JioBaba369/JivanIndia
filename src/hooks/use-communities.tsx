@@ -84,7 +84,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
     const batch = writeBatch(firestore);
     
-    // 1. Create new community document
     const newCommunityRef = doc(collection(firestore, 'communities'));
     const newCommunityForDb = {
       ...communityData,
@@ -97,7 +96,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     };
     batch.set(newCommunityRef, newCommunityForDb);
 
-    // 2. Update user's affiliation
     const userRef = doc(firestore, 'users', user.uid);
     batch.update(userRef, {
       affiliation: {

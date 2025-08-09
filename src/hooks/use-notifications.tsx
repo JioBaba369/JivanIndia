@@ -75,6 +75,8 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         const q = query(usersRef, where('joinedCommunities', 'array-contains', communityId));
         const usersSnapshot = await getDocs(q);
         
+        if (usersSnapshot.empty) return;
+
         const batch = writeBatch(firestore);
         const notificationsRef = collection(firestore, 'notifications');
 

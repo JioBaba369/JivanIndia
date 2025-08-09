@@ -223,8 +223,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (affiliation) {
             newRoles.push('community-manager');
-            const communityRef = doc(firestore, 'communities', orgId);
-            batch.update(communityRef, { membersCount: arrayUnion(user.uid) });
         }
         
         batch.update(userRef, { affiliation, roles: newRoles });

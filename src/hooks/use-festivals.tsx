@@ -19,7 +19,6 @@ interface FestivalsContextType {
 
 const FestivalsContext = createContext<FestivalsContextType | undefined>(undefined);
 
-// Static festival data for 2024, 2025, and 2026
 const festivalData: Festival[] = [
     // 2024
     { name: 'Gandhi Jayanti', description: 'Celebrates the birthday of Mahatma Gandhi.', date: '2024-10-02', type: 'National Holiday', country: ['India'], state: ['All'] },

@@ -111,11 +111,6 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   }, [aboutContent.teamMembers, updateAboutContent]);
 
   const addAdmin = useCallback(async (email: string) => {
-    if (aboutContent.adminUids.some(uid => aboutContent.teamMembers.find(m => m.id === uid)?.name === email)) {
-        toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
-        return;
-    }
-
     const usersRef = collection(firestore, 'users');
     const q = query(usersRef, where("email", "==", email));
     
@@ -128,13 +123,19 @@ export function AboutProvider({ children }: { children: ReactNode }) {
         }
         
         const userToAdd = querySnapshot.docs[0];
+        
+        if (aboutContent.adminUids.includes(userToAdd.id)) {
+            toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
+            return;
+        }
+
         await updateDoc(aboutDocRef, { adminUids: arrayUnion(userToAdd.id) });
         toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
     } catch (e) {
       console.error("Error adding admin: ", e);
       toast({ title: 'Error', description: 'Could not add admin.', variant: 'destructive' });
     }
-  }, [aboutContent.adminUids, aboutContent.teamMembers, aboutDocRef, toast]);
+  }, [aboutContent.adminUids, aboutDocRef, toast]);
 
   const removeAdmin = useCallback(async (uid: string) => {
     try {
