@@ -2,11 +2,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users, Menu, Bell, Tag, Briefcase, Handshake } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -22,33 +20,37 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import NotificationBell from "./notification-bell";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { ListItem } from "@/components/ui/navigation-menu";
 
-const navLinks = [
-  { href: "/events", label: "Events" },
-  { href: "/communities", label: "Communities" },
-  { href: "/businesses", label: "Businesses" },
-  { href: "/movies", label: "Movies" },
-  { href: "/deals", label: "Deals" },
-  { href: "/careers", label: "Careers" },
-  { href: "/sponsors", label: "Sponsors" },
+const forYouLinks: { title: string; href: string; description: string }[] = [
+    { title: "Events", href: "/events", description: "Discover cultural celebrations and professional meetups." },
+    { title: "Movies", href: "/movies", description: "Catch the latest Bollywood and regional hits near you." },
+    { title: "Deals", href: "/deals", description: "Exclusive offers from businesses in our community." },
+    { title: "Careers", href: "/careers", description: "Find your next role in our community-focused job board." },
 ];
 
-const NavLink = ({ href, label, onClick }: { href: string; label: string, onClick?: () => void }) => {
-    const pathname = usePathname();
-    const isActive = pathname === href;
-    return (
-      <Link
-        href={href}
-        onClick={onClick}
-        className={cn(
-          "transition-colors hover:text-primary text-lg md:text-sm",
-          isActive ? "font-semibold text-primary" : "text-muted-foreground"
-        )}
-      >
-        {label}
-      </Link>
-    );
-  };
+const forBusinessLinks: { title: string; href: string; description: string }[] = [
+    { title: "Communities", href: "/communities", description: "Find and connect with cultural and professional groups." },
+    { title: "Businesses", href: "/businesses", description: "List your business in our community directory." },
+    { title: "Sponsors", href: "/sponsors", description: "Support the community and gain visibility as a sponsor." },
+];
+
+const resourcesLinks: { title: string; href: string; description: string }[] = [
+    { title: "About Us", href: "/about", description: "Learn more about our mission and the team." },
+    { title: "About India", href: "/india", description: "Explore the roots and culture of the Indian diaspora." },
+    { title: "Festivals", href: "/festivals", description: "A calendar of important Indian festivals and dates." },
+    { title: "Contact Us", href: "/contact", description: "Get in touch with the JivanIndia.co team." },
+];
+
 
 const UserActions = React.memo(function UserActionsMemo() {
   const { user, logout } = useAuth();
@@ -95,24 +97,6 @@ const UserActions = React.memo(function UserActionsMemo() {
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/deals">
-                    <Tag className="mr-2 h-4 w-4" />
-                    <span>Deals</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/careers">
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    <span>Careers</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                  <Link href="/sponsors">
-                    <Handshake className="mr-2 h-4 w-4" />
-                    <span>Sponsors</span>
-                  </Link>
-                </DropdownMenuItem>
               {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -147,11 +131,65 @@ export default function Header() {
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="mr-auto flex items-center gap-6">
             <Logo as={Link} href="/" />
-            <nav className="hidden items-center space-x-6 md:flex">
-              {navLinks.map((link) => (
-                <NavLink key={link.href} {...link} />
-              ))}
-            </nav>
+             <NavigationMenu className="hidden md:flex">
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <Link href="/" legacyBehavior passHref>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                            Home
+                        </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger>For You</NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                            {forYouLinks.map((component) => (
+                            <ListItem
+                                key={component.title}
+                                title={component.title}
+                                href={component.href}
+                            >
+                                {component.description}
+                            </ListItem>
+                            ))}
+                        </ul>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                     <NavigationMenuItem>
+                        <NavigationMenuTrigger>For Business</NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                            {forBusinessLinks.map((component) => (
+                            <ListItem
+                                key={component.title}
+                                title={component.title}
+                                href={component.href}
+                            >
+                                {component.description}
+                            </ListItem>
+                            ))}
+                        </ul>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                            {resourcesLinks.map((component) => (
+                            <ListItem
+                                key={component.title}
+                                title={component.title}
+                                href={component.href}
+                            >
+                                {component.description}
+                            </ListItem>
+                            ))}
+                        </ul>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
         </div>
         
         <div className="flex items-center gap-2">
@@ -168,11 +206,23 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
                     <div className="mt-6 flex flex-col space-y-4">
-                        <UserActions />
+                        <div className="w-full">
+                         <UserActions />
+                        </div>
                         <DropdownMenuSeparator />
                         <nav className="flex flex-col space-y-2">
-                            {navLinks.map((link) => (
-                            <NavLink key={link.href} {...link} onClick={() => setIsOpen(false)} />
+                            <Link href="/" onClick={() => setIsOpen(false)} className="text-lg font-medium">Home</Link>
+                            <h4 className="font-semibold pt-4">For You</h4>
+                            {forYouLinks.map((link) => (
+                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
+                            ))}
+                            <h4 className="font-semibold pt-4">For Business</h4>
+                             {forBusinessLinks.map((link) => (
+                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
+                            ))}
+                            <h4 className="font-semibold pt-4">Resources</h4>
+                             {resourcesLinks.map((link) => (
+                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
                             ))}
                         </nav>
                     </div>

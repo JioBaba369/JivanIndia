@@ -3,10 +3,10 @@
 
 import { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Search, Globe, MapPin } from "lucide-react";
+import { Search, Globe, MapPin } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { useFestivals } from '@/hooks/use-festivals';
@@ -85,15 +85,15 @@ export default function FestivalsPage() {
                     <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input placeholder="Search festivals..." className="pl-10" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                   </div>
-                  <Select value={selectedMonth === 'All' ? undefined : selectedMonth} onValueChange={setSelectedMonth}>
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                     <SelectTrigger><SelectValue placeholder="Filter by Month..."/></SelectTrigger>
                     <SelectContent>{months.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                   </Select>
-                   <Select value={selectedCountry === 'All' ? undefined : selectedCountry} onValueChange={setSelectedCountry}>
+                   <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                     <SelectTrigger><SelectValue placeholder="Filter by Country..."/></SelectTrigger>
                     <SelectContent>{countries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
-                   <Select value={selectedState === 'All' ? undefined : selectedState} onValueChange={setSelectedState}>
+                   <Select value={selectedState} onValueChange={setSelectedState}>
                     <SelectTrigger><SelectValue placeholder="Filter by State..."/></SelectTrigger>
                     <SelectContent>{states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                   </Select>

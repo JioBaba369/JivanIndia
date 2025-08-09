@@ -2,7 +2,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useMemo, useEffect } from 'react';
 import { useEvents } from '@/hooks/use-events';
 import { useCommunities } from '@/hooks/use-communities';
@@ -13,20 +13,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star, User as UserIcon } from 'lucide-react';
+import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star, User as UserIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { getInitials } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-
-type TabValue = 'saved-events' | 'saved-movies' | 'joined-communities' | 'saved-deals';
 
 export default function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialTab = (searchParams.get('tab') as TabValue) || 'saved-events';
 
   const { events: allEvents } = useEvents();
   const { communities: allCommunities } = useCommunities();
@@ -38,13 +33,21 @@ export default function ProfilePage() {
   const savedDeals = useMemo(() => allDeals.filter(deal => user?.savedDeals?.includes(deal.id)), [allDeals, user]);
   const savedMovies = useMemo(() => allMovies.filter(movie => user?.savedMovies?.includes(movie.id)), [allMovies, user]);
   
-  if (isLoading) {
-    return <div className="container mx-auto px-4 py-12 text-center">Loading profile...</div>;
-  }
-  
-  if (!user) {
-    router.push('/login');
-    return null;
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    return (
+        <div className="flex h-[calc(100vh-128px)] items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading Your Profile...</p>
+          </div>
+        </div>
+    );
   }
   
   const handleLogout = () => {
@@ -95,7 +98,7 @@ export default function ProfilePage() {
                         <CardDescription>Manage your saved items and community involvement.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue={initialTab} className="w-full">
+                        <Tabs defaultValue="saved-events" className="w-full">
                             <TabsList className="grid w-full grid-cols-4">
                                 <TabsTrigger value="saved-events" className="text-xs md:text-sm whitespace-nowrap px-1"><Heart className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents?.length || 0})</TabsTrigger>
                                 <TabsTrigger value="saved-movies" className="text-xs md:text-sm whitespace-nowrap px-1"><Film className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies?.length || 0})</TabsTrigger>
