@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -98,12 +99,12 @@ export default function HomePage() {
       <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://placehold.co/1920x1080.png"
-            alt="Community events background"
+            src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
+            alt="A vibrant Indian festival with a large, joyful crowd"
             fill
             className="object-cover"
             priority
-            data-ai-hint="indian festival crowd"
+            data-ai-hint="festival crowd"
           />
           <div className="absolute inset-0 bg-black/30" />
         </div>
