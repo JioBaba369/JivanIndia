@@ -110,7 +110,7 @@ export default function HomePage() {
         </div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center">
           <div className="p-8 rounded-lg">
-            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Add Jivan, an Indian community. 4 The People by The People</h1>
+            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Jivan: An Indian Community, For The People, By The People</h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-foreground/90 text-shadow">
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
