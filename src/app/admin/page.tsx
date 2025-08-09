@@ -24,7 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { getInitials } from '@/lib/utils';
 import { firestore } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, where, query } from 'firebase/firestore';
 import { useBusinesses } from '@/hooks/use-businesses';
 import ImageUpload from '@/components/feature/image-upload';
 import { useReports } from '@/hooks/use-reports';
@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
   const { reports, updateReportStatus, isLoading: isReportsLoading } = useReports();
   const { toast } = useToast();
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [adminUsers, setAdminUsers] = useState<User[]>([]);
   const [isUsersLoading, setIsUsersLoading] = useState(true);
   
   const [story, setStory] = useState('');
@@ -168,24 +168,29 @@ export default function AdminDashboardPage() {
   const hasAdminRole = user?.roles.includes('admin');
 
   useEffect(() => {
-    const fetchAllUsers = async () => {
+    const fetchAdminUsers = async () => {
+      if (!aboutContent.adminUids.length) {
+        setIsUsersLoading(false);
+        return
+      };
       setIsUsersLoading(true);
       try {
         const usersCollectionRef = collection(firestore, 'users');
-        const usersSnapshot = await getDocs(usersCollectionRef);
-        setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User)));
+        const q = query(usersCollectionRef, where('__name__', 'in', aboutContent.adminUids));
+        const usersSnapshot = await getDocs(q);
+        setAdminUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User)));
       } catch (error) {
-        console.error("Failed to fetch users", error);
-        toast({ title: 'Error', description: 'Could not fetch user list.', variant: 'destructive' });
+        console.error("Failed to fetch admin users", error);
+        toast({ title: 'Error', description: 'Could not fetch admin user list.', variant: 'destructive' });
       } finally {
         setIsUsersLoading(false);
       }
     };
 
     if (hasAdminRole) {
-      fetchAllUsers();
+      fetchAdminUsers();
     }
-  }, [hasAdminRole, toast]);
+  }, [hasAdminRole, aboutContent.adminUids, toast]);
 
   useEffect(() => {
     if (!isLoading && !hasAdminRole) {
@@ -246,7 +251,7 @@ export default function AdminDashboardPage() {
   }
 
   const handleAddAdmin = async (email: string) => {
-    await addAdmin(email, users);
+    await addAdmin(email);
   }
 
   const handleRemoveAdmin = async (uid: string) => {
@@ -287,7 +292,6 @@ export default function AdminDashboardPage() {
   const sortedEvents = [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const sortedBusinesses = [...businesses].sort((a,b) => a.name.localeCompare(b.name));
-  const adminUsers = users.filter(u => aboutContent.adminUids?.includes(u.uid));
   const pendingReports = reports.filter(r => r.status === 'pending');
 
 

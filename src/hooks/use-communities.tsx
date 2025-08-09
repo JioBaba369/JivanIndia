@@ -115,11 +115,13 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     const q = query(usersRef, where("affiliation.orgId", "==", id));
     const querySnapshot = await getDocs(q);
     
-    const batch = writeBatch(firestore);
-    querySnapshot.forEach(userDoc => {
-        batch.update(userDoc.ref, { affiliation: null });
-    });
-    await batch.commit();
+    if (!querySnapshot.empty) {
+        const batch = writeBatch(firestore);
+        querySnapshot.forEach(userDoc => {
+            batch.update(userDoc.ref, { affiliation: null, roles: arrayRemove('community-manager') });
+        });
+        await batch.commit();
+    }
 
     setCommunities(prev => prev.filter(c => c.id !== id));
   };

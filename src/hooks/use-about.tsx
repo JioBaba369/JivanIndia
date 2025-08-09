@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import type { User } from './use-auth';
@@ -30,7 +30,7 @@ interface AboutContextType {
   addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
   updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
   deleteTeamMember: (memberId: string) => Promise<void>;
-  addAdmin: (email: string, allUsers: User[]) => Promise<void>;
+  addAdmin: (email: string) => Promise<void>;
   removeAdmin: (uid: string) => Promise<void>;
 }
 
@@ -105,15 +105,18 @@ export function AboutProvider({ children }: { children: ReactNode }) {
     await updateAboutContent({ teamMembers: updatedMembers });
   };
 
-  const addAdmin = async (email: string, allUsers: User[]) => {
-    const userToAdd = allUsers.find(u => u.email === email);
-    
-    if (!userToAdd) {
+  const addAdmin = async (email: string) => {
+    const usersRef = collection(firestore, 'users');
+    const q = query(usersRef, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
       toast({ title: 'User Not Found', description: `No user found with the email: ${email}`, variant: 'destructive' });
       return;
     }
     
-    const userId = userToAdd.uid;
+    const userToAdd = querySnapshot.docs[0];
+    const userId = userToAdd.id;
 
     if (aboutContent.adminUids.includes(userId)) {
         toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
@@ -122,6 +125,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
 
     try {
       await updateDoc(aboutDocRef, { adminUids: arrayUnion(userId) });
+      // The user's roles will update on next login, but we can update our local state
       setAboutContent(prev => ({ ...prev, adminUids: [...prev.adminUids, userId] }));
       toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
 

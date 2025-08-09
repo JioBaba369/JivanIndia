@@ -90,6 +90,7 @@ export default function NewCommunityPage() {
   const [isPending, startTransition] = useTransition();
 
   const memoizedIsSlugUnique = useCallback((slug: string) => {
+    if (slug.length < 3) return true;
     return isSlugUnique(slug);
   }, [isSlugUnique]);
 

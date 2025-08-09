@@ -26,7 +26,10 @@ export default function DashboardPage() {
       router.push('/admin');
     } else if (user.affiliation?.orgSlug) {
       router.push(`/c/${user.affiliation.orgSlug}`);
-    } else {
+    } else if (user.username) {
+      router.push(`/${user.username}`);
+    }
+     else {
       router.push('/profile');
     }
     

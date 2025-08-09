@@ -9,10 +9,12 @@ export default function LegacyCommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { getCommunityById } = useCommunities();
+  const { getCommunityById, isLoading } = useCommunities();
   const community = getCommunityById(id);
 
   useEffect(() => {
+    if (isLoading) return;
+
     if (community?.slug) {
       router.replace(`/c/${community.slug}`);
     } else if (id) {
@@ -22,7 +24,7 @@ export default function LegacyCommunityDetailPage() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [community, router, id]);
+  }, [community, router, id, isLoading]);
 
   // Render a loading state or nothing while redirecting
   return (

@@ -55,6 +55,9 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   }, [toast]);
 
   useEffect(() => {
+    // This hook is only used by admins, so we might not need to fetch immediately
+    // but for simplicity and consistency, we'll fetch on mount.
+    // In a more optimized app, we'd only fetch when the admin page is loaded.
     fetchReports();
   }, [fetchReports]);
 
