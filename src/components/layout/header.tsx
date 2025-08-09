@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users, Menu, Bell } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users, Menu, Bell, Tag, Briefcase, Handshake } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -50,7 +50,7 @@ const NavLink = ({ href, label, onClick }: { href: string; label: string, onClic
     );
   };
 
-const UserActions = () => {
+const UserActions = React.memo(function UserActionsMemo() {
   const { user, logout } = useAuth();
   
   if (user) {
@@ -89,16 +89,28 @@ const UserActions = () => {
                   <span>Public Profile</span>
                 </Link>
               </DropdownMenuItem>}
-              <DropdownMenuItem asChild>
-                  <Link href="/profile?tab=saved-events">
+               <DropdownMenuItem asChild>
+                  <Link href="/profile">
                     <Heart className="mr-2 h-4 w-4" />
-                    <span>Saved Items</span>
+                    <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/profile?tab=joined-communities">
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>My Communities</span>
+                  <Link href="/deals">
+                    <Tag className="mr-2 h-4 w-4" />
+                    <span>Deals</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/careers">
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Careers</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                  <Link href="/sponsors">
+                    <Handshake className="mr-2 h-4 w-4" />
+                    <span>Sponsors</span>
                   </Link>
                 </DropdownMenuItem>
               {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
@@ -124,7 +136,7 @@ const UserActions = () => {
       </Button>
     </div>
   );
-};
+});
 
 
 export default function Header() {
@@ -172,5 +184,3 @@ export default function Header() {
     </header>
   );
 }
-
-    

@@ -64,30 +64,14 @@ interface AuthContextType {
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
-  saveEvent: (eventId: string) => Promise<void>;
-  unsaveEvent: (eventId: string) => Promise<void>;
-  isEventSaved: (eventId: string) => boolean;
-
-  joinCommunity: (orgId: string) => Promise<void>;
-  leaveCommunity: (orgId: string) => Promise<void>;
-  isCommunityJoined: (orgId: string) => boolean;
-
-  saveDeal: (dealId: string) => Promise<void>;
-  unsaveDeal: (dealId: string) => Promise<void>;
-  isDealSaved: (dealId: string) => boolean;
-
-  saveBusiness: (businessId: string) => Promise<void>;
-  unsaveBusiness: (businessId: string) => Promise<void>;
-  isBusinessSaved: (businessId: string) => boolean;
-
-  saveMovie: (movieId: string) => Promise<void>;
-  unsaveMovie: (movieId: string) => Promise<void>;
-  isMovieSaved: (movieId: string) => boolean;
+  saveItem: (listType: keyof User, itemId: string) => Promise<void>;
+  unsaveItem: (listType: keyof User, itemId: string) => Promise<void>;
+  isItemSaved: (listType: keyof User, itemId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -259,21 +243,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAffiliation,
     getUserByUsername,
     isUsernameUnique,
-    saveEvent: (id: string) => saveItem('savedEvents', id),
-    unsaveEvent: (id: string) => unsaveItem('savedEvents', id),
-    isEventSaved: (id: string) => isItemSaved('savedEvents', id),
-    joinCommunity: (id: string) => saveItem('joinedCommunities', id),
-    leaveCommunity: (id: string) => unsaveItem('joinedCommunities', id),
-    isCommunityJoined: (id: string) => isItemSaved('joinedCommunities', id),
-    saveDeal: (id: string) => saveItem('savedDeals', id),
-    unsaveDeal: (id: string) => unsaveItem('savedDeals', id),
-    isDealSaved: (id: string) => isItemSaved('savedDeals', id),
-    saveBusiness: (id: string) => saveItem('savedBusinesses', id),
-    unsaveBusiness: (id: string) => unsaveItem('savedBusinesses', id),
-    isBusinessSaved: (id: string) => isItemSaved('savedBusinesses', id),
-    saveMovie: (id: string) => saveItem('savedMovies', id),
-    unsaveMovie: (id: string) => unsaveItem('savedMovies', id),
-    isMovieSaved: (id: string) => isItemSaved('savedMovies', id),
+    saveItem,
+    unsaveItem,
+    isItemSaved
   };
 
   return (
@@ -290,5 +262,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    

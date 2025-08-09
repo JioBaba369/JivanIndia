@@ -11,23 +11,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, Star, BadgeCheck, LayoutGrid, List, Bookmark, PlusCircle, ArrowRight } from "lucide-react";
+import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo, type MouseEvent } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useBusinesses } from "@/hooks/use-businesses";
-import type { Business } from "@/hooks/use-businesses";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function BusinessesPage() {
     const { businesses } = useBusinesses();
-    const { user, saveBusiness, unsaveBusiness, isBusinessSaved } = useAuth();
-    const { toast } = useToast();
-    const router = useRouter();
+    const { user } = useAuth();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [locationQuery, setLocationQuery] = useState('');
@@ -53,34 +50,6 @@ export default function BusinessesPage() {
         })
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }, [businesses, searchQuery, locationQuery, category]);
-    
-    const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, businessName: string, businessId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!user) {
-            toast({
-                title: "Please log in",
-                description: "You must be logged in to save listings.",
-                variant: "destructive"
-            });
-            router.push('/login');
-            return;
-        }
-
-        if (isBusinessSaved(businessId)) {
-            unsaveBusiness(businessId);
-            toast({
-                title: "Listing Unsaved",
-                description: `${businessName} has been removed from your saved listings.`,
-            });
-        } else {
-            saveBusiness(businessId);
-            toast({
-                title: "Listing Saved!",
-                description: `${businessName} has been saved to your profile.`,
-            });
-        }
-    };
 
 
   return (
@@ -126,8 +95,8 @@ export default function BusinessesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {filteredBusinesses.map(business => (
                 <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
-                    <Link href={`/businesses/${business.id}`} className="flex flex-col h-full">
-                        <div className="relative h-48 w-full">
+                    <div className="relative h-48 w-full">
+                        <Link href={`/businesses/${business.id}`}>
                             <Image
                                 src={business.imageUrl}
                                 alt={business.name}
@@ -135,12 +104,31 @@ export default function BusinessesPage() {
                                 className="object-cover transition-transform group-hover:scale-105"
                                 sizes="100vw"
                             />
-                            {business.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                            <Badge variant="secondary" className="absolute right-3 top-3">{business.category}</Badge>
+                        </Link>
+                         {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
+                        <div className="absolute top-2 right-2">
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                        <MoreVertical size={20} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <ReportDialog 
+                                        contentId={business.id} 
+                                        contentType="Business" 
+                                        contentTitle={business.name} 
+                                        triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
-                        <CardContent className="flex-grow p-4">
-                            <CardTitle className="mb-2 font-headline text-xl group-hover:text-primary">
-                                 {business.isVerified && <BadgeCheck className="mr-1 h-5 w-5 inline-block text-primary" />}
+                        <Badge variant="secondary" className="absolute right-3 top-3">{business.category}</Badge>
+                    </div>
+                    <CardContent className="flex-grow p-4">
+                        <Link href={`/businesses/${business.id}`} className="group/link">
+                            <CardTitle className="mb-2 font-headline text-xl group-hover/link:text-primary">
+                                {business.isVerified && <BadgeCheck className="mr-1 h-5 w-5 inline-block text-primary" />}
                                 {business.name}
                             </CardTitle>
                             <p className="text-sm text-muted-foreground line-clamp-2">{business.description}</p>
@@ -150,15 +138,15 @@ export default function BusinessesPage() {
                                     <span>{business.region}</span>
                                 </div>
                             </div>
-                        </CardContent>
-                        <div className="flex items-center p-4 pt-0 mt-auto">
-                            <Button asChild variant="link" className="p-0 h-auto">
-                                <Link href={`/businesses/${business.id}`}>
-                                    View Details <ArrowRight className="ml-2 h-4 w-4" />
-                                </Link>
-                            </Button>
-                        </div>
-                    </Link>
+                        </Link>
+                    </CardContent>
+                    <div className="flex items-center p-4 pt-0 mt-auto">
+                        <Button asChild variant="link" className="p-0 h-auto">
+                            <Link href={`/businesses/${business.id}`}>
+                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
                 </Card>
             ))}
         </div>

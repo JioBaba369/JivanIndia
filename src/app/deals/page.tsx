@@ -5,22 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Search, Tag, Building, LayoutGrid, List } from "lucide-react";
+import { PlusCircle, Search, Tag, Building, ArrowRight, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDeals } from "@/hooks/use-deals";
-import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
-import { format, isValid } from 'date-fns';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function DealsPage() {
   const { deals } = useDeals();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
@@ -88,14 +87,6 @@ export default function DealsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
-                        <LayoutGrid />
-                    </Button>
-                    <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
-                        <List />
-                    </Button>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -113,75 +104,56 @@ export default function DealsPage() {
               </Button>
           </div>
         ) : filteredDeals.length > 0 ? (
-          <div className={cn(
-            "gap-8",
-            view === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                : 'flex flex-col'
-            )}>
-            {filteredDeals.map((deal) => {
-              const expirationDate = isValid(new Date(deal.expires)) ? format(new Date(deal.expires), 'PP') : 'N/A';
-              return view === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredDeals.map((deal) => (
                 <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
-                  <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
                     <div className="relative h-48 w-full">
-                      <Image
-                        src={deal.imageUrl}
-                        alt={deal.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                        data-ai-hint="deal photo"
-                      />
+                        <Link href={`/deals/${deal.id}`}>
+                          <Image
+                            src={deal.imageUrl}
+                            alt={deal.title}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                            data-ai-hint="deal photo"
+                          />
+                        </Link>
+                        <div className="absolute top-2 right-2">
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                        <MoreVertical size={20} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <ReportDialog 
+                                        contentId={deal.id} 
+                                        contentType="Deal" 
+                                        contentTitle={deal.title} 
+                                        triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
-                    <CardContent className="flex flex-grow flex-col p-6">
-                      <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                      <CardTitle className="font-headline mt-2 flex-grow text-xl group-hover:text-primary">{deal.title}</CardTitle>
-                      <div className="mt-4 flex items-center gap-2 text-muted-foreground">
-                          <Building className="h-4 w-4" />
-                          <span>{deal.business}</span>
-                      </div>
-                      <Button variant="outline" className="mt-6 w-full">
-                        <Tag className="mr-2 h-4 w-4" />
-                        View Deal
-                      </Button>
+                    <CardContent className="flex flex-grow flex-col p-4">
+                      <Link href={`/deals/${deal.id}`} className="flex-grow group/link">
+                          <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
+                          <CardTitle className="font-headline mt-2 flex-grow text-xl group-hover/link:text-primary">{deal.title}</CardTitle>
+                          <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+                              <Building className="h-4 w-4" />
+                              <span>{deal.business}</span>
+                          </div>
+                      </Link>
                     </CardContent>
-                  </Link>
-                </Card>
-              ) : (
-                <Card key={deal.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
-                  <Link href={`/deals/${deal.id}`}>
-                    <div className="flex flex-col sm:flex-row">
-                      <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0">
-                        <Image
-                          src={deal.imageUrl}
-                          alt={deal.title}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                          data-ai-hint="deal photo"
-                        />
-                      </div>
-                      <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
-                        <Badge variant="secondary" className="w-fit">{deal.category}</Badge>
-                        <h3 className="font-headline mt-2 text-xl font-bold group-hover:text-primary">{deal.title}</h3>
-                        <div className="mt-2 flex items-center gap-2 text-muted-foreground">
-                            <Building className="h-4 w-4" />
-                            <span>{deal.business}</span>
-                        </div>
-                         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>Expires: {expirationDate}</span>
-                        </div>
-                      </CardContent>
-                      <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                        <Button variant="outline" className="w-full sm:w-auto">
-                            <Tag className="mr-2 h-4 w-4" />
-                            View Deal
+                    <div className="p-4 pt-0 mt-auto">
+                        <Button asChild variant="link" className="p-0 h-auto">
+                            <Link href={`/deals/${deal.id}`}>
+                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
                         </Button>
-                      </div>
                     </div>
-                  </Link>
                 </Card>
-              )
-            })}
+            ))}
           </div>
         ) : (
             <div className="rounded-lg border-2 border-dashed py-16 text-center">

@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Search, Ticket, PlusCircle, ArrowRight, Megaphone, Star } from "lucide-react";
+import { Calendar, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,8 @@ import { format } from 'date-fns';
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function EventsPage() {
   const { events } = useEvents();
@@ -121,8 +123,8 @@ export default function EventsPage() {
               const formattedDate = format(new Date(event.startDateTime), 'PPp');
               return (
                  <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
-                    <Link href={`/events/${event.id}`} className="flex flex-col h-full">
-                        <div className="relative h-48 w-full">
+                      <div className="relative h-48 w-full">
+                          <Link href={`/events/${event.id}`}>
                             <Image
                             src={event.imageUrl}
                             alt={event.title}
@@ -131,31 +133,50 @@ export default function EventsPage() {
                             sizes="100vw"
                             data-ai-hint="event photo"
                             />
-                            {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                            <Badge variant="secondary" className="absolute right-3 top-3">{event.eventType}</Badge>
-                        </div>
-                        <CardContent className="flex-grow p-4">
-                            <h3 className="mb-2 font-headline text-xl group-hover:text-primary transition-colors">{event.title}</h3>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
-                            <div className="mt-4 space-y-2">
+                          </Link>
+                          {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                          <div className="absolute top-2 right-2">
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                        <MoreVertical size={20} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <ReportDialog 
+                                        contentId={event.id} 
+                                        contentType="Event" 
+                                        contentTitle={event.title} 
+                                        triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                      </div>
+                      <CardContent className="flex-grow p-4">
+                        <Link href={`/events/${event.id}`} className="group/link">
+                          <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
+                          <h3 className="mb-2 mt-2 font-headline text-xl group-hover/link:text-primary transition-colors">{event.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                          <div className="mt-4 space-y-2">
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                  <Calendar className="mr-2 h-4 w-4 text-primary"/>
+                                  <span>{formattedDate}</span>
+                              </div>
                                 <div className="flex items-center text-sm text-muted-foreground">
-                                    <Calendar className="mr-2 h-4 w-4 text-primary"/>
-                                    <span>{formattedDate}</span>
-                                </div>
-                                 <div className="flex items-center text-sm text-muted-foreground">
-                                    <MapPin className="mr-2 h-4 w-4 text-primary"/>
-                                    <span>{event.location.venueName}</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                        <div className="flex items-center p-4 pt-0 mt-auto">
-                            <Button asChild variant="link" className="p-0 h-auto">
-                                <Link href={`/events/${event.id}`}>
-                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                                </Link>
-                            </Button>
-                        </div>
-                    </Link>
+                                  <MapPin className="mr-2 h-4 w-4 text-primary"/>
+                                  <span>{event.location.venueName}</span>
+                              </div>
+                          </div>
+                        </Link>
+                      </CardContent>
+                      <div className="flex items-center p-4 pt-0 mt-auto">
+                          <Button asChild variant="link" className="p-0 h-auto">
+                              <Link href={`/events/${event.id}`}>
+                              View Details <ArrowRight className="ml-2 h-4 w-4" />
+                              </Link>
+                          </Button>
+                      </div>
                 </Card>
               ) 
             })}

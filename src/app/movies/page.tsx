@@ -4,26 +4,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Film, MapPin, Search, Star, LayoutGrid, List } from "lucide-react";
+import { Film, Search, Star, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useMovies } from "@/hooks/use-movies";
-import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ReportDialog from "@/components/feature/report-dialog";
+
 
 export default function MoviesPage() {
   const { movies } = useMovies();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
@@ -73,14 +67,6 @@ export default function MoviesPage() {
                      onChange={(e) => setSearchQuery(e.target.value)}
                    />
                  </div>
-                 <div className="flex items-center gap-2">
-                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
-                        <LayoutGrid />
-                    </Button>
-                    <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
-                        <List />
-                    </Button>
-                 </div>
               </div>
             </CardContent>
           </Card>
@@ -95,78 +81,53 @@ export default function MoviesPage() {
           <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
         </div>
        ) : filteredMovies.length > 0 ? (
-          <div className={cn(
-            "gap-x-6 gap-y-10",
-            view === 'grid' 
-                ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-                : 'flex flex-col'
-            )}>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
             {filteredMovies.map((movie) => (
-                view === 'grid' ? (
                 <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
-                <Link href={`/movies/${movie.id}`} className="block">
                     <div className="relative aspect-[2/3] w-full">
-                    <Image
-                        src={movie.imageUrl}
-                        alt={movie.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                        data-ai-hint="movie poster"
-                    />
+                       <Link href={`/movies/${movie.id}`}>
+                        <Image
+                            src={movie.imageUrl}
+                            alt={movie.title}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                            data-ai-hint="movie poster"
+                        />
+                       </Link>
+                       <div className="absolute top-2 right-2">
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                        <MoreVertical size={20} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <ReportDialog 
+                                        contentId={movie.id} 
+                                        contentType="Movie" 
+                                        contentTitle={movie.title} 
+                                        triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
                     <CardContent className="p-4">
-                    <h3 className="font-headline truncate text-lg font-bold group-hover:text-primary">{movie.title}</h3>
-                    <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                            <Film className="h-4 w-4" />
-                            <span>{movie.genre}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span>{movie.rating} / 5.0</span>
-                        </div>
-                    </div>
-                        <Button variant="secondary" className="mt-4 w-full">
-                        View Details
-                    </Button>
-                    </CardContent>
-                </Link>
-                </Card>
-                ) : (
-                <Card key={movie.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
-                    <Link href={`/movies/${movie.id}`}>
-                    <div className="flex">
-                        <div className="relative aspect-[2/3] h-40 sm:h-48 flex-shrink-0">
-                            <Image
-                                src={movie.imageUrl}
-                                alt={movie.title}
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
-                        <CardContent className="flex-grow p-4 sm:p-6">
-                            <h3 className="font-headline text-xl font-bold group-hover:text-primary">{movie.title}</h3>
-                             <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                    <Film className="h-4 w-4" />
-                                    <span>{movie.genre}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                    <span>{movie.rating} / 5.0</span>
-                                </div>
-                                <div className="flex items-center gap-2 pt-2">
-                                    <span>{movie.details.duration}</span>
-                                </div>
+                      <Link href={`/movies/${movie.id}`} className="group/link">
+                        <h3 className="font-headline truncate text-lg font-bold group-hover/link:text-primary">{movie.title}</h3>
+                        <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <Film className="h-4 w-4" />
+                                <span>{movie.genre}</span>
                             </div>
-                        </CardContent>
-                        <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                            <Button variant="outline">View Details</Button>
+                            <div className="flex items-center gap-2">
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span>{movie.rating} / 5.0</span>
+                            </div>
                         </div>
-                    </div>
-                    </Link>
+                      </Link>
+                    </CardContent>
                 </Card>
-                )
             ))}
           </div>
        ) : (

@@ -5,7 +5,6 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, getDocs, doc, addDoc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
-import type { User } from './use-auth';
 
 export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
 export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal';

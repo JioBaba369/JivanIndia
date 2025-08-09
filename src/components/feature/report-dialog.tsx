@@ -25,10 +25,17 @@ interface ReportDialogProps {
   contentId: string;
   contentType: NewReportInput['contentType'];
   contentTitle: string;
+  triggerComponent?: React.ReactElement;
   triggerVariant?: 'ghost' | 'outline' | 'default';
 }
 
-export default function ReportDialog({ contentId, contentType, contentTitle, triggerVariant = 'ghost' }: ReportDialogProps) {
+export default function ReportDialog({ 
+  contentId, 
+  contentType, 
+  contentTitle, 
+  triggerVariant = 'ghost',
+  triggerComponent,
+}: ReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,14 +79,22 @@ export default function ReportDialog({ contentId, contentType, contentTitle, tri
       setIsSubmitting(false);
     }
   };
+  
+  const Trigger = triggerComponent ? (
+    <div onClick={() => setIsOpen(true)} className="w-full">
+      {triggerComponent}
+    </div>
+  ) : (
+    <Button variant={triggerVariant} size="sm">
+      <Flag className="mr-2 h-4 w-4" />
+      Report
+    </Button>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant} size="sm">
-          <Flag className="mr-2 h-4 w-4" />
-          Report
-        </Button>
+        {Trigger}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
