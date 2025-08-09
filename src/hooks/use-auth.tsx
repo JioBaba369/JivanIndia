@@ -108,21 +108,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    let userUnsubscribe: () => void;
+    let userUnsubscribe: (() => void) | undefined;
 
     if (firebaseUser) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data() as Omit<User, 'uid'>;
-                const roles: UserRole[] = userData.roles || [];
+                let roles: UserRole[] = userData.roles || [];
                 
                 const isAdmin = aboutContent.adminUids?.includes(firebaseUser.uid);
+                
                 if (isAdmin && !roles.includes('admin')) {
-                    roles.push('admin');
+                    roles = [...roles, 'admin'];
                 } else if (!isAdmin && roles.includes('admin')) {
-                    const index = roles.indexOf('admin');
-                    roles.splice(index, 1);
+                    roles = roles.filter(role => role !== 'admin');
                 }
 
                 setUser({ ...userData, uid: firebaseUser.uid, roles });
@@ -216,15 +216,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        let roles = [...(user.roles || [])];
+        let roles: UserRole[] = [...(user.roles || [])].filter(r => r !== 'community-manager');
         
         if (affiliation) {
-            if (!roles.includes('community-manager')) {
-                roles.push('community-manager');
-            }
-        } else {
-            roles = roles.filter(role => role !== 'community-manager');
+            roles.push('community-manager');
         }
+
         await updateUser({ affiliation, roles });
     }
   }, [user, updateUser]);

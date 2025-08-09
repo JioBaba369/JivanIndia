@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
@@ -12,6 +12,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ImageUploadProps {
   value?: string;
@@ -38,7 +39,13 @@ export default function ImageUpload({
       isUploading: false,
       progress: 0,
   });
+
+  const [preview, setPreview] = useState<string | undefined>(value);
   
+  useEffect(() => {
+    setPreview(value);
+  }, [value]);
+
   const resetFileInput = () => {
     if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -58,9 +65,10 @@ export default function ImageUpload({
         return;
       }
       
+      setPreview(URL.createObjectURL(file));
       setUploadState({ isUploading: true, progress: 0 });
 
-      const fileName = `${folderName}/${new Date().getTime()}-${Math.random().toString(36).substring(2)}.jpeg`;
+      const fileName = `${folderName}/${uuidv4()}.jpeg`;
       const storageRef = ref(storage, fileName);
       
       try {
@@ -74,6 +82,7 @@ export default function ImageUpload({
           (error) => {
               console.error("Upload error", error);
               setUploadState({ isUploading: false, progress: 0 });
+              setPreview(value); // Revert preview on error
               toast({
                   title: "Upload Failed",
                   description: "There was an error uploading your image. Please try again.",
@@ -85,6 +94,7 @@ export default function ImageUpload({
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
               onChange(downloadURL);
               setUploadState({ isUploading: false, progress: 0 });
+              setPreview(downloadURL);
               toast({
                   title: 'Image Uploaded!',
                   icon: <CheckCircle className="h-5 w-5 text-green-500" />,
@@ -94,6 +104,7 @@ export default function ImageUpload({
         );
       } catch (error) {
         setUploadState({ isUploading: false, progress: 0 });
+        setPreview(value); // Revert preview on error
         toast({
           title: "Upload Failed",
           description: "An unexpected error occurred. Please try again.",
@@ -138,9 +149,9 @@ export default function ImageUpload({
             onClick={() => !uploadState.isUploading && fileInputRef.current?.click()}
             onKeyDown={(e) => e.key === 'Enter' && !uploadState.isUploading && fileInputRef.current?.click()}
             >
-            {value && !uploadState.isUploading && (
+            {preview && (
               <>
-                <Image src={value} alt="Preview" fill className="object-cover" />
+                <Image src={preview} alt="Preview" fill className="object-cover" />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="flex items-center gap-2 text-white">
                     <Pencil className="h-5 w-5"/> Change
@@ -149,13 +160,13 @@ export default function ImageUpload({
               </>
             )}
             {uploadState.isUploading && (
-                <div className="flex flex-col items-center justify-center gap-4 p-4 text-center w-full">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 text-center w-full bg-background/80">
                     <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                     <p className="text-sm text-muted-foreground">Uploading...</p>
-                    <Progress value={uploadState.progress} className="w-full" />
+                    <Progress value={uploadState.progress} className="w-3/4" />
                 </div>
             )}
-            {!value && !uploadState.isUploading && (
+            {!preview && !uploadState.isUploading && (
                 <div className="text-center p-4">
                     {aspectRatio > 1 ? <ImageUp className="h-8 w-8 text-muted-foreground mx-auto"/> : <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto" /> }
                     <span className="text-muted-foreground text-sm">{aspectRatio > 1 ? 'Upload Banner' : 'Upload Logo'}</span>

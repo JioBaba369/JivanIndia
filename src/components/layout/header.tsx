@@ -169,8 +169,39 @@ export default function Header() {
             <div className="hidden md:flex">
                 <UserActions />
             </div>
-             <div className="md:hidden">
+             <div className="md:hidden flex items-center">
                 <NotificationBell />
+                 <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10">
+                        {useAuth().user?.profileImageUrl ? <AvatarImage src={useAuth().user?.profileImageUrl} alt={useAuth().user?.name} /> : <AvatarFallback>{getInitials(useAuth().user?.name)}</AvatarFallback>}
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{useAuth().user?.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {useAuth().user?.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                     <DropdownMenuGroup>
+                        <DropdownMenuItem asChild><Link href="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /><span>Dashboard</span></Link></DropdownMenuItem>
+                        {useAuth().user?.username && <DropdownMenuItem asChild><Link href={`/${useAuth().user?.username}`}><User className="mr-2 h-4 w-4" /><span>Public Profile</span></Link></DropdownMenuItem>}
+                        <DropdownMenuItem asChild><Link href="/profile"><Heart className="mr-2 h-4 w-4" /><span>My Saved Items</span></Link></DropdownMenuItem>
+                        {useAuth().user?.roles?.includes('admin') && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => useAuth().logout()}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
       </div>
