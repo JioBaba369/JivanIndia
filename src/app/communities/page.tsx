@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCommunities } from "@/hooks/use-communities";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
