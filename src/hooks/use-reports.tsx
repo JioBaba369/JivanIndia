@@ -37,31 +37,31 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
-
-  const fetchReports = useCallback(async () => {
-    setIsLoading(true);
-    try {
-        const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
-        setReports(reportsData);
-    } catch (error) {
-        console.error("Failed to fetch reports from Firestore", error);
-        toast({ title: 'Error', description: 'Could not fetch reports.', variant: 'destructive' });
-    } finally {
-        setIsLoading(false);
-    }
-  }, [toast]);
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   useEffect(() => {
+    if (isAuthLoading) {
+      return; 
+    }
+
     if (user?.roles.includes('admin')) {
-      fetchReports();
+      const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+        setReports(reportsData);
+        setIsLoading(false);
+      }, (error) => {
+        console.error("Failed to fetch reports from Firestore", error);
+        toast({ title: 'Error', description: 'Could not fetch reports.', variant: 'destructive' });
+        setIsLoading(false);
+      });
+      
+      return () => unsubscribe();
     } else {
       setReports([]);
       setIsLoading(false);
     }
-  }, [user?.roles, fetchReports]);
+  }, [user, isAuthLoading, toast]);
 
   const addReport = useCallback(async (reportData: NewReportInput) => {
     try {
@@ -81,12 +81,6 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     const reportDocRef = doc(firestore, 'reports', reportId);
     try {
       await updateDoc(reportDocRef, { status });
-      // Manually update local state to reflect the change immediately
-      setReports(prevReports => 
-        prevReports.map(report => 
-            report.id === reportId ? { ...report, status } : report
-        )
-      );
       toast({
         title: `Report ${status.charAt(0).toUpperCase() + status.slice(1)}`,
         description: `The report has been marked as ${status}.`,
