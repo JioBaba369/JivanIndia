@@ -2,15 +2,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ReactNode } from 'react';
 
-interface AnalyticsCardProps {
+interface StatCardProps {
   title: string;
   value: string;
-  change: string;
+  description: string;
   icon: ReactNode;
-  trend: ReactNode;
 }
 
-export default function AnalyticsCard({ title, value, change, icon, trend }: AnalyticsCardProps) {
+export default function StatCard({ title, value, description, icon }: StatCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -19,9 +18,8 @@ export default function AnalyticsCard({ title, value, change, icon, trend }: Ana
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-          {trend}
-          {change}
+        <p className="text-xs text-muted-foreground">
+          {description}
         </p>
       </CardContent>
     </Card>

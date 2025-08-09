@@ -2,14 +2,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Briefcase, LandPlot, Sprout } from "lucide-react";
 import Image from "next/image";
-import AnalyticsCard from "@/components/feature/analytics-card";
+import StatCard from "@/components/feature/stat-card";
 
 export default function AboutIndiaPage() {
   const stats = [
-    { title: "Global Diaspora Population", value: "32 Million", change: "Largest in the world", icon: <Users />, trend: <></> },
-    { title: "Remittances to India (2023)", value: "$125 Billion", change: "Highest in the world", icon: <Briefcase />, trend: <></> },
-    { title: "Countries with Diaspora", value: "146+", change: "Present across the globe", icon: <LandPlot />, trend: <></> },
-    { title: "PIOs & NRIs", value: "Balanced Mix", change: "Of citizens and residents", icon: <Sprout />, trend: <></> },
+    { title: "Global Diaspora Population", value: "32 Million", description: "Largest in the world", icon: <Users /> },
+    { title: "Remittances to India (2023)", value: "$125 Billion", description: "Highest in the world", icon: <Briefcase /> },
+    { title: "Countries with Diaspora", value: "146+", description: "Present across the globe", icon: <LandPlot /> },
+    { title: "PIOs & NRIs", value: "Balanced Mix", description: "Of citizens and residents", icon: <Sprout /> },
   ];
 
   return (
@@ -50,13 +50,12 @@ export default function AboutIndiaPage() {
             <h2 className="font-headline text-3xl font-bold text-center mb-12">Diaspora at a Glance</h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {stats.map(stat => (
-                <AnalyticsCard
+                <StatCard
                   key={stat.title}
                   title={stat.title}
                   value={stat.value}
-                  change={stat.change}
+                  description={stat.description}
                   icon={stat.icon}
-                  trend={stat.trend}
                 />
               ))}
             </div>
