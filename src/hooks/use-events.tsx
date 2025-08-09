@@ -74,6 +74,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const isAdmin = user?.roles?.includes('admin');
     let q;
 
+    // Admins see all events, sorted by creation date.
+    // Regular users see only approved events, which will be sorted client-side by start date.
     if (isAdmin) {
       q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
     } else {
@@ -82,9 +84,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         let fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        
+        // Client-side sorting for non-admins to avoid complex index requirement
         if (!isAdmin) {
             fetchedEvents = fetchedEvents.sort((a, b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime());
         }
+
         setEvents(fetchedEvents);
         setIsLoading(false);
     }, (err) => {
