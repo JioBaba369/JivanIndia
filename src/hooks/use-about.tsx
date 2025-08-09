@@ -36,14 +36,16 @@ interface AboutContextType {
 
 const AboutContext = createContext<AboutContextType | undefined>(undefined);
 
-export function AboutProvider({ children }: { children: ReactNode }) {
-  const [aboutContent, setAboutContent] = useState<AboutContent>({ 
+const defaultAboutContent: AboutContent = { 
     story: 'We saw the immense dedication of community leaders, volunteers, and supporters. Yet, we also saw the operational hurdles they faced—fragmented tools, disconnected communication channels, and the constant struggle to engage their communities effectively.\n\nThis platform was created to solve that. We set out to build an all-in-one digital ecosystem where organizations can manage their events, coordinate volunteers, share deals, and communicate seamlessly with their audience. Our goal is to handle the technology so they can focus on what they do best: building community.', 
     teamMembers: [], 
     adminUids: ["defDHmCjCdWvmGid9YYg3RJi01x2"],
     logoUrl: '',
     faviconUrl: '',
-  });
+};
+
+export function AboutProvider({ children }: { children: ReactNode }) {
+  const [aboutContent, setAboutContent] = useState<AboutContent>(defaultAboutContent);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
@@ -58,82 +60,83 @@ export function AboutProvider({ children }: { children: ReactNode }) {
           setAboutContent(data);
         } else {
           // If the document doesn't exist, create it with default values.
-          setDoc(aboutDocRef, aboutContent);
+          setDoc(aboutDocRef, defaultAboutContent).catch(e => console.error("Failed to create default about doc", e));
         }
         setIsLoading(false);
       }, 
       (error) => {
         console.error("Error fetching about content: ", error);
+        toast({ title: 'Error', description: 'Could not load site configuration.', variant: 'destructive' });
         setIsLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
   
-  const updateAboutContent = async (data: Partial<AboutContent>) => {
+  const updateAboutContent = useCallback(async (data: Partial<AboutContent>) => {
     try {
       await updateDoc(aboutDocRef, data);
-      // No need to set state here, onSnapshot will do it
     } catch (e) {
       console.error("Error updating about content: ", e);
       toast({ title: 'Error', description: 'Could not update site content.', variant: 'destructive' });
+      throw e;
     }
-  }
+  }, [aboutDocRef, toast]);
 
 
-  const addTeamMember = async (memberData: Omit<TeamMember, 'id'>) => {
+  const addTeamMember = useCallback(async (memberData: Omit<TeamMember, 'id'>) => {
     const newMember: TeamMember = {
       ...memberData,
       id: new Date().getTime().toString(),
     };
-    const updatedMembers = [...aboutContent.teamMembers, newMember];
-    await updateAboutContent({ teamMembers: updatedMembers });
-  };
+    await updateAboutContent({ teamMembers: arrayUnion(newMember) as any });
+  }, [updateAboutContent]);
 
-  const updateTeamMember = async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
-    const updatedMembers = aboutContent.teamMembers.map(member => 
+  const updateTeamMember = useCallback(async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
+    const currentMembers = aboutContent.teamMembers || [];
+    const updatedMembers = currentMembers.map(member => 
       member.id === memberId 
         ? { id: member.id, ...updatedData } 
         : member
     );
     await updateAboutContent({ teamMembers: updatedMembers });
-  };
+  }, [aboutContent.teamMembers, updateAboutContent]);
 
-  const deleteTeamMember = async (memberId: string) => {
-    const updatedMembers = aboutContent.teamMembers.filter(member => member.id !== memberId);
-    await updateAboutContent({ teamMembers: updatedMembers });
-  };
-
-  const addAdmin = async (email: string) => {
-    const usersRef = collection(firestore, 'users');
-    const q = query(usersRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      toast({ title: 'User Not Found', description: `No user found with the email: ${email}`, variant: 'destructive' });
-      return;
+  const deleteTeamMember = useCallback(async (memberId: string) => {
+    const memberToDelete = aboutContent.teamMembers.find(m => m.id === memberId);
+    if (memberToDelete) {
+        await updateAboutContent({ teamMembers: arrayRemove(memberToDelete) as any });
     }
-    
-    const userToAdd = querySnapshot.docs[0];
-    const userId = userToAdd.id;
+  }, [aboutContent.teamMembers, updateAboutContent]);
 
-    if (aboutContent.adminUids.includes(userId)) {
+  const addAdmin = useCallback(async (email: string) => {
+    if (aboutContent.adminUids.some(uid => aboutContent.teamMembers.find(m => m.id === uid)?.name === email)) {
         toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
         return;
     }
 
+    const usersRef = collection(firestore, 'users');
+    const q = query(usersRef, where("email", "==", email));
+    
     try {
-      await updateDoc(aboutDocRef, { adminUids: arrayUnion(userId) });
-      toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
+        const querySnapshot = await getDocs(q);
 
+        if (querySnapshot.empty) {
+          toast({ title: 'User Not Found', description: `No user found with the email: ${email}`, variant: 'destructive' });
+          return;
+        }
+        
+        const userToAdd = querySnapshot.docs[0];
+        await updateDoc(aboutDocRef, { adminUids: arrayUnion(userToAdd.id) });
+        toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
     } catch (e) {
       console.error("Error adding admin: ", e);
       toast({ title: 'Error', description: 'Could not add admin.', variant: 'destructive' });
     }
-  }
+  }, [aboutContent.adminUids, aboutContent.teamMembers, aboutDocRef, toast]);
 
-  const removeAdmin = async (uid: string) => {
+  const removeAdmin = useCallback(async (uid: string) => {
     try {
       await updateDoc(aboutDocRef, { adminUids: arrayRemove(uid) });
       toast({ title: 'Admin Removed', description: 'Admin privileges have been revoked.' });
@@ -141,7 +144,7 @@ export function AboutProvider({ children }: { children: ReactNode }) {
       console.error("Error removing admin: ", e);
       toast({ title: 'Error', description: 'Could not remove admin.', variant: 'destructive' });
     }
-  }
+  }, [aboutDocRef, toast]);
 
   const value = {
     aboutContent,

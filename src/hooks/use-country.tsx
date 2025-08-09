@@ -1,11 +1,11 @@
 
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from './use-auth';
 
 const COUNTRY_STORAGE_KEY = 'jivanindia-selected-country';
-const ALL_COUNTRIES = 'All Countries';
+const ALL_COUNTRIES_VALUE = 'All Countries';
 
 interface CountryContextType {
   selectedCountry: string;
@@ -16,33 +16,32 @@ const CountryContext = createContext<CountryContextType | undefined>(undefined);
 
 export function CountryProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [selectedCountry, setSelectedCountryState] = useState<string>(ALL_COUNTRIES);
+  const [selectedCountry, setSelectedCountryState] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+        return localStorage.getItem(COUNTRY_STORAGE_KEY) || ALL_COUNTRIES_VALUE;
+    }
+    return ALL_COUNTRIES_VALUE;
+  });
 
-  // Effect to load from localStorage on mount
   useEffect(() => {
     const storedCountry = localStorage.getItem(COUNTRY_STORAGE_KEY);
-    if (storedCountry) {
-      setSelectedCountryState(storedCountry);
-    }
-  }, []);
-
-  // Effect to sync with user's profile country
-  useEffect(() => {
     if (user?.currentLocation?.country) {
       setSelectedCountryState(user.currentLocation.country);
       localStorage.setItem(COUNTRY_STORAGE_KEY, user.currentLocation.country);
+    } else if (storedCountry) {
+        setSelectedCountryState(storedCountry);
     }
   }, [user?.currentLocation?.country]);
 
-  const setSelectedCountry = (country: string) => {
+  const setSelectedCountry = useCallback((country: string) => {
     setSelectedCountryState(country);
     localStorage.setItem(COUNTRY_STORAGE_KEY, country);
-  };
+  }, []);
   
   const value = useMemo(() => ({
     selectedCountry,
     setSelectedCountry,
-  }), [selectedCountry]);
+  }), [selectedCountry, setSelectedCountry]);
 
   return (
     <CountryContext.Provider value={value}>
@@ -59,4 +58,4 @@ export function useCountry() {
   return context;
 }
 
-export const ALL_COUNTRIES_VALUE = ALL_COUNTRIES;
+export { ALL_COUNTRIES_VALUE };

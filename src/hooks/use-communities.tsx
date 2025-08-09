@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, arrayRemove } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where, writeBatch, serverTimestamp, arrayRemove, getDocs, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
@@ -17,7 +17,7 @@ export interface Community {
   imageUrl: string;
   logoUrl: string;
   region: string;
-  country: string; // New field
+  country: string; 
   membersCount: number;
   isVerified: boolean;
   isFeatured?: boolean;
@@ -55,8 +55,6 @@ interface CommunitiesContextType {
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
 
-const communitiesCollectionRef = collection(firestore, 'communities');
-
 export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +62,8 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsLoading(true);
-    const unsubscribe = onSnapshot(communitiesCollectionRef, 
+    const q = query(collection(firestore, 'communities'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         const communitiesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Community));
         setCommunities(communitiesData);
@@ -72,54 +71,67 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       },
       (error) => {
         console.error("Failed to fetch communities from Firestore", error);
-        setCommunities([]);
+        toast({ title: "Error", description: "Could not fetch communities.", variant: "destructive" });
         setIsLoading(false);
       }
     );
     
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
-
-  const addCommunity = async (communityData: NewCommunityInput, user: User): Promise<Community> => {
+  const addCommunity = useCallback(async (communityData: NewCommunityInput, user: User): Promise<Community> => {
     if (!user) throw new Error("User must be logged in to create a community.");
 
-    const newCommunityData = {
-      ...communityData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      isVerified: false,
-      isFeatured: false,
-      founderEmail: user.email,
-    };
-    const docRef = await addDoc(communitiesCollectionRef, newCommunityData);
-    const newCommunity = { id: docRef.id, ...newCommunityData, createdAt: new Date(), updatedAt: new Date() } as Community;
-    
-    return newCommunity;
-  };
+    try {
+        const newCommunityData = {
+          ...communityData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          isVerified: false,
+          isFeatured: false,
+          founderEmail: user.email,
+        };
+        const docRef = await addDoc(collection(firestore, 'communities'), newCommunityData);
+        return { id: docRef.id, ...newCommunityData, createdAt: new Date(), updatedAt: new Date() } as Community;
+    } catch (error) {
+        console.error("Error adding community:", error);
+        toast({ title: "Error", description: "Failed to create community.", variant: "destructive" });
+        throw error;
+    }
+  }, [toast]);
 
-  const updateCommunity = async (id: string, data: Partial<Omit<Community, 'id'>>) => {
+  const updateCommunity = useCallback(async (id: string, data: Partial<Omit<Community, 'id'>>) => {
     const communityDocRef = doc(firestore, 'communities', id);
     const updatedData = { ...data, updatedAt: serverTimestamp() };
-    await updateDoc(communityDocRef, updatedData);
-  };
-  
-  const deleteCommunity = async (id: string) => {
-    const communityDocRef = doc(firestore, 'communities', id);
-    await deleteDoc(communityDocRef);
-
-    const usersRef = collection(firestore, 'users');
-    const q = query(usersRef, where("affiliation.orgId", "==", id));
-    const querySnapshot = await getDocs(q);
-    
-    if (!querySnapshot.empty) {
-        const batch = writeBatch(firestore);
-        querySnapshot.forEach(userDoc => {
-            batch.update(userDoc.ref, { affiliation: null, roles: arrayRemove('community-manager') });
-        });
-        await batch.commit();
+    try {
+        await updateDoc(communityDocRef, updatedData);
+    } catch (error) {
+        console.error("Error updating community:", error);
+        toast({ title: "Error", description: "Failed to update community.", variant: "destructive" });
     }
-  };
+  }, [toast]);
+  
+  const deleteCommunity = useCallback(async (id: string) => {
+    try {
+        const communityDocRef = doc(firestore, 'communities', id);
+        await deleteDoc(communityDocRef);
+
+        const usersRef = collection(firestore, 'users');
+        const q = query(usersRef, where("affiliation.orgId", "==", id));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const batch = writeBatch(firestore);
+            querySnapshot.forEach(userDoc => {
+                batch.update(userDoc.ref, { affiliation: null, roles: arrayRemove('community-manager') });
+            });
+            await batch.commit();
+        }
+    } catch (error) {
+        console.error("Error deleting community:", error);
+        toast({ title: "Error", description: "Failed to delete community.", variant: "destructive" });
+    }
+  }, [toast]);
 
   const getCommunityById = useCallback((id: string): Community | undefined => {
     if (!id) return undefined;
@@ -135,20 +147,30 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     return !communities.some(c => c.slug === slug && c.id !== currentId);
   }, [communities]);
 
-  const verifyCommunity = async (communityId: string): Promise<void> => {
+  const verifyCommunity = useCallback(async (communityId: string): Promise<void> => {
     const communityDocRef = doc(firestore, 'communities', communityId);
-    const updatedData = { isVerified: true, updatedAt: serverTimestamp() };
-    await updateDoc(communityDocRef, updatedData);
-  };
+    try {
+        await updateDoc(communityDocRef, { isVerified: true, updatedAt: serverTimestamp() });
+        toast({ title: "Community Verified", description: "The community has been marked as verified." });
+    } catch (error) {
+        console.error("Error verifying community:", error);
+        toast({ title: "Error", description: "Could not verify the community.", variant: "destructive" });
+    }
+  }, [toast]);
 
-  const updateCommunityFeaturedStatus = async (communityId: string, isFeatured: boolean) => {
+  const updateCommunityFeaturedStatus = useCallback(async (communityId: string, isFeatured: boolean) => {
     const communityDocRef = doc(firestore, 'communities', communityId);
-    await updateDoc(communityDocRef, { isFeatured });
-    toast({
-      title: 'Community Updated',
-      description: `Community has been ${isFeatured ? 'featured' : 'un-featured'}.`,
-    });
-  };
+    try {
+        await updateDoc(communityDocRef, { isFeatured, updatedAt: serverTimestamp() });
+        toast({
+          title: 'Community Updated',
+          description: `Community has been ${isFeatured ? 'featured' : 'un-featured'}.`,
+        });
+    } catch (error) {
+        console.error("Error updating featured status:", error);
+        toast({ title: "Error", description: "Could not update community's featured status.", variant: "destructive" });
+    }
+  }, [toast]);
 
   const contextValue = {
     communities,

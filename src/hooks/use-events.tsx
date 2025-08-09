@@ -46,8 +46,6 @@ interface EventsContextType {
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
-const eventsCollectionRef = collection(firestore, 'events');
-
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,9 +55,10 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
     
-    let q;
+    const eventsCollectionRef = collection(firestore, 'events');
     const isAdmin = user?.roles?.includes('admin');
     const isManager = user?.roles?.includes('community-manager');
+    let q;
 
     if (isAdmin) {
         q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
@@ -71,7 +70,6 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         let fetchedEvents: Event[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         
         if (user && isManager && !isAdmin && user.affiliation?.orgId) {
-            // Fetch manager-specific events and merge them
             const managerQuery = query(eventsCollectionRef, where('organizerId', '==', user.affiliation.orgId));
             const managerEventsSnapshot = await getDocs(managerQuery);
             const managerEvents = managerEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
@@ -95,34 +93,42 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   }, [user, toast]);
   
   useEffect(() => {
-    const unsubscribePromise = fetchEvents();
+    let unsubscribe: () => void;
+    fetchEvents().then(unsub => {
+      unsubscribe = unsub;
+    });
     return () => {
-        unsubscribePromise.then(unsub => unsub());
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [fetchEvents]);
 
-
-  const addEvent = async (eventData: NewEventInput) => {
-    const newEventData = {
-      ...eventData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      status: 'Pending' as Event['status'],
-      isFeatured: false,
-    };
-    
-    const docRef = await addDoc(eventsCollectionRef, newEventData);
-    const fullEvent = { id: docRef.id, ...newEventData, createdAt: { toDate: () => new Date() } } as Event;
-    
-    return fullEvent;
-  };
+  const addEvent = useCallback(async (eventData: NewEventInput) => {
+    try {
+      const newEventData = {
+        ...eventData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        status: 'Pending' as Event['status'],
+        isFeatured: false,
+      };
+      
+      const docRef = await addDoc(collection(firestore, 'events'), newEventData);
+      return { id: docRef.id, ...newEventData, createdAt: { toDate: () => new Date() } } as Event;
+    } catch (error) {
+      console.error("Error adding event:", error);
+      toast({ title: "Error", description: "Could not create the event.", variant: "destructive" });
+      throw error;
+    }
+  }, [toast]);
 
   const getEventById = useCallback((id: string) => {
     if (!id) return undefined;
     return events.find(event => event.id === id);
   }, [events]);
 
-  const updateEventStatus = async (eventId: string, status: Event['status']) => {
+  const updateEventStatus = useCallback(async (eventId: string, status: Event['status']) => {
     const eventDocRef = doc(firestore, 'events', eventId);
     const updatedData: { status: Event['status'], updatedAt: any, isFeatured?: boolean } = { status, updatedAt: serverTimestamp() };
     
@@ -130,16 +136,25 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         updatedData.isFeatured = false;
     }
 
-    await updateDoc(eventDocRef, updatedData);
-
-    toast({ title: 'Event Status Updated', description: `The event has been set to ${status}.` });
-  };
+    try {
+      await updateDoc(eventDocRef, updatedData);
+      toast({ title: 'Event Status Updated', description: `The event has been set to ${status}.` });
+    } catch(error) {
+       console.error("Error updating event status:", error);
+       toast({ title: "Error", description: "Could not update the event status.", variant: "destructive" });
+    }
+  }, [toast]);
   
-  const updateEventFeaturedStatus = async (eventId: string, isFeatured: boolean) => {
+  const updateEventFeaturedStatus = useCallback(async (eventId: string, isFeatured: boolean) => {
     const eventDocRef = doc(firestore, 'events', eventId);
-    await updateDoc(eventDocRef, { isFeatured, updatedAt: serverTimestamp() });
-    toast({ title: 'Event Updated', description: `The event has been ${isFeatured ? 'featured' : 'un-featured'}.` });
-  };
+    try {
+      await updateDoc(eventDocRef, { isFeatured, updatedAt: serverTimestamp() });
+      toast({ title: 'Event Updated', description: `The event has been ${isFeatured ? 'featured' : 'un-featured'}.` });
+    } catch (error) {
+      console.error("Error updating event featured status:", error);
+      toast({ title: "Error", description: "Could not update the event's featured status.", variant: "destructive" });
+    }
+  }, [toast]);
 
   const value = {
     events,

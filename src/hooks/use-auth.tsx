@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { auth, firestore } from '@/lib/firebase';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, onSnapshot } from 'firebase/firestore';
 import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
 import { useAbout } from './use-about';
@@ -63,25 +64,9 @@ interface AuthContextType {
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
-  saveEvent: (itemId: string) => Promise<void>;
-  unsaveEvent: (itemId: string) => Promise<void>;
-  isEventSaved: (itemId: string) => boolean;
-
-  joinCommunity: (itemId: string) => Promise<void>;
-  leaveCommunity: (itemId: string) => Promise<void>;
-  isCommunityJoined: (itemId: string) => boolean;
-
-  saveDeal: (itemId: string) => Promise<void>;
-  unsaveDeal: (itemId: string) => Promise<void>;
-  isDealSaved: (itemId: string) => boolean;
-
-  saveBusiness: (itemId: string) => Promise<void>;
-  unsaveBusiness: (itemId: string) => Promise<void>;
-  isBusinessSaved: (itemId: string) => boolean;
-
-  saveMovie: (itemId: string) => Promise<void>;
-  unsaveMovie: (itemId: string) => Promise<void>;
-  isMovieSaved: (itemId: string) => boolean;
+  saveItem: (listType: keyof User, itemId: string) => Promise<void>;
+  unsaveItem: (listType: keyof User, itemId: string) => Promise<void>;
+  isItemSaved: (listType: keyof User, itemId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -94,33 +79,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+    const authUnsubscribe = onAuthStateChanged(auth, (fbUser) => {
         setIsLoading(true);
         setFirebaseUser(fbUser);
-        if (fbUser) {
-            const userDocRef = doc(firestore, 'users', fbUser.uid);
-            const userDocSnap = await getDoc(userDocRef);
+        if (!fbUser) {
+            setUser(null);
+            setIsLoading(false);
+        }
+    });
 
+    return () => authUnsubscribe();
+  }, []);
+
+  useEffect(() => {
+    let userUnsubscribe: () => void;
+
+    if (firebaseUser) {
+        const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+        userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data() as Omit<User, 'roles'> & { roles?: UserRole[] };
-                
                 const roles: UserRole[] = userData.roles || [];
                 if (aboutContent.adminUids?.includes(userData.uid) && !roles.includes('admin')) {
                     roles.push('admin');
                 }
-                
                 setUser({ ...userData, roles });
             } else {
                 setUser(null);
             }
-        } else {
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Error listening to user document:", error);
             setUser(null);
-        }
-        setIsLoading(false);
-    });
+            setIsLoading(false);
+        });
+    }
 
-    return () => unsubscribe();
-  }, [aboutContent.adminUids]);
+    return () => {
+        if (userUnsubscribe) {
+            userUnsubscribe();
+        }
+    };
+  }, [firebaseUser, aboutContent.adminUids]);
+
+  const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
+    const q = query(collection(firestore, 'users'), where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+    if(querySnapshot.empty) return true;
+    if(currentUid && querySnapshot.docs[0].id === currentUid) {
+      return true;
+    }
+    return false;
+  }, []);
 
   const signup = async (name: string, email: string, pass: string, country: string, state: string, city: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -158,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
     setUser(newUser);
-  }
+  };
 
   const login = async (email: string, pass: string) => {
     await signInWithEmailAndPassword(auth, email, pass);
@@ -166,19 +176,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Login Successful",
         description: "Welcome back!",
       });
-  }
+  };
 
   const logout = async () => {
     await signOut(auth);
   };
   
   const updateUser = useCallback(async (updatedData: Partial<User>) => {
-    if (user) {
-      const userDocRef = doc(firestore, 'users', user.uid);
-      await updateDoc(userDocRef, updatedData);
-      setUser(prevUser => prevUser ? { ...prevUser, ...updatedData } : null);
-    }
-  }, [user]);
+    if (!firebaseUser) return;
+    const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+    await updateDoc(userDocRef, updatedData);
+  }, [firebaseUser]);
 
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
@@ -206,41 +214,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return undefined;
   }, []);
 
-  const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
-    const q = query(collection(firestore, 'users'), where("username", "==", username));
-    const querySnapshot = await getDocs(q);
-    if(querySnapshot.empty) return true;
-    if(currentUid && querySnapshot.docs[0].id === currentUid) {
-      return true;
-    }
-    return false;
-  }, []);
-
- const saveItem = useCallback(async (listType: keyof User, itemId: string) => {
-    if (!user) return;
-    const userRef = doc(firestore, 'users', user.uid);
+  const saveItem = useCallback(async (listType: keyof User, itemId: string) => {
+    if (!firebaseUser) return;
+    const userRef = doc(firestore, 'users', firebaseUser.uid);
     try {
         await updateDoc(userRef, { [listType]: arrayUnion(itemId) });
-        setUser(prevUser => {
-            if (!prevUser) return null;
-            const currentList = (prevUser[listType] as string[] || []);
-            return { ...prevUser, [listType]: [...currentList, itemId] };
-        });
-    } catch (e) { console.error(e); }
-  }, [user]);
+    } catch (e) { console.error(`Failed to save item to ${String(listType)}`, e); }
+  }, [firebaseUser]);
 
   const unsaveItem = useCallback(async (listType: keyof User, itemId: string) => {
-    if (!user) return;
-    const userRef = doc(firestore, 'users', user.uid);
+    if (!firebaseUser) return;
+    const userRef = doc(firestore, 'users', firebaseUser.uid);
      try {
         await updateDoc(userRef, { [listType]: arrayRemove(itemId) });
-        setUser(prevUser => {
-            if (!prevUser) return null;
-            const currentList = (prevUser[listType] as string[] || []);
-            return { ...prevUser, [listType]: currentList.filter(id => id !== itemId) };
-        });
-    } catch (e) { console.error(e); }
-  }, [user]);
+    } catch (e) { console.error(`Failed to unsave item from ${String(listType)}`, e); }
+  }, [firebaseUser]);
 
   const isItemSaved = useCallback((listType: keyof User, itemId: string) => {
     if (!user || !user[listType]) return false;
@@ -258,21 +246,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAffiliation,
     getUserByUsername,
     isUsernameUnique,
-    saveEvent: (id: string) => saveItem('savedEvents', id),
-    unsaveEvent: (id: string) => unsaveItem('savedEvents', id),
-    isEventSaved: (id: string) => isItemSaved('savedEvents', id),
-    joinCommunity: (id: string) => saveItem('joinedCommunities', id),
-    leaveCommunity: (id: string) => unsaveItem('joinedCommunities', id),
-    isCommunityJoined: (id: string) => isItemSaved('joinedCommunities', id),
-    saveDeal: (id: string) => saveItem('savedDeals', id),
-    unsaveDeal: (id: string) => unsaveItem('savedDeals', id),
-    isDealSaved: (id: string) => isItemSaved('savedDeals', id),
-    saveBusiness: (id: string) => saveItem('savedBusinesses', id),
-    unsaveBusiness: (id: string) => unsaveItem('savedBusinesses', id),
-    isBusinessSaved: (id: string) => isItemSaved('savedBusinesses', id),
-    saveMovie: (id: string) => saveItem('savedMovies', id),
-    unsaveMovie: (id: string) => unsaveItem('savedMovies', id),
-    isMovieSaved: (id: string) => isItemSaved('savedMovies', id),
+    saveItem,
+    unsaveItem,
+    isItemSaved
   };
 
   return (

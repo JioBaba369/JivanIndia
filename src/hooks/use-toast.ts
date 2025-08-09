@@ -130,9 +130,9 @@ let memoryState: State = { toasts: [] }
 
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
+  for (const listener of listeners) {
     listener(memoryState)
-  })
+  }
 }
 
 type Toast = Omit<ToasterToast, "id">
@@ -170,16 +170,14 @@ function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
-    const newListener = (state: State) => setState(state);
-    listeners.push(newListener);
+    listeners.push(setState)
     return () => {
-      const index = listeners.indexOf(newListener);
+      const index = listeners.indexOf(setState)
       if (index > -1) {
-        listeners.splice(index, 1);
+        listeners.splice(index, 1)
       }
-    };
-  }, [state]);
-
+    }
+  }, [state])
 
   return {
     ...state,

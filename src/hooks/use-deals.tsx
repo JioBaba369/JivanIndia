@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useToast } from './use-toast';
 
 export interface Deal {
   id: string;
@@ -32,15 +33,14 @@ interface DealsContextType {
 
 const DealsContext = createContext<DealsContextType | undefined>(undefined);
 
-const dealsCollectionRef = collection(firestore, 'deals');
-
 export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsLoading(true);
-    const q = query(dealsCollectionRef, orderBy('postedAt', 'desc'));
+    const q = query(collection(firestore, 'deals'), orderBy('postedAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
@@ -50,32 +50,38 @@ export function DealsProvider({ children }: { children: ReactNode }) {
       },
       (error) => {
         console.error("Failed to fetch deals from Firestore", error);
-        setDeals([]);
+        toast({ title: "Error", description: "Could not fetch deals.", variant: "destructive" });
         setIsLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
-  const addDeal = async (dealData: NewDealInput): Promise<Deal> => {
-    const newDeal = {
-      ...dealData,
-      postedAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(dealsCollectionRef, newDeal);
-    const newDealWithId = { id: docRef.id, ...newDeal, postedAt: new Date() } as Deal;
-    // No need to set state here, onSnapshot will do it
-    return newDealWithId;
-  };
+  const addDeal = useCallback(async (dealData: NewDealInput): Promise<Deal> => {
+    try {
+        const newDeal = {
+          ...dealData,
+          postedAt: serverTimestamp(),
+        };
+        const docRef = await addDoc(collection(firestore, 'deals'), newDeal);
+        return { id: docRef.id, ...newDeal, postedAt: new Date() } as Deal;
+    } catch (error) {
+        console.error("Error adding deal:", error);
+        toast({ title: "Error", description: "Could not add the new deal.", variant: "destructive" });
+        throw error;
+    }
+  }, [toast]);
 
-  const getDealById = (id: string): Deal | undefined => {
+  const getDealById = useCallback((id: string): Deal | undefined => {
     if (!id) return undefined;
     return deals.find(d => d.id === id);
-  };
+  }, [deals]);
+
+  const value = { deals, isLoading, getDealById, addDeal };
 
   return (
-    <DealsContext.Provider value={{ deals, isLoading, getDealById, addDeal }}>
+    <DealsContext.Provider value={value}>
       {children}
     </DealsContext.Provider>
   );

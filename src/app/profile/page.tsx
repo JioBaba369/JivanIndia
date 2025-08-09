@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { useEvents } from '@/hooks/use-events';
 import { useCommunities } from '@/hooks/use-communities';
 import { useDeals } from '@/hooks/use-deals';
@@ -18,26 +18,32 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { getInitials } from '@/lib/utils';
+import { useBusinesses } from '@/hooks/use-businesses';
 
 export default function ProfilePage() {
-  const { user, logout, isLoading } = useAuth();
+  const { user, logout, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  const { events: allEvents } = useEvents();
-  const { communities: allCommunities } = useCommunities();
-  const { deals: allDeals } = useDeals();
-  const { movies: allMovies } = useMovies();
+  const { events: allEvents, isLoading: isEventsLoading } = useEvents();
+  const { communities: allCommunities, isLoading: isCommunitiesLoading } = useCommunities();
+  const { deals: allDeals, isLoading: isDealsLoading } = useDeals();
+  const { movies: allMovies, isLoading: isMoviesLoading } = useMovies();
+  const { businesses: allBusinesses, isLoading: isBusinessesLoading } = useBusinesses();
+  
+  const isLoading = isAuthLoading || isEventsLoading || isCommunitiesLoading || isDealsLoading || isMoviesLoading || isBusinessesLoading;
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isAuthLoading, router]);
 
   const savedEvents = useMemo(() => allEvents.filter(event => user?.savedEvents?.includes(String(event.id))), [allEvents, user]);
   const joinedCommunities = useMemo(() => allCommunities.filter(org => user?.joinedCommunities?.includes(org.id)), [allCommunities, user]);
   const savedDeals = useMemo(() => allDeals.filter(deal => user?.savedDeals?.includes(deal.id)), [allDeals, user]);
   const savedMovies = useMemo(() => allMovies.filter(movie => user?.savedMovies?.includes(movie.id)), [allMovies, user]);
+  const savedBusinesses = useMemo(() => allBusinesses.filter(b => user?.savedBusinesses?.includes(b.id)), [allBusinesses, user]);
   
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isLoading, router]);
 
   if (isLoading || !user) {
     return (
@@ -101,11 +107,12 @@ export default function ProfilePage() {
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="saved-events" className="w-full">
-                            <TabsList className="grid w-full grid-cols-4">
-                                <TabsTrigger value="saved-events" className="text-xs md:text-sm whitespace-nowrap px-1"><Heart className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Events ({savedEvents?.length || 0})</TabsTrigger>
-                                <TabsTrigger value="saved-movies" className="text-xs md:text-sm whitespace-nowrap px-1"><Film className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Movies ({savedMovies?.length || 0})</TabsTrigger>
-                                <TabsTrigger value="joined-communities" className="text-xs md:text-sm whitespace-nowrap px-1"><Users className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Communities ({joinedCommunities?.length || 0})</TabsTrigger>
-                                <TabsTrigger value="saved-deals" className="text-xs md:text-sm whitespace-nowrap px-1"><Tag className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block"/>Deals ({savedDeals?.length || 0})</TabsTrigger>
+                            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                                <TabsTrigger value="saved-events"><Heart className="mr-2 h-4 w-4"/>Events ({savedEvents?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-movies"><Film className="mr-2 h-4 w-4"/>Movies ({savedMovies?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-deals"><Tag className="mr-2 h-4 w-4"/>Deals ({savedDeals?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="saved-businesses"><Building className="mr-2 h-4 w-4"/>Businesses ({savedBusinesses?.length || 0})</TabsTrigger>
+                                <TabsTrigger value="joined-communities"><Users className="mr-2 h-4 w-4"/>Communities ({joinedCommunities?.length || 0})</TabsTrigger>
                             </TabsList>
                             <TabsContent value="saved-events" className="mt-6">
                                 {savedEvents.length > 0 ? (
@@ -163,6 +170,61 @@ export default function ProfilePage() {
                                     </div>
                                 )}
                             </TabsContent>
+                             <TabsContent value="saved-deals" className="mt-6">
+                                {savedDeals.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {savedDeals.map((deal) => (
+                                            <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
+                                                <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
+                                                    <div className="relative h-40 w-full">
+                                                        <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="deal photo"/>
+                                                    </div>
+                                                    <CardContent className="flex flex-grow flex-col p-4">
+                                                        <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{deal.title}</h3>
+                                                        <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                            <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Link>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                                        <h3 className="font-headline text-lg">No Saved Deals</h3>
+                                        <p className="text-muted-foreground mt-2">You haven't saved any deals yet.</p>
+                                        <Button asChild variant="secondary" className="mt-4"><Link href="/deals">Explore Deals</Link></Button>
+                                    </div>
+                                )}
+                            </TabsContent>
+                            <TabsContent value="saved-businesses" className="mt-6">
+                                {savedBusinesses.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {savedBusinesses.map((business) => (
+                                            <Card key={business.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
+                                                <Link href={`/businesses/${business.id}`} className="flex h-full flex-col">
+                                                    <div className="relative h-40 w-full">
+                                                        <Image src={business.imageUrl} alt={business.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
+                                                    </div>
+                                                    <CardContent className="flex flex-grow flex-col p-4">
+                                                        <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{business.name}</h3>
+                                                        <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                            <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{business.category}</span></div>
+                                                            <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{business.rating} ({business.reviewCount} reviews)</span></div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Link>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                     <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                                        <h3 className="font-headline text-lg">No Saved Businesses</h3>
+                                        <p className="text-muted-foreground mt-2">You haven't saved any businesses yet.</p>
+                                        <Button asChild variant="secondary" className="mt-4"><Link href="/businesses">Explore Businesses</Link></Button>
+                                    </div>
+                                )}
+                            </TabsContent>
                             <TabsContent value="joined-communities" className="mt-6">
                                 {joinedCommunities.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -188,33 +250,6 @@ export default function ProfilePage() {
                                         <h3 className="font-headline text-lg">No Joined Communities</h3>
                                         <p className="text-muted-foreground mt-2">You haven't joined any communities yet.</p>
                                         <Button asChild variant="secondary" className="mt-4"><Link href="/communities">Explore Communities</Link></Button>
-                                    </div>
-                                )}
-                            </TabsContent>
-                            <TabsContent value="saved-deals" className="mt-6">
-                                {savedDeals.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {savedDeals.map((deal) => (
-                                            <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
-                                                <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
-                                                    <div className="relative h-40 w-full">
-                                                        <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="deal photo"/>
-                                                    </div>
-                                                    <CardContent className="flex flex-grow flex-col p-4">
-                                                        <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{deal.title}</h3>
-                                                        <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
-                                                            <div className="flex items-center gap-2"><Building className="h-4 w-4" /><span>{deal.business}</span></div>
-                                                        </div>
-                                                    </CardContent>
-                                                </Link>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                        <h3 className="font-headline text-lg">No Saved Deals</h3>
-                                        <p className="text-muted-foreground mt-2">You haven't saved any deals yet.</p>
-                                        <Button asChild variant="secondary" className="mt-4"><Link href="/deals">Explore Deals</Link></Button>
                                     </div>
                                 )}
                             </TabsContent>

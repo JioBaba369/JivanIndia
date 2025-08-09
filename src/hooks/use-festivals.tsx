@@ -6,7 +6,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 export interface Festival {
   name: string;
   description: string;
-  date: string; // ISO 8601 format for a specific day, can be recurring
+  date: string; // ISO 8601 format for a specific day
   type: 'Religious' | 'Cultural' | 'National Holiday' | 'State Holiday' | 'Seasonal';
   country: string[]; // Countries where it's widely celebrated
   state: string[]; // Indian states where it's significant
@@ -64,24 +64,31 @@ const festivalData: Festival[] = [
     { name: 'Christmas', description: 'An annual festival commemorating the birth of Jesus Christ.', date: '2026-12-25', type: 'Religious', country: ['India', 'Global'], state: ['Goa', 'Kerala', 'Mizoram'] },
 ];
 
-
 export function FestivalsProvider({ children }: { children: ReactNode }) {
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchFestivals = useCallback(() => {
+    setIsLoading(true);
     // In a real app, this could fetch from a DB. For now, we use static data.
-    const sortedData = [...festivalData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    setFestivals(sortedData);
-    setIsLoading(false);
+    try {
+        const sortedData = [...festivalData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        setFestivals(sortedData);
+    } catch (error) {
+        console.error("Error processing festival data:", error);
+    } finally {
+        setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     fetchFestivals();
   }, [fetchFestivals]);
+  
+  const value = { festivals, isLoading };
 
   return (
-    <FestivalsContext.Provider value={{ festivals, isLoading }}>
+    <FestivalsContext.Provider value={value}>
       {children}
     </FestivalsContext.Provider>
   );

@@ -2,9 +2,10 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, addDoc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
+import { useAuth } from './use-auth';
 
 export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
 export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal';
@@ -17,7 +18,7 @@ export interface Report {
   contentLink: string;
   reason: string;
   reportedByUid: string;
-  createdAt: any; // Firestore ServerTimestamp
+  createdAt: any;
   status: ReportStatus;
 }
 
@@ -28,51 +29,72 @@ interface ReportsContextType {
   isLoading: boolean;
   addReport: (report: NewReportInput) => Promise<void>;
   updateReportStatus: (reportId: string, status: ReportStatus) => Promise<void>;
-  fetchReports: () => Promise<void>;
+  fetchReports: () => void;
 }
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined);
-
-const reportsCollectionRef = collection(firestore, 'reports');
 
 export function ReportsProvider({ children }: { children: ReactNode }) {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const fetchReports = useCallback(async () => {
+  const fetchReports = useCallback(() => {
+    if (!user || !user.roles.includes('admin')) {
+      setReports([]);
+      setIsLoading(false);
+      return () => {};
+    }
+
     setIsLoading(true);
-    try {
-      const q = query(reportsCollectionRef, orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
+    const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
       setReports(reportsData);
-    } catch (error) {
+      setIsLoading(false);
+    }, (error) => {
       console.error("Failed to fetch reports from Firestore", error);
       toast({ title: 'Error', description: 'Could not fetch reports.', variant: 'destructive' });
-    } finally {
       setIsLoading(false);
+    });
+
+    return unsubscribe;
+  }, [toast, user]);
+
+  useEffect(() => {
+    const unsubscribe = fetchReports();
+    return () => unsubscribe();
+  }, [fetchReports]);
+
+  const addReport = useCallback(async (reportData: NewReportInput) => {
+    try {
+      const newReport = {
+        ...reportData,
+        status: 'pending' as ReportStatus,
+        createdAt: serverTimestamp(),
+      };
+      await addDoc(collection(firestore, 'reports'), newReport);
+    } catch(error) {
+      console.error("Error adding report:", error);
+      toast({ title: "Error", description: "Could not submit your report.", variant: "destructive" });
     }
   }, [toast]);
 
-  const addReport = async (reportData: NewReportInput) => {
-    const newReport = {
-      ...reportData,
-      status: 'pending' as ReportStatus,
-      createdAt: serverTimestamp(),
-    };
-    await addDoc(reportsCollectionRef, newReport);
-  };
-
-  const updateReportStatus = async (reportId: string, status: ReportStatus) => {
+  const updateReportStatus = useCallback(async (reportId: string, status: ReportStatus) => {
     const reportDocRef = doc(firestore, 'reports', reportId);
-    await updateDoc(reportDocRef, { status });
-    setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
-    toast({
-      title: `Report ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-      description: `The report has been marked as ${status}.`,
-    });
-  };
+    try {
+      await updateDoc(reportDocRef, { status });
+      // State will be updated by the onSnapshot listener
+      toast({
+        title: `Report ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        description: `The report has been marked as ${status}.`,
+      });
+    } catch (error) {
+      console.error("Error updating report status:", error);
+      toast({ title: "Error", description: "Could not update the report status.", variant: "destructive" });
+    }
+  }, [toast]);
 
   const value = { reports, isLoading, addReport, updateReportStatus, fetchReports };
 

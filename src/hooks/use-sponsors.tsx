@@ -2,8 +2,9 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
+import { useToast } from './use-toast';
 
 export type SponsorTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Supporter';
 
@@ -42,15 +43,16 @@ interface SponsorsContextType {
 }
 
 const SponsorsContext = createContext<SponsorsContextType | undefined>(undefined);
-const sponsorsCollectionRef = collection(firestore, 'sponsors');
 
 export function SponsorsProvider({ children }: { children: ReactNode }) {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsLoading(true);
-    const unsubscribe = onSnapshot(sponsorsCollectionRef, 
+    const q = query(collection(firestore, 'sponsors'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         const sponsorsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Sponsor));
         setSponsors(sponsorsData);
@@ -58,21 +60,25 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
       },
       (error) => {
         console.error("Failed to fetch sponsors from Firestore", error);
-        setSponsors([]);
+        toast({ title: "Error", description: "Could not fetch sponsors.", variant: "destructive" });
         setIsLoading(false);
       }
     );
     
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
   
-  const addSponsor = async (sponsorData: NewSponsorInput): Promise<Sponsor> => {
-    const newSponsorData = { ...sponsorData, eventsSponsored: [], createdAt: serverTimestamp() };
-    const docRef = await addDoc(sponsorsCollectionRef, newSponsorData);
-    const newSponsor = { id: docRef.id, ...newSponsorData, createdAt: new Date() } as Sponsor;
-    // No need to set state here, onSnapshot will handle it.
-    return newSponsor;
-  }
+  const addSponsor = useCallback(async (sponsorData: NewSponsorInput): Promise<Sponsor> => {
+    try {
+        const newSponsorData = { ...sponsorData, eventsSponsored: [], createdAt: serverTimestamp() };
+        const docRef = await addDoc(collection(firestore, 'sponsors'), newSponsorData);
+        return { id: docRef.id, ...newSponsorData, createdAt: new Date() } as Sponsor;
+    } catch(error) {
+        console.error("Error adding sponsor:", error);
+        toast({ title: "Error", description: "Could not add new sponsor.", variant: "destructive" });
+        throw error;
+    }
+  }, [toast]);
 
 
   const getSponsorById = useCallback((id: string) => {

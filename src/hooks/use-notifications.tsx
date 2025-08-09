@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, addDoc, updateDoc, serverTimestamp, query, where, writeBatch, limit, orderBy } from 'firebase/firestore';
+import { collection, getDocs, doc, addDoc, updateDoc, serverTimestamp, query, where, writeBatch, limit, orderBy, onSnapshot } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useAuth } from './use-auth';
 import * as LucideIcons from 'lucide-react';
@@ -41,77 +41,85 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const fetchNotifications = useCallback(async (userId: string) => {
-    setIsLoading(true);
-    try {
-      const notificationsRef = collection(firestore, 'notifications');
-      const q = query(
-        notificationsRef, 
-        where('userId', '==', userId), 
-        orderBy('createdAt', 'desc'),
-        limit(50) // Limit to last 50 notifications for performance
-      );
-      const querySnapshot = await getDocs(q);
-      const notificationsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
-      setNotifications(notificationsData);
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    if (user) {
-      fetchNotifications(user.uid);
-    } else {
+    if (!user) {
       setNotifications([]);
       setIsLoading(false);
+      return;
     }
-  }, [user, fetchNotifications]);
 
-  const createNotificationForCommunity = async (communityId: string, notificationData: CommunityNotificationInput) => {
-      // Find all users who joined this community
-      const usersRef = collection(firestore, 'users');
-      const q = query(usersRef, where('joinedCommunities', 'array-contains', communityId));
-      const usersSnapshot = await getDocs(q);
-      
-      const batch = writeBatch(firestore);
-      const notificationsRef = collection(firestore, 'notifications');
+    setIsLoading(true);
+    const notificationsRef = collection(firestore, 'notifications');
+    const q = query(
+      notificationsRef, 
+      where('userId', '==', user.uid), 
+      orderBy('createdAt', 'desc'),
+      limit(50)
+    );
 
-      usersSnapshot.forEach(userDoc => {
-          const newNotification = {
-              ...notificationData,
-              userId: userDoc.id,
-              isRead: false,
-              createdAt: serverTimestamp()
-          };
-          const notificationDocRef = doc(notificationsRef);
-          batch.set(notificationDocRef, newNotification);
-      });
-
-      await batch.commit();
-  };
-
-  const markAsRead = async (notificationId: string) => {
-    const notificationRef = doc(firestore, 'notifications', notificationId);
-    await updateDoc(notificationRef, { isRead: true });
-    setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n));
-  };
-  
-  const markAllAsRead = async () => {
-    if (!user) return;
-    const batch = writeBatch(firestore);
-    const unreadNotifications = notifications.filter(n => !n.isRead);
-
-    unreadNotifications.forEach(n => {
-        const docRef = doc(firestore, 'notifications', n.id);
-        batch.update(docRef, { isRead: true });
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const notificationsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
+      setNotifications(notificationsData);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Failed to fetch notifications:", error);
+      setIsLoading(false);
     });
 
-    await batch.commit();
-    setNotifications(prev => prev.map(n => ({...n, isRead: true})));
-  };
+    return () => unsubscribe();
+  }, [user]);
+
+  const createNotificationForCommunity = useCallback(async (communityId: string, notificationData: CommunityNotificationInput) => {
+      try {
+        const usersRef = collection(firestore, 'users');
+        const q = query(usersRef, where('joinedCommunities', 'array-contains', communityId));
+        const usersSnapshot = await getDocs(q);
+        
+        const batch = writeBatch(firestore);
+        const notificationsRef = collection(firestore, 'notifications');
+
+        usersSnapshot.forEach(userDoc => {
+            const newNotification = {
+                ...notificationData,
+                userId: userDoc.id,
+                isRead: false,
+                createdAt: serverTimestamp()
+            };
+            const notificationDocRef = doc(notificationsRef);
+            batch.set(notificationDocRef, newNotification);
+        });
+
+        await batch.commit();
+      } catch (error) {
+        console.error("Error creating community notifications:", error);
+      }
+  }, []);
+
+  const markAsRead = useCallback(async (notificationId: string) => {
+    const notificationRef = doc(firestore, 'notifications', notificationId);
+    try {
+        await updateDoc(notificationRef, { isRead: true });
+    } catch(error) {
+        console.error("Error marking notification as read:", error);
+    }
+  }, []);
+  
+  const markAllAsRead = useCallback(async () => {
+    if (!user || unreadCount === 0) return;
+    try {
+        const batch = writeBatch(firestore);
+        const unreadNotifications = notifications.filter(n => !n.isRead);
+
+        unreadNotifications.forEach(n => {
+            const docRef = doc(firestore, 'notifications', n.id);
+            batch.update(docRef, { isRead: true });
+        });
+
+        await batch.commit();
+    } catch (error) {
+        console.error("Error marking all notifications as read:", error);
+    }
+  }, [user, notifications, unreadCount]);
 
   const value = {
     notifications,

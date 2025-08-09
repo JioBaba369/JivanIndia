@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
@@ -46,8 +46,6 @@ interface BusinessesContextType {
 
 const BusinessesContext = createContext<BusinessesContextType | undefined>(undefined);
 
-const businessesCollectionRef = collection(firestore, 'businesses');
-
 export function BusinessesProvider({ children }: { children: ReactNode }) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +53,8 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsLoading(true);
-    const unsubscribe = onSnapshot(businessesCollectionRef, 
+    const q = query(collection(firestore, 'businesses'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         const businessesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Business));
         setBusinesses(businessesData);
@@ -63,49 +62,61 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
       }, 
       (error) => {
         console.error("Failed to fetch businesses from Firestore", error);
-        setBusinesses([]);
+        toast({ title: "Error", description: "Could not fetch business listings.", variant: "destructive" });
         setIsLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
-  const addBusiness = async (businessData: NewBusinessInput): Promise<Business> => {
-    const newBusinessForDb = {
-      ...businessData,
-      isVerified: false, 
-      isFeatured: false,
-      rating: 4.5, // Placeholder
-      reviewCount: 0,
-      createdAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(businessesCollectionRef, newBusinessForDb);
-    // We don't need to update state manually, onSnapshot will do it.
-    return { ...newBusinessForDb, id: docRef.id, createdAt: new Date() } as Business;
-  };
-
+  const addBusiness = useCallback(async (businessData: NewBusinessInput): Promise<Business> => {
+    try {
+        const newBusinessForDb = {
+          ...businessData,
+          isVerified: false, 
+          isFeatured: false,
+          rating: 4.5, // Placeholder
+          reviewCount: 0,
+          createdAt: serverTimestamp(),
+        };
+        const docRef = await addDoc(collection(firestore, 'businesses'), newBusinessForDb);
+        return { ...newBusinessForDb, id: docRef.id, createdAt: new Date() } as Business;
+    } catch (error) {
+        console.error("Error adding business:", error);
+        toast({ title: 'Error', description: 'Could not add the new business.', variant: 'destructive' });
+        throw error;
+    }
+  }, [toast]);
 
   const getBusinessById = useCallback((id: string) => {
     if (!id) return undefined;
     return businesses.find(business => business.id === id);
   }, [businesses]);
 
-  const verifyBusiness = async (businessId: string) => {
+  const verifyBusiness = useCallback(async (businessId: string) => {
     const businessDocRef = doc(firestore, 'businesses', businessId);
-    await updateDoc(businessDocRef, { isVerified: true });
-    // No need to set state here, onSnapshot will do it
-  };
+    try {
+      await updateDoc(businessDocRef, { isVerified: true });
+    } catch (error) {
+      console.error("Error verifying business:", error);
+      toast({ title: 'Error', description: 'Could not verify the business.', variant: 'destructive' });
+    }
+  }, [toast]);
   
-  const updateBusinessFeaturedStatus = async (businessId: string, isFeatured: boolean) => {
+  const updateBusinessFeaturedStatus = useCallback(async (businessId: string, isFeatured: boolean) => {
     const businessDocRef = doc(firestore, 'businesses', businessId);
-    await updateDoc(businessDocRef, { isFeatured });
-    // No need to set state here, onSnapshot will do it
-    toast({
-      title: 'Business Updated',
-      description: `Business has been ${isFeatured ? 'featured' : 'un-featured'}.`,
-    });
-  };
+    try {
+      await updateDoc(businessDocRef, { isFeatured });
+      toast({
+        title: 'Business Updated',
+        description: `Business has been ${isFeatured ? 'featured' : 'un-featured'}.`,
+      });
+    } catch (error) {
+      console.error("Error updating business feature status:", error);
+      toast({ title: 'Error', description: 'Could not update the business.', variant: 'destructive' });
+    }
+  }, [toast]);
 
   const value = {
     businesses,
