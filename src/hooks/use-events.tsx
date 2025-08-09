@@ -73,72 +73,30 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     
     const eventsCollectionRef = collection(firestore, 'events');
     const isAdmin = user?.roles?.includes('admin');
-    const isManager = user?.roles?.includes('community-manager');
     let q;
 
     if (isAdmin) {
       q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
-    } else if (user && isManager) {
-      q = null; 
     } else {
-      q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
+      q = query(eventsCollectionRef, where('status', '==', 'Approved'));
     }
     
-    let unsubscribe: () => void = () => {};
-
-    if (q) {
-        unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-            setEvents(fetchedEvents);
-            setIsLoading(false);
-        }, (err) => {
-            console.error("Failed to fetch events from Firestore:", err);
-            setError(new Error("Could not fetch events."));
-            setIsLoading(false);
-        });
-    } else if (user && isManager) {
-        const fetchManagerEvents = async () => {
-            try {
-                const approvedQuery = query(eventsCollectionRef, where('status', '==', 'Approved'));
-                const approvedEventsSnap = await getDocs(approvedQuery);
-                let fetchedEvents: Event[] = approvedEventsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-
-                if (user.affiliation?.orgId) {
-                    const managerQuery = query(eventsCollectionRef, where('organizerId', '==', user.affiliation.orgId));
-                    const managerEventsSnapshot = await getDocs(managerQuery);
-                    const managerEvents = managerEventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-                    
-                    const combined = [...managerEvents, ...fetchedEvents];
-                    const uniqueEvents = Array.from(new Map(combined.map(e => [e.id, e])).values());
-                    setEvents(uniqueEvents.sort((a,b) => b.createdAt.toDate() - a.createdAt.toDate()));
-                } else {
-                    setEvents(fetchedEvents.sort((a,b) => b.createdAt.toDate() - a.createdAt.toDate()));
-                }
-            } catch(e) {
-                 console.error("Failed to fetch events for manager:", e);
-                 setError(new Error("Could not fetch events."));
-            } finally {
-                 setIsLoading(false);
-            }
-        };
-        fetchManagerEvents();
-    } else {
-        // For logged-out users, we run the public query
-        const publicQuery = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
-        unsubscribe = onSnapshot(publicQuery, (querySnapshot) => {
-            const fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-            setEvents(fetchedEvents);
-            setIsLoading(false);
-        }, (err) => {
-            console.error("Failed to fetch public events from Firestore:", err);
-            setError(new Error("Could not fetch events."));
-            setIsLoading(false);
-        });
-    }
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        let fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        if (!isAdmin) {
+            fetchedEvents = fetchedEvents.sort((a, b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime());
+        }
+        setEvents(fetchedEvents);
+        setIsLoading(false);
+    }, (err) => {
+        console.error("Failed to fetch events from Firestore:", err);
+        setError(new Error("Could not fetch events."));
+        toast({ title: 'Error', description: 'Could not fetch events.', variant: 'destructive' });
+        setIsLoading(false);
+    });
 
     return unsubscribe;
-
-  }, [user, isAuthLoading]);
+  }, [user, isAuthLoading, toast]);
   
   useEffect(() => {
     const unsubscribe = fetchEvents();
