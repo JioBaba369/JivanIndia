@@ -27,6 +27,7 @@ export type NewDealInput = Omit<Deal, 'id' | 'postedAt'>;
 interface DealsContextType {
   deals: Deal[];
   isLoading: boolean;
+  error: Error | null;
   getDealById: (id: string) => Deal | undefined;
   addDeal: (deal: NewDealInput) => Promise<Deal>;
 }
@@ -36,10 +37,12 @@ const DealsContext = createContext<DealsContextType | undefined>(undefined);
 export function DealsProvider({ children }: { children: ReactNode }) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     setIsLoading(true);
+    setError(null);
     const q = query(collection(firestore, 'deals'), orderBy('postedAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, 
@@ -48,8 +51,9 @@ export function DealsProvider({ children }: { children: ReactNode }) {
         setDeals(dealsData);
         setIsLoading(false);
       },
-      (error) => {
-        console.error("Failed to fetch deals from Firestore", error);
+      (err) => {
+        console.error("Failed to fetch deals from Firestore", err);
+        setError(new Error("Could not fetch deals."));
         toast({ title: "Error", description: "Could not fetch deals.", variant: "destructive" });
         setIsLoading(false);
       }
@@ -78,7 +82,7 @@ export function DealsProvider({ children }: { children: ReactNode }) {
     return deals.find(d => d.id === id);
   }, [deals]);
 
-  const value = { deals, isLoading, getDealById, addDeal };
+  const value = { deals, isLoading, error, getDealById, addDeal };
 
   return (
     <DealsContext.Provider value={value}>

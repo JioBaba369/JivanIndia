@@ -192,7 +192,7 @@ export default function CommunitiesPage() {
         </section>
       )}
 
-      <div className="sticky top-[65px] z-30 border-t bg-background/95 backdrop-blur-sm py-4">
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm py-4">
         <div className="container mx-auto px-4">
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="relative flex-grow">

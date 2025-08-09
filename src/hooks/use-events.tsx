@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, where } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
@@ -62,9 +62,9 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading } = useAuth();
 
-  const fetchEvents = useCallback(() => {
+  useEffect(() => {
     if (isAuthLoading) {
-        return () => {};
+        return;
     }
 
     setIsLoading(true);
@@ -74,10 +74,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const isAdmin = user?.roles?.includes('admin');
     let q;
 
-    // Admins see all events, sorted by creation date.
-    // Regular users see only approved events, which will be sorted client-side by start date.
     if (isAdmin) {
-      q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
+      q = eventsCollectionRef;
     } else {
       q = query(eventsCollectionRef, where('status', '==', 'Approved'));
     }
@@ -85,10 +83,11 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         let fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         
-        // Client-side sorting for non-admins to avoid complex index requirement
-        if (!isAdmin) {
-            fetchedEvents = fetchedEvents.sort((a, b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime());
-        }
+        fetchedEvents = fetchedEvents.sort((a, b) => {
+            const dateA = new Date(a.startDateTime).getTime();
+            const dateB = new Date(b.startDateTime).getTime();
+            return dateB - dateA;
+        });
 
         setEvents(fetchedEvents);
         setIsLoading(false);
@@ -99,17 +98,9 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, [user, isAuthLoading, toast]);
   
-  useEffect(() => {
-    const unsubscribe = fetchEvents();
-    return () => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
-    };
-  }, [fetchEvents]);
 
   const addEvent = useCallback(async (eventData: NewEventInput, sponsors: EventSponsor[]) => {
     try {
