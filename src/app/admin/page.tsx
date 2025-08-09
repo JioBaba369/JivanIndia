@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
   const { communities, verifyCommunity, updateCommunityFeaturedStatus } = useCommunities();
   const { aboutContent, updateAboutContent, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
   const { businesses, verifyBusiness, updateBusinessFeaturedStatus } = useBusinesses();
-  const { reports, updateReportStatus, isLoading: isReportsLoading } = useReports();
+  const { reports, updateReportStatus, isLoading: isReportsLoading, fetchReports } = useReports();
   const { toast } = useToast();
 
   const [adminUsers, setAdminUsers] = useState<User[]>([]);
@@ -166,6 +166,13 @@ export default function AdminDashboardPage() {
   const [faviconUrl, setFaviconUrl] = useState('');
 
   const hasAdminRole = user?.roles.includes('admin');
+  
+  useEffect(() => {
+    if (hasAdminRole) {
+      fetchReports();
+    }
+  }, [hasAdminRole, fetchReports]);
+
 
   useEffect(() => {
     const fetchAdminUsers = async () => {
@@ -277,7 +284,7 @@ export default function AdminDashboardPage() {
   
   const totalLoading = isLoading || isAboutLoading || isReportsLoading || (hasAdminRole && isUsersLoading);
 
-  if (totalLoading) {
+  if (totalLoading && !reports.length) { // Avoid full screen loader if reports are already there
     return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -431,6 +438,9 @@ export default function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                          <div className="w-full overflow-x-auto">
+                           {isReportsLoading && reports.length === 0 ? (
+                             <div className="text-center py-12 text-muted-foreground flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin mr-2"/> Loading reports...</div>
+                           ) : (
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -459,7 +469,8 @@ export default function AdminDashboardPage() {
                                     ))}
                                 </TableBody>
                             </Table>
-                            {pendingReports.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No pending reports. Great job!</p></div>}
+                           )}
+                            {!isReportsLoading && pendingReports.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No pending reports. Great job!</p></div>}
                         </div>
                     </CardContent>
                 </Card>

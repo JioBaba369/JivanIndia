@@ -28,6 +28,7 @@ interface ReportsContextType {
   isLoading: boolean;
   addReport: (report: NewReportInput) => Promise<void>;
   updateReportStatus: (reportId: string, status: ReportStatus) => Promise<void>;
+  fetchReports: () => Promise<void>;
 }
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined);
@@ -54,13 +55,6 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
-  useEffect(() => {
-    // This hook is only used by admins, so we might not need to fetch immediately
-    // but for simplicity and consistency, we'll fetch on mount.
-    // In a more optimized app, we'd only fetch when the admin page is loaded.
-    fetchReports();
-  }, [fetchReports]);
-
   const addReport = async (reportData: NewReportInput) => {
     const newReport = {
       ...reportData,
@@ -80,7 +74,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const value = { reports, isLoading, addReport, updateReportStatus };
+  const value = { reports, isLoading, addReport, updateReportStatus, fetchReports };
 
   return (
     <ReportsContext.Provider value={value}>
