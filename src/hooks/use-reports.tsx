@@ -39,36 +39,27 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchReports = useCallback(() => {
+  const fetchReports = useCallback(async () => {
     setIsLoading(true);
-    const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-        const reportsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+    try {
+        const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
         setReports(reportsData);
-        setIsLoading(false);
-    }, (error) => {
+    } catch (error) {
         console.error("Failed to fetch reports from Firestore", error);
         toast({ title: 'Error', description: 'Could not fetch reports.', variant: 'destructive' });
+    } finally {
         setIsLoading(false);
-    });
-    
-    return unsubscribe;
+    }
   }, [toast]);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    
     if (user?.roles.includes('admin')) {
-      unsubscribe = fetchReports();
+      fetchReports();
     } else {
       setReports([]);
       setIsLoading(false);
-    }
-    
-    return () => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
     }
   }, [user?.roles, fetchReports]);
 
@@ -90,6 +81,12 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     const reportDocRef = doc(firestore, 'reports', reportId);
     try {
       await updateDoc(reportDocRef, { status });
+      // Manually update local state to reflect the change immediately
+      setReports(prevReports => 
+        prevReports.map(report => 
+            report.id === reportId ? { ...report, status } : report
+        )
+      );
       toast({
         title: `Report ${status.charAt(0).toUpperCase() + status.slice(1)}`,
         description: `The report has been marked as ${status}.`,
