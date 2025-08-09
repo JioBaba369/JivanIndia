@@ -5,9 +5,6 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
-import { useNotifications } from './use-notifications';
-import { useAuth } from './use-auth';
-import { useCommunities } from './use-communities';
 
 export interface Event {
   id: string;
@@ -37,7 +34,7 @@ export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'stat
 interface EventsContextType {
   events: Event[];
   isLoading: boolean;
-  addEvent: (event: NewEventInput) => Promise<void>;
+  addEvent: (event: NewEventInput) => Promise<Event>;
   getEventById: (id: string) => Event | undefined;
   updateEventStatus: (eventId: string, status: Event['status']) => Promise<void>;
   updateEventFeaturedStatus: (eventId: string, isFeatured: boolean) => Promise<void>;
@@ -51,9 +48,6 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { createNotificationForCommunity } = useNotifications();
-  const { communities } = useCommunities();
-
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
@@ -87,16 +81,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
     setEvents(prev => [...prev, fullEvent].sort((a,b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()));
     
-    // Create notifications for members of the community
-    const organizer = communities.find(c => c.id === eventData.organizerId);
-    if (organizer) {
-        await createNotificationForCommunity(organizer.id, {
-            title: `New Event: ${eventData.title}`,
-            description: `A new event has been posted by ${eventData.organizerName}.`,
-            link: `/events/${docRef.id}`,
-            icon: 'Calendar',
-        });
-    }
+    return fullEvent;
   };
 
   const getEventById = useCallback((id: string) => {

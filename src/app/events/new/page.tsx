@@ -32,6 +32,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import ImageUpload from '@/components/feature/image-upload';
+import { useNotifications } from '@/hooks/use-notifications';
+import { useCommunities } from '@/hooks/use-communities';
 
 
 const eventTypes = ['Cultural', 'Religious', 'Professional', 'Sports', 'Festival', 'Workshop', 'Food', 'Other'] as const;
@@ -59,6 +61,8 @@ export default function NewEventPage() {
   const { addEvent } = useEvents();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { createNotificationForCommunity } = useNotifications();
+  const { communities } = useCommunities();
 
   const [isPending, startTransition] = useTransition();
 
@@ -118,12 +122,23 @@ export default function NewEventPage() {
         };
         
         try {
-            await addEvent(newEventData);
+            const newEvent = await addEvent(newEventData);
 
             toast({
               title: 'Event Submitted!',
               description: `Your event "${values.title}" has been submitted for review.`,
             });
+            
+             // Create notifications for members of the community
+            const organizer = communities.find(c => c.id === newEvent.organizerId);
+            if (organizer) {
+                await createNotificationForCommunity(organizer.id, {
+                    title: `New Event: ${newEvent.title}`,
+                    description: `A new event has been posted by ${newEvent.organizerName}.`,
+                    link: `/events/${newEvent.id}`,
+                    icon: 'Calendar',
+                });
+            }
             
             router.push('/events');
         } catch (error) {
