@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, PlusCircle, Briefcase, Building, ArrowRight } from "lucide-react";
+import { MapPin, Search, PlusCircle, Briefcase, Building, ArrowRight, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +13,8 @@ import { useJobs } from "@/hooks/use-jobs";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function CareersPage() {
   const { jobs, isLoading } = useJobs();
@@ -134,7 +136,24 @@ export default function CareersPage() {
                               <CardTitle className="font-headline text-2xl tracking-tight">{job.title}</CardTitle>
                               <div className="text-md text-muted-foreground">{job.companyName}</div>
                           </div>
-                          <Badge variant="secondary">{job.type}</Badge>
+                          <div className="flex items-center gap-2">
+                             <Badge variant="secondary">{job.type}</Badge>
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <MoreVertical size={20} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <ReportDialog 
+                                        contentId={job.id} 
+                                        contentType="Career" 
+                                        contentTitle={job.title} 
+                                        triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report Job</DropdownMenuItem>}
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                       </div>
                        <p className="text-muted-foreground line-clamp-2 mt-4">{job.description}</p>
                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-sm text-muted-foreground">

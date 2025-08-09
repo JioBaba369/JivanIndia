@@ -125,7 +125,6 @@ const TeamMemberDialog = ({
 
   const handleSave = () => {
     if (!name || !role) {
-      // Basic validation
       return;
     }
     onSave({ name, role, bio, avatarUrl });

@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle, LayoutGrid, List, Star } from "lucide-react";
+import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle, LayoutGrid, List, Star, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -29,6 +29,8 @@ import { useCommunities } from "@/hooks/use-communities";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
@@ -253,18 +255,37 @@ export default function CommunitiesPage() {
                     const isJoined = user?.joinedCommunities?.includes(org.id);
                     return view === 'grid' ? (
                     <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
-                        <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
-                            <div className="relative h-48 w-full">
-                            <Image
-                                src={org.imageUrl}
-                                alt={org.name}
-                                fill
-                                className="object-cover transition-transform group-hover:scale-105"
-                                data-ai-hint="community photo"
-                            />
-                            {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                        <div className="relative h-48 w-full">
+                             <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
+                                <Image
+                                    src={org.imageUrl}
+                                    alt={org.name}
+                                    fill
+                                    className="object-cover transition-transform group-hover:scale-105"
+                                    data-ai-hint="community photo"
+                                />
+                                {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                             </Link>
+                             <div className="absolute top-2 right-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                            <MoreVertical size={20} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <ReportDialog 
+                                            contentId={org.id} 
+                                            contentType="Community" 
+                                            contentTitle={org.name} 
+                                            triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                        />
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
-                            <CardContent className="flex flex-grow flex-col p-4">
+                        </div>
+                        <CardContent className="flex flex-grow flex-col p-4">
+                            <Link href={`/c/${org.slug}`} className="flex-grow">
                                 <CardTitle className="font-headline text-xl font-bold group-hover:text-primary">
                                     {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
                                     {org.name}
@@ -279,8 +300,8 @@ export default function CommunitiesPage() {
                                     <MapPin className="h-4 w-4" />
                                     <span>{org.region}</span>
                                 </div>
-                            </CardContent>
-                        </Link>
+                            </Link>
+                        </CardContent>
                         <div className="mt-auto flex gap-2 p-4 pt-0">
                             <Button asChild className="flex-1">
                                 <Link href={`/c/${org.slug}`}>View</Link>
@@ -293,18 +314,19 @@ export default function CommunitiesPage() {
                     </Card>
                 ) : (
                     <Card key={org.id} className={cn("group w-full overflow-hidden border transition-all hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
-                    <Link href={`/c/${org.slug}`}>
-                        <div className="flex flex-col sm:flex-row">
-                            <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row">
+                        <Link href={`/c/${org.slug}`} className="flex h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 items-center justify-center">
                             <Image
                                 src={org.logoUrl}
                                 alt={org.name}
-                                fill
+                                width={100}
+                                height={100}
                                 className="object-contain p-4 transition-transform group-hover:scale-105"
                                 data-ai-hint="community logo"
                             />
-                            </div>
-                            <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
+                        </Link>
+                        <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
+                            <Link href={`/c/${org.slug}`} className="flex-grow">
                                 <p className="font-semibold text-primary">{org.type}</p>
                                 <CardTitle className="group-hover:text-primary mt-1">
                                     {org.isFeatured && <Star className="mr-2 h-5 w-5 inline-block text-yellow-400 fill-yellow-400" />}
@@ -322,18 +344,35 @@ export default function CommunitiesPage() {
                                         <span>{org.region}</span>
                                     </div>
                                 </div>
-                            </CardContent>
-                            <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                                <Button asChild className="w-full sm:w-auto">
+                            </Link>
+                        </CardContent>
+                        <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
+                             <div className="flex items-center gap-2">
+                                <Button asChild className="flex-1">
                                     <Link href={`/c/${org.slug}`}>View</Link>
                                 </Button>
-                                <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
-                                    <Bookmark className="mr-2 h-4 w-4" />
-                                    {isJoined ? "Joined" : "Join"}
-                                </Button>
-                            </div>
+                                 <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-10 w-10">
+                                            <MoreVertical size={20} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleJoinToggle(e, org.name, org.id); }}>
+                                            <Bookmark className="mr-2 h-4 w-4" />
+                                            {isJoined ? "Leave" : "Join"}
+                                        </DropdownMenuItem>
+                                        <ReportDialog 
+                                            contentId={org.id} 
+                                            contentType="Community" 
+                                            contentTitle={org.name} 
+                                            triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                        />
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                             </div>
                         </div>
-                    </Link>
+                    </div>
                     </Card>
                 )
                 })
