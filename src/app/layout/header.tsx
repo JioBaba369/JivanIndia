@@ -2,11 +2,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Users, Menu, Bell, Tag, Briefcase, Handshake } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -20,43 +18,35 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import NotificationBell from "./notification-bell";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { ListItem } from "@/components/ui/navigation-menu";
 
-const forYouLinks: { title: string; href: string; description: string }[] = [
-    { title: "Events", href: "/events", description: "Discover cultural celebrations and professional meetups." },
-    { title: "Movies", href: "/movies", description: "Catch the latest Bollywood and regional hits near you." },
-    { title: "Deals", href: "/deals", description: "Exclusive offers from businesses in our community." },
-    { title: "Careers", href: "/careers", description: "Find your next role in our community-focused job board." },
-];
-
-const forBusinessLinks: { title: string; href: string; description: string }[] = [
-    { title: "Communities", href: "/communities", description: "Find and connect with cultural and professional groups." },
-    { title: "Businesses", href: "/businesses", description: "List your business in our community directory." },
-    { title: "Sponsors", href: "/sponsors", description: "Support the community and gain visibility as a sponsor." },
-];
-
-const resourcesLinks: { title: string; href: string; description: string }[] = [
-    { title: "About Us", href: "/about", description: "Learn more about our mission and the team." },
-    { title: "About India", href: "/india", description: "Explore the roots and culture of the Indian diaspora." },
-    { title: "Festivals", href: "/festivals", description: "A calendar of important Indian festivals and dates." },
-    { title: "Contact Us", href: "/contact", description: "Get in touch with the JivanIndia.co team." },
+const mainNavLinks: { title: string; href: string; }[] = [
+    { title: "Events", href: "/events" },
+    { title: "Communities", href: "/communities" },
+    { title: "Businesses", href: "/businesses" },
+    { title: "Movies", href: "/movies" },
+    { title: "Deals", href: "/deals" },
+    { title: "Careers", href: "/careers" },
 ];
 
 
-const UserActions = React.memo(function UserActionsMemo() {
+const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
   
+  const handleItemClick = (e: React.MouseEvent) => {
+    if (onLinkClick) {
+        onLinkClick();
+    }
+  };
+
   if (user) {
     const isAdmin = user.roles?.includes('admin');
     return (
@@ -81,46 +71,28 @@ const UserActions = React.memo(function UserActionsMemo() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
                 </DropdownMenuItem>
-              {user.username && <DropdownMenuItem asChild>
+              {user.username && <DropdownMenuItem asChild onClick={handleItemClick}>
                 <Link href={`/${user.username}`}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Public Profile</span>
                 </Link>
               </DropdownMenuItem>}
-               <DropdownMenuItem asChild>
+               <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/profile">
                     <Heart className="mr-2 h-4 w-4" />
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/deals">
-                    <Tag className="mr-2 h-4 w-4" />
-                    <span>Deals</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/careers">
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    <span>Careers</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                  <Link href="/sponsors">
-                    <Handshake className="mr-2 h-4 w-4" />
-                    <span>Sponsors</span>
-                  </Link>
-                </DropdownMenuItem>
-              {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+              {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout()}>
+            <DropdownMenuItem onClick={() => { handleItemClick; logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -132,10 +104,10 @@ const UserActions = React.memo(function UserActionsMemo() {
 
   return (
     <div className="flex items-center space-x-2">
-      <Button variant="ghost" asChild>
+      <Button variant="ghost" asChild onClick={handleItemClick}>
         <Link href="/login">Login</Link>
       </Button>
-      <Button asChild>
+      <Button asChild onClick={handleItemClick}>
         <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
@@ -153,61 +125,15 @@ export default function Header() {
             <Logo as={Link} href="/" />
              <NavigationMenu className="hidden md:flex">
                 <NavigationMenuList>
-                    <NavigationMenuItem>
-                        <Link href="/" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Home
-                        </NavigationMenuLink>
-                        </Link>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuTrigger>For You</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {forYouLinks.map((component) => (
-                            <ListItem
-                                key={component.title}
-                                title={component.title}
-                                href={component.href}
-                            >
-                                {component.description}
-                            </ListItem>
-                            ))}
-                        </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
-                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>For Business</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {forBusinessLinks.map((component) => (
-                            <ListItem
-                                key={component.title}
-                                title={component.title}
-                                href={component.href}
-                            >
-                                {component.description}
-                            </ListItem>
-                            ))}
-                        </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {resourcesLinks.map((component) => (
-                            <ListItem
-                                key={component.title}
-                                title={component.title}
-                                href={component.href}
-                            >
-                                {component.description}
-                            </ListItem>
-                            ))}
-                        </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
+                    {mainNavLinks.map((link) => (
+                        <NavigationMenuItem key={link.href}>
+                            <Link href={link.href} legacyBehavior passHref>
+                                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    {link.title}
+                                </NavigationMenuLink>
+                            </Link>
+                        </NavigationMenuItem>
+                    ))}
                 </NavigationMenuList>
             </NavigationMenu>
         </div>
@@ -226,21 +152,12 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
                     <div className="mt-6 flex flex-col space-y-4">
-                        <UserActions />
+                        <UserActions onLinkClick={() => setIsOpen(false)} />
                         <DropdownMenuSeparator />
                         <nav className="flex flex-col space-y-2">
-                            <Link href="/" onClick={() => setIsOpen(false)} className="text-lg font-medium">Home</Link>
-                            <h4 className="font-semibold pt-4">For You</h4>
-                            {forYouLinks.map((link) => (
-                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
-                            ))}
-                            <h4 className="font-semibold pt-4">For Business</h4>
-                             {forBusinessLinks.map((link) => (
-                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
-                            ))}
-                            <h4 className="font-semibold pt-4">Resources</h4>
-                             {resourcesLinks.map((link) => (
-                                <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-primary">{link.title}</Link>
+                             <SheetClose asChild><Link href="/" className="text-lg font-medium">Home</Link></SheetClose>
+                             {mainNavLinks.map((link) => (
+                               <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
                             ))}
                         </nav>
                     </div>
