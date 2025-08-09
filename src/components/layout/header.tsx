@@ -52,9 +52,15 @@ const resourcesLinks: { title: string; href: string; description: string }[] = [
 ];
 
 
-const UserActions = React.memo(function UserActionsMemo() {
+const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
   
+  const handleItemClick = (e: React.MouseEvent) => {
+    if (onLinkClick) {
+        onLinkClick();
+    }
+  };
+
   if (user) {
     const isAdmin = user.roles?.includes('admin');
     return (
@@ -79,28 +85,28 @@ const UserActions = React.memo(function UserActionsMemo() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
                 </DropdownMenuItem>
-              {user.username && <DropdownMenuItem asChild>
+              {user.username && <DropdownMenuItem asChild onClick={handleItemClick}>
                 <Link href={`/${user.username}`}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Public Profile</span>
                 </Link>
               </DropdownMenuItem>}
-               <DropdownMenuItem asChild>
+               <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/profile">
                     <Heart className="mr-2 h-4 w-4" />
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
-              {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+              {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout()}>
+            <DropdownMenuItem onClick={() => { handleItemClick; logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -112,10 +118,10 @@ const UserActions = React.memo(function UserActionsMemo() {
 
   return (
     <div className="flex items-center space-x-2">
-      <Button variant="ghost" asChild>
+      <Button variant="ghost" asChild onClick={handleItemClick}>
         <Link href="/login">Login</Link>
       </Button>
-      <Button asChild>
+      <Button asChild onClick={handleItemClick}>
         <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
@@ -206,9 +212,7 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
                     <div className="mt-6 flex flex-col space-y-4">
-                        <div onClick={() => setIsOpen(false)}>
-                            <UserActions />
-                        </div>
+                        <UserActions onLinkClick={() => setIsOpen(false)} />
                         <DropdownMenuSeparator />
                         <nav className="flex flex-col space-y-2">
                              <SheetClose asChild><Link href="/" className="text-lg font-medium">Home</Link></SheetClose>

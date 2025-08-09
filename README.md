@@ -1,7 +1,7 @@
 
-# JivanIndia.community - A Comprehensive Global Community Hub for the Indian Diaspora
+# JivanIndia.co - A Comprehensive Global Community Hub for the Indian Diaspora
 
-JivanIndia.community is a digital platform offering events, community engagement, and deals, primarily serving a localized Indian audience. The strategic vision is to transform JivanIndia.community into a global hub for the 35.4 million-strong Indian diaspora, fostering deep connections, preserving cultural heritage, empowering economic prosperity, and supporting holistic well-being. This platform focuses on hyper-personalization, robust community tools, integrated diaspora services (financial, legal, health), and a culturally sensitive content strategy. The transformation aims to increase user engagement, retention, and monetization, positioning JivanIndia.community as the definitive digital home for Indians worldwide.
+JivanIndia.co is a digital platform offering events, community engagement, and deals, primarily serving a localized Indian audience. The strategic vision is to transform JivanIndia.co into a global hub for the 35.4 million-strong Indian diaspora, fostering deep connections, preserving cultural heritage, empowering economic prosperity, and supporting holistic well-being. This platform focuses on hyper-personalization, robust community tools, integrated diaspora services (financial, legal, health), and a culturally sensitive content strategy. The transformation aims to increase user engagement, retention, and monetization, positioning JivanIndia.co as the definitive digital home for Indians worldwide.
 
 ## Key Features
 

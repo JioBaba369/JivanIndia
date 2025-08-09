@@ -4,111 +4,105 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions to keep rules clean
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
+    
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    function isCommunityManager(communityId) {
-      // Ensure the user document and affiliation exist before checking the orgId
-      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
-      return userDoc.data.affiliation != null && userDoc.data.affiliation.orgId == communityId;
-    }
+    
     function isAdmin() {
-      return request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids;
+      // Check if the user's UID is in the adminUids list of the singleton 'about' document
+      return get(/databases/$(database)/documents/about/singleton).data.adminUids.has(request.auth.uid);
+    }
+    
+    function isCommunityManager(communityId) {
+        let user = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+        return user.affiliation.orgId == communityId;
     }
 
-    // Public content: readable by all, with restricted write access.
+    // Public read, restricted write
     match /events/{eventId} {
       allow read: if true;
-      // Allow creation if signed in and affiliated with the organizing community.
       allow create: if isSignedIn() && isCommunityManager(request.resource.data.organizerId);
-      // Only admins can approve/feature/archive events.
-      allow update: if isAdmin();
-      // No one can delete events directly. Archiving is the preferred method.
-      allow delete: if false;
+      allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+      allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
     }
-
+    
     match /communities/{communityId} {
       allow read: if true;
-      // Anyone signed in can create a community.
       allow create: if isSignedIn();
-      // Only the founder or an admin can update/delete.
-      allow update, delete: if isSignedIn() && (isOwner(resource.data.founderUid) || isAdmin());
+      allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.founderUid));
+      allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.founderUid));
     }
     
     match /businesses/{businessId} {
         allow read: if true;
-        // Only an admin can create, update, or delete a business listing.
-        allow write: if isSignedIn() && isAdmin();
+        allow create: if isSignedIn() && isAdmin();
+        allow update: if isSignedIn() && isAdmin();
+        allow delete: if isSignedIn() && isAdmin();
     }
     
     match /sponsors/{sponsorId} {
         allow read: if true;
-        // Only an admin can create, update, or delete a sponsor listing.
-        allow write: if isSignedIn() && isAdmin();
-    }
-    
-    match /movies/{movieId} {
-        allow read: if true;
-        allow write: if isSignedIn() && isAdmin(); // Only admins can add/edit movies for now
-    }
-    
-    match /deals/{dealId} {
-        allow read: if true;
-        allow create: if isSignedIn() && isCommunityManager(request.resource.data.businessId);
-        allow update, delete: if isSignedIn() && isAdmin();
+        allow create: if isSignedIn() && isAdmin();
+        allow update: if isSignedIn() && isAdmin();
+        allow delete: if isSignedIn() && isAdmin();
     }
 
-    // User-specific data
-    match /users/{userId} {
-      // Public profiles are readable by anyone
+    match /deals/{dealId} {
       allow read: if true;
-      // Users can create their own account document during signup
+      allow create: if isSignedIn() && isCommunityManager(request.resource.data.businessId);
+      allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+      allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+    }
+
+    match /jobs/{jobId} {
+        allow read: if true;
+        allow create: if isSignedIn() && isCommunityManager(request.resource.data.companyId);
+        allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+        allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+    }
+
+    match /movies/{movieId} {
+      allow read: if true;
+      // Movies are admin-created content
+      allow create, update, delete: if isSignedIn() && isAdmin();
+    }
+
+    // User data is public read for profiles, but write is restricted
+    match /users/{userId} {
+      allow read: if true;
       allow create: if isOwner(userId);
-      // Users can only update their own profile.
       allow update: if isSignedIn() && isOwner(userId);
-      // Users cannot delete their own accounts through the app.
-      allow delete: if false;
+      allow delete: if isSignedIn() && (isOwner(userId) || isAdmin());
     }
 
     // Notifications are private to each user
     match /notifications/{notificationId} {
-      allow read, update: if isSignedIn() && isOwner(resource.data.userId);
-      // Notifications are created by the system (via community actions) or admins, not directly by users.
-      allow create: if isSignedIn(); 
-      allow delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn(); // Can be created by system/other users
     }
     
-    // Reports can be created by any signed-in user, but only read/updated by admins.
+    // Reports are admin only
     match /reports/{reportId} {
-        allow read, update, delete: if isSignedIn() && isAdmin();
-        allow create: if isSignedIn();
+      allow read, update, delete: if isSignedIn() && isAdmin();
+      allow create: if isSignedIn();
     }
     
-    // Static content collections (read-only for most users)
-    match /about/singleton {
-      allow read: if true;
-      // Only admins can update site-wide content like team members, admins, etc.
-      allow write: if isSignedIn() && isAdmin();
-    }
-    
-     match /contacts/{contactId} {
-      // No one can read contact submissions from the database directly.
-      allow read: if false;
-      // Anyone can submit the contact form.
+    match /contacts/{contactId} {
+      allow read, update, delete: if isSignedIn() && isAdmin();
       allow create: if true;
     }
     
-    match /jobs/{jobId} {
-      allow read: if true;
-      // Must be a community manager to post a job.
-      allow create: if isSignedIn() && isCommunityManager(request.resource.data.companyId);
-      // Only admins can edit or delete job postings.
-      allow update, delete: if isSignedIn() && isAdmin();
+    // Singleton documents
+    match /about/singleton {
+        allow read: if true;
+        allow update: if isSignedIn() && isAdmin();
+        // Prevent creation/deletion of singleton
+        allow create, delete: if false;
     }
-    
   }
 }
