@@ -38,25 +38,27 @@ export default function Footer() {
                 <li><Link href="/communities" className="text-muted-foreground hover:text-primary">Communities</Link></li>
                 <li><Link href="/businesses" className="text-muted-foreground hover:text-primary">Businesses</Link></li>
                  <li><Link href="/movies" className="text-muted-foreground hover:text-primary">Movies</Link></li>
+                 <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
+                 <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
+                 <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
               </ul>
-            </div>
-            <div>
-                <h4 className="font-headline font-semibold">&nbsp;</h4>
-                <ul className="mt-4 space-y-2">
-                    <li><Link href="/deals" className="text-muted-foreground hover:text-primary">Deals</Link></li>
-                    <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
-                    <li><Link href="/sponsors" className="text-muted-foreground hover:text-primary">Sponsors</Link></li>
-                </ul>
             </div>
              <div>
               <h4 className="font-headline font-semibold">Resources</h4>
               <ul className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
-                <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
-                <li><Link href="/legal" className="text-muted-foreground hover:text-primary">Legal Center</Link></li>
+                <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact</Link></li>
                 <li><Link href="/india" className="text-muted-foreground hover:text-primary">About India</Link></li>
                 <li><Link href="/festivals" className="text-muted-foreground hover:text-primary">Festivals</Link></li>
                 <li><Link href="/checklist" className="text-muted-foreground hover:text-primary">Launch Checklist</Link></li>
+              </ul>
+            </div>
+             <div>
+              <h4 className="font-headline font-semibold">Legal</h4>
+              <ul className="mt-4 space-y-2">
+                <li><Link href="/legal" className="text-muted-foreground hover:text-primary">Legal Center</Link></li>
+                <li><Link href="/legal/privacy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+                <li><Link href="/legal/terms" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
