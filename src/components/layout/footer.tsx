@@ -51,7 +51,6 @@ export default function Footer() {
                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact</Link></li>
                 <li><Link href="/india" className="text-muted-foreground hover:text-primary">About India</Link></li>
                 <li><Link href="/festivals" className="text-muted-foreground hover:text-primary">Festivals</Link></li>
-                <li><Link href="/checklist" className="text-muted-foreground hover:text-primary">Launch Checklist</Link></li>
               </ul>
             </div>
              <div>
@@ -65,7 +64,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} JivanIndia.co. Built with love for the community. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} JivanIndia.community. Built with love for the community. All rights reserved.</p>
         </div>
       </div>
     </footer>
