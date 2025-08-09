@@ -3,106 +3,108 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
+  
+    // Helper function to check if a user is authenticated
     function isSignedIn() {
       return request.auth != null;
     }
     
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-    
+    // Helper function to check if the user is an admin
     function isAdmin() {
-      // Check if the user's UID is in the adminUids list of the singleton 'about' document
-      return get(/databases/$(database)/documents/about/singleton).data.adminUids.has(request.auth.uid);
+      // Check if the user's UID is in the admin list within the 'about' document
+      return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids;
     }
-    
+
+    // Helper function to check if the user is the owner of a document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Helper function to check if a user is an affiliated community manager
     function isCommunityManager(communityId) {
-        let user = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-        return user.affiliation.orgId == communityId;
+       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == communityId;
     }
 
     // Public read, restricted write
     match /events/{eventId} {
       allow read: if true;
-      allow create: if isSignedIn() && isCommunityManager(request.resource.data.organizerId);
-      allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
-      allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+      allow create: if isCommunityManager(request.resource.data.organizerId);
+      allow update: if isAdmin(); // Only admins can approve/feature events
+      allow delete: if isAdmin();
     }
     
     match /communities/{communityId} {
       allow read: if true;
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.founderUid));
-      allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.founderUid));
+      allow update: if isOwner(resource.data.founderUid) || isAdmin();
+      allow delete: if isOwner(resource.data.founderUid) || isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin(); // User can update their own profile, or admin
+      allow delete: if isAdmin(); 
     }
     
-    match /businesses/{businessId} {
-        allow read: if true;
-        allow create: if isSignedIn() && isAdmin();
-        allow update: if isSignedIn() && isAdmin();
-        allow delete: if isSignedIn() && isAdmin();
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isCommunityManager(request.resource.data.businessId);
+      allow update, delete: if isAdmin();
+    }
+    
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if isCommunityManager(request.resource.data.companyId);
+      allow update, delete: if isAdmin();
     }
     
     match /sponsors/{sponsorId} {
         allow read: if true;
-        allow create: if isSignedIn() && isAdmin();
-        allow update: if isSignedIn() && isAdmin();
-        allow delete: if isSignedIn() && isAdmin();
+        allow create, update, delete: if isAdmin();
     }
-
-    match /deals/{dealId} {
-      allow read: if true;
-      allow create: if isSignedIn() && isCommunityManager(request.resource.data.businessId);
-      allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
-      allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
-    }
-
-    match /jobs/{jobId} {
+    
+    match /businesses/{businessId} {
         allow read: if true;
-        allow create: if isSignedIn() && isCommunityManager(request.resource.data.companyId);
-        allow update: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
-        allow delete: if isSignedIn() && (isAdmin() || isOwner(resource.data.submittedByUid));
+        allow create, update, delete: if isAdmin();
     }
-
+    
     match /movies/{movieId} {
-      allow read: if true;
-      // Movies are admin-created content
-      allow create, update, delete: if isSignedIn() && isAdmin();
+        allow read: if true;
+        allow create, update, delete: if isAdmin(); // Only admins can add movies
     }
 
-    // User data is public read for profiles, but write is restricted
-    match /users/{userId} {
+    // Public read-only
+    match /festivals/{festivalId} {
       allow read: if true;
-      allow create: if isOwner(userId);
-      allow update: if isSignedIn() && isOwner(userId);
-      allow delete: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow write: if false; // Data is static, no writes allowed from client
     }
-
+    
+    // Contact messages can be created by anyone, but not read publicly
+    match /contacts/{contactId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if false;
+    }
+    
     // Notifications are private to each user
     match /notifications/{notificationId} {
-      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow read, update: if isOwner(resource.data.userId);
       allow create: if isSignedIn(); // Can be created by system/other users
+      allow delete: if isOwner(resource.data.userId);
     }
-    
-    // Reports are admin only
+
+    // Reports can be created by any signed-in user, but only read/updated by admins
     match /reports/{reportId} {
-      allow read, update, delete: if isSignedIn() && isAdmin();
-      allow create: if isSignedIn();
+        allow create: if isSignedIn();
+        allow read, update, delete: if isAdmin();
     }
     
-    match /contacts/{contactId} {
-      allow read, update, delete: if isSignedIn() && isAdmin();
-      allow create: if true;
-    }
-    
-    // Singleton documents
+    // About document (site settings) is public-read, but write is admin-only
     match /about/singleton {
         allow read: if true;
-        allow update: if isSignedIn() && isAdmin();
-        // Prevent creation/deletion of singleton
-        allow create, delete: if false;
+        allow write: if isAdmin();
     }
+    
   }
 }
