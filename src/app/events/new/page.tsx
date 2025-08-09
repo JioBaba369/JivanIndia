@@ -12,13 +12,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
-import { useEvents, type NewEventInput } from '@/hooks/use-events';
+import { useEvents, type NewEventInput, type EventSponsor } from '@/hooks/use-events';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -34,9 +34,16 @@ import {
 import ImageUpload from '@/components/feature/image-upload';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useCommunities } from '@/hooks/use-communities';
+import { useSponsors, type SponsorTier } from '@/hooks/use-sponsors';
 
 
 const eventTypes = ['Cultural', 'Religious', 'Professional', 'Sports', 'Festival', 'Workshop', 'Food', 'Other'] as const;
+const sponsorTiers: SponsorTier[] = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Supporter'];
+
+const sponsorSchema = z.object({
+  sponsorId: z.string().min(1, "Please select a sponsor."),
+  tier: z.enum(sponsorTiers, { required_error: "Please select a tier." }),
+});
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters.").max(100),
@@ -52,6 +59,7 @@ const formSchema = z.object({
   tags: z.string().optional(),
   ticketLink: z.string().url().optional().or(z.literal('')),
   imageUrl: z.string({ required_error: "An event banner image is required." }).url({ message: "An event banner image is required." }),
+  sponsors: z.array(sponsorSchema).optional(),
 }).refine(data => new Date(data.endDateTime) > new Date(data.startDateTime), {
   message: "End date must be after start date.",
   path: ["endDateTime"], 
@@ -66,6 +74,7 @@ export default function NewEventPage() {
   const { user } = useAuth();
   const { createNotificationForCommunity } = useNotifications();
   const { communities } = useCommunities();
+  const { sponsors: allSponsors } = useSponsors();
 
   const [isPending, startTransition] = useTransition();
 
@@ -84,10 +93,24 @@ export default function NewEventPage() {
       description: '',
       tags: '',
       ticketLink: '',
-      imageUrl: undefined
+      imageUrl: undefined,
+      sponsors: [],
     },
     mode: 'onChange'
   });
+
+  const sponsorsField = form.watch('sponsors') || [];
+  const selectedSponsorIds = useMemo(() => sponsorsField.map(s => s.sponsorId), [sponsorsField]);
+  
+  const addSponsorField = () => {
+    form.setValue('sponsors', [...sponsorsField, { sponsorId: '', tier: 'Supporter' }]);
+  }
+
+  const removeSponsorField = (index: number) => {
+    const newSponsors = [...sponsorsField];
+    newSponsors.splice(index, 1);
+    form.setValue('sponsors', newSponsors);
+  }
 
 
   const onSubmit = async (values: EventFormValues) => {
@@ -131,7 +154,7 @@ export default function NewEventPage() {
         };
         
         try {
-            const newEvent = await addEvent(newEventData);
+            const newEvent = await addEvent(newEventData, values.sponsors || []);
 
             toast({
               title: 'Event Submitted!',
@@ -394,6 +417,56 @@ export default function NewEventPage() {
                       </FormItem>
                     )}
                   />
+            </div>
+            
+             <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Sponsorships (Optional)</h3>
+                {sponsorsField.map((field, index) => (
+                  <Card key={field.id} className="p-4 bg-muted/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                       <FormField
+                        control={form.control}
+                        name={`sponsors.${index}.sponsorId`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Sponsor</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Select a sponsor" /></SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {allSponsors.filter(s => !selectedSponsorIds.includes(s.id) || s.id === field.value).map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name={`sponsors.${index}.tier`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tier</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Select a tier" /></SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {sponsorTiers.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="flex justify-end mt-2">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeSponsorField(index)}><Trash2 className="mr-2 h-4 w-4"/> Remove</Button>
+                    </div>
+                  </Card>
+                ))}
+                <Button type="button" variant="outline" onClick={addSponsorField}><PlusCircle className="mr-2 h-4 w-4"/> Add Sponsor</Button>
             </div>
 
             <div className="flex justify-end gap-4 pt-4">

@@ -6,6 +6,12 @@ import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query,
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
+import type { SponsorTier } from './use-sponsors';
+
+export interface EventSponsor {
+    sponsorId: string;
+    tier: SponsorTier;
+}
 
 export interface Event {
   id: string;
@@ -26,6 +32,7 @@ export interface Event {
   imageUrl: string;
   organizerId: string;
   organizerName: string;
+  sponsors: EventSponsor[];
   status: 'Pending' | 'Approved' | 'Archived';
   isFeatured?: boolean;
   submittedByUid?: string;
@@ -33,16 +40,17 @@ export interface Event {
   updatedAt?: any; 
 }
 
-export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'isFeatured'>;
+export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'isFeatured' | 'sponsors'>;
 
 interface EventsContextType {
   events: Event[];
   isLoading: boolean;
   error: Error | null;
-  addEvent: (event: NewEventInput) => Promise<Event>;
+  addEvent: (event: NewEventInput, sponsors: EventSponsor[]) => Promise<Event>;
   getEventById: (id: string) => Event | undefined;
   updateEventStatus: (eventId: string, status: Event['status']) => Promise<void>;
   updateEventFeaturedStatus: (eventId: string, isFeatured: boolean) => Promise<void>;
+  updateEventSponsors: (eventId: string, sponsors: EventSponsor[]) => Promise<void>;
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -141,10 +149,11 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     };
   }, [fetchEvents]);
 
-  const addEvent = useCallback(async (eventData: NewEventInput) => {
+  const addEvent = useCallback(async (eventData: NewEventInput, sponsors: EventSponsor[]) => {
     try {
       const newEventData = {
         ...eventData,
+        sponsors: sponsors,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         status: 'Pending' as Event['status'],
@@ -192,6 +201,17 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       toast({ title: "Error", description: "Could not update the event's featured status.", variant: "destructive" });
     }
   }, [toast]);
+  
+  const updateEventSponsors = useCallback(async (eventId: string, sponsors: EventSponsor[]) => {
+    const eventDocRef = doc(firestore, 'events', eventId);
+    try {
+        await updateDoc(eventDocRef, { sponsors, updatedAt: serverTimestamp() });
+        toast({ title: 'Event Sponsors Updated' });
+    } catch (error) {
+        console.error("Error updating sponsors:", error);
+        toast({ title: 'Error', description: "Could not update event sponsors.", variant: "destructive" });
+    }
+  }, [toast]);
 
   const value = {
     events,
@@ -201,6 +221,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     getEventById,
     updateEventStatus,
     updateEventFeaturedStatus,
+    updateEventSponsors,
   };
 
   return (

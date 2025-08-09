@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building, Loader2, Handshake } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ import { useCommunities } from "@/hooks/use-communities";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import ReportDialog from "@/components/feature/report-dialog";
+import { useSponsors } from "@/hooks/use-sponsors";
 
 
 export default function EventDetailPage() {
@@ -26,11 +27,18 @@ export default function EventDetailPage() {
   const event = getEventById(id);
   
   const { getCommunityById, isLoading: isLoadingCommunities } = useCommunities();
+  const { sponsors, getSponsorById } = useSponsors();
   const organizer = getCommunityById(event?.organizerId || '');
 
   const { toast } = useToast();
   const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
   const router = useRouter();
+  
+  const eventSponsors = useMemo(() => {
+    if (!event || !event.sponsors) return [];
+    return event.sponsors.map(s => getSponsorById(s.sponsorId)).filter(Boolean);
+  }, [event, getSponsorById]);
+
 
   const createdAt = useMemo(() => {
     if (!event?.createdAt) return 'a while ago';
@@ -218,6 +226,27 @@ export default function EventDetailPage() {
                        </CardContent>
                    </Card>
                 </section>}
+                
+                {eventSponsors.length > 0 && (
+                    <section className="mt-8">
+                        <h3 className="font-headline text-xl font-semibold mb-4 border-b pb-2">Our Sponsors</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {eventSponsors.map(sponsor => sponsor && (
+                                <Link href={`/sponsors/${sponsor.id}`} key={sponsor.id} className="group">
+                                    <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
+                                        <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+                                             <div className="relative h-16 w-32 mb-2">
+                                                <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="object-contain" />
+                                             </div>
+                                            <p className="text-sm font-semibold group-hover:text-primary">{sponsor.name}</p>
+                                            <Badge variant="outline" className="mt-1">{event.sponsors.find(s => s.sponsorId === sponsor.id)?.tier} Tier</Badge>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
