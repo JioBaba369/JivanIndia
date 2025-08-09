@@ -119,7 +119,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = React.useState(false);
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b" style={{ backgroundColor: '#FFE00C' }}>
+    <header className="sticky top-0 z-40 w-full border-b bg-accent text-accent-foreground">
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="mr-auto flex items-center gap-6">
             <Logo as={Link} href="/" />
@@ -128,7 +128,7 @@ export default function Header() {
                     {mainNavLinks.map((link) => (
                         <NavigationMenuItem key={link.href}>
                             <Link href={link.href} legacyBehavior passHref>
-                                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                <NavigationMenuLink className={navigationMenuTriggerStyle({className: "bg-accent text-accent-foreground hover:bg-accent/80 focus:bg-accent/80"})}>
                                     {link.title}
                                 </NavigationMenuLink>
                             </Link>

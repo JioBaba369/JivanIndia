@@ -96,11 +96,22 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center bg-blue-500">
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-white">
+      <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center bg-primary">
+         <div className="absolute inset-0">
+            <Image 
+                src="https://images.unsplash.com/photo-1617634667363-554158b4e76a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmZXN0aXZhbCUyMGRlY29yYXRpb25zfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
+                alt="Colorful Indian festival decorations"
+                fill
+                className="object-cover opacity-20"
+                priority
+                data-ai-hint="festival decorations"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-primary" />
+        </div>
+        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
           <div className="p-8 rounded-lg">
-            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight">The Heartbeat of Our Community</h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-white/90">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">The Heartbeat of Our Community</h1>
+            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90 text-shadow">
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
             <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto">
@@ -110,12 +121,12 @@ export default function HomePage() {
                   id="search-input"
                   type="search"
                   placeholder="Search for events, businesses..."
-                  className="flex-grow text-lg text-black"
+                  className="flex-grow text-lg text-foreground"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Select value={searchCategory} onValueChange={setSearchCategory}>
-                  <SelectTrigger className="w-full sm:w-[180px] text-lg text-black" aria-label="Select search category">
+                  <SelectTrigger className="w-full sm:w-[180px] text-lg text-foreground" aria-label="Select search category">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -124,7 +135,7 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" size="lg" className="text-lg bg-green-500 text-black hover:bg-green-500/90" aria-label="Search">
+                <Button type="submit" size="lg" className="text-lg" aria-label="Search" variant="secondary">
                   <Search className="mr-2" />
                   Search
                 </Button>
@@ -151,17 +162,17 @@ export default function HomePage() {
       </section>
 
       {/* Upcoming Events */}
-      <section className="py-16 md:py-24 bg-pink-500">
+      <section className="py-16 md:py-24 bg-muted/40">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="font-headline text-3xl font-bold text-white">Upcoming Events</h2>
-            <Button variant="link" asChild className="text-white hover:text-white/80">
+            <h2 className="font-headline text-3xl font-bold">Upcoming Events</h2>
+            <Button variant="link" asChild>
               <Link href="/events" aria-label="View all events">View All <ArrowRight className="ml-2" /></Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {eventsError ? (
-              <div className="col-span-full text-center text-white">Unable to load events. Please try again later.</div>
+              <div className="col-span-full text-center text-destructive">Unable to load events. Please try again later.</div>
             ) : isLoadingEvents ? (
               <CardSkeleton />
             ) : latestEvents.length > 0 ? (
@@ -213,12 +224,12 @@ export default function HomePage() {
                 </Card>
               ))
             ) : (
-              <div className="rounded-lg border-2 border-dashed border-white/20 py-12 text-center col-span-full text-white">
+              <div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center col-span-full text-foreground">
                 <div className="flex justify-center mb-4">
-                  <Megaphone className="h-12 w-12" />
+                  <Megaphone className="h-12 w-12 text-muted-foreground" />
                 </div>
                 <h3 className="font-headline text-xl font-semibold">Your Community's Stage is Empty</h3>
-                <p className="text-white/80 mt-2">Be the first to share an event and bring everyone together.</p>
+                <p className="text-muted-foreground mt-2">Be the first to share an event and bring everyone together.</p>
                 <Button asChild className="mt-4" variant="secondary">
                   <Link href="/events/new" aria-label="Post a new event">Post an Event</Link>
                 </Button>
@@ -229,7 +240,7 @@ export default function HomePage() {
       </section>
 
       {/* Latest Deals */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="font-headline text-4xl font-bold mb-8 text-center">Latest Deals</h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
