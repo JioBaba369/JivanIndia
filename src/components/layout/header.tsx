@@ -22,33 +22,19 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import NotificationBell from "./notification-bell";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { ListItem } from "@/components/ui/navigation-menu";
 
-const forYouLinks: { title: string; href: string; description: string }[] = [
-    { title: "Events", href: "/events", description: "Discover cultural celebrations and professional meetups." },
-    { title: "Movies", href: "/movies", description: "Catch the latest Bollywood and regional hits near you." },
-    { title: "Deals", href: "/deals", description: "Exclusive offers from businesses in our community." },
-    { title: "Careers", href: "/careers", description: "Find your next role in our community-focused job board." },
-];
-
-const forBusinessLinks: { title: string; href: string; description: string }[] = [
-    { title: "Communities", href: "/communities", description: "Find and connect with cultural and professional groups." },
-    { title: "Businesses", href: "/businesses", description: "List your business in our community directory." },
-    { title: "Sponsors", href: "/sponsors", description: "Support the community and gain visibility as a sponsor." },
-];
-
-const resourcesLinks: { title: string; href: string; description: string }[] = [
-    { title: "About Us", href: "/about", description: "Learn more about our mission and the team." },
-    { title: "About India", href: "/india", description: "Explore the roots and culture of the Indian diaspora." },
-    { title: "Festivals", href: "/festivals", description: "A calendar of important Indian festivals and dates." },
-    { title: "Contact Us", href: "/contact", description: "Get in touch with the JivanIndia.co team." },
+const mainNavLinks: { title: string; href: string; }[] = [
+    { title: "Events", href: "/events" },
+    { title: "Communities", href: "/communities" },
+    { title: "Businesses", href: "/businesses" },
+    { title: "Movies", href: "/movies" },
+    { title: "Deals", href: "/deals" },
+    { title: "Careers", href: "/careers" },
 ];
 
 
@@ -139,61 +125,15 @@ export default function Header() {
             <Logo as={Link} href="/" />
              <NavigationMenu className="hidden md:flex">
                 <NavigationMenuList>
-                    <NavigationMenuItem>
-                        <Link href="/" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                            Home
-                        </NavigationMenuLink>
-                        </Link>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuTrigger>For You</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {forYouLinks.map((component) => (
-                            <ListItem
-                                key={component.title}
-                                title={component.title}
-                                href={component.href}
-                            >
-                                {component.description}
-                            </ListItem>
-                            ))}
-                        </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
-                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>For Business</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {forBusinessLinks.map((component) => (
-                            <ListItem
-                                key={component.title}
-                                title={component.title}
-                                href={component.href}
-                            >
-                                {component.description}
-                            </ListItem>
-                            ))}
-                        </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {resourcesLinks.map((component) => (
-                            <ListItem
-                                key={component.title}
-                                title={component.title}
-                                href={component.href}
-                            >
-                                {component.description}
-                            </ListItem>
-                            ))}
-                        </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
+                    {mainNavLinks.map((link) => (
+                        <NavigationMenuItem key={link.href}>
+                            <Link href={link.href} legacyBehavior passHref>
+                                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    {link.title}
+                                </NavigationMenuLink>
+                            </Link>
+                        </NavigationMenuItem>
+                    ))}
                 </NavigationMenuList>
             </NavigationMenu>
         </div>
@@ -216,17 +156,8 @@ export default function Header() {
                         <DropdownMenuSeparator />
                         <nav className="flex flex-col space-y-2">
                              <SheetClose asChild><Link href="/" className="text-lg font-medium">Home</Link></SheetClose>
-                            <h4 className="font-semibold pt-4">For You</h4>
-                            {forYouLinks.map((link) => (
+                             {mainNavLinks.map((link) => (
                                <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
-                            ))}
-                            <h4 className="font-semibold pt-4">For Business</h4>
-                             {forBusinessLinks.map((link) => (
-                                <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
-                            ))}
-                            <h4 className="font-semibold pt-4">Resources</h4>
-                             {resourcesLinks.map((link) => (
-                                <SheetClose asChild key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
                             ))}
                         </nav>
                     </div>
