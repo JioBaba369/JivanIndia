@@ -85,7 +85,7 @@ export default function ContactUsPage() {
 
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8 text-center mb-16">
+            <div className="grid md:grid-cols-2 gap-8 text-center mb-16">
                 <Card className="border-none bg-transparent shadow-none">
                     <CardContent className="p-6">
                         <Mail className="h-10 w-10 text-primary mx-auto mb-4" />
@@ -98,13 +98,6 @@ export default function ContactUsPage() {
                         <Phone className="h-10 w-10 text-primary mx-auto mb-4" />
                         <h3 className="font-headline text-xl font-semibold">Call Us</h3>
                         <p className="text-muted-foreground mt-2">(123) 456-7890</p>
-                    </CardContent>
-                </Card>
-                <Card className="border-none bg-transparent shadow-none">
-                    <CardContent className="p-6">
-                        <MapPin className="h-10 w-10 text-primary mx-auto mb-4" />
-                        <h3 className="font-headline text-xl font-semibold">Our Office</h3>
-                        <p className="text-muted-foreground mt-2">123 Saffron St, Suite 100<br/>Community City, CA 90210</p>
                     </CardContent>
                 </Card>
             </div>
