@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2 } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2, Flag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEvents } from "@/hooks/use-events";
 import { useCommunities } from "@/hooks/use-communities";
 import { useBusinesses } from "@/hooks/use-businesses";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function BusinessDetailPage() {
   const params = useParams();
@@ -116,6 +117,9 @@ export default function BusinessDetailPage() {
                     <span className="font-bold text-lg text-white">{business.rating.toFixed(1)}</span>
                     <span className="text-sm text-white/80">({business.reviewCount} reviews)</span>
                 </div>
+            </div>
+             <div className="absolute top-4 right-4">
+                <ReportDialog contentId={business.id} contentType="Business" contentTitle={business.name} triggerVariant="default" />
             </div>
           </div>
           <CardContent className="p-6 md:p-8">

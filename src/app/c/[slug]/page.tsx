@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2 } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Flag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import { useEvents } from "@/hooks/use-events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatUrl, getInitials } from "@/lib/utils";
 import { format } from "date-fns";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function CommunityDetailPage() {
   const params = useParams();
@@ -205,6 +206,11 @@ export default function CommunityDetailPage() {
                         <p className="text-muted-foreground text-sm">{community.founded}</p>
                       </div>
                     </div>
+                     {!isFounder && (
+                        <div className="pt-2 border-t">
+                            <ReportDialog contentId={community.id} contentType="Community" contentTitle={community.name} triggerVariant="ghost"/>
+                        </div>
+                    )}
                   </CardContent>
                 </Card>
                  <Card>

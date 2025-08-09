@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building, Flag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 import { useCommunities } from "@/hooks/use-communities";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import ReportDialog from "@/components/feature/report-dialog";
 
 
 export default function EventDetailPage() {
@@ -158,6 +159,9 @@ export default function EventDetailPage() {
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
                 {event.title}
               </h1>
+            </div>
+             <div className="absolute top-4 right-4">
+                <ReportDialog contentId={event.id} contentType="Event" contentTitle={event.title} triggerVariant="default" />
             </div>
           </div>
           <CardContent className="p-6 md:p-8">

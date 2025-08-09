@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock, Users, History, Building } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users, History, Building, Flag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from "next/navigation";
 import { useMovies } from "@/hooks/use-movies";
 import { useCommunities } from "@/hooks/use-communities";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function MovieDetailPage() {
   const params = useParams();
@@ -80,20 +81,25 @@ export default function MovieDetailPage() {
             </div>
             <div className="md:col-span-2 lg:col-span-3">
                  <div className="bg-background/80 backdrop-blur-sm p-6 rounded-lg">
-                    <h1 className="font-headline text-4xl md:text-5xl font-bold">{movie.title}</h1>
-                    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                            <span className="font-bold text-lg text-foreground">{movie.rating} / 5.0</span>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h1 className="font-headline text-4xl md:text-5xl font-bold">{movie.title}</h1>
+                            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
+                                <div className="flex items-center gap-2">
+                                    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                                    <span className="font-bold text-lg text-foreground">{movie.rating} / 5.0</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Film className="h-5 w-5" />
+                                    <span>{movie.genre}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Clock className="h-5 w-5" />
+                                    <span>{movie.details.duration}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Film className="h-5 w-5" />
-                            <span>{movie.genre}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Clock className="h-5 w-5" />
-                            <span>{movie.details.duration}</span>
-                        </div>
+                        <ReportDialog contentId={movie.id} contentType="Movie" contentTitle={movie.title} />
                     </div>
                 </div>
 

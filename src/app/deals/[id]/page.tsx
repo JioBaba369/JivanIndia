@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2 } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2, Flag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useMemo } from 'react';
 import { useDeals } from "@/hooks/use-deals";
 import { useCommunities } from "@/hooks/use-communities";
+import ReportDialog from "@/components/feature/report-dialog";
 
 export default function DealDetailPage() {
   const params = useParams();
@@ -125,6 +126,9 @@ export default function DealDetailPage() {
               <h1 className="font-headline text-3xl md:text-5xl font-bold text-white mt-2">
                 {deal.title}
               </h1>
+            </div>
+             <div className="absolute top-4 right-4">
+                <ReportDialog contentId={deal.id} contentType="Deal" contentTitle={deal.title} triggerVariant="default" />
             </div>
           </div>
           <CardContent className="p-6 md:p-8">

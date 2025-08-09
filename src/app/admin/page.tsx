@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, type User } from '@/hooks/use-auth';
 import { useEvents, type Event } from '@/hooks/use-events';
@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
@@ -27,6 +27,7 @@ import { firestore } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useBusinesses } from '@/hooks/use-businesses';
 import ImageUpload from '@/components/feature/image-upload';
+import { useReports } from '@/hooks/use-reports';
 
 
 const TeamMemberDialog = ({
@@ -149,6 +150,7 @@ export default function AdminDashboardPage() {
   const { communities, verifyCommunity, updateCommunityFeaturedStatus } = useCommunities();
   const { aboutContent, updateAboutContent, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
   const { businesses, verifyBusiness, updateBusinessFeaturedStatus } = useBusinesses();
+  const { reports, updateReportStatus, isLoading: isReportsLoading } = useReports();
   const { toast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
@@ -261,7 +263,7 @@ export default function AdminDashboardPage() {
     }
   }
   
-  const totalLoading = isLoading || isAboutLoading || (user?.isAdmin && isUsersLoading);
+  const totalLoading = isLoading || isAboutLoading || isReportsLoading || (user?.isAdmin && isUsersLoading);
 
   if (totalLoading) {
     return (
@@ -280,6 +282,7 @@ export default function AdminDashboardPage() {
   const sortedCommunities = [...communities].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const sortedBusinesses = [...businesses].sort((a,b) => a.name.localeCompare(b.name));
   const adminUsers = users.filter(u => aboutContent.adminUids?.includes(u.uid));
+  const pendingReports = reports.filter(r => r.status === 'pending');
 
 
   return (
@@ -292,8 +295,9 @@ export default function AdminDashboardPage() {
             </div>
         </div>
         <Tabs defaultValue="content" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
                 <TabsTrigger value="content"><FileText className="mr-2"/>Content Moderation</TabsTrigger>
+                <TabsTrigger value="reports"><AlertTriangle className="mr-2"/>Reports ({pendingReports.length})</TabsTrigger>
                 <TabsTrigger value="users"><Users className="mr-2"/>User Management</TabsTrigger>
                 <TabsTrigger value="settings"><Settings className="mr-2"/>Site Management</TabsTrigger>
             </TabsList>
@@ -408,6 +412,49 @@ export default function AdminDashboardPage() {
                     </CardContent>
                 </Card>
             </TabsContent>
+
+             <TabsContent value="reports" className="mt-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pending Reports</CardTitle>
+                        <CardDescription>Review content that has been flagged by the community.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <div className="w-full overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Content</TableHead>
+                                        <TableHead>Reason</TableHead>
+                                        <TableHead>Reported</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {pendingReports.map(report => (
+                                        <TableRow key={report.id}>
+                                            <TableCell>
+                                                <Link href={report.contentLink} className="font-medium hover:underline" target="_blank">{report.contentTitle}</Link>
+                                                <p className="text-xs text-muted-foreground">{report.contentType}</p>
+                                            </TableCell>
+                                            <TableCell className="max-w-sm whitespace-pre-wrap">{report.reason}</TableCell>
+                                            <TableCell>
+                                                {formatDistanceToNow(report.createdAt.toDate(), { addSuffix: true })}
+                                            </TableCell>
+                                            <TableCell className="text-right space-x-2">
+                                                <Button size="sm" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>Dismiss</Button>
+                                                <Button size="sm" onClick={() => updateReportStatus(report.id, 'resolved')}>Resolve</Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            {pendingReports.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No pending reports. Great job!</p></div>}
+                        </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
 
             <TabsContent value="users" className="mt-6">
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
