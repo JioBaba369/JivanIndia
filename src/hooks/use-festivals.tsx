@@ -19,25 +19,49 @@ interface FestivalsContextType {
 
 const FestivalsContext = createContext<FestivalsContextType | undefined>(undefined);
 
-// Static festival data
+// Static festival data for 2024, 2025, and 2026
 const festivalData: Festival[] = [
+    // 2024
+    { name: 'Gandhi Jayanti', description: 'Celebrates the birthday of Mahatma Gandhi.', date: '2024-10-02', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Navaratri', description: 'A nine-night festival dedicated to the goddess Durga.', date: '2024-10-03', type: 'Religious', country: ['India'], state: ['Gujarat', 'West Bengal', 'Maharashtra'] },
+    { name: 'Durga Puja', description: 'A major Hindu festival celebrating the goddess Durga.', date: '2024-10-09', type: 'Religious', country: ['India'], state: ['West Bengal', 'Tripura', 'Assam'] },
     { name: 'Diwali', description: 'The festival of lights, symbolizing the victory of light over darkness.', date: '2024-11-01', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Karnataka Rajyotsava', description: 'Celebrates the formation of the state of Karnataka.', date: '2024-11-01', type: 'State Holiday', country: ['India'], state: ['Karnataka'] },
+    { name: 'Christmas', description: 'An annual festival commemorating the birth of Jesus Christ.', date: '2024-12-25', type: 'Religious', country: ['India', 'Global'], state: ['Goa', 'Kerala', 'Mizoram'] },
+
+    // 2025
+    { name: 'Pongal', description: 'A multi-day harvest festival of South India.', date: '2025-01-14', type: 'Cultural', country: ['India'], state: ['Tamil Nadu'] },
+    { name: 'Republic Day', description: 'Honors the date on which the Constitution of India came into effect.', date: '2025-01-26', type: 'National Holiday', country: ['India'], state: ['All'] },
     { name: 'Holi', description: 'The festival of colors, celebrating the arrival of spring.', date: '2025-03-14', type: 'Cultural', country: ['India', 'Global'], state: ['All'] },
     { name: 'Eid-ul-Fitr', description: 'Marks the end of Ramadan, the Islamic holy month of fasting.', date: '2025-03-30', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
-    { name: 'Navaratri', description: 'A nine-night festival dedicated to the goddess Durga.', date: '2024-10-03', type: 'Religious', country: ['India'], state: ['Gujarat', 'West Bengal', 'Maharashtra'] },
-    { name: 'Ganesh Chaturthi', description: 'A ten-day festival celebrating the birth of Lord Ganesha.', date: '2024-09-07', type: 'Religious', country: ['India'], state: ['Maharashtra', 'Goa', 'Telangana'] },
-    { name: 'Onam', description: 'A major annual harvest festival celebrated in Kerala.', date: '2024-09-15', type: 'Cultural', country: ['India'], state: ['Kerala'] },
-    { name: 'Pongal', description: 'A multi-day harvest festival of South India.', date: '2025-01-14', type: 'Cultural', country: ['India'], state: ['Tamil Nadu'] },
     { name: 'Baisakhi', description: 'Marks the Sikh New Year and the spring harvest festival.', date: '2025-04-14', type: 'Cultural', country: ['India', 'Canada', 'UK'], state: ['Punjab'] },
-    { name: 'Republic Day', description: 'Honors the date on which the Constitution of India came into effect.', date: '2025-01-26', type: 'National Holiday', country: ['India'], state: ['All'] },
-    { name: 'Independence Day', description: 'Commemorates the independence of India from the United Kingdom.', date: '2024-08-15', type: 'National Holiday', country: ['India'], state: ['All'] },
-    { name: 'Gandhi Jayanti', description: 'Celebrates the birthday of Mahatma Gandhi.', date: '2024-10-02', type: 'National Holiday', country: ['India'], state: ['All'] },
-    { name: 'Durga Puja', description: 'A major Hindu festival celebrating the goddess Durga.', date: '2024-10-09', type: 'Religious', country: ['India'], state: ['West Bengal', 'Tripura', 'Assam'] },
-    { name: 'Christmas', description: 'An annual festival commemorating the birth of Jesus Christ.', date: '2024-12-25', type: 'Religious', country: ['India', 'Global'], state: ['Goa', 'Kerala', 'Mizoram'] },
     { name: 'Good Friday', description: 'A Christian holiday commemorating the crucifixion of Jesus.', date: '2025-04-18', type: 'Religious', country: ['India', 'Global'], state: ['Kerala', 'Goa', 'Nagaland'] },
-    { name: 'Buddha Purnima', description: 'Commemorates the birth of Gautama Buddha.', date: '2025-05-12', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
     { name: 'Maharashtra Day', description: 'Celebrates the formation of the state of Maharashtra.', date: '2025-05-01', type: 'State Holiday', country: ['India'], state: ['Maharashtra'] },
-    { name: 'Karnataka Rajyotsava', description: 'Celebrates the formation of the state of Karnataka.', date: '2024-11-01', type: 'State Holiday', country: ['India'], state: ['Karnataka'] },
+    { name: 'Buddha Purnima', description: 'Commemorates the birth of Gautama Buddha.', date: '2025-05-12', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Independence Day', description: 'Commemorates the independence of India from the United Kingdom.', date: '2025-08-15', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Onam', description: 'A major annual harvest festival celebrated in Kerala.', date: '2025-09-05', type: 'Cultural', country: ['India'], state: ['Kerala'] },
+    { name: 'Ganesh Chaturthi', description: 'A ten-day festival celebrating the birth of Lord Ganesha.', date: '2025-08-27', type: 'Religious', country: ['India'], state: ['Maharashtra', 'Goa', 'Telangana'] },
+    { name: 'Gandhi Jayanti', description: 'Celebrates the birthday of Mahatma Gandhi.', date: '2025-10-02', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Diwali', description: 'The festival of lights, symbolizing the victory of light over darkness.', date: '2025-10-21', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Karnataka Rajyotsava', description: 'Celebrates the formation of the state of Karnataka.', date: '2025-11-01', type: 'State Holiday', country: ['India'], state: ['Karnataka'] },
+    { name: 'Christmas', description: 'An annual festival commemorating the birth of Jesus Christ.', date: '2025-12-25', type: 'Religious', country: ['India', 'Global'], state: ['Goa', 'Kerala', 'Mizoram'] },
+
+    // 2026
+    { name: 'Pongal', description: 'A multi-day harvest festival of South India.', date: '2026-01-14', type: 'Cultural', country: ['India'], state: ['Tamil Nadu'] },
+    { name: 'Republic Day', description: 'Honors the date on which the Constitution of India came into effect.', date: '2026-01-26', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Holi', description: 'The festival of colors, celebrating the arrival of spring.', date: '2026-03-04', type: 'Cultural', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Eid-ul-Fitr', description: 'Marks the end of Ramadan, the Islamic holy month of fasting.', date: '2026-03-20', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Good Friday', description: 'A Christian holiday commemorating the crucifixion of Jesus.', date: '2026-04-03', type: 'Religious', country: ['India', 'Global'], state: ['Kerala', 'Goa', 'Nagaland'] },
+    { name: 'Baisakhi', description: 'Marks the Sikh New Year and the spring harvest festival.', date: '2026-04-14', type: 'Cultural', country: ['India', 'Canada', 'UK'], state: ['Punjab'] },
+    { name: 'Maharashtra Day', description: 'Celebrates the formation of the state of Maharashtra.', date: '2026-05-01', type: 'State Holiday', country: ['India'], state: ['Maharashtra'] },
+    { name: 'Buddha Purnima', description: 'Commemorates the birth of Gautama Buddha.', date: '2026-05-31', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Independence Day', description: 'Commemorates the independence of India from the United Kingdom.', date: '2026-08-15', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Ganesh Chaturthi', description: 'A ten-day festival celebrating the birth of Lord Ganesha.', date: '2026-09-16', type: 'Religious', country: ['India'], state: ['Maharashtra', 'Goa', 'Telangana'] },
+    { name: 'Onam', description: 'A major annual harvest festival celebrated in Kerala.', date: '2026-08-26', type: 'Cultural', country: ['India'], state: ['Kerala'] },
+    { name: 'Gandhi Jayanti', description: 'Celebrates the birthday of Mahatma Gandhi.', date: '2026-10-02', type: 'National Holiday', country: ['India'], state: ['All'] },
+    { name: 'Diwali', description: 'The festival of lights, symbolizing the victory of light over darkness.', date: '2026-11-08', type: 'Religious', country: ['India', 'Global'], state: ['All'] },
+    { name: 'Karnataka Rajyotsava', description: 'Celebrates the formation of the state of Karnataka.', date: '2026-11-01', type: 'State Holiday', country: ['India'], state: ['Karnataka'] },
+    { name: 'Christmas', description: 'An annual festival commemorating the birth of Jesus Christ.', date: '2026-12-25', type: 'Religious', country: ['India', 'Global'], state: ['Goa', 'Kerala', 'Mizoram'] },
 ];
 
 
