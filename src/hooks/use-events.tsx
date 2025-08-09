@@ -71,12 +71,11 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     const eventsCollectionRef = collection(firestore, 'events');
-    let q = query(eventsCollectionRef, orderBy('startDateTime', 'desc'));
-    
-    // Non-admins only see approved events
-    if (!user?.roles.includes('admin')) {
-        q = query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
-    }
+    // Admins see all events, others see only 'Approved' ones.
+    // The security rules will enforce this, but filtering on the client is good practice.
+    const q = user?.roles.includes('admin') 
+      ? query(eventsCollectionRef, orderBy('startDateTime', 'desc'))
+      : query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('startDateTime', 'desc'));
     
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         let fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));

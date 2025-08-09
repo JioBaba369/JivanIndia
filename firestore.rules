@@ -1,3 +1,4 @@
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -12,23 +13,23 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
-    }
-    
+    // Correctly checks if the user document's 'roles' array contains 'admin'
     function isAdmin() {
-      return isSignedIn() && getUserData(request.auth.uid).roles.hasAny(['admin']);
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['admin']);
     }
 
+    // Correctly checks if the user document's 'roles' array contains 'community-manager'
     function isCommunityManager() {
-      return isSignedIn() && getUserData(request.auth.uid).roles.hasAny(['community-manager']);
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['community-manager']);
     }
     
+    // Correctly checks if the authenticated user's affiliation matches the communityId
     function isAffiliatedWith(communityId) {
-      return isCommunityManager() && getUserData(request.auth.uid).affiliation.orgId == communityId;
+      let userAffiliation = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation;
+      return userAffiliation != null && userAffiliation.orgId == communityId;
     }
 
-    // Public User Profiles: Allow public read, but only owner can write.
+    // Public User Profiles: Allow public read, but only owner or admin can write.
     match /users/{userId} {
       allow read: if true;
       allow write: if isOwner(userId) || isAdmin();
@@ -41,25 +42,22 @@ service cloud.firestore {
       allow update, delete: if isAffiliatedWith(communityId) || isAdmin();
     }
 
-    // Events: Public read for approved events.
-    // Create for affiliated managers. Update/delete for admin.
+    // Events: Public read for approved events. Admins/Managers can read all their events.
+    // Create for affiliated managers. Update/delete for admin or affiliated manager.
     match /events/{eventId} {
-      allow read: if resource.data.status == 'Approved' ||
-        isAdmin() || 
-        (isCommunityManager() && isAffiliatedWith(resource.data.organizerId));
+      allow read: if resource.data.status == 'Approved' || isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.organizerId));
       allow create: if isSignedIn() && isCommunityManager();
       allow update, delete: if isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.organizerId));
     }
     
-    // Deals: Public read. Create for affiliated managers. Update/delete for admin.
+    // Deals: Public read. Create for affiliated managers. Update/delete for admin or affiliated manager.
     match /deals/{dealId} {
         allow read: if true;
         allow create: if isSignedIn() && isCommunityManager();
         allow update, delete: if isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.businessId));
     }
     
-    // Businesses: Public read.
-    // Create/update/delete for admin only.
+    // Businesses: Public read. Create/update/delete for admin only.
     match /businesses/{businessId} {
         allow read: if true;
         allow write: if isAdmin();
@@ -84,7 +82,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    // Reports: Admin only. Create for any signed-in user.
+    // Reports: Admin only for read/update/delete. Create for any signed-in user.
     match /reports/{reportId} {
         allow read, update, delete: if isAdmin();
         allow create: if isSignedIn();
@@ -95,9 +93,9 @@ service cloud.firestore {
         allow read, write, create: if isOwner(resource.data.userId);
     }
     
-     // Collection Group for Notifications on user's dashboard
+     // Collection Group for Notifications on user's dashboard (no change needed here)
     match /{path=**}/notifications/{notificationId} {
-       allow read, write: if isSignedIn() && isOwner(get(/databases/$(database)/documents/$(path)).data.userId);
+       allow read, write: if isOwner(get(/databases/$(database)/documents/$(path)).data.userId);
     }
     
     // About page content: public read, admin write
@@ -106,8 +104,7 @@ service cloud.firestore {
         allow write: if isAdmin();
     }
     
-    // Contact form submissions: Write only for anyone.
-    // No read access.
+    // Contact form submissions: Write only for anyone. Admin read/delete.
     match /contacts/{contactId} {
         allow read, update, delete: if isAdmin();
         allow create: if true;
