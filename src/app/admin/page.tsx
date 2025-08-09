@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon, AlertTriangle, ClipboardCheck, Film, Tag, Briefcase } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Edit, Trash2, UserPlus, Archive, Check, UserX, Loader2, Star, Settings, Users, FileText, Image as ImageIcon, AlertTriangle, ClipboardCheck, Film, Tag, Briefcase, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
