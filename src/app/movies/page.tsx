@@ -7,15 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Film, Search, Star, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMovies } from "@/hooks/use-movies";
 import { useSearchParams } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 export default function MoviesPage() {
-  const { movies } = useMovies();
+  const { movies, isLoading } = useMovies();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -23,11 +24,23 @@ export default function MoviesPage() {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
 
-
-  const filteredMovies = movies.filter(movie => {
+  const filteredMovies = useMemo(() => movies.filter(movie => {
     const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
-  });
+  }), [movies, searchQuery]);
+  
+  const MovieSkeletons = () => (
+    Array.from({ length: 8 }).map((_, i) => (
+      <Card key={i} className="overflow-hidden border">
+        <Skeleton className="aspect-[2/3] w-full" />
+        <CardContent className="p-4">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2 mb-2" />
+          <Skeleton className="h-4 w-1/3" />
+        </CardContent>
+      </Card>
+    ))
+  );
 
   return (
     <div className="flex flex-col">
@@ -74,15 +87,16 @@ export default function MoviesPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-       {movies.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed py-16 text-center">
-          <Film className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="font-headline text-xl font-semibold mt-4">No Movies Listed</h3>
-          <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
-        </div>
+       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+       {isLoading ? <MovieSkeletons /> : (
+        movies.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+            <Film className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="font-headline text-xl font-semibold mt-4">No Movies Listed</h3>
+            <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
+          </div>
        ) : filteredMovies.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-            {filteredMovies.map((movie) => (
+            filteredMovies.map((movie) => (
                 <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative aspect-[2/3] w-full">
                        <Link href={`/movies/${movie.id}`}>
@@ -128,15 +142,16 @@ export default function MoviesPage() {
                       </Link>
                     </CardContent>
                 </Card>
-            ))}
-          </div>
+            ))
        ) : (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+            <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                 <h3 className="font-headline text-xl font-semibold">No Movies Found</h3>
                 <p className="text-muted-foreground mt-2">No movies match your criteria. Please check back later or adjust your filters.</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); }}>Clear Filters</Button>
             </div>
-          )}
+          )
+        )}
+        </div>
       </section>
     </div>
   );

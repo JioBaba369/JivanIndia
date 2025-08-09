@@ -28,12 +28,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCommunities } from "@/hooks/use-communities";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
-    const { user, joinCommunity, leaveCommunity, isCommunityJoined } = useAuth();
+    const { user } = useAuth();
     const router = useRouter();
-    const { communities } = useCommunities();
+    const { communities, isLoading } = useCommunities();
     const searchParams = useSearchParams();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -82,21 +83,42 @@ export default function CommunitiesPage() {
             return;
         }
         
-        const currentlyJoined = isCommunityJoined(orgId);
+        const currentlyJoined = user.joinedCommunities?.includes(orgId);
         if (currentlyJoined) {
-            leaveCommunity(orgId);
+            user.leaveCommunity?.(orgId);
             toast({
                 title: "Community Left",
                 description: `You have left ${orgName}.`,
             });
         } else {
-            joinCommunity(orgId);
+            user.joinCommunity?.(orgId);
             toast({
                 title: "Community Joined!",
                 description: `You have joined ${orgName}.`,
             });
         }
     };
+    
+    const CommunitySkeletons = () => (
+      Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="flex flex-col overflow-hidden">
+          <Skeleton className="h-48 w-full" />
+          <CardContent className="flex flex-grow flex-col p-4">
+            <Skeleton className="h-6 w-3/4 mb-2" />
+            <Skeleton className="h-4 w-1/4 mb-4" />
+            <Skeleton className="h-4 w-full mb-2 flex-grow" />
+             <div className="mt-4 space-y-3">
+               <Skeleton className="h-4 w-1/2" />
+               <Skeleton className="h-4 w-1/3" />
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Skeleton className="h-10 w-1/2" />
+              <Skeleton className="h-10 w-1/2" />
+            </div>
+          </CardContent>
+        </Card>
+      ))
+    );
 
 
   return (
@@ -219,122 +241,115 @@ export default function CommunitiesPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        {communities.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="font-headline text-xl font-semibold mt-4">No Communities Yet</h3>
-                <p className="text-muted-foreground mt-2">This is where communities will appear. Be the first to register one!</p>
-                <Button asChild className="mt-4">
-                    <Link href="/communities/new">Register Your Community</Link>
-                </Button>
-            </div>
-        ) : filteredCommunities.length > 0 ? (
-           <div className={cn(
-             "gap-8",
-             view === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                : 'flex flex-col'
-           )}>
-            {filteredCommunities.map((org) => {
-                const isJoined = isCommunityJoined(org.id);
-                return view === 'grid' ? (
-                <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
-                    <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
-                        <div className="relative h-48 w-full">
-                        <Image
-                            src={org.imageUrl}
-                            alt={org.name}
-                            fill
-                            className="object-cover transition-transform group-hover:scale-105"
-                            data-ai-hint="community photo"
-                        />
-                         {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+        <div className={cn(
+            "gap-8",
+            view === 'grid' 
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            : 'flex flex-col'
+        )}>
+        {isLoading ? <CommunitySkeletons /> : (
+            filteredCommunities.length > 0 ? (
+                filteredCommunities.map((org) => {
+                    const isJoined = user?.joinedCommunities?.includes(org.id);
+                    return view === 'grid' ? (
+                    <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
+                        <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
+                            <div className="relative h-48 w-full">
+                            <Image
+                                src={org.imageUrl}
+                                alt={org.name}
+                                fill
+                                className="object-cover transition-transform group-hover:scale-105"
+                                data-ai-hint="community photo"
+                            />
+                            {org.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                            </div>
+                            <CardContent className="flex flex-grow flex-col p-4">
+                                <CardTitle className="font-headline text-xl font-bold group-hover:text-primary">
+                                    {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
+                                    {org.name}
+                                </CardTitle>
+                                <p className="font-semibold text-primary">{org.type}</p>
+                                <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{org.description}</p>
+                                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Users className="h-4 w-4" />
+                                    <span>{org.membersCount}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <MapPin className="h-4 w-4" />
+                                    <span>{org.region}</span>
+                                </div>
+                            </CardContent>
+                        </Link>
+                        <div className="mt-auto flex gap-2 p-4 pt-0">
+                            <Button asChild className="flex-1">
+                                <Link href={`/c/${org.slug}`}>View</Link>
+                            </Button>
+                            <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
+                                <Bookmark className="mr-2 h-4 w-4" />
+                                {isJoined ? "Joined" : "Join"}
+                            </Button>
                         </div>
-                        <CardContent className="flex flex-grow flex-col p-4">
-                            <CardTitle className="font-headline text-xl font-bold group-hover:text-primary">
-                                {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
-                                {org.name}
-                            </CardTitle>
-                            <p className="font-semibold text-primary">{org.type}</p>
-                            <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{org.description}</p>
-                            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                                <Users className="h-4 w-4" />
-                                <span>{org.membersCount}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="h-4 w-4" />
-                                <span>{org.region}</span>
-                            </div>
-                        </CardContent>
-                    </Link>
-                    <div className="mt-auto flex gap-2 p-4 pt-0">
-                        <Button asChild className="flex-1">
-                            <Link href={`/c/${org.slug}`}>View</Link>
-                        </Button>
-                        <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
-                            <Bookmark className="mr-2 h-4 w-4" />
-                            {isJoined ? "Joined" : "Join"}
-                        </Button>
-                    </div>
-                </Card>
-              ) : (
-                <Card key={org.id} className={cn("group w-full overflow-hidden border transition-all hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
-                   <Link href={`/c/${org.slug}`}>
-                    <div className="flex flex-col sm:flex-row">
-                        <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">
-                           <Image
+                    </Card>
+                ) : (
+                    <Card key={org.id} className={cn("group w-full overflow-hidden border transition-all hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
+                    <Link href={`/c/${org.slug}`}>
+                        <div className="flex flex-col sm:flex-row">
+                            <div className="relative h-full w-full sm:h-auto sm:w-48 flex-shrink-0">
+                            <Image
                                 src={org.logoUrl}
                                 alt={org.name}
                                 fill
                                 className="object-contain p-4 transition-transform group-hover:scale-105"
                                 data-ai-hint="community logo"
                             />
-                        </div>
-                        <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
-                            <p className="font-semibold text-primary">{org.type}</p>
-                            <CardTitle className="group-hover:text-primary mt-1">
-                                 {org.isFeatured && <Star className="mr-2 h-5 w-5 inline-block text-yellow-400 fill-yellow-400" />}
-                                 {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
-                                {org.name}
-                            </CardTitle>
-                            <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-2">{org.description}</p>
-                            <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                    <Users className="h-4 w-4" />
-                                    <span>{org.membersCount} Members</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>{org.region}</span>
-                                </div>
                             </div>
-                        </CardContent>
-                         <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                            <Button asChild className="w-full sm:w-auto">
-                                <Link href={`/c/${org.slug}`}>View</Link>
-                            </Button>
-                             <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
-                                <Bookmark className="mr-2 h-4 w-4" />
-                                {isJoined ? "Joined" : "Join"}
-                            </Button>
-                         </div>
-                    </div>
-                   </Link>
-                </Card>
-              )
-            })}
-            </div>
-        ) : (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <h3 className="font-headline text-xl font-semibold">No Communities Found</h3>
-                <p className="text-muted-foreground mt-2">No communities match your criteria. Try adjusting your search or check back later.</p>
-                <Button variant="link" onClick={() => {
-                    setSearchQuery('');
-                    setLocationQuery('');
-                    setCategory('all');
-                }}>Clear Filters</Button>
-            </div>
-          )}
+                            <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
+                                <p className="font-semibold text-primary">{org.type}</p>
+                                <CardTitle className="group-hover:text-primary mt-1">
+                                    {org.isFeatured && <Star className="mr-2 h-5 w-5 inline-block text-yellow-400 fill-yellow-400" />}
+                                    {org.isVerified && <BadgeCheck className="mr-2 h-5 w-5 inline-block text-primary" />}
+                                    {org.name}
+                                </CardTitle>
+                                <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-2">{org.description}</p>
+                                <div className="mt-4 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4" />
+                                        <span>{org.membersCount} Members</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4" />
+                                        <span>{org.region}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <div className="flex flex-col justify-center gap-2 p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
+                                <Button asChild className="w-full sm:w-auto">
+                                    <Link href={`/c/${org.slug}`}>View</Link>
+                                </Button>
+                                <Button variant="secondary" className="w-full sm:w-auto" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
+                                    <Bookmark className="mr-2 h-4 w-4" />
+                                    {isJoined ? "Joined" : "Join"}
+                                </Button>
+                            </div>
+                        </div>
+                    </Link>
+                    </Card>
+                )
+                })
+            ) : (
+                <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+                    <h3 className="font-headline text-xl font-semibold">No Communities Found</h3>
+                    <p className="text-muted-foreground mt-2">No communities match your criteria. Try adjusting your search or check back later.</p>
+                    <Button variant="link" onClick={() => {
+                        setSearchQuery('');
+                        setLocationQuery('');
+                        setCategory('all');
+                    }}>Clear Filters</Button>
+                </div>
+            )
+        )}
+        </div>
       </section>
     </div>
   );

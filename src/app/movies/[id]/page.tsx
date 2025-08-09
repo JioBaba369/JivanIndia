@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock, Users, History, Building } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users, History, Building, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +17,10 @@ import ReportDialog from "@/components/feature/report-dialog";
 export default function MovieDetailPage() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { getMovieById } = useMovies();
+  const { getMovieById, isLoading: isLoadingMovies } = useMovies();
   const movie = getMovieById(id);
   
-  const { getCommunityBySlug } = useCommunities();
+  const { getCommunityBySlug, isLoading: isLoadingCommunities } = useCommunities();
   const distributor = getCommunityBySlug(movie?.details.distributorId || '');
 
   const postedAt = useMemo(() => {
@@ -36,6 +36,15 @@ export default function MovieDetailPage() {
     return 'a while ago';
   }, [movie?.postedAt]);
 
+  const isLoading = isLoadingMovies || isLoadingCommunities;
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!movie) {
     return (

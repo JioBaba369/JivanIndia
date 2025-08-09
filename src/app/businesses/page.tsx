@@ -21,9 +21,10 @@ import { useBusinesses } from "@/hooks/use-businesses";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BusinessesPage() {
-    const { businesses } = useBusinesses();
+    const { businesses, isLoading } = useBusinesses();
     const { user } = useAuth();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +51,24 @@ export default function BusinessesPage() {
         })
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }, [businesses, searchQuery, locationQuery, category]);
+    
+    const BusinessSkeletons = () => (
+      Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="flex flex-col overflow-hidden">
+          <Skeleton className="h-48 w-full" />
+          <CardContent className="flex flex-grow flex-col p-4">
+            <Skeleton className="h-6 w-3/4 mb-2" />
+            <Skeleton className="h-4 w-full mb-2 flex-grow" />
+             <div className="mt-4 space-y-3">
+               <Skeleton className="h-4 w-5/6" />
+            </div>
+            <div className="mt-4">
+              <Skeleton className="h-8 w-24" />
+            </div>
+          </CardContent>
+        </Card>
+      ))
+    );
 
 
   return (
@@ -93,18 +112,19 @@ export default function BusinessesPage() {
             </div>
         </div>
         
-        {businesses.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8">
-                <Building className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
-                <p className="text-muted-foreground mt-2">There are currently no businesses listed. Check back soon for new opportunities!</p>
-                {user?.isAdmin && <Button asChild className="mt-4">
-                    <Link href="/businesses/new">Add a Business</Link>
-                </Button>}
-            </div>
-        ) : filteredBusinesses.length > 0 ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-                {filteredBusinesses.map(business => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        {isLoading ? <BusinessSkeletons /> : (
+            businesses.length === 0 ? (
+                <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8 col-span-full">
+                    <Building className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
+                    <p className="text-muted-foreground mt-2">There are currently no businesses listed. Check back soon for new opportunities!</p>
+                    {user?.isAdmin && <Button asChild className="mt-4">
+                        <Link href="/businesses/new">Add a Business</Link>
+                    </Button>}
+                </div>
+            ) : filteredBusinesses.length > 0 ? (
+                filteredBusinesses.map(business => (
                     <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
                         <div className="relative h-48 w-full">
                             <Link href={`/businesses/${business.id}`}>
@@ -159,19 +179,20 @@ export default function BusinessesPage() {
                             </Button>
                         </div>
                     </Card>
-                ))}
-            </div>
-        ) : (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8">
-                <h3 className="font-headline text-xl font-semibold">No Matching Businesses Found</h3>
-                <p className="text-muted-foreground mt-2">No businesses were found that match your criteria. Check back soon or adjust your filters.</p>
-                <Button variant="link" onClick={() => {
-                    setSearchQuery('');
-                    setLocationQuery('');
-                    setCategory('all');
-                }}>Clear Filters</Button>
-            </div>
+                ))
+            ) : (
+                <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8 col-span-full">
+                    <h3 className="font-headline text-xl font-semibold">No Matching Businesses Found</h3>
+                    <p className="text-muted-foreground mt-2">No businesses were found that match your criteria. Check back soon or adjust your filters.</p>
+                    <Button variant="link" onClick={() => {
+                        setSearchQuery('');
+                        setLocationQuery('');
+                        setCategory('all');
+                    }}>Clear Filters</Button>
+                </div>
+            )
         )}
+        </div>
     </div>
   );
 }

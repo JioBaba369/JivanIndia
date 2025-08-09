@@ -209,8 +209,8 @@ export default function HomePage() {
                 latestDeals.length > 0 ? (
                   latestDeals.map((deal) => (
                     <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                      <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
-                        <div className="relative h-48 w-full">
+                      <div className="relative h-48 w-full">
+                         <Link href={`/deals/${deal.id}`}>
                            <Image
                             src={deal.imageUrl}
                             alt={deal.title}
@@ -218,11 +218,14 @@ export default function HomePage() {
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint="deal photo"
                           />
+                          </Link>
                           <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
                         </div>
                         <CardContent className="flex flex-grow flex-col p-4">
-                            <CardTitle className="mb-2 text-xl group-hover:text-primary">{deal.title}</CardTitle>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
+                            <Link href={`/deals/${deal.id}`} className="group/link flex-grow">
+                                <CardTitle className="mb-2 text-xl group-hover/link:text-primary">{deal.title}</CardTitle>
+                                <p className="text-sm text-muted-foreground line-clamp-2 flex-grow">{deal.description}</p>
+                            </Link>
                             <div className="mt-4 space-y-2">
                                 <div className="flex items-center text-sm text-muted-foreground">
                                     <Building className="mr-2 h-4 w-4 text-primary"/>
@@ -233,13 +236,12 @@ export default function HomePage() {
                                     <span>Expires {format(new Date(deal.expires), 'PP')}</span>
                                 </div>
                             </div>
+                             <Button asChild variant="link" className="p-0 h-auto justify-start mt-4">
+                                <Link href={`/deals/${deal.id}`}>
+                                    View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
                         </CardContent>
-                        <div className="flex items-center p-4 pt-0 mt-auto">
-                            <span className="text-primary font-semibold hover:underline">
-                                View Details <ArrowRight className="ml-1 inline-block h-4 w-4" />
-                            </span>
-                        </div>
-                      </Link>
                     </Card>
                   ))
               ) : (

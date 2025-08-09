@@ -14,9 +14,12 @@ import { useDeals } from "@/hooks/use-deals";
 import { useSearchParams } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function DealsPage() {
-  const { deals } = useDeals();
+  const { deals, isLoading } = useDeals();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -39,6 +42,25 @@ export default function DealsPage() {
       return matchesSearch && matchesCategory;
     });
   }, [deals, searchQuery, category]);
+  
+  const DealSkeletons = () => (
+    Array.from({ length: 6 }).map((_, i) => (
+      <Card key={i} className="flex flex-col overflow-hidden">
+        <Skeleton className="h-48 w-full" />
+        <CardContent className="flex flex-grow flex-col p-4">
+          <Skeleton className="h-4 w-1/3 mb-2" />
+          <Skeleton className="h-6 w-full mb-4" />
+          <Skeleton className="h-4 w-full mb-2 flex-grow" />
+           <div className="mt-4 space-y-3">
+             <Skeleton className="h-4 w-5/6" />
+          </div>
+          <div className="mt-4">
+            <Skeleton className="h-8 w-24" />
+          </div>
+        </CardContent>
+      </Card>
+    ))
+  );
 
   return (
     <div className="flex flex-col">
@@ -50,12 +72,14 @@ export default function DealsPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Exclusive offers from businesses in our community. Support local, save money.
           </p>
-           <Button asChild size="lg" className="mt-8">
-              <Link href="/deals/new">
-                <PlusCircle className="mr-2 h-5 w-5" />
-                Post a Deal
-              </Link>
-            </Button>
+           {user?.affiliation && (
+              <Button asChild size="lg" className="mt-8">
+                <Link href="/deals/new">
+                  <PlusCircle className="mr-2 h-5 w-5" />
+                  Post a Deal
+                </Link>
+              </Button>
+           )}
         </div>
       </section>
 
@@ -94,18 +118,19 @@ export default function DealsPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        {deals.length === 0 ? (
-          <div className="rounded-lg border-2 border-dashed py-16 text-center">
-              <Tag className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="font-headline text-xl font-semibold mt-4">No Deals Available</h3>
-              <p className="text-muted-foreground mt-2">There are currently no deals. Be the first to post one and support local businesses!</p>
-              <Button asChild className="mt-4">
-                  <Link href="/deals/new">Post a Deal</Link>
-              </Button>
-          </div>
-        ) : filteredDeals.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredDeals.map((deal) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {isLoading ? <DealSkeletons /> : (
+          deals.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+                <Tag className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="font-headline text-xl font-semibold mt-4">No Deals Available</h3>
+                <p className="text-muted-foreground mt-2">There are currently no deals. Be the first to post one and support local businesses!</p>
+                <Button asChild className="mt-4">
+                    <Link href="/deals/new">Post a Deal</Link>
+                </Button>
+            </div>
+          ) : filteredDeals.length > 0 ? (
+            filteredDeals.map((deal) => (
                 <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative h-48 w-full">
                         <Link href={`/deals/${deal.id}`}>
@@ -153,15 +178,16 @@ export default function DealsPage() {
                         </Button>
                     </div>
                 </Card>
-            ))}
-          </div>
-        ) : (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+            ))
+          ) : (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                 <h3 className="font-headline text-xl font-semibold">No Deals Found</h3>
                 <p className="text-muted-foreground mt-2">No deals match your criteria. Please check back later or adjust your filters.</p>
                 <Button variant="link" onClick={() => { setSearchQuery(''); setCategory('all'); }}>Clear Filters</Button>
             </div>
-          )}
+          )
+        )}
+        </div>
       </section>
     </div>
   );

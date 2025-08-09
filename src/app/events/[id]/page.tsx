@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +21,11 @@ import ReportDialog from "@/components/feature/report-dialog";
 
 export default function EventDetailPage() {
   const params = useParams();
-  const { getEventById } = useEvents();
+  const { getEventById, isLoading: isLoadingEvents } = useEvents();
   const id = typeof params.id === 'string' ? params.id : '';
   const event = getEventById(id);
   
-  const { getCommunityById } = useCommunities();
+  const { getCommunityById, isLoading: isLoadingCommunities } = useCommunities();
   const organizer = getCommunityById(event?.organizerId || '');
 
   const { toast } = useToast();
@@ -67,6 +67,16 @@ export default function EventDetailPage() {
   }, [event?.startDateTime, event?.endDateTime]);
 
   
+  const isLoading = isLoadingEvents || isLoadingCommunities;
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   if (!event) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">

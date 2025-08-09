@@ -12,9 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useJobs } from "@/hooks/use-jobs";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CareersPage() {
-  const { jobs } = useJobs();
+  const { jobs, isLoading } = useJobs();
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,6 +41,31 @@ export default function CareersPage() {
       return matchesSearch && matchesLocation && matchesType;
     });
   }, [jobs, searchQuery, locationQuery, jobType]);
+  
+  const JobSkeletons = () => (
+    Array.from({ length: 4 }).map((_, i) => (
+      <Card key={i}>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row justify-between items-start">
+              <div>
+                  <Skeleton className="h-7 w-64 mb-2" />
+                  <Skeleton className="h-5 w-48" />
+              </div>
+              <Skeleton className="h-6 w-24 mt-2 md:mt-0" />
+          </div>
+           <Skeleton className="h-4 w-full mt-4" />
+           <Skeleton className="h-4 w-5/6 mt-2" />
+           <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-5 w-24" />
+           </div>
+          <div className="mt-6">
+            <Skeleton className="h-8 w-28" />
+          </div>
+        </CardContent>
+      </Card>
+    ))
+  );
 
   return (
     <div className="container mx-auto py-12">
@@ -90,55 +116,57 @@ export default function CareersPage() {
             </div>
         </div>
         <div className="space-y-8 mt-8">
-          {jobs.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="font-headline text-xl font-semibold mt-4">No Job Openings</h3>
-                <p className="text-muted-foreground mt-2">There are currently no jobs posted. Check back soon for new opportunities!</p>
-                {user?.affiliation && <Button asChild className="mt-4">
-                    <Link href="/careers/new">Post a Job</Link>
-                </Button>}
-            </div>
-          ) : filteredJobs.length > 0 ? filteredJobs.map((job) => (
-            <Card key={job.id} className="transition-shadow hover:shadow-lg">
-                <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row justify-between items-start">
-                        <div>
-                            <CardTitle className="font-headline text-2xl tracking-tight">{job.title}</CardTitle>
-                            <div className="text-md text-muted-foreground">{job.companyName}</div>
-                        </div>
-                        <Badge variant="secondary">{job.type}</Badge>
-                    </div>
-                     <p className="text-muted-foreground line-clamp-2 mt-4">{job.description}</p>
-                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                           <MapPin className="h-4 w-4 text-primary"/>
-                           <span>{job.location}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                           <Briefcase className="h-4 w-4 text-primary"/>
-                           <span>{job.type}</span>
-                        </div>
-                     </div>
-                </CardContent>
-                <div className="flex items-center p-6 pt-0">
-                    <Button asChild variant="link" className="p-0 h-auto">
-                        <a href={job.applicationUrl} target="_blank" rel="noopener noreferrer">
-                            View Details <ArrowRight className="ml-2 h-4 w-4" />
-                        </a>
-                    </Button>
-                </div>
-            </Card>
-          )) : (
-             <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <h3 className="font-headline text-xl font-semibold">No Matching Jobs Found</h3>
-                <p className="text-muted-foreground mt-2">No jobs found that match your criteria. Check back soon or adjust your filters.</p>
-                <Button variant="link" onClick={() => {
-                    setSearchQuery('');
-                    setLocationQuery('');
-                    setJobType('all');
-                }}>Clear Filters</Button>
-            </div>
+          {isLoading ? <JobSkeletons /> : (
+            jobs.length === 0 ? (
+              <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                  <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
+                  <h3 className="font-headline text-xl font-semibold mt-4">No Job Openings</h3>
+                  <p className="text-muted-foreground mt-2">There are currently no jobs posted. Check back soon for new opportunities!</p>
+                  {user?.affiliation && <Button asChild className="mt-4">
+                      <Link href="/careers/new">Post a Job</Link>
+                  </Button>}
+              </div>
+            ) : filteredJobs.length > 0 ? filteredJobs.map((job) => (
+              <Card key={job.id} className="transition-shadow hover:shadow-lg">
+                  <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row justify-between items-start">
+                          <div>
+                              <CardTitle className="font-headline text-2xl tracking-tight">{job.title}</CardTitle>
+                              <div className="text-md text-muted-foreground">{job.companyName}</div>
+                          </div>
+                          <Badge variant="secondary">{job.type}</Badge>
+                      </div>
+                       <p className="text-muted-foreground line-clamp-2 mt-4">{job.description}</p>
+                       <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                             <MapPin className="h-4 w-4 text-primary"/>
+                             <span>{job.location}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <Briefcase className="h-4 w-4 text-primary"/>
+                             <span>{job.type}</span>
+                          </div>
+                       </div>
+                  </CardContent>
+                  <div className="flex items-center p-6 pt-0">
+                      <Button asChild variant="link" className="p-0 h-auto">
+                          <a href={job.applicationUrl} target="_blank" rel="noopener noreferrer">
+                              View Details <ArrowRight className="ml-2 h-4 w-4" />
+                          </a>
+                      </Button>
+                  </div>
+              </Card>
+            )) : (
+               <div className="rounded-lg border-2 border-dashed py-16 text-center">
+                  <h3 className="font-headline text-xl font-semibold">No Matching Jobs Found</h3>
+                  <p className="text-muted-foreground mt-2">No jobs found that match your criteria. Check back soon or adjust your filters.</p>
+                  <Button variant="link" onClick={() => {
+                      setSearchQuery('');
+                      setLocationQuery('');
+                      setJobType('all');
+                  }}>Clear Filters</Button>
+              </div>
+            )
           )}
         </div>
     </div>

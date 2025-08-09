@@ -20,7 +20,7 @@ export default function DashboardPage() {
       return;
     }
     
-    const isAdmin = user.roles.includes('admin');
+    const isAdmin = user.roles?.includes('admin');
     
     if (isAdmin) {
       router.replace('/admin');

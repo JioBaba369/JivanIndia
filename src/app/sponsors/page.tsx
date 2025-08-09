@@ -18,11 +18,11 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
 import { useSponsors } from "@/hooks/use-sponsors";
-import type { Sponsor } from "@/hooks/use-sponsors";
 import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SponsorsPage() {
-    const { sponsors } = useSponsors();
+    const { sponsors, isLoading } = useSponsors();
     const { user } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [industry, setIndustry] = useState('all');
@@ -40,6 +40,45 @@ export default function SponsorsPage() {
             return matchesSearch && matchesIndustry;
         });
     }, [sponsors, searchQuery, industry]);
+    
+    const SponsorSkeletonsGrid = () => (
+      Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="flex flex-col overflow-hidden">
+          <Skeleton className="h-48 w-full flex items-center justify-center bg-muted">
+            <Skeleton className="h-16 w-32" />
+          </Skeleton>
+          <CardContent className="flex flex-grow flex-col p-4">
+            <Skeleton className="h-6 w-3/4 mb-2" />
+            <Skeleton className="h-4 w-1/3 mb-4" />
+            <Skeleton className="h-4 w-full mb-2 flex-grow" />
+            <Skeleton className="h-4 w-5/6 mb-auto" />
+            <div className="mt-6">
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      ))
+    );
+    
+    const SponsorSkeletonsList = () => (
+      Array.from({ length: 4 }).map((_, i) => (
+         <Card key={i} className="w-full overflow-hidden">
+          <div className="flex flex-col sm:flex-row">
+            <Skeleton className="h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 bg-muted" />
+            <CardContent className="flex-grow p-4 sm:p-6">
+              <Skeleton className="h-5 w-24 mb-2" />
+              <Skeleton className="h-7 w-1/2 mb-2" />
+              <Skeleton className="h-5 w-1/3 mb-4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6 mt-2" />
+            </CardContent>
+            <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
+              <Skeleton className="h-10 w-24" />
+            </div>
+          </div>
+         </Card>
+      ))
+    );
 
   return (
     <div className="flex flex-col">
@@ -105,89 +144,91 @@ export default function SponsorsPage() {
       </div>
       
       <section className="container mx-auto px-4 py-12">
-        {sponsors.length === 0 ? (
-          <div className="rounded-lg border-2 border-dashed py-16 text-center">
-            <Handshake className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="font-headline text-xl font-semibold mt-4">No Sponsors Yet</h3>
-            <p className="text-muted-foreground mt-2">Interested in sponsoring the community? Contact us!</p>
-            {user?.isAdmin && <Button asChild className="mt-4"><Link href="/sponsors/new">Add a Sponsor</Link></Button>}
-          </div>
-        ) : filteredSponsors.length > 0 ? (
-           <div className={cn(
-            "gap-8",
-            view === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                : 'flex flex-col'
-            )}>
-            {filteredSponsors.map((sponsor) => (
-              view === 'grid' ? (
-                <Card key={sponsor.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <Link href={`/sponsors/${sponsor.id}`} className="flex h-full flex-grow flex-col">
-                        <div className="relative h-48 w-full bg-muted flex items-center justify-center p-4">
-                        <Image
-                            src={sponsor.logoUrl}
-                            alt={`${sponsor.name} logo`}
-                            width={200}
-                            height={100}
-                            className="object-contain transition-transform group-hover:scale-105"
-                        />
-                        <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="absolute top-3 right-3">{sponsor.tier}</Badge>
-                        </div>
-                        <CardContent className="flex flex-grow flex-col p-4">
-                        <CardTitle className="font-headline text-xl group-hover:text-primary mt-4">{sponsor.name}</CardTitle>
-                        <p className="font-semibold text-primary">{sponsor.industry}</p>
-                        <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{sponsor.description}</p>
-                        
-                        <div className="mt-auto pt-6">
-                            <Button variant="outline" className="w-full">
-                                <Handshake className="mr-2 h-4 w-4" />
-                                View Sponsor
-                            </Button>
-                        </div>
-                        </CardContent>
-                    </Link>
-                </Card>
-              ) : (
-                 <Card key={sponsor.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
-                    <Link href={`/sponsors/${sponsor.id}`}>
-                        <div className="flex flex-col sm:flex-row">
-                            <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 bg-muted flex items-center justify-center p-4">
-                               <Image
-                                    src={sponsor.logoUrl}
-                                    alt={`${sponsor.name} logo`}
-                                    width={200}
-                                    height={100}
-                                    className="object-contain transition-transform group-hover:scale-105"
-                                />
-                            </div>
-                            <CardContent className="flex-grow p-4 sm:p-6">
-                                <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="w-fit">{sponsor.tier}</Badge>
-                                <CardTitle className="group-hover:text-primary mt-2">{sponsor.name}</CardTitle>
-                                <p className="font-semibold text-primary">{sponsor.industry}</p>
-                                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{sponsor.description}</p>
-                            </CardContent>
-                             <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-                                <Button variant="outline" className="w-full sm:w-auto">
-                                    <Handshake className="mr-2 h-4 w-4" />
-                                    View
-                                </Button>
-                            </div>
-                        </div>
-                    </Link>
-                 </Card>
-              )
-            ))}
-           </div>
-        ) : (
-             <div className="rounded-lg border-2 border-dashed py-16 text-center">
-                <h3 className="font-headline text-xl font-semibold">No Sponsors Found</h3>
-                <p className="text-muted-foreground mt-2">No sponsors match your criteria. Please check back later or adjust your filters.</p>
-                <Button variant="link" onClick={() => {
-                    setSearchQuery('');
-                    setIndustry('all');
-                }}>Clear Filters</Button>
+        <div className={cn(
+          "gap-8",
+          view === 'grid' 
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              : 'flex flex-col'
+          )}>
+          {isLoading ? (
+            view === 'grid' ? <SponsorSkeletonsGrid /> : <SponsorSkeletonsList />
+          ) : sponsors.length === 0 ? (
+            <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+              <Handshake className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="font-headline text-xl font-semibold mt-4">No Sponsors Yet</h3>
+              <p className="text-muted-foreground mt-2">Interested in sponsoring the community? Contact us!</p>
+              {user?.isAdmin && <Button asChild className="mt-4"><Link href="/sponsors/new">Add a Sponsor</Link></Button>}
             </div>
-          )}
+          ) : filteredSponsors.length > 0 ? (
+              filteredSponsors.map((sponsor) => (
+                view === 'grid' ? (
+                  <Card key={sponsor.id} className="group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
+                      <Link href={`/sponsors/${sponsor.id}`} className="flex h-full flex-grow flex-col">
+                          <div className="relative h-48 w-full bg-muted flex items-center justify-center p-4">
+                          <Image
+                              src={sponsor.logoUrl}
+                              alt={`${sponsor.name} logo`}
+                              width={200}
+                              height={100}
+                              className="object-contain transition-transform group-hover:scale-105"
+                          />
+                          <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="absolute top-3 right-3">{sponsor.tier}</Badge>
+                          </div>
+                          <CardContent className="flex flex-grow flex-col p-4">
+                          <CardTitle className="font-headline text-xl group-hover:text-primary mt-4">{sponsor.name}</CardTitle>
+                          <p className="font-semibold text-primary">{sponsor.industry}</p>
+                          <p className="mt-2 flex-grow text-sm text-muted-foreground line-clamp-3">{sponsor.description}</p>
+                          
+                          <div className="mt-auto pt-6">
+                              <Button variant="outline" className="w-full">
+                                  <Handshake className="mr-2 h-4 w-4" />
+                                  View Sponsor
+                              </Button>
+                          </div>
+                          </CardContent>
+                      </Link>
+                  </Card>
+                ) : (
+                   <Card key={sponsor.id} className="group w-full overflow-hidden border transition-all hover:shadow-lg">
+                      <Link href={`/sponsors/${sponsor.id}`}>
+                          <div className="flex flex-col sm:flex-row">
+                              <div className="relative h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 bg-muted flex items-center justify-center p-4">
+                                 <Image
+                                      src={sponsor.logoUrl}
+                                      alt={`${sponsor.name} logo`}
+                                      width={200}
+                                      height={100}
+                                      className="object-contain transition-transform group-hover:scale-105"
+                                  />
+                              </div>
+                              <CardContent className="flex-grow p-4 sm:p-6">
+                                  <Badge variant={sponsor.tier === 'Platinum' ? 'default' : 'secondary'} className="w-fit">{sponsor.tier}</Badge>
+                                  <CardTitle className="group-hover:text-primary mt-2">{sponsor.name}</CardTitle>
+                                  <p className="font-semibold text-primary">{sponsor.industry}</p>
+                                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{sponsor.description}</p>
+                              </CardContent>
+                               <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
+                                  <Button variant="outline" className="w-full sm:w-auto">
+                                      <Handshake className="mr-2 h-4 w-4" />
+                                      View
+                                  </Button>
+                              </div>
+                          </div>
+                      </Link>
+                   </Card>
+                )
+              ))
+          ) : (
+               <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+                  <h3 className="font-headline text-xl font-semibold">No Sponsors Found</h3>
+                  <p className="text-muted-foreground mt-2">No sponsors match your criteria. Please check back later or adjust your filters.</p>
+                  <Button variant="link" onClick={() => {
+                      setSearchQuery('');
+                      setIndustry('all');
+                  }}>Clear Filters</Button>
+              </div>
+            )}
+        </div>
       </section>
     </div>
   );

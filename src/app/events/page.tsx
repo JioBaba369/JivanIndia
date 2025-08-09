@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function EventsPage() {
   const { events, isLoading } = useEvents();
@@ -58,6 +59,26 @@ export default function EventsPage() {
     })
     .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
   }, [approvedEvents, searchQuery, locationQuery, category]);
+
+  const EventSkeletons = () => (
+    Array.from({ length: 6 }).map((_, i) => (
+      <Card key={i} className="flex flex-col overflow-hidden">
+        <Skeleton className="h-48 w-full" />
+        <CardContent className="flex flex-grow flex-col p-4">
+          <Skeleton className="h-4 w-1/3 mb-2" />
+          <Skeleton className="h-6 w-full mb-4" />
+          <Skeleton className="h-4 w-full mb-2" />
+           <div className="mt-4 space-y-3 flex-grow">
+             <Skeleton className="h-4 w-5/6" />
+             <Skeleton className="h-4 w-4/6" />
+          </div>
+          <div className="mt-4">
+            <Skeleton className="h-8 w-24" />
+          </div>
+        </CardContent>
+      </Card>
+    ))
+  );
 
   return (
     <div className="container mx-auto py-12">
@@ -108,12 +129,11 @@ export default function EventsPage() {
             </div>
         </Card>
         
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {isLoading ? (
-            <div className="flex h-64 items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <EventSkeletons />
         ) : approvedEvents.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed py-16 text-center">
+            <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                 <Megaphone className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="font-headline text-xl font-semibold mt-4">No Events Yet</h3>
                 <p className="text-muted-foreground mt-2">No upcoming events have been posted. Be the first to share one!</p>
@@ -122,8 +142,7 @@ export default function EventsPage() {
                 </Button>
             </div>
         ) : filteredEvents.length > 0 ? (
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-            {filteredEvents.map((event) => {
+            filteredEvents.map((event) => {
               const formattedDate = format(new Date(event.startDateTime), 'PPp');
               return (
                  <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
@@ -158,10 +177,9 @@ export default function EventsPage() {
                           </div>
                       </div>
                       <CardContent className="flex-grow p-4">
-                        <Link href={`/events/${event.id}`} className="group/link">
+                        <Link href={`/events/${event.id}`} className="group/link flex-grow flex flex-col">
                           <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
-                          <h3 className="mb-2 mt-2 font-headline text-xl group-hover/link:text-primary transition-colors">{event.title}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                          <h3 className="mb-2 mt-2 font-headline text-xl group-hover/link:text-primary transition-colors flex-grow">{event.title}</h3>
                           <div className="mt-4 space-y-2">
                               <div className="flex items-center text-sm text-muted-foreground">
                                   <Calendar className="mr-2 h-4 w-4 text-primary"/>
@@ -183,10 +201,9 @@ export default function EventsPage() {
                       </div>
                 </Card>
               ) 
-            })}
-           </div>
+            })
         ) : (
-             <div className="rounded-lg border-2 border-dashed py-16 text-center">
+             <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                 <h3 className="font-headline text-xl font-semibold">No Events Found</h3>
                 <p className="text-muted-foreground mt-2">No events match your criteria. Try adjusting your search or check back later.</p>
                 <Button variant="link" onClick={() => {
@@ -196,6 +213,7 @@ export default function EventsPage() {
                 }}>Clear Filters</Button>
             </div>
           )}
+        </div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import AnalyticsCard from '@/components/feature/analytics-card';
-import { Users, CalendarCheck, BarChart2, TrendingUp, TrendingDown, ArrowRight, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { Users, CalendarCheck, BarChart2, TrendingUp, TrendingDown, ArrowRight, Link as LinkIcon, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useCommunities } from '@/hooks/use-communities';
 import { useParams, useRouter } from 'next/navigation';
@@ -19,22 +19,30 @@ const eventPerformanceData: any[] = [];
 const topReferrersData: any[] = [];
 
 export default function AnalyticsDashboardPage() {
-    const { user } = useAuth();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const router = useRouter();
     const params = useParams();
     const slug = typeof params.slug === 'string' ? params.slug : '';
-    const { getCommunityBySlug } = useCommunities();
+    const { getCommunityBySlug, isLoading: areCommunitiesLoading } = useCommunities();
     const [community, setCommunity] = useState<Community | null>(null);
 
     useEffect(() => {
-        if (slug) {
+        if (slug && !areCommunitiesLoading) {
             const foundCommunity = getCommunityBySlug(slug);
             setCommunity(foundCommunity || null);
         }
-    }, [slug, getCommunityBySlug]);
+    }, [slug, getCommunityBySlug, areCommunitiesLoading]);
     
     // Authorization check
-    if (user && community && user.uid !== community.founderUid) {
+    if (isAuthLoading || areCommunitiesLoading) {
+      return (
+        <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+    
+    if (!user || !community || user.uid !== community.founderUid) {
         return (
              <div className="container mx-auto px-4 py-12 text-center">
                 <Card className="mx-auto max-w-md">
