@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle, LayoutGrid, List, Star, MoreVertical } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   Carousel,
@@ -32,6 +31,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
@@ -158,15 +159,8 @@ export default function CommunitiesPage() {
                 <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
                   <Card className={cn("flex h-full flex-col overflow-hidden transition-all hover:shadow-lg", org.isFeatured && "border-primary border-2")}>
                       <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
-                          <div className="relative h-48 w-full">
-                              <Image
-                              src={org.imageUrl}
-                              alt={org.name}
-                              fill
-                              className="object-cover"
-                              priority
-                              data-ai-hint="community photo"
-                              />
+                          <div className="relative h-48 w-full bg-muted flex items-center justify-center">
+                              <Building2 className="h-16 w-16 text-muted-foreground" />
                               {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                           </div>
                           <CardContent className="flex flex-grow flex-col p-4">
@@ -249,15 +243,9 @@ export default function CommunitiesPage() {
                     const isJoined = isCommunityJoined(org.id);
                     return view === 'grid' ? (
                     <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
-                        <div className="relative h-48 w-full">
-                             <Link href={`/c/${org.slug}`} className="flex h-full flex-grow flex-col">
-                                <Image
-                                    src={org.imageUrl}
-                                    alt={org.name}
-                                    fill
-                                    className="object-cover transition-transform group-hover:scale-105"
-                                    data-ai-hint="community photo"
-                                />
+                        <div className="relative h-48 w-full bg-muted flex items-center justify-center">
+                             <Link href={`/c/${org.slug}`} className="flex h-full w-full items-center justify-center flex-grow flex-col">
+                                <Building2 className="h-16 w-16 text-muted-foreground" />
                                 {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                              </Link>
                              <div className="absolute top-2 right-2">
@@ -309,15 +297,10 @@ export default function CommunitiesPage() {
                 ) : (
                     <Card key={org.id} className={cn("group w-full overflow-hidden border transition-all hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
                     <div className="flex flex-col sm:flex-row">
-                        <Link href={`/c/${org.slug}`} className="flex h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 items-center justify-center">
-                            <Image
-                                src={org.logoUrl}
-                                alt={org.name}
-                                width={100}
-                                height={100}
-                                className="object-contain p-4 transition-transform group-hover:scale-105"
-                                data-ai-hint="community logo"
-                            />
+                        <Link href={`/c/${org.slug}`} className="flex h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 items-center justify-center bg-muted">
+                           <Avatar className="h-24 w-24">
+                              <AvatarFallback className="text-3xl font-headline">{getInitials(org.name)}</AvatarFallback>
+                           </Avatar>
                         </Link>
                         <CardContent className="flex flex-grow flex-col p-4 sm:p-6">
                             <Link href={`/c/${org.slug}`} className="flex-grow">

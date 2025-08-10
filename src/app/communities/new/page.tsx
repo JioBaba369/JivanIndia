@@ -42,7 +42,6 @@ import {
   AlertDialogTrigger,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
-import ImageUpload from '@/components/feature/image-upload';
 import { generateSlug } from '@/lib/utils';
 import CountrySelector from '@/components/layout/country-selector';
 
@@ -84,8 +83,6 @@ const formSchema = (isSlugUnique: (slug: string) => Promise<boolean>) =>
       .regex(/^\d{4}$/, 'Please enter a valid 4-digit year.')
       .refine((val) => parseInt(val) <= new Date().getFullYear(), 'Year cannot be in the future.'),
     tags: z.string().optional(),
-    logoUrl: z.string({ required_error: 'A logo image is required.' }).url({ message: 'A logo image is required.' }),
-    bannerUrl: z.string({ required_error: 'A banner image is required.' }).url({ message: 'A banner image is required.' }),
     website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
     contactEmail: z.string().email('Please enter a valid email address.'),
     phone: z.string().min(10, 'Please enter a valid phone number.').optional().or(z.literal('')),
@@ -143,8 +140,6 @@ export default function NewCommunityPage() {
       region: '',
       founded: '',
       tags: '',
-      logoUrl: '',
-      bannerUrl: '',
       website: '',
       contactEmail: user?.email || '',
       phone: '',
@@ -187,8 +182,6 @@ export default function NewCommunityPage() {
         fullDescription: values.fullDescription,
         country: values.country,
         region: values.region,
-        imageUrl: values.bannerUrl,
-        logoUrl: values.logoUrl,
         tags: values.tags?.split(',').map((tag) => tag.trim()).filter(Boolean) || [],
         membersCount: 1,
         address: values.address || '',
@@ -287,50 +280,6 @@ export default function NewCommunityPage() {
               className="space-y-8"
               aria-describedby="form-description"
             >
-              <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                  <FormField
-                    control={form.control}
-                    name="logoUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community Logo (1:1 Ratio) *</FormLabel>
-                        <FormControl>
-                          <ImageUpload
-                            value={field.value}
-                            onChange={field.onChange}
-                            aspectRatio={1}
-                            toast={toast}
-                            folderName="community-logos"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="bannerUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community Banner (16:9 Ratio) *</FormLabel>
-                        <FormControl>
-                          <ImageUpload
-                            value={field.value}
-                            onChange={field.onChange}
-                            aspectRatio={16 / 9}
-                            toast={toast}
-                            folderName="community-banners"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
                 <FormField

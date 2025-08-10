@@ -11,7 +11,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatUrl, getInitials } from "@/lib/utils";
 import { format } from "date-fns";
 import ReportDialog from "@/components/feature/report-dialog";
