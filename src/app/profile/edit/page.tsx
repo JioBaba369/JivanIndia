@@ -33,7 +33,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import CountrySelector from '@/components/layout/country-selector';
-import { useCountries } from '@/hooks/use-countries';
+import IndiaStateDistrictSelector from '@/components/feature/india-state-district-selector';
+
 
 const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>, currentUid?: string) => z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -211,10 +212,12 @@ export default function EditProfilePage() {
 
                 <div className="space-y-4">
                   <h3 className="font-headline text-lg font-semibold border-b pb-2">Origin in India (Optional)</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField control={form.control} name="originState" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input placeholder="e.g., Kerala, Punjab" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="originDistrict" render={({ field }) => (<FormItem><FormLabel>District</FormLabel><FormControl><Input placeholder="e.g., Kollam, Ludhiana" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  </div>
+                  <IndiaStateDistrictSelector
+                    stateValue={form.watch('originState')}
+                    districtValue={form.watch('originDistrict')}
+                    onStateChange={(value) => form.setValue('originState', value, { shouldValidate: true })}
+                    onDistrictChange={(value) => form.setValue('originDistrict', value, { shouldValidate: true })}
+                  />
                 </div>
 
                 <div className="space-y-4">

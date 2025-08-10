@@ -19,43 +19,46 @@ import Footer from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 import CookieConsentBanner from '@/components/cookie-consent-banner';
 import { CountriesProvider } from '@/hooks/use-countries';
+import { IndiaLocationsProvider } from '@/hooks/use-india-locations';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
       <CountriesProvider>
-        <AboutProvider>
-            <AuthProvider>
-                <ReportsProvider>
-                  <CommunitiesProvider>
-                      <NotificationsProvider>
-                        <EventsProvider>
-                            <BusinessesProvider>
-                                <SponsorsProvider>
-                                    <DealsProvider>
-                                        <MoviesProvider>
-                                            <JobsProvider>
-                                                <FestivalsProvider>
-                                                    <div className="relative flex min-h-screen flex-col">
-                                                        <Header />
-                                                        <main className="flex-1">
-                                                            {children}
-                                                        </main>
-                                                        <Footer />
-                                                        <Toaster />
-                                                        <CookieConsentBanner />
-                                                    </div>
-                                                </FestivalsProvider>
-                                            </JobsProvider>
-                                        </MoviesProvider>
-                                    </DealsProvider>
-                                </SponsorsProvider>
-                            </BusinessesProvider>
-                        </EventsProvider>
-                      </NotificationsProvider>
-                  </CommunitiesProvider>
-                </ReportsProvider>
-            </AuthProvider>
-        </AboutProvider>
+        <IndiaLocationsProvider>
+          <AboutProvider>
+              <AuthProvider>
+                  <ReportsProvider>
+                    <CommunitiesProvider>
+                        <NotificationsProvider>
+                          <EventsProvider>
+                              <BusinessesProvider>
+                                  <SponsorsProvider>
+                                      <DealsProvider>
+                                          <MoviesProvider>
+                                              <JobsProvider>
+                                                  <FestivalsProvider>
+                                                      <div className="relative flex min-h-screen flex-col">
+                                                          <Header />
+                                                          <main className="flex-1">
+                                                              {children}
+                                                          </main>
+                                                          <Footer />
+                                                          <Toaster />
+                                                          <CookieConsentBanner />
+                                                      </div>
+                                                  </FestivalsProvider>
+                                              </JobsProvider>
+                                          </MoviesProvider>
+                                      </DealsProvider>
+                                  </SponsorsProvider>
+                              </BusinessesProvider>
+                          </EventsProvider>
+                        </NotificationsProvider>
+                    </CommunitiesProvider>
+                  </ReportsProvider>
+              </AuthProvider>
+          </AboutProvider>
+        </IndiaLocationsProvider>
       </CountriesProvider>
     )
 }
