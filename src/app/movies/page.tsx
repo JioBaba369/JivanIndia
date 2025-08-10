@@ -22,7 +22,7 @@ export default function MoviesPage() {
   const { movies, isLoading } = useMovies();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, isMovieSaved, saveMovie, unsaveMovie } = useAuth();
+  const { user, isItemSaved, saveItem, unsaveItem } = useAuth();
   const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,12 +50,12 @@ export default function MoviesPage() {
       return;
     }
     
-    const currentlySaved = isMovieSaved(movie.id);
+    const currentlySaved = isItemSaved('savedMovies', movie.id);
     if (currentlySaved) {
-        unsaveMovie(movie.id);
+        unsaveItem('savedMovies', movie.id);
         toast({ title: "Removed from Watchlist", description: `${movie.title} has been removed from your saved movies.` });
     } else {
-        saveMovie(movie.id);
+        saveItem('savedMovies', movie.id);
         toast({ title: "Added to Watchlist!", description: `${movie.title} has been saved to your profile.` });
     }
   };
@@ -118,7 +118,7 @@ export default function MoviesPage() {
           </div>
        ) : filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => {
-                const isSaved = user ? isMovieSaved(movie.id) : false;
+                const isSaved = user ? isItemSaved('savedMovies', movie.id) : false;
                 return (
                 <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative aspect-[2/3] w-full">

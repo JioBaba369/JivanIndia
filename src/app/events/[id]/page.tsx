@@ -31,7 +31,7 @@ export default function EventDetailPage() {
   const organizer = getCommunityById(event?.organizerId || '');
 
   const { toast } = useToast();
-  const { user, saveEvent, unsaveEvent, isEventSaved } = useAuth();
+  const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
   const router = useRouter();
   
   const eventSponsors = useMemo(() => {
@@ -116,15 +116,15 @@ export default function EventDetailPage() {
         return;
     }
 
-    const currentlySaved = isEventSaved(event.id);
+    const currentlySaved = isItemSaved('savedEvents', event.id);
     if (currentlySaved) {
-        unsaveEvent(event.id);
+        unsaveItem('savedEvents', event.id);
         toast({
             title: "Event Unsaved",
             description: `"${event.title}" has been removed from your saved events.`,
         });
     } else {
-        saveEvent(event.id);
+        saveItem('savedEvents', event.id);
         toast({
             title: "Event Saved!",
             description: `"${event.title}" has been saved to your profile.`,
@@ -132,7 +132,7 @@ export default function EventDetailPage() {
     }
   }
 
-  const eventIsSaved = user ? isEventSaved(event.id) : false;
+  const eventIsSaved = user ? isItemSaved('savedEvents', event.id) : false;
   const canEditEvent = user && (user.uid === event.submittedByUid || user.roles.includes('admin'));
 
   const TicketButton = () => {

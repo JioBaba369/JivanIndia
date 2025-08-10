@@ -23,7 +23,7 @@ export default function DealDetailPage() {
   const { getCommunityById, isLoading: isLoadingCommunities } = useCommunities();
   
   const { toast } = useToast();
-  const { user, saveDeal, unsaveDeal, isDealSaved } = useAuth();
+  const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
   const router = useRouter();
 
   const businessCommunity = getCommunityById(deal?.businessId || '');
@@ -65,15 +65,15 @@ export default function DealDetailPage() {
         return;
     }
 
-    const currentlySaved = isDealSaved(deal.id);
+    const currentlySaved = isItemSaved('savedDeals', deal.id);
     if (currentlySaved) {
-        unsaveDeal(deal.id);
+        unsaveItem('savedDeals', deal.id);
         toast({
             title: "Deal Unsaved",
             description: `The "${deal.title}" deal has been removed from your saved list.`,
         });
     } else {
-        saveDeal(deal.id);
+        saveItem('savedDeals', deal.id);
         toast({
             title: "Deal Saved!",
             description: `The "${deal.title}" deal has been saved to your profile.`,
@@ -103,7 +103,7 @@ export default function DealDetailPage() {
     );
   }
 
-  const dealIsSaved = user ? isDealSaved(deal.id) : false;
+  const dealIsSaved = user ? isItemSaved('savedDeals', deal.id) : false;
   const expirationDate = isValid(new Date(deal.expires)) ? format(new Date(deal.expires), 'PPP') : 'N/A';
 
 

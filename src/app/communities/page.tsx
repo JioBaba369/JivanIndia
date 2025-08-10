@@ -37,7 +37,7 @@ import Image from "next/image";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
-    const { user, isCommunityJoined, joinCommunity, leaveCommunity } = useAuth();
+    const { user, isItemSaved, saveItem, unsaveItem } = useAuth();
     const router = useRouter();
     const { communities, isLoading } = useCommunities();
     const searchParams = useSearchParams();
@@ -88,15 +88,15 @@ export default function CommunitiesPage() {
             return;
         }
         
-        const currentlyJoined = isCommunityJoined(orgId);
+        const currentlyJoined = isItemSaved('joinedCommunities', orgId);
         if (currentlyJoined) {
-            leaveCommunity(orgId);
+            unsaveItem('joinedCommunities', orgId);
             toast({
                 title: "Community Left",
                 description: `You have left ${orgName}.`,
             });
         } else {
-            joinCommunity(orgId);
+            saveItem('joinedCommunities', orgId);
             toast({
                 title: "Community Joined!",
                 description: `You have joined ${orgName}.`,
@@ -245,7 +245,7 @@ export default function CommunitiesPage() {
         {isLoading ? <CommunitySkeletons /> : (
             filteredCommunities.length > 0 ? (
                 filteredCommunities.map((org) => {
-                    const isJoined = isCommunityJoined(org.id);
+                    const isJoined = isItemSaved('joinedCommunities', org.id);
                     return view === 'grid' ? (
                     <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
                         <div className="relative h-48 w-full bg-muted flex items-center justify-center">

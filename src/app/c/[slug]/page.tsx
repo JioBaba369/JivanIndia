@@ -30,7 +30,7 @@ export default function CommunityDetailPage() {
   const relatedEvents = community ? events.filter(event => event.organizerId === community.id && event.status === 'Approved').slice(0, 3) : [];
   
   const { toast } = useToast();
-  const { user, joinCommunity, leaveCommunity, isCommunityJoined } = useAuth();
+  const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -51,15 +51,15 @@ export default function CommunityDetailPage() {
         return;
     }
 
-    const currentlyJoined = isCommunityJoined(community.id);
+    const currentlyJoined = isItemSaved('joinedCommunities', community.id);
     if (currentlyJoined) {
-        leaveCommunity(community.id);
+        unsaveItem('joinedCommunities', community.id);
         toast({
             title: "Community Left",
             description: `You have left ${community.name}.`,
         });
     } else {
-        joinCommunity(community.id);
+        saveItem('joinedCommunities', community.id);
         toast({
             title: "Community Joined!",
             description: `You have successfully joined ${community.name}.`,
@@ -87,7 +87,7 @@ export default function CommunityDetailPage() {
     );
   }
 
-  const orgIsJoined = user ? isCommunityJoined(community.id) : false;
+  const orgIsJoined = user ? isItemSaved('joinedCommunities', community.id) : false;
   const isManager = user && community.managerUids?.includes(user.uid);
 
   return (

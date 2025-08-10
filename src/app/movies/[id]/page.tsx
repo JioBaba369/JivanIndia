@@ -25,7 +25,7 @@ export default function MovieDetailPage() {
   const { getCommunityBySlug, isLoading: isLoadingCommunities } = useCommunities();
   const distributor = getCommunityBySlug(movie?.details.distributorId || '');
   
-  const { user, isMovieSaved, saveMovie, unsaveMovie } = useAuth();
+  const { user, isItemSaved, saveItem, unsaveItem } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -63,12 +63,12 @@ export default function MovieDetailPage() {
       return;
     }
 
-    const currentlySaved = isMovieSaved(movie.id);
+    const currentlySaved = isItemSaved('savedMovies', movie.id);
     if (currentlySaved) {
-      unsaveMovie(movie.id);
+      unsaveItem('savedMovies', movie.id);
       toast({ title: "Removed from Watchlist", description: `${movie.title} has been removed from your saved movies.` });
     } else {
-      saveMovie(movie.id);
+      saveItem('savedMovies', movie.id);
       toast({ title: "Added to Watchlist!", description: `${movie.title} has been saved to your profile.` });
     }
   };
@@ -94,7 +94,7 @@ export default function MovieDetailPage() {
     );
   }
   
-  const movieIsSaved = user ? isMovieSaved(movie.id) : false;
+  const movieIsSaved = user ? isItemSaved('savedMovies', movie.id) : false;
 
   return (
     <div className="bg-background">
