@@ -55,7 +55,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
 
   if (user) {
     const isAdmin = user.roles?.includes('admin');
-    const affiliatedCommunity = user.affiliation ? getCommunityBySlug(user.affiliation.communitySlug) : null;
+    const affiliatedCommunity = user.affiliation?.communitySlug ? getCommunityBySlug(user.affiliation.communitySlug) : null;
     const isCommunityManager = affiliatedCommunity ? canManageCommunity(affiliatedCommunity, user) : false;
 
     return (

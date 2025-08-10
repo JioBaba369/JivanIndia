@@ -137,7 +137,7 @@ export default function EditCommunityPage() {
     );
   }
 
-  const canEdit = user && community && canManageCommunity(community.id, user);
+  const canEdit = user && community && canManageCommunity(community, user);
   const isFounder = user && community && user.uid === community.founderUid;
 
   if (!user || !canEdit) {
