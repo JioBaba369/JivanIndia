@@ -7,6 +7,7 @@ import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useNotifications } from './use-notifications';
 import { useCommunities } from './use-communities';
+import { useBusinesses } from './use-businesses';
 
 export interface Deal {
   id: string;
@@ -16,7 +17,7 @@ export interface Deal {
   category: 'Food & Dining' | 'Retail & Shopping' | 'Services' | 'Entertainment' | 'Other';
   expires: string; 
   business: string;
-  businessId: string; // This should be the community ID
+  businessId: string; // This can be a community ID or a business ID
   businessLocation: string;
   businessWebsite: string;
   postedAt: any; 

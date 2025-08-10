@@ -41,7 +41,7 @@ export default function UserPublicProfilePage() {
     const username = typeof params.username === 'string' ? params.username : '';
 
     const { user: currentUser, getUserByUsername } = useAuth();
-    const { events: allEvents } = useEvents();
+    const { events: allEvents, getEventById } = useEvents();
     const { businesses } = useBusinesses();
     const { sponsors } = useSponsors();
     const { communities: allCommunities, getCommunityById } = useCommunities();
@@ -73,7 +73,13 @@ export default function UserPublicProfilePage() {
         }
     }, [username, getUserByUsername, getCommunityById]);
 
-    const userSavedEvents = useMemo(() => allEvents.filter(event => profileUser?.savedEvents?.includes(String(event.id))), [allEvents, profileUser]);
+    const userSavedEvents = useMemo(() => 
+        (profileUser?.savedEvents || [])
+            .map(eventId => getEventById(eventId))
+            .filter(event => event !== undefined), 
+        [profileUser, getEventById]
+    );
+
     const userJoinedCommunities = useMemo(() => allCommunities.filter(org => profileUser?.joinedCommunities?.includes(org.id)), [allCommunities, profileUser]);
     const userSavedDeals = useMemo(() => allDeals.filter(deal => profileUser?.savedDeals?.includes(deal.id)), [allDeals, profileUser]);
     const userSavedMovies = useMemo(() => allMovies.filter(movie => profileUser?.savedMovies?.includes(movie.id)), [allMovies, profileUser]);
@@ -83,7 +89,7 @@ export default function UserPublicProfilePage() {
         : [], [allEvents, affiliatedCommunity, profileUser]);
     
     const userAffiliatedBusinesses = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
-        ? businesses.filter(p => p.associatedCommunityId === affiliatedCommunity.id)
+        ? businesses.filter(p => p.ownerId === profileUser.uid)
         : [], [businesses, affiliatedCommunity, profileUser]);
 
     const userAffiliatedSponsors = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
@@ -246,7 +252,7 @@ export default function UserPublicProfilePage() {
                                 <TabsContent value="saved-events" className="mt-6">
                                      {userSavedEvents.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {userSavedEvents.map((event) => (
+                                            {userSavedEvents.map((event) => event && (
                                                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                     <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                                                         <CardContent className="flex flex-grow flex-col p-4">
@@ -416,5 +422,3 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
-
-    

@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/form';
 import { useDeals, type NewDealInput } from '@/hooks/use-deals';
 import { useCommunities } from '@/hooks/use-communities';
+import { useBusinesses } from '@/hooks/use-businesses';
 
 
 const formSchema = z.object({
@@ -41,6 +42,7 @@ const formSchema = z.object({
   terms: z.string().min(10, "Terms must be at least 10 characters."),
   category: z.enum(['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other']),
   expires: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid expiration date is required." }),
+  businessId: z.string().min(1, "You must select a business or community."),
 });
 
 type DealFormValues = z.infer<typeof formSchema>;
@@ -52,9 +54,13 @@ export default function NewDealPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { addDeal } = useDeals();
-  const { getCommunityById } = useCommunities();
+  const { communities } = useCommunities();
+  const { businesses } = useBusinesses();
   
   const [isPending, startTransition] = useTransition();
+
+  const userAffiliatedBusinesses = businesses.filter(b => b.ownerId === user?.uid);
+  const userAffiliatedCommunities = communities.filter(c => c.founderUid === user?.uid);
 
   const form = useForm<DealFormValues>({
     resolver: zodResolver(formSchema),
@@ -64,25 +70,28 @@ export default function NewDealPage() {
       terms: '',
       category: 'Food & Dining',
       expires: '',
+      businessId: '',
     },
     mode: 'onChange'
   });
 
 
   const handleSubmit = async (values: DealFormValues) => {
-     if (!user?.affiliation) {
+     if (!user) {
       toast({
-        title: 'Affiliation Required',
-        description: 'You must be affiliated with a registered business to post a deal.',
+        title: 'Authentication Required',
+        description: 'You must be logged in to post a deal.',
         variant: 'destructive',
       });
       return;
     }
-    const community = getCommunityById(user.affiliation.orgId);
-    if (!community) {
+    const allAffiliations = [...userAffiliatedBusinesses, ...userAffiliatedCommunities];
+    const selectedAffiliation = allAffiliations.find(a => a.id === values.businessId);
+
+    if (!selectedAffiliation) {
       toast({
-        title: 'Community Not Found',
-        description: 'Could not find details for your affiliated community.',
+        title: 'Affiliation Not Found',
+        description: 'Could not find details for your selected business or community.',
         variant: 'destructive',
       });
       return;
@@ -90,11 +99,15 @@ export default function NewDealPage() {
     
     startTransition(async () => {
       const newDealData: NewDealInput = {
-        ...values,
-        business: community.name,
-        businessId: community.id,
-        businessLocation: community.address || community.region,
-        businessWebsite: community.website || '',
+        title: values.title,
+        description: values.description,
+        terms: values.terms,
+        category: values.category,
+        expires: values.expires,
+        business: selectedAffiliation.name,
+        businessId: selectedAffiliation.id,
+        businessLocation: 'address' in selectedAffiliation ? selectedAffiliation.address : `${selectedAffiliation.location.city}, ${selectedAffiliation.location.country}`,
+        businessWebsite: selectedAffiliation.website || '',
         submittedByUid: user.uid,
       };
 
@@ -133,17 +146,17 @@ export default function NewDealPage() {
     );
   }
   
-  if (!user.affiliation) {
+  if (userAffiliatedCommunities.length === 0 && userAffiliatedBusinesses.length === 0) {
      return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
             <CardHeader>
-                <CardTitle className="font-headline text-3xl">Business Affiliation Required</CardTitle>
-                <CardDescription>You must represent a registered business to post a deal.</CardDescription>
+                <CardTitle className="font-headline text-3xl">Business or Community Required</CardTitle>
+                <CardDescription>You must manage a registered business or community to post a deal.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button asChild className="mt-2">
-                    <Link href="/communities/new">Register Your Business</Link>
+                    <Link href="/businesses/new">Register Your Business</Link>
                 </Button>
             </CardContent>
         </Card>
@@ -179,11 +192,26 @@ export default function NewDealPage() {
                   </FormItem>
                 )}
               />
-               <div className="space-y-2">
-                <Label htmlFor="businessName">Business Name</Label>
-                <Input id="businessName" value={user.affiliation.orgName} readOnly disabled className="disabled:bg-muted/50" />
-                <p className="text-xs text-muted-foreground">This is based on your community affiliation.</p>
-              </div>
+               <FormField
+                  control={form.control}
+                  name="businessId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business / Community *</FormLabel>
+                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select a business or community you manage" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {[...userAffiliatedBusinesses, ...userAffiliatedCommunities].map(item => (
+                            <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}

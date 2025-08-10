@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2 } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,6 +13,7 @@ import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { useMemo } from 'react';
 import { useDeals } from "@/hooks/use-deals";
 import { useCommunities } from "@/hooks/use-communities";
+import { useBusinesses } from "@/hooks/use-businesses";
 import ReportDialog from "@/components/feature/report-dialog";
 
 export default function DealDetailPage() {
@@ -21,12 +22,23 @@ export default function DealDetailPage() {
   const { getDealById, isLoading: isLoadingDeals } = useDeals();
   const deal = getDealById(id);
   const { getCommunityById, isLoading: isLoadingCommunities } = useCommunities();
+  const { getBusinessById, isLoading: isLoadingBusinesses } = useBusinesses();
   
   const { toast } = useToast();
   const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
   const router = useRouter();
 
-  const businessCommunity = getCommunityById(deal?.businessId || '');
+  const affiliatedEntity = useMemo(() => {
+    if (!deal) return null;
+    const community = getCommunityById(deal.businessId);
+    if (community) return { type: 'community', data: community, slug: community.slug };
+    
+    const business = getBusinessById(deal.businessId);
+    if (business) return { type: 'business', data: business, slug: business.id };
+
+    return null;
+  }, [deal, getCommunityById, getBusinessById]);
+
 
   const postedAt = useMemo(() => {
     if (!deal?.postedAt) return 'a while ago';
@@ -81,7 +93,7 @@ export default function DealDetailPage() {
     }
   }
   
-  const isLoading = isLoadingDeals || isLoadingCommunities;
+  const isLoading = isLoadingDeals || isLoadingCommunities || isLoadingBusinesses;
 
   if (isLoading) {
     return (
@@ -160,12 +172,17 @@ export default function DealDetailPage() {
                         <div className="flex items-start gap-4">
                             <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
-                                {businessCommunity ? (
-                                    <Link href={`/c/${businessCommunity.slug}`} className="font-semibold hover:text-primary">{deal.business}</Link>
+                                {affiliatedEntity ? (
+                                    <Link 
+                                        href={affiliatedEntity.type === 'community' ? `/c/${affiliatedEntity.slug}` : `/businesses/${affiliatedEntity.slug}`} 
+                                        className="font-semibold hover:text-primary"
+                                    >
+                                        {deal.business}
+                                    </Link>
                                 ) : (
                                     <p className="font-semibold">{deal.business}</p>
                                 )}
-                                <p className="text-sm text-muted-foreground">Visit the business profile for more information.</p>
+                                <p className="text-sm text-muted-foreground">Visit the profile for more information.</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-4">
@@ -182,15 +199,17 @@ export default function DealDetailPage() {
                                 <p className="text-muted-foreground text-sm">{expirationDate}</p>
                             </div>
                         </div>
-                         <div className="flex items-start gap-4">
-                            <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                            <div>
-                                <p className="font-semibold">Website</p>
-                                <a href={`https://${deal.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-                                    {deal.businessWebsite}
-                                </a>
+                         {deal.businessWebsite && (
+                            <div className="flex items-start gap-4">
+                                <LinkIcon className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold">Website</p>
+                                    <a href={`https://${deal.businessWebsite}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                        {deal.businessWebsite}
+                                    </a>
+                                </div>
                             </div>
-                        </div>
+                         )}
                     </CardContent>
                  </Card>
               </div>
