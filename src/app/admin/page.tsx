@@ -262,7 +262,7 @@ export default function AdminDashboardPage() {
         setIsUsersLoading(true);
         try {
           const usersCollectionRef = collection(firestore, 'users');
-          // Firestore 'in' queries are limited to 30 items per chunk in some SDK versions.
+          // Firestore 'in' queries are limited to 30 items. We need to chunk the UIDs.
           const adminUidsChunks: string[][] = [];
           for (let i = 0; i < aboutContent.adminUids.length; i += 30) {
               adminUidsChunks.push(aboutContent.adminUids.slice(i, i + 30));

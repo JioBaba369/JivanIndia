@@ -37,6 +37,7 @@ const mainNavLinks: { title: string; href: string; }[] = [
     { title: "Movies", href: "/movies" },
     { title: "Deals", href: "/deals" },
     { title: "Careers", href: "/careers" },
+    { title: "Sponsors", href: "/sponsors" },
 ];
 
 
