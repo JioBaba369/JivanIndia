@@ -26,6 +26,8 @@ import { useMovies } from '@/hooks/use-movies';
 import { getInitials, formatUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { useBusinesses } from '@/hooks/use-businesses';
+import CountryFlag from '@/components/feature/country-flag';
+import { useCountries } from '@/hooks/use-countries';
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -40,6 +42,7 @@ export default function UserPublicProfilePage() {
     const { communities: allCommunities, getCommunityById } = useCommunities();
     const { deals: allDeals } = useDeals();
     const { movies: allMovies } = useMovies();
+    const { countries } = useCountries();
 
     const [profileUser, setProfileUser] = useState<User | null | undefined>(undefined);
     const [affiliatedCommunity, setAffiliatedCommunity] = useState<Community | null>(null);
@@ -88,6 +91,11 @@ export default function UserPublicProfilePage() {
             description: "Profile URL copied to clipboard.",
         });
     };
+    
+    const currentCountryCode = useMemo(() => {
+        if (!profileUser?.currentLocation?.country) return '';
+        return countries.find(c => c.name === profileUser.currentLocation.country)?.code || '';
+    }, [profileUser, countries]);
     
     if (profileUser === undefined) {
       return (
@@ -147,6 +155,21 @@ export default function UserPublicProfilePage() {
                             <h1 className="font-headline text-4xl font-bold mt-4">{profileUser.name}</h1>
                             <p className="text-muted-foreground">@{profileUser.username}</p>
                             {profileUser.bio && <p className="mt-4 max-w-2xl mx-auto text-foreground/80">{profileUser.bio}</p>}
+
+                            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-muted-foreground text-sm">
+                                {profileUser.currentLocation?.city && (
+                                    <div className="flex items-center gap-2">
+                                        <CountryFlag countryCode={currentCountryCode} />
+                                        <span>{profileUser.currentLocation.city}, {profileUser.currentLocation.country}</span>
+                                    </div>
+                                )}
+                                {profileUser.originLocation?.indiaState && (
+                                    <div className="flex items-center gap-2">
+                                         <CountryFlag countryCode="IN" />
+                                         <span>From {profileUser.originLocation.indiaDistrict}, {profileUser.originLocation.indiaState}</span>
+                                    </div>
+                                )}
+                            </div>
                         
                             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
                                 {(profileUser.languagesSpoken && profileUser.languagesSpoken.length > 0) && (
