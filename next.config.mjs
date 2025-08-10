@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -11,16 +10,6 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: 'flagsapi.com',
-        port: '',
-      },
-      {
-        protocol: 'https',
         hostname: 'placehold.co',
         port: '',
         pathname: '/**',
@@ -28,6 +17,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
         port: '',
         pathname: '/**',
       },
@@ -48,9 +43,17 @@ const nextConfig = {
         hostname: 'picsum.photos',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagsapi.com',
+        port: '',
+      },
     ],
+    dangerouslyAllowSVG: false,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

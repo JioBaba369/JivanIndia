@@ -206,7 +206,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       const userDoc = querySnapshot.docs[0];
       const userData = userDoc.data() as User;
       
-      if (community.managerUids.includes(userDoc.id)) {
+      if ((community.managerUids || []).includes(userDoc.id)) {
         toast({ title: 'Already a Manager', description: `${userData.name} is already a manager.`, variant: 'destructive' });
         return;
       }

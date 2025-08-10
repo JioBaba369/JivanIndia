@@ -88,6 +88,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   }, [toast, communities, createNotificationForCommunity]);
 
   const getJobById = useCallback((id: string): Job | undefined => {
+    if (!id) return undefined;
     return jobs.find(j => j.id === id);
   }, [jobs]);
 
