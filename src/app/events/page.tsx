@@ -51,6 +51,7 @@ export default function EventsPage() {
       
       return matchesSearch && matchesLocation && matchesCategory;
     })
+    .sort((a, b) => new Date(b.createdAt.toDate()).getTime() - new Date(a.createdAt.toDate()).getTime())
     .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
   }, [approvedEvents, searchQuery, locationQuery, category]);
 
