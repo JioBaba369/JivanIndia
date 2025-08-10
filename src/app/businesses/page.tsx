@@ -45,7 +45,8 @@ export default function BusinessesPage() {
             business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             business.description.toLowerCase().includes(searchQuery.toLowerCase());
           
-          const matchesLocation = business.region.toLowerCase().includes(locationQuery.toLowerCase());
+          const locationString = `${business.location.city}, ${business.location.state}, ${business.location.country}`.toLowerCase();
+          const matchesLocation = locationString.includes(locationQuery.toLowerCase());
     
           const matchesCategory = category === 'all' || business.category === category;
     
@@ -186,7 +187,7 @@ export default function BusinessesPage() {
                                 <div className="mt-4 space-y-2">
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <MapPin className="mr-2 h-4 w-4 text-primary"/>
-                                        <span>{business.region}</span>
+                                        <span>{business.location.city}, {business.location.state}</span>
                                     </div>
                                     <div className="flex items-center text-sm text-muted-foreground">
                                       <Star className="mr-2 h-4 w-4 text-yellow-400 fill-yellow-400"/>

@@ -247,7 +247,7 @@ export default function AdminDashboardPage() {
   }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
 
   const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
-  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.region.includes(countryFilter)), [businesses, countryFilter]);
+  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.location.country.includes(countryFilter)), [businesses, countryFilter]);
   const pendingReports = useMemo(() => reports.filter(r => r.status === 'pending'), [reports]);
 
   useEffect(() => {
@@ -522,7 +522,7 @@ export default function AdminDashboardPage() {
                                             <TableRow>
                                                 <TableHead>Name</TableHead>
                                                 <TableHead>Category</TableHead>
-                                                <TableHead>Region</TableHead>
+                                                <TableHead>Location</TableHead>
                                                 <TableHead>Status</TableHead>
                                                 <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
@@ -532,7 +532,7 @@ export default function AdminDashboardPage() {
                                                 <TableRow key={business.id}>
                                                     <TableCell className="font-medium"><Link href={`/businesses/${business.id}`} className="hover:underline" target="_blank">{business.name}</Link></TableCell>
                                                     <TableCell>{business.category}</TableCell>
-                                                    <TableCell>{business.region}</TableCell>
+                                                    <TableCell>{business.location.city}, {business.location.country}</TableCell>
                                                     <TableCell><div className="flex items-center gap-2"><Badge variant={business.isVerified ? 'default' : 'secondary'}>{business.isVerified ? 'Verified' : 'Unverified'}</Badge>{business.isFeatured && <Badge><Star className="mr-1 h-3 w-3" />Featured</Badge>}</div></TableCell>
                                                     <TableCell className="text-right space-x-2">
                                                         {business.isVerified && (<Button size="sm" variant="outline" onClick={() => updateBusinessFeaturedStatus(business.id, !business.isFeatured)}><Star className="mr-2 h-4 w-4" /> {business.isFeatured ? 'Un-Feature' : 'Feature'}</Button>)}

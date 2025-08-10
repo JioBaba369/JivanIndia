@@ -19,7 +19,11 @@ export interface Business {
   imageUrl?: string;
   isVerified: boolean;
   isFeatured?: boolean;
-  region: string;
+  location: {
+    country: string;
+    state: string;
+    city: string;
+  };
   rating: number;
   reviewCount: number;
   services: string[];
@@ -28,6 +32,7 @@ export interface Business {
     email: string;
     website: string;
     address: string;
+    businessNumber?: string;
   };
   ownerId?: string; // The UID of the user who submitted the business
   createdAt?: any;

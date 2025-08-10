@@ -32,20 +32,24 @@ import {
 } from '@/components/ui/form';
 import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hooks/use-businesses';
 import ImageUpload from '@/components/feature/image-upload';
+import CountrySelector from '@/components/layout/country-selector';
 
 
 const formSchema = z.object({
   name: z.string().min(3, "Business name must be at least 3 characters."),
-  category: z.enum(businessCategories),
+  category: z.enum(businessCategories, { required_error: "A category is required."}),
   imageUrl: z.string().url({ message: "An image URL is required." }),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
-  region: z.string().min(2, "Region is required."),
+  country: z.string().min(1, "Country is required."),
+  state: z.string().min(2, "State/Province is required."),
+  city: z.string().min(2, "City is required."),
   services: z.string().min(3, "Please list at least one service or product."),
   phone: z.string().min(10, "A valid phone number is required."),
   email: z.string().email("A valid email address is required."),
   website: z.string().url("A valid website URL is required."),
   address: z.string().min(10, "A full address is required."),
+  businessNumber: z.string().optional(),
 });
 
 type BusinessFormValues = z.infer<typeof formSchema>;
@@ -62,16 +66,18 @@ export default function NewBusinessEntryPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      category: 'Other',
       imageUrl: '',
       description: '',
       fullDescription: '',
-      region: '',
+      country: '',
+      state: '',
+      city: '',
       services: '',
       phone: '',
       email: '',
       website: '',
       address: '',
+      businessNumber: '',
     },
     mode: 'onChange'
   });
@@ -93,13 +99,18 @@ export default function NewBusinessEntryPage() {
           imageUrl: values.imageUrl,
           description: values.description,
           fullDescription: values.fullDescription,
-          region: values.region,
+          location: {
+            country: values.country,
+            state: values.state,
+            city: values.city,
+          },
           services: values.services.split(',').map(s => s.trim()).filter(Boolean),
           contact: {
             phone: values.phone,
             email: values.email,
             website: values.website,
             address: values.address,
+            businessNumber: values.businessNumber,
           },
           ownerId: user.uid,
         };
@@ -170,10 +181,17 @@ export default function NewBusinessEntryPage() {
                   )}
                 />
               <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Business/Place Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Fremont Hindu Temple" /></FormControl><FormMessage /></FormItem>)}/>
+              <FormField name="businessNumber" control={form.control} render={({field}) => (<FormItem><FormLabel>Business Number (Optional)</FormLabel><FormControl><Input {...field} placeholder="e.g., ABN, ACN, EIN" /></FormControl><FormDescription>e.g., ABN, ACN, GSTIN, EIN</FormDescription><FormMessage /></FormItem>)}/>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
-                <FormField name="region" control={form.control} render={({field}) => (<FormItem><FormLabel>Region *</FormLabel><FormControl><Input {...field} placeholder="e.g., San Francisco Bay Area" /></FormControl><FormMessage /></FormItem>)}/>
+                 <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
+                 <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>State/Province *</FormLabel><FormControl><Input placeholder="e.g., California" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                 <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input placeholder="e.g., Fremont" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <FormField name="address" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Street Address *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
               <FormField name="description" control={form.control} render={({field}) => (<FormItem><FormLabel>Short Description *</FormLabel><FormControl><Textarea {...field} placeholder="A brief one-sentence summary." rows={2}/></FormControl><FormMessage /></FormItem>)}/>
               <FormField name="fullDescription" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea {...field} placeholder="A detailed description of the place or service." rows={5}/></FormControl><FormMessage /></FormItem>)}/>
               <FormField name="services" control={form.control} render={({field}) => (<FormItem><FormLabel>Products / Services Offered *</FormLabel><FormControl><Input {...field} placeholder="e.g., Daily puja, wedding services, Indian spices" /></FormControl><FormDescription>Separate items with a comma.</FormDescription><FormMessage /></FormItem>)}/>
@@ -181,7 +199,6 @@ export default function NewBusinessEntryPage() {
                 <FormField name="phone" control={form.control} render={({field}) => (<FormItem><FormLabel>Phone *</FormLabel><FormControl><Input {...field} type="tel" /></FormControl><FormMessage /></FormItem>)}/>
                 <FormField name="email" control={form.control} render={({field}) => (<FormItem><FormLabel>Email *</FormLabel><FormControl><Input {...field} type="email" /></FormControl><FormMessage /></FormItem>)}/>
               </div>
-              <FormField name="address" control={form.control} render={({field}) => (<FormItem><FormLabel>Address *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
               <FormField name="website" control={form.control} render={({field}) => (<FormItem><FormLabel>Website *</FormLabel><FormControl><Input {...field} type="url" placeholder="https://example.com" /></FormControl><FormMessage /></FormItem>)}/>
               <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>

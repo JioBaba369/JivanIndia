@@ -186,6 +186,7 @@ export default function BusinessDetailPage() {
                       <MapPin className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
                          <p className="text-muted-foreground text-sm">{business.contact.address}</p>
+                         <p className="text-muted-foreground text-sm">{business.location.city}, {business.location.state}, {business.location.country}</p>
                       </div>
                     </div>
                      <div className="flex items-start gap-4">
