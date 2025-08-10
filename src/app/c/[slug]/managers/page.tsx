@@ -32,8 +32,8 @@ export default function CommunityManagersPage() {
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
   const { getCommunityBySlug, isLoading: isLoadingCommunities, addManager, removeManager, canManageCommunity } = useCommunities();
-  const { toast } = useToast();
   const { user } = useAuth();
+  const { toast } = useToast();
   
   const [isPending, startTransition] = useTransition();
   const [community, setCommunity] = useState<Community | null>(null);
@@ -85,7 +85,7 @@ export default function CommunityManagersPage() {
     if (community && foundUser) {
       startTransition(async () => {
         try {
-          await addManager(community, foundUser.email, newManagerRole);
+          await addManager(community.id, foundUser.email, newManagerRole);
           toast({ title: 'Manager Added', description: `${foundUser.name} can now manage this community.` });
           setNewManagerEmail('');
           setFoundUser(null);
@@ -100,7 +100,7 @@ export default function CommunityManagersPage() {
     if (community) {
       startTransition(async () => {
         try {
-          await removeManager(community, uid);
+          await removeManager(community.id, uid);
           toast({ title: 'Manager Removed', description: `Manager has been removed successfully.` });
         } catch(error: any) {
           toast({ title: 'Error', description: error.message, variant: 'destructive' });
@@ -109,10 +109,9 @@ export default function CommunityManagersPage() {
     }
   };
   
-  const ManagerCard = ({ manager, isFounder }: { manager: { uid: string, name: string, email: string, role?: ManagerRole }, isFounder: boolean }) => (
+  const ManagerCard = ({ manager, isFounder }: { manager: CommunityManager, isFounder: boolean }) => (
      <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
         <div className="flex items-center gap-4">
-        {/* Placeholder Avatar - in real app, fetch manager's avatar */}
         <Avatar><AvatarFallback>{getInitials(manager.name)}</AvatarFallback></Avatar>
         <div>
             <p className="font-semibold">{manager.name}</p>
@@ -120,7 +119,7 @@ export default function CommunityManagersPage() {
         </div>
         </div>
         <div className="flex items-center gap-2">
-            <Badge variant="secondary">
+            <Badge variant="secondary" className="capitalize">
                 {isFounder ? <><Shield className="mr-1 h-3 w-3"/>Founder</> : manager.role}
             </Badge>
             {!isFounder && (
@@ -137,12 +136,6 @@ export default function CommunityManagersPage() {
         </div>
     </div>
   );
-  
-  const managersWithDetails = community.managerUids.map(uid => {
-      // In a real app you'd fetch user details here. For now, we mock it.
-      return { uid, name: 'Manager User', email: 'loading...' , role: 'moderator' as ManagerRole}
-  });
-
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -164,11 +157,8 @@ export default function CommunityManagersPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <ManagerCard manager={{uid: user.uid, name: user.name, email: user.email}} isFounder={true} />
-              
-              {/* Display other managers */}
-              {community.managerUids?.filter(uid => uid !== user.uid).map(managerUid => (
-                  <ManagerCard key={managerUid} manager={{uid: managerUid, name: 'Manager User', email: 'email@example.com', role: 'moderator'}} isFounder={false} />
+              {community.managers?.map(manager => (
+                  <ManagerCard key={manager.uid} manager={manager} isFounder={manager.uid === community.founderUid} />
               ))}
             </div>
           </CardContent>
