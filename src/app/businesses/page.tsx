@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building, Star } from "lucide-react";
+import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building, Star, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -72,17 +72,33 @@ export default function BusinessesPage() {
 
 
   return (
-    <div className="container mx-auto py-12">
-        <div className="space-y-4 mb-8">
-            <h1 className="font-headline text-4xl font-bold">Businesses & Services</h1>
-            <p className="text-lg text-muted-foreground">Find trusted local businesses and professional services in the community.</p>
+    <div className="flex flex-col">
+       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
+            Businesses & Services
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Find trusted local businesses and professional services in the community.
+          </p>
+          {user?.isAdmin && (
+            <Button asChild size="lg" className="mt-8">
+              <Link href="/businesses/new">
+                <PlusCircle className="mr-2 h-5 w-5"/>
+                Create a Business
+              </Link>
+            </Button>
+          )}
         </div>
-        <div className="rounded-lg bg-card p-4 shadow-md">
+      </section>
+
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="relative lg:col-span-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="pl-10"
+                        className="pl-10 text-base h-12"
                         placeholder="Search Businesses..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -91,14 +107,14 @@ export default function BusinessesPage() {
                 <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="pl-10"
+                        className="pl-10 text-base h-12"
                         placeholder="Location (e.g. San Jose)"
                          value={locationQuery}
                         onChange={(e) => setLocationQuery(e.target.value)}
                     />
                 </div>
                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-base h-12">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -111,7 +127,9 @@ export default function BusinessesPage() {
                 </Select>
             </div>
         </div>
+      </div>
         
+        <section className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {isLoading ? <BusinessSkeletons /> : (
             businesses.length === 0 ? (
@@ -197,6 +215,7 @@ export default function BusinessesPage() {
             )
         )}
         </div>
+        </section>
     </div>
   );
 }
