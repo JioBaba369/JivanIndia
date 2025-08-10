@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents } from '@/hooks/use-events';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -121,8 +121,6 @@ export default function UserPublicProfilePage() {
     }
     
     const isProfileOwner = currentUser?.uid === profileUser?.uid;
-    const hasCurrentLocation = profileUser.currentLocation && (profileUser.currentLocation.city || profileUser.currentLocation.state || profileUser.currentLocation.country);
-    const hasOriginLocation = profileUser.originLocation && (profileUser.originLocation.indiaDistrict || profileUser.originLocation.indiaState);
 
     const tabs = [
         { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length, icon: Calendar, isVisible: true },

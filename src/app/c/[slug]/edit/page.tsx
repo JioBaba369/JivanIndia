@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Linkedin, Facebook, X, Trash2 } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
@@ -87,14 +87,9 @@ export default function EditCommunityPage() {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, setIsDeleting] = useState(false);
   const [community, setCommunity] = useState<Community | null>(null);
-
-  const memoizedIsSlugUnique = useCallback((slug: string, currentId?: string) => {
-    if (slug.length < 3) return true;
-    return isSlugUnique(slug, currentId);
-  }, [isSlugUnique]);
-
+  
   const form = useForm<CommunityFormValues>({
-    resolver: zodResolver(formSchema(memoizedIsSlugUnique)),
+    resolver: zodResolver(formSchema(isSlugUnique)),
     mode: 'onChange',
   });
 

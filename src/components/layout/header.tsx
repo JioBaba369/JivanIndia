@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import NotificationBell from "./notification-bell";
@@ -41,12 +41,6 @@ const mainNavLinks: { title: string; href: string; }[] = [
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
   
-  const handleItemClick = (e?: React.MouseEvent) => {
-    if (onLinkClick) {
-        onLinkClick();
-    }
-  };
-
   if (user) {
     const isAdmin = user.roles?.includes('admin');
     return (
@@ -56,7 +50,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                {user.profileImageUrl ? <AvatarImage src={user.profileImageUrl} alt={user.name} /> : <AvatarFallback>{getInitials(user.name)}</AvatarFallback>}
+                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -71,34 +65,34 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild onClick={handleItemClick}>
+              <DropdownMenuItem asChild onClick={onLinkClick}>
                   <Link href="/dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
                 </DropdownMenuItem>
-              {user.username && <DropdownMenuItem asChild onClick={handleItemClick}>
+              {user.username && <DropdownMenuItem asChild onClick={onLinkClick}>
                 <Link href={`/${user.username}`}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Public Profile</span>
                 </Link>
               </DropdownMenuItem>}
-               <DropdownMenuItem asChild onClick={handleItemClick}>
+               <DropdownMenuItem asChild onClick={onLinkClick}>
                   <Link href="/profile">
                     <Heart className="mr-2 h-4 w-4" />
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
-              <DropdownMenuItem asChild onClick={handleItemClick}>
+              <DropdownMenuItem asChild onClick={onLinkClick}>
                   <Link href="/profile/edit">
                     <Edit className="mr-2 h-4 w-4" />
                     <span>Edit Profile</span>
                   </Link>
               </DropdownMenuItem>
-              {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+              {isAdmin && <DropdownMenuItem asChild onClick={onLinkClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { handleItemClick(); logout(); }}>
+            <DropdownMenuItem onClick={() => { onLinkClick?.(); logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
