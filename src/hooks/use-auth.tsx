@@ -23,7 +23,7 @@ export interface User {
   affiliation?: {
     orgId: string;
     orgName: string;
-    orgSlug: string;
+    communitySlug: string;
   } | null; 
   phone?: string;
   website?: string;
@@ -62,7 +62,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-  setAffiliation: (orgId: string, orgName: string, orgSlug: string) => Promise<void>;
+  setAffiliation: (orgId: string, orgName: string, communitySlug: string) => Promise<void>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
@@ -236,10 +236,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [firebaseUser]);
 
 
-  const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
+  const setAffiliation = useCallback(async (orgId: string, orgName: string, communitySlug: string) => {
     if (user) {
         const userRef = doc(firestore, 'users', user.uid);
-        const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
+        const affiliation = (orgId && orgName && communitySlug) ? { orgId, orgName, communitySlug } : null;
         
         await updateDoc(userRef, { affiliation });
     }
