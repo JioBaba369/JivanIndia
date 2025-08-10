@@ -123,7 +123,6 @@ UserActions.displayName = 'UserActions';
 
 export default function Header() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { user } = useAuth();
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
@@ -173,12 +172,7 @@ export default function Header() {
         </div>
         
         <div className="flex items-center gap-2">
-            <div className="hidden md:flex">
-                <UserActions />
-            </div>
-             <div className="md:hidden flex items-center">
-                {user && <UserActions />}
-            </div>
+          <UserActions />
         </div>
       </div>
     </header>

@@ -17,7 +17,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { useDeals } from "@/hooks/use-deals";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,10 +32,18 @@ export default function HomePage() {
 
   const approvedEvents = useMemo(() => (events || []).filter(e => e?.status === 'Approved'), [events]);
 
-  const latestEvents = useMemo(() => approvedEvents
-    .filter(e => e?.startDateTime && new Date(e.startDateTime) > new Date())
-    .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
-    .slice(0, 3), [approvedEvents]);
+  const latestEvents = useMemo(() => {
+    const now = new Date();
+    const ninetyDaysFromNow = addDays(now, 90);
+    return approvedEvents
+      .filter(e => {
+        if (!e?.startDateTime) return false;
+        const eventDate = new Date(e.startDateTime);
+        return eventDate > now && eventDate < ninetyDaysFromNow;
+      })
+      .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
+      .slice(0, 3);
+  }, [approvedEvents]);
 
   const latestDeals = useMemo(() => (deals || []).slice(0, 3), [deals]);
 
