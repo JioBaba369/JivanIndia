@@ -6,6 +6,7 @@ import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where
 import { firestore } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
+import { useNotifications } from './use-notifications';
 
 export interface Community {
   id: string;
@@ -62,6 +63,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { createNotificationForUser } = useNotifications();
 
   useEffect(() => {
     setIsLoading(true);
@@ -199,21 +201,18 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     try {
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
-        toast({ title: 'User Not Found', description: `No user with email ${email}.`, variant: 'destructive' });
-        return;
+        throw new Error(`No user found with the email: ${email}`);
       }
       
       const userDoc = querySnapshot.docs[0];
       const userData = userDoc.data() as User;
       
       if ((community.managerUids || []).includes(userDoc.id)) {
-        toast({ title: 'Already a Manager', description: `${userData.name} is already a manager.`, variant: 'destructive' });
-        return;
+        throw new Error(`${userData.name} is already a manager of this community.`);
       }
 
       if (userData.affiliation && userData.affiliation.orgId !== community.id) {
-        toast({ title: 'User Already Affiliated', description: `${userData.name} is already a manager of another community and can't be added.`, variant: 'destructive' });
-        return;
+        throw new Error(`${userData.name} is already a manager of another community.`);
       }
       
       const batch = writeBatch(firestore);
@@ -229,13 +228,23 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       }
       
       await batch.commit();
+      
+      // Send notification to the new manager
+      await createNotificationForUser(userDoc.id, {
+          title: "You're a Community Manager!",
+          description: `You have been added as a manager for "${community.name}".`,
+          link: `/c/${community.slug}/edit`,
+          icon: 'Shield',
+      });
+      
       toast({ title: 'Manager Added', description: `${userData.name} is now a manager.` });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding manager:", error);
-      toast({ title: 'Error', description: 'Could not add manager.', variant: 'destructive' });
+      toast({ title: 'Error Adding Manager', description: error.message, variant: 'destructive' });
+      throw error;
     }
-  }, [toast]);
+  }, [toast, createNotificationForUser]);
   
   const removeManager = useCallback(async (community: Community, uidToRemove: string) => {
     if (uidToRemove === community.founderUid) {

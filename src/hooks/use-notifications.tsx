@@ -27,6 +27,7 @@ interface NotificationsContextType {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
+  createNotificationForUser: (userId: string, notificationData: Omit<NewNotificationInput, 'userId'>) => Promise<void>;
   createNotificationForCommunity: (communityId: string, notificationData: CommunityNotificationInput) => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
@@ -68,6 +69,21 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe();
   }, [user]);
+  
+  const createNotificationForUser = useCallback(async (userId: string, notificationData: Omit<NewNotificationInput, 'userId'>) => {
+    try {
+        const newNotification = {
+            ...notificationData,
+            userId,
+            isRead: false,
+            createdAt: serverTimestamp()
+        };
+        await addDoc(collection(firestore, 'notifications'), newNotification);
+    } catch (error) {
+        console.error("Error creating single user notification:", error);
+        // We typically don't show a toast here because this is a background process.
+    }
+  }, []);
 
   const createNotificationForCommunity = useCallback(async (communityId: string, notificationData: CommunityNotificationInput) => {
       try {
@@ -127,6 +143,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     notifications,
     unreadCount,
     isLoading,
+    createNotificationForUser,
     createNotificationForCommunity,
     markAsRead,
     markAllAsRead,

@@ -107,7 +107,7 @@ export default function CommunityManagersPage() {
           setNewManagerEmail('');
           setFoundUser(null);
         } catch(error: any) {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+           toast({ title: 'Error Adding Manager', description: error.message, variant: 'destructive' });
         }
       });
     }
