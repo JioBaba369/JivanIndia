@@ -44,14 +44,13 @@ export interface Community {
     facebookGroup?: string;
   };
   founderUid: string;
-  managerUids: string[];
   managers?: CommunityManager[];
   founderEmail: string;
   createdAt: any;
   updatedAt: any;
 }
 
-export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail' | 'isFeatured' | 'managerUids' | 'managers'>;
+export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail' | 'isFeatured' | 'managers'>;
 
 interface CommunitiesContextType {
   communities: Community[];
@@ -66,7 +65,7 @@ interface CommunitiesContextType {
   isSlugUnique: (slug: string, currentId?: string) => boolean;
   verifyCommunity: (communityId: string) => Promise<void>;
   updateCommunityFeaturedStatus: (communityId: string, isFeatured: boolean) => Promise<void>;
-  addManager: (communityId: string, userEmail: string, role: 'admin' | 'moderator') => Promise<void>;
+  addManager: (communityId: string, userToAdd: User, role: 'admin' | 'moderator') => Promise<void>;
   removeManager: (communityId: string, managerUid: string) => Promise<void>;
   updateManagerRole: (communityId: string, managerUid: string, newRole: 'admin' | 'moderator') => Promise<void>;
   canManageCommunity: (community: Community, user: User) => boolean;
@@ -129,7 +128,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       isVerified: false,
       isFeatured: false,
       founderEmail: user.email,
-      managerUids: [user.uid],
       managers: [{
         uid: user.uid,
         email: user.email,
@@ -233,45 +231,33 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
-  const addManager = useCallback(async (communityId: string, userEmail: string, role: 'admin' | 'moderator') => {
+  const addManager = useCallback(async (communityId: string, userToAdd: User, role: 'admin' | 'moderator') => {
     const currentUser = auth.currentUser;
     if (!currentUser) throw new Error("Authentication required.");
 
-    const usersRef = collection(firestore, 'users');
-    const q = query(usersRef, where("email", "==", userEmail));
+    const community = getCommunityById(communityId);
+    if (!community) throw new Error("Community not found.");
+    if ((community.managers || []).some(m => m.uid === userToAdd.uid)) {
+      throw new Error(`${userToAdd.name} is already a manager of this community.`);
+    }
+
+    const newManager: CommunityManager = {
+      uid: userToAdd.uid,
+      email: userToAdd.email,
+      name: userToAdd.name,
+      role: role,
+      addedAt: new Date().toISOString(),
+      addedBy: currentUser.uid,
+    };
     
     try {
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        throw new Error(`No user found with the email: ${userEmail}`);
-      }
-      
-      const userDoc = querySnapshot.docs[0];
-      const userData = userDoc.data() as User;
-      const community = getCommunityById(communityId);
-      
-      if (!community) throw new Error("Community not found.");
-      if ((community.managers || []).some(m => m.uid === userDoc.id)) {
-        throw new Error(`${userData.name} is already a manager of this community.`);
-      }
-
-      const newManager: CommunityManager = {
-        uid: userDoc.id,
-        email: userData.email,
-        name: userData.name,
-        role: role,
-        addedAt: new Date().toISOString(),
-        addedBy: currentUser.uid,
-      };
-
-      const updatedManagers = [...(community.managers || []), newManager];
-      await updateDoc(doc(firestore, 'communities', communityId), {
-        managers: updatedManagers
-      });
-      
-    } catch (error: any) {
-      console.error("Error adding manager:", error);
-      throw error;
+        const communityDocRef = doc(firestore, 'communities', communityId);
+        await updateDoc(communityDocRef, {
+            managers: arrayUnion(newManager)
+        });
+    } catch (error) {
+        console.error("Error adding manager:", error);
+        throw new Error("Failed to add manager to the database.");
     }
   }, [getCommunityById]);
   
@@ -280,8 +266,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     if (!community) throw new Error("Community not found.");
     if (managerUid === community.founderUid) throw new Error("The community founder cannot be removed.");
 
-    const updatedManagers = (community.managers || []).filter(m => m.uid !== managerUid);
-    await updateDoc(doc(firestore, 'communities', communityId), { managers: updatedManagers });
+    const managerToRemove = (community.managers || []).find(m => m.uid === managerUid);
+    if (!managerToRemove) throw new Error("Manager not found in this community.");
+
+    const communityDocRef = doc(firestore, 'communities', communityId);
+    await updateDoc(communityDocRef, { managers: arrayRemove(managerToRemove) });
   }, [getCommunityById]);
   
   const updateManagerRole = useCallback(async (communityId: string, managerUid: string, newRole: 'admin' | 'moderator') => {

@@ -21,12 +21,10 @@ export default function BusinessDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { businesses, isLoading: isLoadingBusinesses, deleteBusiness } = useBusinesses();
+  const { businesses, isLoading: isLoadingBusinesses } = useBusinesses();
   const business = businesses.find(p => p.id === id);
   
-  const { events } = useEvents();
-  const { getCommunityById } = useCommunities();
-  const { user } = useAuth();
+  const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
   const { toast } = useToast();
 
   const relatedEvents = []; // Business pages no longer link to community events
@@ -50,26 +48,14 @@ export default function BusinessDetailPage() {
         return;
     }
 
-    // This functionality requires `saveItem` and `isItemSaved` in useAuth, which is not implemented for businesses yet
-    toast({ title: 'Coming Soon!', description: 'Saving businesses will be available soon.' });
-  }
-  
-  const handleDelete = async () => {
-      if(!business) return;
-      try {
-          await deleteBusiness(business.id);
-          toast({
-              title: "Business Deleted",
-              description: `${business.name} has been removed.`,
-          });
-          router.push('/businesses');
-      } catch (e) {
-          toast({
-              title: "Error",
-              description: "Failed to delete business.",
-              variant: "destructive",
-          });
-      }
+    const isSaved = isItemSaved('savedBusinesses', business.id);
+    if(isSaved) {
+        unsaveItem('savedBusinesses', business.id);
+        toast({ title: 'Removed from Saved', description: `${business.name} removed from your saved businesses.`});
+    } else {
+        saveItem('savedBusinesses', business.id);
+        toast({ title: 'Business Saved!', description: `${business.name} added to your saved businesses.`});
+    }
   }
 
   if (isLoadingBusinesses) {
@@ -92,7 +78,7 @@ export default function BusinessDetailPage() {
     );
   }
 
-  const businessIsSaved = user ? user.savedBusinesses?.includes(business.id) : false;
+  const businessIsSaved = user ? isItemSaved('savedBusinesses', business.id) : false;
   const canEdit = user && (user.roles.includes('admin') || user.uid === business.ownerId);
 
   return (

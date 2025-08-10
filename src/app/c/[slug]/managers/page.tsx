@@ -84,26 +84,26 @@ export default function CommunityManagersPage() {
   }
 
   const handleAddManager = async () => {
-    if (community && foundUser) {
-      startTransition(async () => {
+    if (!community || !foundUser) return;
+    
+    startTransition(async () => {
         try {
-          await addManager(community.id, foundUser.email, newManagerRole);
-          
-          await createNotificationForUser(foundUser.uid, {
-              title: "You're a Community Manager!",
-              description: `You have been added as a manager for "${community.name}".`,
-              link: `/c/${community.slug}/edit`,
-              icon: 'Shield',
-          });
+            await addManager(community.id, foundUser, newManagerRole);
+            
+            await createNotificationForUser(foundUser.uid, {
+                title: "You're a Community Manager!",
+                description: `You have been added as a manager for "${community.name}".`,
+                link: `/c/${community.slug}/edit`,
+                icon: 'Shield',
+            });
 
-          toast({ title: 'Manager Added', description: `${foundUser.name} can now manage this community.` });
-          setNewManagerEmail('');
-          setFoundUser(null);
+            toast({ title: 'Manager Added', description: `${foundUser.name} can now manage this community.` });
+            setNewManagerEmail('');
+            setFoundUser(null);
         } catch(error: any) {
-           toast({ title: 'Error Adding Manager', description: error.message, variant: 'destructive' });
+            toast({ title: 'Error Adding Manager', description: error.message, variant: 'destructive' });
         }
-      });
-    }
+    });
   };
 
   const handleRemoveManager = async (uid: string) => {

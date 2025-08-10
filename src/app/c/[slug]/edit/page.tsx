@@ -184,11 +184,11 @@ export default function EditCommunityPage() {
           website: values.website || '',
           founded: values.founded,
           socialMedia: {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : '',
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
-            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram}` : '',
-            facebookGroup: values.socialFacebookGroup || '',
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@', '')}` : undefined,
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
+            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@', '')}` : undefined,
+            facebookGroup: values.socialFacebookGroup || undefined,
           },
         };
 
