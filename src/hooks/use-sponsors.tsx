@@ -24,6 +24,7 @@ export interface Sponsor {
     twitter?: string;
     linkedin?: string;
     facebook?: string;
+    instagram?: string;
   };
   eventsSponsored: Array<{
     eventId: string;

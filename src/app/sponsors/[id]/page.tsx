@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Handshake, X, Linkedin, Facebook, Loader2 } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Handshake, X, Linkedin, Facebook, Loader2, Instagram } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -82,6 +82,7 @@ export default function SponsorDetailPage() {
                     </div>
                     <div className="flex items-center gap-2 mt-4 md:mt-0">
                         {sponsor.socialMedia.twitter && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.twitter)} target="_blank" rel="noopener noreferrer"><X className="h-4 w-4"/></a></Button>}
+                        {sponsor.socialMedia.instagram && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.instagram)} target="_blank" rel="noopener noreferrer"><Instagram/></a></Button>}
                         {sponsor.socialMedia.linkedin && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.linkedin)} target="_blank" rel="noopener noreferrer"><Linkedin/></a></Button>}
                         {sponsor.socialMedia.facebook && <Button variant="outline" size="icon" asChild><a href={formatUrl(sponsor.socialMedia.facebook)} target="_blank" rel="noopener noreferrer"><Facebook/></a></Button>}
                     </div>

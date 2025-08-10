@@ -39,6 +39,7 @@ export interface Business {
     twitter?: string;
     linkedin?: string;
     facebook?: string;
+    instagram?: string;
   };
   tags?: string[];
   ownerId?: string; // The UID of the user who submitted the business

@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X, Trash2, UserPlus, Shield, Settings, Users } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, X, Trash2, UserPlus, Shield, Settings, Users, Instagram } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,6 +69,7 @@ const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean)
   socialTwitter: z.string().optional(),
   socialFacebook: z.string().optional(),
   socialLinkedin: z.string().optional(),
+  socialInstagram: z.string().optional(),
 }).refine((data) => isSlugUnique(data.slug, data.id), {
   message: "This URL is already taken.",
   path: ["slug"],
@@ -124,6 +125,7 @@ export default function EditCommunityPage() {
               socialTwitter: stripBaseUrl('https://x.com/', foundCommunity.socialMedia?.twitter),
               socialFacebook: stripBaseUrl('https://facebook.com/', foundCommunity.socialMedia?.facebook),
               socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundCommunity.socialMedia?.linkedin),
+              socialInstagram: stripBaseUrl('https://instagram.com/', foundCommunity.socialMedia?.instagram),
           });
       }
   }, [slug, getCommunityBySlug, form, isLoadingCommunities]);
@@ -183,6 +185,7 @@ export default function EditCommunityPage() {
             twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : '',
             linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
             facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
+            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram}` : '',
           },
         };
 
@@ -296,8 +299,9 @@ export default function EditCommunityPage() {
                   </div>
                   <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Public Address</FormLabel><FormControl><Input placeholder="e.g., 123 Community Lane, City, State" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="socialInstagram" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Instagram /> Instagram</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">instagram.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                       <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                       <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   </div>

@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTransition, useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, X, Instagram } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -56,6 +56,7 @@ const formSchema = z.object({
   socialTwitter: z.string().optional(),
   socialFacebook: z.string().optional(),
   socialLinkedin: z.string().optional(),
+  socialInstagram: z.string().optional(),
 });
 
 type BusinessFormValues = z.infer<typeof formSchema>;
@@ -92,6 +93,7 @@ export default function NewBusinessEntryPage() {
       socialTwitter: '',
       socialFacebook: '',
       socialLinkedin: '',
+      socialInstagram: '',
     },
     mode: 'onChange'
   });
@@ -142,6 +144,7 @@ export default function NewBusinessEntryPage() {
             twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : '',
             linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
             facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
+            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram}` : '',
           },
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
           ownerId: user.uid,
@@ -297,8 +300,9 @@ export default function NewBusinessEntryPage() {
 
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Social Media (Optional)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialInstagram" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Instagram /> Instagram</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">instagram.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                 </div>

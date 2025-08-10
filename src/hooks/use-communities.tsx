@@ -40,6 +40,7 @@ export interface Community {
     twitter?: string;
     linkedin?: string;
     facebook?: string;
+    instagram?: string;
   };
   founderUid: string;
   managerUids: string[];
