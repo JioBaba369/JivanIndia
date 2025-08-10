@@ -18,7 +18,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import ImageUpload from '@/components/feature/image-upload';
 import { getInitials } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,7 +49,6 @@ const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: str
   bio: z.string().max(280, { message: "Bio cannot exceed 280 characters." }).optional(),
   phone: z.string().optional(),
   website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-  profileImageUrl: z.string().url().optional().or(z.literal('')),
   currentCountry: z.string().optional(),
   currentState: z.string().optional(),
   currentCity: z.string().optional(),
@@ -81,7 +79,6 @@ export default function EditProfilePage() {
         bio: user.bio || '',
         phone: user.phone || '',
         website: user.website || '',
-        profileImageUrl: user.profileImageUrl || '',
         currentCountry: user.currentLocation?.country || '',
         currentState: user.currentLocation?.state || '',
         currentCity: user.currentLocation?.city || '',
@@ -117,7 +114,6 @@ export default function EditProfilePage() {
               bio: data.bio,
               phone: data.phone,
               website: data.website,
-              profileImageUrl: data.profileImageUrl,
               currentLocation: {
                 country: data.currentCountry || '',
                 state: data.currentState || '',
@@ -159,32 +155,12 @@ export default function EditProfilePage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                <div className="space-y-4">
-                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Profile Picture</h3>
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Profile Avatar</h3>
                   <div className="flex items-center gap-6">
                     <Avatar className="h-24 w-24 border-4 border-primary">
-                        <AvatarImage src={form.watch('profileImageUrl')} alt={form.watch('name')} />
                         <AvatarFallback className="font-headline text-3xl">{getInitials(form.watch('name'))}</AvatarFallback>
                     </Avatar>
-                    <div className="w-full">
-                      <FormField
-                          control={form.control}
-                          name="profileImageUrl"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <ImageUpload
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  aspectRatio={1}
-                                  toast={toast}
-                                  folderName="profile-pictures"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                    </div>
+                     <p className="text-sm text-muted-foreground">Profile picture functionality has been removed.</p>
                   </div>
                 </div>
 
