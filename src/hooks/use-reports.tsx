@@ -8,7 +8,7 @@ import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
 
 export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
-export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal' | 'Career';
+export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal' | 'Career' | 'Sponsor';
 
 export interface Report {
   id: string;

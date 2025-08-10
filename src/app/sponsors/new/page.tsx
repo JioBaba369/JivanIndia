@@ -99,14 +99,15 @@ export default function NewSponsorPage() {
     }
 
     startTransition(async () => {
+        const socialMedia: { [key: string]: string | undefined } = {};
+        if (values.socialTwitter) socialMedia.twitter = `https://x.com/${values.socialTwitter.replace('@', '')}`;
+        if (values.socialInstagram) socialMedia.instagram = `https://instagram.com/${values.socialInstagram.replace('@', '')}`;
+        if (values.socialLinkedin) socialMedia.linkedin = `https://linkedin.com/company/${values.socialLinkedin}`;
+        if (values.socialFacebook) socialMedia.facebook = `https://facebook.com/${values.socialFacebook}`;
+
         const newSponsorData: NewSponsorInput = {
             ...values,
-            socialMedia: {
-                twitter: values.socialTwitter,
-                linkedin: values.socialLinkedin,
-                facebook: values.socialFacebook,
-                instagram: values.socialInstagram,
-            }
+            socialMedia: Object.fromEntries(Object.entries(socialMedia).filter(([_, v]) => v)),
         };
 
         try {
@@ -188,5 +189,3 @@ export default function NewSponsorPage() {
     </div>
   );
 }
-
-    

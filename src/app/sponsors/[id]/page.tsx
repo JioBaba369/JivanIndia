@@ -12,6 +12,7 @@ import { useEvents } from "@/hooks/use-events";
 import { useSponsors } from "@/hooks/use-sponsors";
 import { formatUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import ReportDialog from "@/components/feature/report-dialog";
 
 
 export default function SponsorDetailPage() {
@@ -118,10 +119,18 @@ export default function SponsorDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2 h-4 w-4"/>
-                        Share Profile
-                    </Button>
+                     <div className="flex gap-2">
+                        <Button variant="outline" className="w-full" onClick={handleShare}>
+                            <Share2 className="mr-2 h-4 w-4"/>
+                            Share
+                        </Button>
+                         <ReportDialog 
+                            contentId={sponsor.id} 
+                            contentType="Sponsor" 
+                            contentTitle={sponsor.name} 
+                            triggerVariant="outline"
+                        />
+                    </div>
                 </div>
                  <Card>
                   <CardContent className="p-4 space-y-4">
