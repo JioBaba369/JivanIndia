@@ -18,7 +18,6 @@ export interface User {
   username: string;
   email: string;
   roles: UserRole[];
-  profileImageUrl?: string;
   bio?: string;
   affiliation?: {
     orgId: string;
@@ -181,7 +180,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: fbUser.email!,
       roles: [],
       affiliation: null,
-      profileImageUrl: '',
       bio: '',
       phone: '',
       website: '',

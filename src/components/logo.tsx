@@ -3,7 +3,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAbout } from '@/hooks/use-about';
 import { cn } from '@/lib/utils';
 import { Heart } from 'lucide-react';
@@ -30,19 +29,7 @@ export default function Logo({ as: Component = 'div', href, className, ...props 
 
   const logoContent = (
     <div className="flex items-center gap-2" {...props}>
-      {aboutContent.logoUrl ? (
-          <div className="relative h-10 w-40">
-              <Image
-                  src={aboutContent.logoUrl}
-                  alt="JivanIndia.co Logo"
-                  fill
-                  className="object-contain"
-                  sizes="160px"
-              />
-          </div>
-      ) : (
-          <DefaultLogo />
-      )}
+      <DefaultLogo />
     </div>
   );
   

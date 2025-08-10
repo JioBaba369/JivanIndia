@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -115,7 +114,7 @@ export default function BusinessesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {isLoading ? <BusinessSkeletons /> : (
             businesses.length === 0 ? (
-                <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8 col-span-full">
+                <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <Building className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
                     <p className="text-muted-foreground mt-2">There are currently no businesses listed. Check back soon for new opportunities!</p>
@@ -126,15 +125,11 @@ export default function BusinessesPage() {
             ) : filteredBusinesses.length > 0 ? (
                 filteredBusinesses.map(business => (
                     <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
-                        <div className="relative h-48 w-full">
+                        <div className="relative h-48 w-full bg-muted">
                             <Link href={`/businesses/${business.id}`}>
-                                <Image
-                                    src={business.imageUrl}
-                                    alt={business.name}
-                                    fill
-                                    className="object-cover transition-transform group-hover:scale-105"
-                                    sizes="100vw"
-                                />
+                              <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                                <Building className="h-16 w-16 text-muted-foreground" />
+                              </div>
                             </Link>
                             {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
                             <div className="absolute top-2 right-2">
@@ -181,7 +176,7 @@ export default function BusinessesPage() {
                     </Card>
                 ))
             ) : (
-                <div className="rounded-lg border-2 border-dashed py-16 text-center mt-8 col-span-full">
+                <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <h3 className="font-headline text-xl font-semibold">No Matching Businesses Found</h3>
                     <p className="text-muted-foreground mt-2">No businesses were found that match your criteria. Check back soon or adjust your filters.</p>
                     <Button variant="link" onClick={() => {

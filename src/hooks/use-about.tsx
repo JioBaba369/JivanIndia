@@ -12,15 +12,12 @@ export interface TeamMember {
   name: string;
   role: string;
   bio: string;
-  avatarUrl: string;
 }
 
 export interface AboutContent {
   story: string;
   teamMembers: TeamMember[];
   adminUids: string[];
-  logoUrl?: string;
-  faviconUrl?: string;
 }
 
 interface AboutContextType {
@@ -40,8 +37,6 @@ const defaultAboutContent: AboutContent = {
     story: 'We saw the immense dedication of community leaders, volunteers, and supporters. Yet, we also saw the operational hurdles they faced—fragmented tools, disconnected communication channels, and the constant struggle to engage their communities effectively.\n\nThis platform was created to solve that. We set out to build an all-in-one digital ecosystem where organizations can manage their events, coordinate volunteers, share deals, and communicate seamlessly with their audience. Our goal is to handle the technology so they can focus on what they do best: building community.', 
     teamMembers: [], 
     adminUids: ["defDHmCjCdWvmGid9YYg3RJi01x2", "ZxBLbKfPJNXXCBI99ZbxoYYApTb2"],
-    logoUrl: '',
-    faviconUrl: '',
 };
 
 export function AboutProvider({ children }: { children: ReactNode }) {

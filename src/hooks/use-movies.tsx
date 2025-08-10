@@ -10,7 +10,6 @@ export interface Movie {
   id: string;
   title: string;
   genre: string;
-  imageUrl: string;
   rating: number;
   postedAt: any;
   details: {
@@ -22,7 +21,6 @@ export interface Movie {
     director: string;
     cast: string[];
     trailerUrl: string;
-    backdropUrl: string;
     theaters: Array<{
       name: string;
       location: string;

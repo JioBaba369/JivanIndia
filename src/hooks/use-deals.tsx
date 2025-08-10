@@ -12,7 +12,6 @@ export interface Deal {
   description: string;
   terms: string;
   category: 'Food & Dining' | 'Retail & Shopping' | 'Services' | 'Entertainment' | 'Other';
-  imageUrl: string;
   expires: string; 
   business: string;
   businessId: string; // This should be the community ID

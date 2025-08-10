@@ -3,7 +3,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, Target, Sprout, Handshake, Link as LinkIcon } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -102,7 +101,6 @@ export default function AboutUsPage() {
                             <Card key={member.name} className="border-none shadow-none text-center">
                                 <CardContent className="flex flex-col items-center p-0">
                                 <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
-                                    <AvatarImage src={member.avatarUrl} alt={`Portrait of ${member.name}, ${member.role}`} data-ai-hint="portrait person" />
                                     <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                                 </Avatar>
                                 <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>

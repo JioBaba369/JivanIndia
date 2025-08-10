@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar, MapPin, Search, Tag, ArrowRight, Users, Building, Film, Briefcase, Megaphone, Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
@@ -161,19 +160,6 @@ export default function HomePage() {
                   )}
                 >
                   <Link href={`/events/${event.id}`} className="flex h-full flex-col" aria-label={`View ${event.title}`}>
-                    <div className="relative aspect-video w-full">
-                      <Image
-                        src={event.imageUrl || 'https://placehold.co/600x400.png'}
-                        alt={`Event: ${event.title}`}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      {event.isFeatured && (
-                        <Badge variant="default" className="absolute left-3 top-3">
-                          <Star className="mr-1 h-3 w-3" /> Featured
-                        </Badge>
-                      )}
-                    </div>
                     <CardContent className="flex flex-grow flex-col p-6">
                       <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
                       <h3 className="font-headline flex-grow text-xl font-semibold mt-4 group-hover:text-primary">{event.title}</h3>
@@ -229,17 +215,6 @@ export default function HomePage() {
                   key={deal.id}
                   className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1"
                 >
-                  <div className="relative aspect-video w-full">
-                    <Link href={`/deals/${deal.id}`} aria-label={`View ${deal.title}`}>
-                      <Image
-                        src={deal.imageUrl || 'https://placehold.co/600x400.png'}
-                        alt={`Deal: ${deal.title}`}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </Link>
-                    <Badge variant="secondary" className="absolute top-3 right-3">{deal.category}</Badge>
-                  </div>
                   <CardContent className="flex flex-grow flex-col p-4">
                     <Link href={`/deals/${deal.id}`} className="group/link flex-grow" aria-label={`View ${deal.title}`}>
                       <h3 className="mb-2 text-xl font-bold group-hover/link:text-primary">{deal.title}</h3>

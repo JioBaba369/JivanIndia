@@ -14,8 +14,6 @@ export interface Community {
   type: 'Social' | 'Cultural' | 'Business' | 'Religious' | 'Charitable' | 'Regional' | 'Professional' | 'Other';
   description: string;
   fullDescription: string;
-  imageUrl: string;
-  logoUrl: string;
   region: string;
   country: string; 
   membersCount: number;

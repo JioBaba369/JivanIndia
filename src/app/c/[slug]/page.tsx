@@ -3,8 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Settings } from "lucide-react";
-import Image from "next/image";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Settings, Building } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -91,15 +90,7 @@ export default function CommunityDetailPage() {
 
   return (
     <div className="bg-background">
-        <div className="relative h-64 md:h-80 w-full">
-            <Image
-                src={community.imageUrl}
-                alt={`${community.name} backdrop`}
-                fill
-                className="object-cover"
-                priority
-                data-ai-hint="community photo"
-            />
+        <div className="relative h-64 md:h-80 w-full bg-muted">
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
 
@@ -109,7 +100,6 @@ export default function CommunityDetailPage() {
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 text-center md:text-left">
                      <Avatar className="relative h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
-                        <AvatarImage src={community.logoUrl} alt={community.name} />
                         <AvatarFallback className="text-4xl font-headline">{getInitials(community.name)}</AvatarFallback>
                     </Avatar>
                 </div>
@@ -149,8 +139,8 @@ export default function CommunityDetailPage() {
                         {relatedEvents.map(event => (
                             <Link href={`/events/${event.id}`} key={event.id} className="group">
                                 <Card className="overflow-hidden h-full">
-                                    <div className="relative h-32 w-full">
-                                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="event photo"/>
+                                    <div className="relative h-32 w-full bg-muted flex items-center justify-center">
+                                       <Calendar className="h-10 w-10 text-muted-foreground" />
                                     </div>
                                     <CardContent className="p-4">
                                         <h4 className="font-semibold group-hover:text-primary truncate">{event.title}</h4>

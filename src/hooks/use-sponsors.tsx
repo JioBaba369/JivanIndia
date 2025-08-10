@@ -11,7 +11,6 @@ export type SponsorTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Supporter
 export interface Sponsor {
   id: string;
   name: string;
-  logoUrl: string;
   website: string;
   industry: string;
   tier: SponsorTier;

@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { PT_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -5,7 +6,6 @@ import { cn } from "@/lib/utils";
 import Providers from "@/components/layout/providers";
 import { getDoc, doc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
-import { AboutContent } from "@/hooks/use-about";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -20,28 +20,13 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  let faviconUrl = '/favicon.ico';
-  try {
-    const aboutDoc = await getDoc(doc(firestore, 'about', 'singleton'));
-    if (aboutDoc.exists()) {
-      const aboutData = aboutDoc.data() as AboutContent;
-      if (aboutData.faviconUrl) {
-        faviconUrl = aboutData.faviconUrl;
-      }
-    }
-  } catch (error) {
-    console.error("Failed to fetch favicon from Firestore, using default.", error);
-  }
-
-  return {
-    title: "JivanIndia.co - The Heartbeat of the Indian Community",
-    description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
-    icons: {
-      icon: faviconUrl,
-    },
-  };
-}
+export const metadata: Metadata = {
+  title: "JivanIndia.co - The Heartbeat of the Indian Community",
+  description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
+  icons: {
+    icon: '/favicon.ico',
+  },
+};
 
 
 export default function RootLayout({

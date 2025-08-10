@@ -29,7 +29,6 @@ export interface Event {
   endDateTime: string;
   eventType: 'Cultural' | 'Religious' | 'Professional' | 'Sports' | 'Festival' | 'Workshop' | 'Food' | 'Other';
   ticketLink?: string;
-  imageUrl: string;
   organizerId: string;
   organizerName: string;
   sponsors: EventSponsor[];

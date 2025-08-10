@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -31,7 +31,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import ImageUpload from '@/components/feature/image-upload';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import CountrySelector from '@/components/layout/country-selector';
 
@@ -60,8 +59,6 @@ const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean)
   region: z.string().min(2, "Region is required."),
   founded: z.string().min(4, "Please enter a valid year.").max(4, "Please enter a valid year."),
   tags: z.string().optional(),
-  logoUrl: z.string({ required_error: "A logo image is required." }).url({ message: "A logo image is required." }),
-  bannerUrl: z.string({ required_error: "A banner image is required." }).url({ message: "A banner image is required." }),
   website: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
   contactEmail: z.string().email("Please enter a valid email address."),
   phone: z.string().min(10, "Please enter a valid phone number.").optional().or(z.literal('')),
@@ -117,8 +114,6 @@ export default function EditCommunityPage() {
               region: foundCommunity.region || '',
               founded: foundCommunity.founded || '',
               tags: foundCommunity.tags?.join(', ') || '',
-              logoUrl: foundCommunity.logoUrl || '',
-              bannerUrl: foundCommunity.imageUrl || '',
               website: foundCommunity.website || '',
               contactEmail: foundCommunity.contactEmail || '',
               phone: foundCommunity.phone || '',
@@ -169,8 +164,6 @@ export default function EditCommunityPage() {
           fullDescription: values.fullDescription,
           country: values.country,
           region: values.region,
-          imageUrl: values.bannerUrl,
-          logoUrl: values.logoUrl,
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
           address: values.address || '',
           phone: values.phone || '',
@@ -249,50 +242,6 @@ export default function EditCommunityPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Branding</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                   <FormField
-                    control={form.control}
-                    name="logoUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community Logo (1:1 Ratio) *</FormLabel>
-                        <FormControl>
-                          <ImageUpload
-                            value={field.value}
-                            onChange={field.onChange}
-                            aspectRatio={1}
-                            toast={toast}
-                            folderName="community-logos"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="bannerUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community Banner (16:9 Ratio) *</FormLabel>
-                        <FormControl>
-                           <ImageUpload
-                            value={field.value}
-                            onChange={field.onChange}
-                            aspectRatio={16/9}
-                            toast={toast}
-                            folderName="community-banners"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
                  <FormField
