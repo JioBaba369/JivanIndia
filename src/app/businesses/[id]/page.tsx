@@ -14,6 +14,8 @@ import { useCommunities } from "@/hooks/use-communities";
 import { useBusinesses } from "@/hooks/use-businesses";
 import ReportDialog from "@/components/feature/report-dialog";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 export default function BusinessDetailPage() {
   const params = useParams();
@@ -95,35 +97,13 @@ export default function BusinessDetailPage() {
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <Card className="overflow-hidden">
-          <div className="relative h-64 md:h-96 w-full bg-muted">
-            {business.imageUrl && (
-              <Image
-                src={business.imageUrl}
-                alt={business.name}
-                fill
-                className="object-cover"
-                data-ai-hint="business photo"
-              />
+       <div className="relative h-64 md:h-80 w-full bg-muted">
+            {business.bannerUrl ? (
+                <Image src={business.bannerUrl} alt={`${business.name} banner`} fill className="object-cover" data-ai-hint="business banner" />
+            ) : (
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-background to-background" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <Badge variant="secondary">
-                {business.category}
-              </Badge>
-              <div className="flex items-center gap-2 mt-2">
-                <h1 className="font-headline text-3xl md:text-5xl font-bold text-white">
-                  {business.name}
-                </h1>
-                {business.isVerified && <BadgeCheck className="h-7 w-7 text-white fill-primary" />}
-              </div>
-               <div className="mt-2 flex items-center gap-2 text-yellow-400">
-                    <Star className="h-5 w-5 fill-current" />
-                    <span className="font-bold text-lg text-white">{business.rating.toFixed(1)}</span>
-                    <span className="text-sm text-white/80">({business.reviewCount} reviews)</span>
-                </div>
-            </div>
              <div className="absolute top-4 right-4 flex gap-2">
                  {canEdit && (
                     <Button variant="secondary" asChild>
@@ -132,11 +112,39 @@ export default function BusinessDetailPage() {
                         </Link>
                     </Button>
                  )}
-                <ReportDialog contentId={business.id} contentType="Business" contentTitle={business.name} triggerVariant="default" />
+                <ReportDialog contentId={business.id} contentType="Business" contentTitle={business.name} triggerVariant="secondary" />
             </div>
-          </div>
+        </div>
+
+      <div className="container mx-auto px-4 pb-12 -mt-24 relative z-10">
+        <Card className="overflow-hidden shadow-xl">
           <CardContent className="p-6 md:p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-shrink-0 text-center md:text-left">
+                     <Avatar className="relative h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
+                        <AvatarImage src={business.logoUrl} alt={business.name} data-ai-hint="business logo" />
+                        <AvatarFallback className="text-4xl font-headline">{getInitials(business.name)}</AvatarFallback>
+                    </Avatar>
+                </div>
+                <div className="flex-grow text-center md:text-left">
+                     <Badge variant="secondary">
+                        {business.category}
+                      </Badge>
+                      <div className="flex items-center gap-2 mt-2 justify-center md:justify-start">
+                        <h1 className="font-headline text-3xl md:text-5xl font-bold">
+                          {business.name}
+                        </h1>
+                        {business.isVerified && <BadgeCheck className="h-7 w-7 text-primary fill-primary" />}
+                      </div>
+                       <div className="mt-2 flex items-center gap-2 text-yellow-400 justify-center md:justify-start">
+                            <Star className="h-5 w-5 fill-current" />
+                            <span className="font-bold text-lg">{business.rating.toFixed(1)}</span>
+                            <span className="text-sm text-muted-foreground">({business.reviewCount} reviews)</span>
+                        </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
               <div className="lg:col-span-2">
                 <h2 className="font-headline text-2xl font-semibold mb-4">
                   About {business.name}

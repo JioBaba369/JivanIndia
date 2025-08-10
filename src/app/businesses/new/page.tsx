@@ -38,7 +38,8 @@ import CountrySelector from '@/components/layout/country-selector';
 const formSchema = z.object({
   name: z.string().min(3, "Business name must be at least 3 characters."),
   category: z.enum(businessCategories, { required_error: "A category is required."}),
-  imageUrl: z.string().url({ message: "An image URL is required." }),
+  logoUrl: z.string().url({ message: "A logo image URL is required." }),
+  bannerUrl: z.string().url({ message: "A banner image URL is required." }),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
   country: z.string().min(1, "Country is required."),
@@ -66,7 +67,8 @@ export default function NewBusinessEntryPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      imageUrl: '',
+      logoUrl: '',
+      bannerUrl: '',
       description: '',
       fullDescription: '',
       country: '',
@@ -96,7 +98,8 @@ export default function NewBusinessEntryPage() {
         const newBusinessData: NewBusinessInput = {
           name: values.name,
           category: values.category,
-          imageUrl: values.imageUrl,
+          logoUrl: values.logoUrl,
+          bannerUrl: values.bannerUrl,
           description: values.description,
           fullDescription: values.fullDescription,
           location: {
@@ -163,17 +166,36 @@ export default function NewBusinessEntryPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                   control={form.control}
-                  name="imageUrl"
+                  name="logoUrl"
                   render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Business Image *</FormLabel>
+                        <FormLabel>Business Logo (1:1 ratio) *</FormLabel>
+                        <FormControl>
+                            <ImageUpload
+                                value={field.value}
+                                onChange={field.onChange}
+                                aspectRatio={1/1}
+                                toast={toast}
+                                folderName="business-logos"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="bannerUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Business Banner (16:9 ratio) *</FormLabel>
                         <FormControl>
                             <ImageUpload
                                 value={field.value}
                                 onChange={field.onChange}
                                 aspectRatio={16/9}
                                 toast={toast}
-                                folderName="business-images"
+                                folderName="business-banners"
                             />
                         </FormControl>
                         <FormMessage />

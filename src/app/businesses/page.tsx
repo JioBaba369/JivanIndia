@@ -22,6 +22,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 export default function BusinessesPage() {
     const { businesses, isLoading } = useBusinesses();
@@ -147,10 +149,10 @@ export default function BusinessesPage() {
             ) : filteredBusinesses.length > 0 ? (
                 filteredBusinesses.map(business => (
                     <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
-                        <div className="relative h-48 w-full bg-muted">
+                        <div className="relative h-48 w-full bg-muted flex items-center justify-center">
                             <Link href={`/businesses/${business.id}`}>
-                              {business.imageUrl ? (
-                                <Image src={business.imageUrl} alt={business.name} fill className="object-cover" data-ai-hint="business photo" />
+                              {business.logoUrl ? (
+                                <Image src={business.logoUrl} alt={business.name} fill className="object-contain p-4" data-ai-hint="business logo" />
                                ) : (
                                 <div className="absolute inset-0 bg-muted flex items-center justify-center">
                                   <Building className="h-16 w-16 text-muted-foreground" />
