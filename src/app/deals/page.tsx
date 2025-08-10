@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Search, Tag, Building, ArrowRight, MoreVertical } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -132,16 +131,8 @@ export default function DealsPage() {
           ) : filteredDeals.length > 0 ? (
             filteredDeals.map((deal) => (
                 <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <div className="relative h-48 w-full">
-                        <Link href={`/deals/${deal.id}`}>
-                          <Image
-                            src={deal.imageUrl}
-                            alt={deal.title}
-                            fill
-                            className="object-cover transition-transform group-hover:scale-105"
-                            data-ai-hint="deal photo"
-                          />
-                        </Link>
+                    <div className="relative h-48 w-full bg-muted flex items-center justify-center">
+                        <Tag className="h-16 w-16 text-muted-foreground"/>
                         <div className="absolute top-2 right-2">
                              <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

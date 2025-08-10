@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -112,14 +111,7 @@ export default function DealDetailPage() {
     <div className="bg-background">
       <div className="container mx-auto px-4 py-12">
         <Card className="overflow-hidden">
-           <div className="relative h-64 md:h-96 w-full">
-            <Image
-              src={deal.imageUrl}
-              alt={deal.title}
-              fill
-              className="object-cover"
-              data-ai-hint="deal photo"
-            />
+           <div className="relative h-64 md:h-96 w-full bg-muted">
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
               <Badge variant="secondary">{deal.category}</Badge>

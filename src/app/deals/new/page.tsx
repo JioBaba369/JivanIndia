@@ -31,7 +31,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import ImageUpload from '@/components/feature/image-upload';
 import { useDeals, type NewDealInput } from '@/hooks/use-deals';
 import { useCommunities } from '@/hooks/use-communities';
 
@@ -42,7 +41,6 @@ const formSchema = z.object({
   terms: z.string().min(10, "Terms must be at least 10 characters."),
   category: z.enum(['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other']),
   expires: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid expiration date is required." }),
-  imageUrl: z.string().url({ message: "A deal image is required." }),
 });
 
 type DealFormValues = z.infer<typeof formSchema>;
@@ -66,7 +64,6 @@ export default function NewDealPage() {
       terms: '',
       category: 'Food & Dining',
       expires: '',
-      imageUrl: undefined,
     },
     mode: 'onChange'
   });
@@ -129,9 +126,7 @@ export default function NewDealPage() {
                 <CardDescription>You must be logged in to post a deal. Please log in to continue.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button asChild className="mt-2">
-                    <Link href="/login">Login</Link>
-                </Button>
+                <Button asChild className="mt-2"><Link href="/login">Login</Link></Button>
             </CardContent>
         </Card>
       </div>
@@ -169,28 +164,6 @@ export default function NewDealPage() {
         <CardContent>
           <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-             <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Deal Media</h3>
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Deal Image *</FormLabel>
-                        <FormControl>
-                            <ImageUpload
-                                value={field.value}
-                                onChange={field.onChange}
-                                aspectRatio={16 / 9}
-                                toast={toast}
-                                folderName="deal-images"
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
             <div className="space-y-4">
               <h3 className="font-headline text-lg font-semibold border-b pb-2">Deal Information</h3>
               <FormField
