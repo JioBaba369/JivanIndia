@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import CountrySelector from '@/components/layout/country-selector';
+import ImageUpload from '@/components/feature/image-upload';
 
 
 const NAME_MAX_LENGTH = 100;
@@ -59,6 +60,8 @@ const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean)
   region: z.string().min(2, "Region is required."),
   founded: z.string().min(4, "Please enter a valid year.").max(4, "Please enter a valid year."),
   tags: z.string().optional(),
+  logoUrl: z.string().url().optional().or(z.literal('')),
+  bannerUrl: z.string().url().optional().or(z.literal('')),
   website: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
   contactEmail: z.string().email("Please enter a valid email address."),
   phone: z.string().min(10, "Please enter a valid phone number.").optional().or(z.literal('')),
@@ -109,6 +112,8 @@ export default function EditCommunityPage() {
               region: foundCommunity.region || '',
               founded: foundCommunity.founded || '',
               tags: foundCommunity.tags?.join(', ') || '',
+              logoUrl: foundCommunity.logoUrl || '',
+              bannerUrl: foundCommunity.bannerUrl || '',
               website: foundCommunity.website || '',
               contactEmail: foundCommunity.contactEmail || '',
               phone: foundCommunity.phone || '',
@@ -160,6 +165,8 @@ export default function EditCommunityPage() {
           country: values.country,
           region: values.region,
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
+          logoUrl: values.logoUrl || '',
+          bannerUrl: values.bannerUrl || '',
           address: values.address || '',
           phone: values.phone || '',
           contactEmail: values.contactEmail,
@@ -237,6 +244,48 @@ export default function EditCommunityPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Branding &amp; Media</h3>
+                <FormField
+                  control={form.control}
+                  name="logoUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Community Logo</FormLabel>
+                        <FormControl>
+                            <ImageUpload
+                                value={field.value}
+                                onChange={field.onChange}
+                                aspectRatio={1 / 1}
+                                toast={toast}
+                                folderName="community-logos"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="bannerUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Community Banner Image</FormLabel>
+                        <FormControl>
+                            <ImageUpload
+                                value={field.value}
+                                onChange={field.onChange}
+                                aspectRatio={16 / 9}
+                                toast={toast}
+                                folderName="community-banners"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
                  <FormField

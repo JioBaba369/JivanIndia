@@ -31,8 +31,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import Image from "next/image";
 
 export default function CommunitiesPage() {
     const { toast } = useToast();
@@ -160,7 +161,11 @@ export default function CommunitiesPage() {
                   <Card className={cn("flex h-full flex-col overflow-hidden transition-all hover:shadow-lg", org.isFeatured && "border-primary border-2")}>
                       <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
                           <div className="relative h-48 w-full bg-muted flex items-center justify-center">
-                              <Building2 className="h-16 w-16 text-muted-foreground" />
+                              {org.logoUrl ? (
+                                <Image src={org.logoUrl} alt={`${org.name} logo`} fill className="object-contain p-4" />
+                              ) : (
+                                <Building2 className="h-16 w-16 text-muted-foreground" />
+                              )}
                               {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                           </div>
                           <CardContent className="flex flex-grow flex-col p-4">
@@ -245,7 +250,11 @@ export default function CommunitiesPage() {
                     <Card key={org.id} className={cn("group flex flex-col overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-xl", org.isFeatured && "border-primary border-2")}>
                         <div className="relative h-48 w-full bg-muted flex items-center justify-center">
                              <Link href={`/c/${org.slug}`} className="flex h-full w-full items-center justify-center flex-grow flex-col">
-                                <Building2 className="h-16 w-16 text-muted-foreground" />
+                                {org.logoUrl ? (
+                                    <Image src={org.logoUrl} alt={`${org.name} logo`} fill className="object-contain p-4 transition-transform group-hover:scale-105" />
+                                ) : (
+                                    <Building2 className="h-16 w-16 text-muted-foreground" />
+                                )}
                                 {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                              </Link>
                              <div className="absolute top-2 right-2">
@@ -299,6 +308,7 @@ export default function CommunitiesPage() {
                     <div className="flex flex-col sm:flex-row">
                         <Link href={`/c/${org.slug}`} className="flex h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 items-center justify-center bg-muted">
                            <Avatar className="h-24 w-24">
+                              <AvatarImage src={org.logoUrl} alt={org.name} />
                               <AvatarFallback className="text-3xl font-headline">{getInitials(org.name)}</AvatarFallback>
                            </Avatar>
                         </Link>

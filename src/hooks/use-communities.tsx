@@ -25,6 +25,8 @@ export interface Community {
   phone: string;
   contactEmail: string;
   website: string;
+  logoUrl?: string;
+  bannerUrl?: string;
   socialMedia?: {
     twitter?: string;
     linkedin?: string;

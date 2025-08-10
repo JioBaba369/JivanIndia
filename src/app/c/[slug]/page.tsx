@@ -11,10 +11,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunities } from "@/hooks/use-communities";
 import { useEvents } from "@/hooks/use-events";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatUrl, getInitials } from "@/lib/utils";
 import { format } from "date-fns";
 import ReportDialog from "@/components/feature/report-dialog";
+import Image from "next/image";
 
 export default function CommunityDetailPage() {
   const params = useParams();
@@ -91,6 +92,11 @@ export default function CommunityDetailPage() {
   return (
     <div className="bg-background">
         <div className="relative h-64 md:h-80 w-full bg-muted">
+            {community.bannerUrl ? (
+                <Image src={community.bannerUrl} alt={`${community.name} banner`} fill className="object-cover" />
+            ) : (
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-background to-background" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
 
@@ -100,6 +106,7 @@ export default function CommunityDetailPage() {
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 text-center md:text-left">
                      <Avatar className="relative h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
+                        <AvatarImage src={community.logoUrl} alt={community.name} />
                         <AvatarFallback className="text-4xl font-headline">{getInitials(community.name)}</AvatarFallback>
                     </Avatar>
                 </div>
