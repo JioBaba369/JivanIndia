@@ -13,6 +13,15 @@ import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop';
 
 interface ImageUploadProps {
   value?: string;
@@ -24,6 +33,66 @@ interface ImageUploadProps {
 }
 
 const IMAGE_MAX_SIZE_MB = 10;
+const MAX_IMAGE_DIMENSION = 1920; // Max width/height for resizing
+
+function getCroppedAndResizedImg(
+  image: HTMLImageElement,
+  crop: Crop,
+  quality: number = 0.85
+): Promise<Blob> {
+  const canvas = document.createElement('canvas');
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
+  
+  let targetWidth = crop.width * scaleX;
+  let targetHeight = crop.height * scaleY;
+
+  // Resize logic
+  if (targetWidth > MAX_IMAGE_DIMENSION || targetHeight > MAX_IMAGE_DIMENSION) {
+    if (targetWidth > targetHeight) {
+      targetHeight = (targetHeight * MAX_IMAGE_DIMENSION) / targetWidth;
+      targetWidth = MAX_IMAGE_DIMENSION;
+    } else {
+      targetWidth = (targetWidth * MAX_IMAGE_DIMENSION) / targetHeight;
+      targetHeight = MAX_IMAGE_DIMENSION;
+    }
+  }
+
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return Promise.reject(new Error('Canvas context is not available.'));
+  }
+
+  ctx.drawImage(
+    image,
+    crop.x * scaleX,
+    crop.y * scaleY,
+    crop.width * scaleX,
+    crop.height * scaleY,
+    0,
+    0,
+    targetWidth,
+    targetHeight
+  );
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error('Canvas is empty'));
+          return;
+        }
+        resolve(blob);
+      },
+      'image/webp',
+      quality
+    );
+  });
+}
+
 
 export default function ImageUpload({
   value,
@@ -34,11 +103,17 @@ export default function ImageUpload({
   className,
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  
   const [preview, setPreview] = useState<string | undefined>(value);
   const [uploadState, setUploadState] = useState({
     isUploading: false,
     progress: 0,
   });
+  
+  const [crop, setCrop] = useState<Crop>();
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [sourceImage, setSourceImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (value) {
@@ -51,6 +126,25 @@ export default function ImageUpload({
       fileInputRef.current.value = '';
     }
   };
+  
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    const initialCrop = centerCrop(
+      makeAspectCrop(
+        {
+          unit: '%',
+          width: 90,
+        },
+        aspectRatio,
+        width,
+        height
+      ),
+      width,
+      height
+    );
+    setCrop(initialCrop);
+  };
+
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -64,62 +158,54 @@ export default function ImageUpload({
         resetFileInput();
         return;
       }
+      setCrop(undefined); // Clear previous crop state
+      setSourceImage(URL.createObjectURL(file));
+      setCropModalOpen(true);
+    }
+  };
 
-      setPreview(URL.createObjectURL(file));
-      setUploadState({ isUploading: true, progress: 0 });
+  const handleUploadCroppedImage = async () => {
+    if (!imgRef.current || !crop) {
+      return;
+    }
+    
+    setCropModalOpen(false);
+    setUploadState({ isUploading: true, progress: 0 });
 
-      const fileExtension = file.name.split('.').pop() || 'jpeg';
-      const fileName = `${folderName}/${uuidv4()}.${fileExtension}`;
+    try {
+      const imageBlob = await getCroppedAndResizedImg(imgRef.current, crop);
+      const fileName = `${folderName}/${uuidv4()}.webp`;
       const storageRef = ref(storage, fileName);
 
-      try {
-        const uploadTask = uploadBytesResumable(storageRef, file, {
-          contentType: file.type,
-        });
+      const uploadTask = uploadBytesResumable(storageRef, imageBlob, {
+        contentType: 'image/webp',
+      });
 
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadState((prevState) => ({ ...prevState, progress }));
-          },
-          (error) => {
-            console.error('Upload error', error);
-            setUploadState({ isUploading: false, progress: 0 });
-            setPreview(value); // Revert preview on error
-            toast({
-              title: 'Upload Failed',
-              description:
-                'There was an error uploading your image. Please try again.',
-              variant: 'destructive',
-            });
-            resetFileInput();
-          },
-          async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            onChange(downloadURL);
-            setUploadState({ isUploading: false, progress: 0 });
-            setPreview(downloadURL);
-            toast({
-              title: 'Image Uploaded!',
-              description: 'Your image has been successfully uploaded.',
-              icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-            });
-            resetFileInput();
-          }
-        );
-      } catch (error) {
-        setUploadState({ isUploading: false, progress: 0 });
-        setPreview(value); // Revert preview on error
-        toast({
-          title: 'Upload Failed',
-          description: 'An unexpected error occurred. Please try again.',
-          variant: 'destructive',
-        });
-        console.error('Upload error', error);
-        resetFileInput();
-      }
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadState((prevState) => ({ ...prevState, progress }));
+        },
+        (error) => {
+          console.error('Upload error', error);
+          setUploadState({ isUploading: false, progress: 0 });
+          toast({ title: 'Upload Failed', description: 'There was an error uploading your image. Please try again.', variant: 'destructive' });
+          resetFileInput();
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          onChange(downloadURL);
+          setUploadState({ isUploading: false, progress: 0 });
+          setPreview(downloadURL);
+          toast({ title: 'Image Uploaded!', description: 'Your image has been successfully uploaded.', icon: <CheckCircle className="h-5 w-5 text-green-500" /> });
+          resetFileInput();
+        }
+      );
+    } catch (e) {
+      console.error(e);
+      setUploadState({ isUploading: false, progress: 0 });
+      toast({ title: 'Crop Failed', description: 'Could not process the image. Please try again.', variant: 'destructive' });
     }
   };
 
@@ -208,6 +294,39 @@ export default function ImageUpload({
         accept="image/png, image/jpeg, image/webp"
         disabled={uploadState.isUploading}
       />
+      <Dialog open={cropModalOpen} onOpenChange={setCropModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Crop & Resize Image</DialogTitle>
+          </DialogHeader>
+          {sourceImage && (
+            <div className="relative w-full h-96">
+                <ReactCrop
+                    crop={crop}
+                    onChange={c => setCrop(c)}
+                    aspect={aspectRatio}
+                >
+                    <Image
+                        ref={imgRef}
+                        src={sourceImage}
+                        alt="Source for cropping"
+                        fill
+                        style={{ objectFit: 'contain' }}
+                        onLoad={onImageLoad}
+                    />
+                </ReactCrop>
+            </div>
+          )}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleUploadCroppedImage} disabled={!crop}>
+              Crop & Upload
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
