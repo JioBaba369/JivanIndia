@@ -172,7 +172,9 @@ export default function Header() {
         </div>
         
         <div className="flex items-center gap-2">
-          <UserActions />
+          <div className="hidden md:flex">
+            <UserActions />
+          </div>
         </div>
       </div>
     </header>
