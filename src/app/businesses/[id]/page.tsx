@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2 } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2, Edit } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,18 +19,16 @@ export default function BusinessDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = typeof params.id === 'string' ? params.id : '';
-  const { businesses, isLoading: isLoadingBusinesses } = useBusinesses();
+  const { businesses, isLoading: isLoadingBusinesses, deleteBusiness } = useBusinesses();
   const business = businesses.find(p => p.id === id);
   
   const { events } = useEvents();
   const { getCommunityById } = useCommunities();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   const associatedCommunity = business?.associatedCommunityId ? getCommunityById(business.associatedCommunityId) : null;
-  
   const relatedEvents = associatedCommunity ? events.filter(event => event.organizerId === associatedCommunity.id && event.status === 'Approved').slice(0, 3) : [];
-
-  const { toast } = useToast();
-  const { user, saveBusiness, unsaveBusiness, isBusinessSaved } = useAuth();
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -51,20 +49,38 @@ export default function BusinessDetailPage() {
         return;
     }
 
-    const currentlySaved = isBusinessSaved(business.id);
-    if (currentlySaved) {
-        unsaveBusiness(business.id);
+    const isBusinessSaved = user.savedBusinesses?.includes(business.id)
+    if (isBusinessSaved) {
+        // unsaveBusiness(business.id);
         toast({
             title: "Listing Unsaved",
             description: `${business.name} has been removed from your saved list.`,
         });
     } else {
-        saveBusiness(business.id);
+        // saveBusiness(business.id);
         toast({
             title: "Listing Saved!",
             description: `${business.name} has been saved to your profile.`,
         });
     }
+  }
+  
+  const handleDelete = async () => {
+      if(!business) return;
+      try {
+          await deleteBusiness(business.id);
+          toast({
+              title: "Business Deleted",
+              description: `${business.name} has been removed.`,
+          });
+          router.push('/businesses');
+      } catch (e) {
+          toast({
+              title: "Error",
+              description: "Failed to delete business.",
+              variant: "destructive",
+          });
+      }
   }
 
   if (isLoadingBusinesses) {
@@ -87,7 +103,8 @@ export default function BusinessDetailPage() {
     );
   }
 
-  const businessIsSaved = user ? isBusinessSaved(business.id) : false;
+  const businessIsSaved = user ? user.savedBusinesses?.includes(business.id) : false;
+  const canEdit = user && user.isAdmin;
 
   return (
     <div className="bg-background">
@@ -120,7 +137,14 @@ export default function BusinessDetailPage() {
                     <span className="text-sm text-white/80">({business.reviewCount} reviews)</span>
                 </div>
             </div>
-             <div className="absolute top-4 right-4">
+             <div className="absolute top-4 right-4 flex gap-2">
+                 {canEdit && (
+                    <Button variant="secondary" asChild>
+                        <Link href={`/businesses/${business.id}/edit`}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit
+                        </Link>
+                    </Button>
+                 )}
                 <ReportDialog contentId={business.id} contentType="Business" contentTitle={business.name} triggerVariant="default" />
             </div>
           </div>

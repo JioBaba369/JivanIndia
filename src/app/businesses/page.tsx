@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building } from "lucide-react";
+import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building, Star } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -167,6 +167,10 @@ export default function BusinessesPage() {
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <MapPin className="mr-2 h-4 w-4 text-primary"/>
                                         <span>{business.region}</span>
+                                    </div>
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                      <Star className="mr-2 h-4 w-4 text-yellow-400 fill-yellow-400"/>
+                                      <span>{business.rating.toFixed(1)} ({business.reviewCount} reviews)</span>
                                     </div>
                                 </div>
                             </Link>
