@@ -39,6 +39,7 @@ import { getInitials } from "@/lib/utils";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { Badge } from "@/components/ui/badge";
+import { EmailInput } from "@/components/feature/user-search";
 
 
 const NAME_MAX_LENGTH = 100;
@@ -94,6 +95,8 @@ export default function EditCommunityPage() {
   const [community, setCommunity] = useState<Community | null>(null);
   const [managers, setManagers] = useState<User[]>([]);
   const [isManagersLoading, setIsManagersLoading] = useState(true);
+  const [newManagerEmail, setNewManagerEmail] = useState('');
+  const [foundUser, setFoundUser] = useState<User | null>(null);
   
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(formSchema(isSlugUnique)),
@@ -275,9 +278,11 @@ export default function EditCommunityPage() {
       }
   }
 
-  const handleAddManager = async (email: string) => {
-    if (community && email) {
-      await addManager(community, email);
+  const handleAddManager = async () => {
+    if (community && foundUser) {
+      await addManager(community, foundUser.email);
+      setNewManagerEmail('');
+      setFoundUser(null);
     }
   };
 
@@ -390,10 +395,16 @@ export default function EditCommunityPage() {
                   ))}
                 </div>
               )}
-               <form onSubmit={(e) => { e.preventDefault(); handleAddManager((e.currentTarget.elements.namedItem('email') as HTMLInputElement).value); e.currentTarget.reset(); }} className="mt-6 flex gap-2">
-                    <Input name="email" type="email" placeholder="Enter new manager's email" required />
-                    <Button type="submit"><UserPlus className="mr-2"/> Add Manager</Button>
-                </form>
+               <div className="mt-6 flex gap-2">
+                    <EmailInput
+                        value={newManagerEmail}
+                        onChange={setNewManagerEmail}
+                        onUserFound={setFoundUser}
+                    />
+                    <Button onClick={handleAddManager} disabled={!foundUser}>
+                        <UserPlus className="mr-2"/> Add Manager
+                    </Button>
+                </div>
             </CardContent>
           </Card>
         )}

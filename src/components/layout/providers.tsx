@@ -20,6 +20,7 @@ import { Toaster } from '@/components/ui/toaster';
 import CookieConsentBanner from '@/components/cookie-consent-banner';
 import { CountriesProvider } from '@/hooks/use-countries';
 import { IndiaLocationsProvider } from '@/hooks/use-india-locations';
+import { SearchProvider } from '@/hooks/use-search';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -27,35 +28,37 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <IndiaLocationsProvider>
           <AboutProvider>
               <AuthProvider>
-                  <ReportsProvider>
-                    <CommunitiesProvider>
-                        <NotificationsProvider>
-                            <SponsorsProvider>
-                                <DealsProvider>
-                                    <JobsProvider>
-                                        <EventsProvider>
-                                            <BusinessesProvider>
-                                                <MoviesProvider>
-                                                    <FestivalsProvider>
-                                                        <div className="relative flex min-h-screen flex-col">
-                                                            <Header />
-                                                            <main className="flex-1">
-                                                                {children}
-                                                            </main>
-                                                            <Footer />
-                                                            <Toaster />
-                                                            <CookieConsentBanner />
-                                                        </div>
-                                                    </FestivalsProvider>
-                                                </MoviesProvider>
-                                            </BusinessesProvider>
-                                        </EventsProvider>
-                                    </JobsProvider>
-                                </DealsProvider>
-                            </SponsorsProvider>
-                        </NotificationsProvider>
-                    </CommunitiesProvider>
-                  </ReportsProvider>
+                  <SearchProvider>
+                    <ReportsProvider>
+                      <CommunitiesProvider>
+                          <NotificationsProvider>
+                              <SponsorsProvider>
+                                  <DealsProvider>
+                                      <JobsProvider>
+                                          <EventsProvider>
+                                              <BusinessesProvider>
+                                                  <MoviesProvider>
+                                                      <FestivalsProvider>
+                                                          <div className="relative flex min-h-screen flex-col">
+                                                              <Header />
+                                                              <main className="flex-1">
+                                                                  {children}
+                                                              </main>
+                                                              <Footer />
+                                                              <Toaster />
+                                                              <CookieConsentBanner />
+                                                          </div>
+                                                      </FestivalsProvider>
+                                                  </MoviesProvider>
+                                              </BusinessesProvider>
+                                          </EventsProvider>
+                                      </JobsProvider>
+                                  </DealsProvider>
+                              </SponsorsProvider>
+                          </NotificationsProvider>
+                      </CommunitiesProvider>
+                    </ReportsProvider>
+                  </SearchProvider>
               </AuthProvider>
           </AboutProvider>
         </IndiaLocationsProvider>
