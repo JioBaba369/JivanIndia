@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Settings, Building } from "lucide-react";
+import { Calendar, Globe, Mail, MapPin, Phone, Users, Share2, Bookmark, BadgeCheck, X, Linkedin, Facebook, Edit, Loader2, BarChart2, Settings, Building, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { formatUrl, getInitials } from "@/lib/utils";
 import { format } from "date-fns";
 import ReportDialog from "@/components/feature/report-dialog";
 import Image from "next/image";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function CommunityDetailPage() {
   const params = useParams();
@@ -100,8 +101,8 @@ export default function CommunityDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
 
-      <div className="container mx-auto px-4 pb-12 -mt-24 relative z-10 shadow-xl">
-        <Card className="overflow-hidden">
+      <div className="container mx-auto px-4 pb-12 -mt-24 relative z-10">
+        <Card className="overflow-hidden shadow-xl">
            <CardContent className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 text-center md:text-left">
@@ -111,14 +112,35 @@ export default function CommunityDetailPage() {
                     </Avatar>
                 </div>
                 <div className="flex-grow text-center md:text-left">
-                    <Badge variant="secondary">{community.type}</Badge>
-                    <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-                        <h1 className="font-headline text-3xl md:text-5xl font-bold">
-                            {community.name}
-                        </h1>
-                        {community.isVerified && <BadgeCheck className="h-7 w-7 text-primary fill-primary" />}
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <Badge variant="secondary">{community.type}</Badge>
+                            <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
+                                <h1 className="font-headline text-3xl md:text-5xl font-bold">
+                                    {community.name}
+                                </h1>
+                                {community.isVerified && <BadgeCheck className="h-7 w-7 text-primary fill-primary" />}
+                            </div>
+                            <p className="text-muted-foreground mt-2">{community.description}</p>
+                        </div>
+                         {!isManager && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                        <MoreVertical />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <ReportDialog 
+                                        contentId={community.id} 
+                                        contentType="Community" 
+                                        contentTitle={community.name} 
+                                        triggerComponent={<DropdownMenuItem onSelect={e => e.preventDefault()}>Report Community</DropdownMenuItem>}
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                         )}
                     </div>
-                     <p className="text-muted-foreground mt-2">{community.description}</p>
                      <div className="mt-4 flex justify-center md:justify-start items-center gap-2">
                         {community.socialMedia?.twitter && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.twitter} target="_blank"><X className="h-4 w-4"/></Link></Button>}
                         {community.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
@@ -161,7 +183,7 @@ export default function CommunityDetailPage() {
               </div>
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
-                    {isManager && (
+                    {isManager ? (
                         <Card>
                             <CardContent className="p-4">
                                 <h3 className="font-headline font-semibold mb-2">Manager Dashboard</h3>
@@ -181,8 +203,7 @@ export default function CommunityDetailPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
-                    {!isManager && (
+                    ) : (
                         <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
                             <Bookmark className="mr-2 h-4 w-4"/>
                             {orgIsJoined ? "Leave Community" : "Join Community"}
@@ -209,11 +230,6 @@ export default function CommunityDetailPage() {
                         <p className="text-muted-foreground text-sm">{community.founded}</p>
                       </div>
                     </div>
-                     {!isManager && (
-                        <div className="pt-2 border-t">
-                            <ReportDialog contentId={community.id} contentType="Community" contentTitle={community.name} triggerVariant="ghost"/>
-                        </div>
-                    )}
                   </CardContent>
                 </Card>
                  <Card>
