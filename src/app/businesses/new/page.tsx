@@ -33,6 +33,7 @@ import {
 import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hooks/use-businesses';
 import ImageUpload from '@/components/feature/image-upload';
 import CountrySelector from '@/components/layout/country-selector';
+import { useIndiaLocations } from '@/hooks/use-india-locations';
 
 
 const formSchema = z.object({
@@ -60,6 +61,7 @@ export default function NewBusinessEntryPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { addBusiness } = useBusinesses();
+  const { states: indianStates } = useIndiaLocations();
   
   const [isPending, startTransition] = useTransition();
 
@@ -83,6 +85,8 @@ export default function NewBusinessEntryPage() {
     },
     mode: 'onChange'
   });
+
+  const selectedCountry = form.watch("country");
 
   const onSubmit = async (values: BusinessFormValues) => {
     if (!user) {
@@ -210,7 +214,36 @@ export default function NewBusinessEntryPage() {
                  <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
               </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>State/Province *</FormLabel><FormControl><Input placeholder="e.g., California" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                 <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State/Province *</FormLabel>
+                        {selectedCountry === 'India' ? (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a state" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {indianStates.map((state) => (
+                                <SelectItem key={state} value={state}>
+                                  {state}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <FormControl>
+                            <Input placeholder="e.g., California" {...field} />
+                          </FormControl>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                  <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input placeholder="e.g., Fremont" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
               <FormField name="address" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Street Address *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
