@@ -169,7 +169,7 @@ export default function EditCommunityPage() {
     );
   }
 
-  const isManager = user && community && community.managerUids.includes(user.uid);
+  const isManager = user && community && community.managerUids?.includes(user.uid);
   const isFounder = user && community && user.uid === community.founderUid;
 
   if (!user || !isManager) {
