@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { getInitials } from '@/lib/utils';
 import { firestore } from '@/lib/firebase';
@@ -102,7 +102,7 @@ const TeamMemberDialog = ({
   children
 }: {
   member?: TeamMember | null,
-  onSave: (data: Omit<TeamMember, 'id'>) => void,
+  onSave: (data: Omit<TeamMember, 'id' | 'avatarUrl'>) => void,
   children: React.ReactNode
 }) => {
   const { toast } = useToast();
@@ -137,6 +137,7 @@ const TeamMemberDialog = ({
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-center">
             <Avatar className="h-24 w-24">
+              <AvatarImage src={member?.avatarUrl} alt={name} />
               <AvatarFallback>{getInitials(name)}</AvatarFallback>
             </Avatar>
           </div>
@@ -258,10 +259,10 @@ export default function AdminDashboardPage() {
         setIsUsersLoading(true);
         try {
           const usersCollectionRef = collection(firestore, 'users');
-          // Firestore 'in' queries are limited to 10 items per chunk.
+          // Firestore 'in' queries are limited to 30 items per chunk in some SDK versions.
           const adminUidsChunks: string[][] = [];
-          for (let i = 0; i < aboutContent.adminUids.length; i += 10) {
-              adminUidsChunks.push(aboutContent.adminUids.slice(i, i + 10));
+          for (let i = 0; i < aboutContent.adminUids.length; i += 30) {
+              adminUidsChunks.push(aboutContent.adminUids.slice(i, i + 30));
           }
           
           const userPromises = adminUidsChunks.map(chunk => 
@@ -322,12 +323,12 @@ export default function AdminDashboardPage() {
     toast({ title: 'About Page Updated', description: 'Your changes have been saved.' });
   }
 
-  const handleAddTeamMember = (data: Omit<TeamMember, 'id'>) => {
+  const handleAddTeamMember = (data: Omit<TeamMember, 'id' | 'avatarUrl'>) => {
     addTeamMember(data);
     toast({ title: 'Team Member Added', description: `${data.name} has been added to the team.` });
   }
 
-  const handleUpdateTeamMember = (id: string, data: Omit<TeamMember, 'id'>) => {
+  const handleUpdateTeamMember = (id: string, data: Omit<TeamMember, 'id' | 'avatarUrl'>) => {
     updateTeamMember(id, data);
     toast({ title: 'Team Member Updated', description: `${data.name}'s information has been updated.` });
   }
@@ -650,7 +651,7 @@ export default function AdminDashboardPage() {
                                 <TableBody>
                                     {adminUsers.map(admin => (
                                         <TableRow key={admin.uid}>
-                                            <TableCell><Avatar><AvatarFallback>{getInitials(admin.name)}</AvatarFallback></Avatar></TableCell>
+                                            <TableCell><Avatar><AvatarImage src={admin.profileImageUrl} /><AvatarFallback>{getInitials(admin.name)}</AvatarFallback></Avatar></TableCell>
                                             <TableCell className="font-medium">{admin.name}</TableCell>
                                             <TableCell>{admin.email}</TableCell>
                                             <TableCell className="text-right">
@@ -695,7 +696,7 @@ export default function AdminDashboardPage() {
                                 <TableBody>
                                     {aboutContent.teamMembers.map(member => (
                                         <TableRow key={member.id}>
-                                            <TableCell><Avatar><AvatarFallback>{getInitials(member.name)}</AvatarFallback></Avatar></TableCell>
+                                            <TableCell><Avatar><AvatarImage src={member.avatarUrl} /><AvatarFallback>{getInitials(member.name)}</AvatarFallback></Avatar></TableCell>
                                             <TableCell className="font-medium">{member.name}</TableCell>
                                             <TableCell>{member.role}</TableCell>
                                             <TableCell className="text-right space-x-2">
@@ -731,7 +732,14 @@ export default function AdminDashboardPage() {
                             <CardDescription>Manage your site's logo and favicon.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <p className="text-sm text-muted-foreground">Image uploading functionality has been removed.</p>
+                           <div className="space-y-2">
+                               <Label>Logo</Label>
+                               <p className="text-sm text-muted-foreground">Image uploading functionality has been removed.</p>
+                           </div>
+                           <div className="space-y-2">
+                               <Label>Favicon</Label>
+                               <p className="text-sm text-muted-foreground">Image uploading functionality has been removed.</p>
+                           </div>
                         </CardContent>
                     </Card>
 

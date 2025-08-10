@@ -4,7 +4,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import NotificationBell from "./notification-bell";
@@ -41,8 +41,16 @@ const mainNavLinks: { title: string; href: string; }[] = [
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
   
+  const handleItemClick = () => {
+    if (onLinkClick) {
+        onLinkClick();
+    }
+  };
+
   if (user) {
     const isAdmin = user.roles?.includes('admin');
+    const isCommunityManager = user.roles?.includes('community-manager') && user.affiliation;
+
     return (
       <div className="flex items-center gap-1">
         <NotificationBell />
@@ -50,6 +58,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
+                <AvatarImage src={user.profileImageUrl} alt={user.name} />
                 <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
               </Avatar>
             </Button>
@@ -63,36 +72,73 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
                 </p>
               </div>
             </DropdownMenuLabel>
+            
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild onClick={onLinkClick}>
+              <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
-                </DropdownMenuItem>
-              {user.username && <DropdownMenuItem asChild onClick={onLinkClick}>
+              </DropdownMenuItem>
+              {user.username && <DropdownMenuItem asChild onClick={handleItemClick}>
                 <Link href={`/${user.username}`}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Public Profile</span>
                 </Link>
               </DropdownMenuItem>}
-               <DropdownMenuItem asChild onClick={onLinkClick}>
+               <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/profile">
                     <Heart className="mr-2 h-4 w-4" />
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
-              <DropdownMenuItem asChild onClick={onLinkClick}>
+              <DropdownMenuItem asChild onClick={handleItemClick}>
                   <Link href="/profile/edit">
                     <Edit className="mr-2 h-4 w-4" />
                     <span>Edit Profile</span>
                   </Link>
               </DropdownMenuItem>
-              {isAdmin && <DropdownMenuItem asChild onClick={onLinkClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
+            
+            {isCommunityManager && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    <DropdownMenuLabel>Community Manager</DropdownMenuLabel>
+                    <DropdownMenuItem asChild onClick={handleItemClick}>
+                      <Link href={`/c/${user.affiliation!.orgSlug}`}>
+                        <Building className="mr-2 h-4 w-4"/>
+                        View Community
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild onClick={handleItemClick}>
+                      <Link href={`/c/${user.affiliation!.orgSlug}/edit`}>
+                        <Settings className="mr-2 h-4 w-4"/>
+                        Community Settings
+                      </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            )}
+
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    <DropdownMenuItem asChild onClick={handleItemClick}>
+                        <Link href="/admin">
+                            <ShieldCheck className="mr-2 h-4 w-4" />
+                            Admin Dashboard
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            )}
+            
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { onLinkClick?.(); logout(); }}>
+            <DropdownMenuItem onClick={() => { handleItemClick(); logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -104,10 +150,10 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
 
   return (
     <div className="flex items-center space-x-1 sm:space-x-2">
-      <Button variant="ghost" asChild onClick={() => onLinkClick?.()}>
+      <Button variant="ghost" asChild onClick={onLinkClick}>
         <Link href="/login">Login</Link>
       </Button>
-      <Button asChild onClick={() => onLinkClick?.()}>
+      <Button asChild onClick={onLinkClick}>
         <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
@@ -167,9 +213,6 @@ export default function Header() {
         
         <div className="flex items-center gap-2">
           <div className="hidden md:flex">
-            <UserActions />
-          </div>
-          <div className="md:hidden">
             <UserActions />
           </div>
         </div>

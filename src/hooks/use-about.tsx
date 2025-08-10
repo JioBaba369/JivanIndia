@@ -12,6 +12,7 @@ export interface TeamMember {
   name: string;
   role: string;
   bio: string;
+  avatarUrl: string;
 }
 
 export interface AboutContent {
@@ -24,8 +25,8 @@ interface AboutContextType {
   aboutContent: AboutContent;
   isLoading: boolean;
   updateAboutContent: (data: Partial<AboutContent>) => Promise<void>;
-  addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
-  updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id'>) => Promise<void>;
+  addTeamMember: (member: Omit<TeamMember, 'id' | 'avatarUrl'>) => Promise<void>;
+  updateTeamMember: (memberId: string, updatedMember: Omit<TeamMember, 'id' | 'avatarUrl'>) => Promise<void>;
   deleteTeamMember: (memberId: string) => Promise<void>;
   addAdmin: (email: string) => Promise<void>;
   removeAdmin: (uid: string) => Promise<void>;
@@ -80,19 +81,20 @@ export function AboutProvider({ children }: { children: ReactNode }) {
   }, [aboutDocRef, toast]);
 
 
-  const addTeamMember = useCallback(async (memberData: Omit<TeamMember, 'id'>) => {
+  const addTeamMember = useCallback(async (memberData: Omit<TeamMember, 'id' | 'avatarUrl'>) => {
     const newMember: TeamMember = {
       ...memberData,
       id: new Date().getTime().toString(),
+      avatarUrl: '', // Default avatar
     };
     await updateAboutContent({ teamMembers: arrayUnion(newMember) as any });
   }, [updateAboutContent]);
 
-  const updateTeamMember = useCallback(async (memberId: string, updatedData: Omit<TeamMember, 'id'>) => {
+  const updateTeamMember = useCallback(async (memberId: string, updatedData: Omit<TeamMember, 'id' | 'avatarUrl'>) => {
     const currentMembers = aboutContent.teamMembers || [];
     const updatedMembers = currentMembers.map(member => 
       member.id === memberId 
-        ? { id: member.id, ...updatedData } 
+        ? { ...member, ...updatedData } 
         : member
     );
     await updateAboutContent({ teamMembers: updatedMembers });

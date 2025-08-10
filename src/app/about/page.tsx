@@ -98,9 +98,10 @@ export default function AboutUsPage() {
                         Array.from({length: 4}).map((_, i) => <TeamSkeleton key={i} />)
                     ) : teamMembers && teamMembers.length > 0 ? (
                         teamMembers.map((member) => (
-                            <Card key={member.name} className="border-none shadow-none text-center">
+                            <Card key={member.id} className="border-none shadow-none text-center">
                                 <CardContent className="flex flex-col items-center p-0">
                                 <Avatar className="h-32 w-32 mb-4 border-4 border-primary">
+                                    <AvatarImage src={member.avatarUrl} alt={member.name} />
                                     <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
                                 </Avatar>
                                 <h3 className="font-headline text-2xl font-semibold">{member.name}</h3>
