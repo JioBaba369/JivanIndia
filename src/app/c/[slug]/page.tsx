@@ -93,7 +93,7 @@ export default function CommunityDetailPage() {
     <div className="bg-background">
         <div className="relative h-64 md:h-80 w-full bg-muted">
             {community.bannerUrl ? (
-                <Image src={community.bannerUrl} alt={`${community.name} banner`} fill className="object-cover" />
+                <Image src={community.bannerUrl} alt={`${community.name} banner`} fill className="object-cover" data-ai-hint="community banner" />
             ) : (
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-background to-background" />
             )}
@@ -106,7 +106,7 @@ export default function CommunityDetailPage() {
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 text-center md:text-left">
                      <Avatar className="relative h-32 w-32 border-4 border-background bg-muted shadow-lg mx-auto md:mx-0">
-                        <AvatarImage src={community.logoUrl} alt={community.name} />
+                        <AvatarImage src={community.logoUrl} alt={community.name} data-ai-hint="community logo" />
                         <AvatarFallback className="text-4xl font-headline">{getInitials(community.name)}</AvatarFallback>
                     </Avatar>
                 </div>
