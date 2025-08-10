@@ -3,11 +3,13 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { useMemo, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useEvents } from '@/hooks/use-events';
 import { useCommunities } from '@/hooks/use-communities';
 import { useDeals } from '@/hooks/use-deals';
 import { useMovies } from '@/hooks/use-movies';
+import { useBusinesses } from '@/hooks/use-businesses';
+import { useSavedItems } from '@/hooks/use-saved-items';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -18,10 +20,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { getInitials } from '@/lib/utils';
-import { useBusinesses } from '@/hooks/use-businesses';
 
 export default function ProfilePage() {
-  const { user, logout, isLoading: isAuthLoading, isItemSaved } = useAuth();
+  const { user, logout, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const { events: allEvents, isLoading: isEventsLoading } = useEvents();
@@ -32,18 +33,17 @@ export default function ProfilePage() {
   
   const isLoading = isAuthLoading || isEventsLoading || isCommunitiesLoading || isDealsLoading || isMoviesLoading || isBusinessesLoading;
 
+  const savedEvents = useSavedItems(allEvents, 'savedEvents');
+  const joinedCommunities = useSavedItems(allCommunities, 'joinedCommunities');
+  const savedDeals = useSavedItems(allDeals, 'savedDeals');
+  const savedMovies = useSavedItems(allMovies, 'savedMovies');
+  const savedBusinesses = useSavedItems(allBusinesses, 'savedBusinesses');
+
   useEffect(() => {
     if (!isAuthLoading && !user) {
       router.push('/login');
     }
   }, [user, isAuthLoading, router]);
-
-  const savedEvents = useMemo(() => allEvents.filter(event => isItemSaved('savedEvents', String(event.id))), [allEvents, isItemSaved]);
-  const joinedCommunities = useMemo(() => allCommunities.filter(org => isItemSaved('joinedCommunities', org.id)), [allCommunities, isItemSaved]);
-  const savedDeals = useMemo(() => allDeals.filter(deal => isItemSaved('savedDeals', deal.id)), [allDeals, isItemSaved]);
-  const savedMovies = useMemo(() => allMovies.filter(movie => isItemSaved('savedMovies', movie.id)), [allMovies, isItemSaved]);
-  const savedBusinesses = useMemo(() => allBusinesses.filter(b => isItemSaved('savedBusinesses', b.id)), [allBusinesses, isItemSaved]);
-  
 
   if (isLoading || !user) {
     return (

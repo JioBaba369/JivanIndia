@@ -13,8 +13,8 @@ import { useDeals } from "@/hooks/use-deals";
 import { useSearchParams } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { ItemCardSkeleton } from "@/components/reusable/item-card";
 
 export default function DealsPage() {
   const { deals, isLoading } = useDeals();
@@ -43,23 +43,7 @@ export default function DealsPage() {
   }, [deals, searchQuery, category]);
   
   const DealSkeletons = () => (
-    Array.from({ length: 6 }).map((_, i) => (
-      <Card key={i} className="flex flex-col overflow-hidden">
-         <div className="relative h-48 w-full bg-muted flex items-center justify-center">
-            <Skeleton className="h-16 w-16" />
-        </div>
-        <CardContent className="flex flex-grow flex-col p-4">
-          <Skeleton className="h-4 w-1/3 mb-2" />
-          <Skeleton className="h-6 w-full mb-4" />
-          <div className="mt-4 space-y-3 flex-grow">
-             <Skeleton className="h-4 w-5/6" />
-          </div>
-          <div className="mt-4">
-            <Skeleton className="h-8 w-24" />
-          </div>
-        </CardContent>
-      </Card>
-    ))
+    Array.from({ length: 6 }).map((_, i) => <ItemCardSkeleton key={i} />)
   );
 
   return (
@@ -121,9 +105,7 @@ export default function DealsPage() {
                 <Tag className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="font-headline text-xl font-semibold mt-4">No Deals to Be Found</h3>
                 <p className="text-muted-foreground mt-2">There are currently no deals available. Know a business that could offer one?</p>
-                {user?.affiliation && <Button asChild className="mt-4">
-                    <Link href="/deals/new">Post a Deal</Link>
-                </Button>}
+                {user?.affiliation && <Button asChild className="mt-4"><Link href="/deals/new">Post a Deal</Link></Button>}
             </div>
           ) : filteredDeals.length > 0 ? (
             filteredDeals.map((deal) => (

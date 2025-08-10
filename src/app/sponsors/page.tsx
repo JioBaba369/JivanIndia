@@ -19,7 +19,7 @@ import { useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
 import { useSponsors } from "@/hooks/use-sponsors";
 import { useAuth } from "@/hooks/use-auth";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ItemCardSkeleton } from "@/components/reusable/item-card";
 
 export default function SponsorsPage() {
     const { sponsors, isLoading } = useSponsors();
@@ -42,42 +42,11 @@ export default function SponsorsPage() {
     }, [sponsors, searchQuery, industry]);
     
     const SponsorSkeletonsGrid = () => (
-      Array.from({ length: 6 }).map((_, i) => (
-        <Card key={i} className="flex flex-col overflow-hidden">
-          <Skeleton className="h-48 w-full flex items-center justify-center bg-muted">
-            <Skeleton className="h-16 w-32" />
-          </Skeleton>
-          <CardContent className="flex flex-grow flex-col p-4">
-            <Skeleton className="h-6 w-3/4 mb-2" />
-            <Skeleton className="h-4 w-1/3 mb-4" />
-            <Skeleton className="h-4 w-full mb-2 flex-grow" />
-            <Skeleton className="h-4 w-5/6 mb-auto" />
-            <div className="mt-6">
-              <Skeleton className="h-10 w-full" />
-            </div>
-          </CardContent>
-        </Card>
-      ))
+      Array.from({ length: 6 }).map((_, i) => <ItemCardSkeleton key={i} />)
     );
     
     const SponsorSkeletonsList = () => (
-      Array.from({ length: 4 }).map((_, i) => (
-         <Card key={i} className="w-full overflow-hidden">
-          <div className="flex flex-col sm:flex-row">
-            <Skeleton className="h-48 w-full sm:h-auto sm:w-48 flex-shrink-0 bg-muted" />
-            <CardContent className="flex-grow p-4 sm:p-6">
-              <Skeleton className="h-5 w-24 mb-2" />
-              <Skeleton className="h-7 w-1/2 mb-2" />
-              <Skeleton className="h-5 w-1/3 mb-4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6 mt-2" />
-            </CardContent>
-            <div className="flex items-center p-4 sm:p-6 border-t sm:border-t-0 sm:border-l">
-              <Skeleton className="h-10 w-24" />
-            </div>
-          </div>
-         </Card>
-      ))
+      Array.from({ length: 4 }).map((_, i) => <ItemCardSkeleton key={i} />)
     );
 
   return (
