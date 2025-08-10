@@ -4,7 +4,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building, Loader2 } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -39,13 +39,17 @@ const mainNavLinks: { title: string; href: string; }[] = [
 
 
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthLoading } = useAuth();
   
   const handleItemClick = () => {
     if (onLinkClick) {
         onLinkClick();
     }
   };
+  
+  if (isAuthLoading) {
+    return <Loader2 className="h-6 w-6 animate-spin" />;
+  }
 
   if (user) {
     const isAdmin = user.roles?.includes('admin');

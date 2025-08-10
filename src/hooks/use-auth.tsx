@@ -119,17 +119,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data() as Omit<User, 'uid' | 'roles'> & { roles?: UserRole[] };
-                let roles: UserRole[] = userData.roles || [];
-                
-                const isAdmin = aboutContent.adminUids?.includes(firebaseUser.uid);
-                
-                if (isAdmin && !roles.includes('admin')) {
-                    roles = [...roles, 'admin'];
-                } else if (!isAdmin && roles.includes('admin')) {
-                    roles = roles.filter(role => role !== 'admin');
-                }
+                let newRoles: UserRole[] = [];
 
-                setUser({ ...userData, uid: firebaseUser.uid, roles });
+                if (aboutContent.adminUids?.includes(firebaseUser.uid)) {
+                    newRoles.push('admin');
+                }
+                
+                if (userData.affiliation?.orgId) {
+                    newRoles.push('community-manager');
+                }
+                
+                setUser({ ...userData, uid: firebaseUser.uid, roles: newRoles });
             } else {
                 setUser(null);
             }
@@ -240,18 +240,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
-        const batch = writeBatch(firestore);
         const userRef = doc(firestore, 'users', user.uid);
-
         const affiliation = (orgId && orgName && orgSlug) ? { orgId, orgName, orgSlug } : null;
-        let newRoles: UserRole[] = [...(user.roles || [])].filter(r => r !== 'community-manager');
         
-        if (affiliation) {
-            newRoles.push('community-manager');
-        }
-        
-        batch.update(userRef, { affiliation, roles: newRoles });
-        await batch.commit();
+        await updateDoc(userRef, { affiliation });
     }
   }, [user]);
 
