@@ -62,6 +62,7 @@ const checklistData = {
         { id: 'c1', label: 'Final Data Wipe', description: 'All sample events, communities, users (except initial admin), etc., have been cleared from the database.' },
         { id: 'c2', label: 'Favicon & Branding', description: 'Site logo and favicon are finalized and configured in the admin panel.' },
         { id: 'c3', label: 'Domain & Hosting', description: 'Firebase Hosting is connected to the final production domain (jivanindia.co).' },
+        { id: 'c4', label: 'Environment Variables', description: 'All necessary environment variables for production are set in the deployment configuration.' },
     ],
     functionality: [
         { id: 'f1', label: 'User Authentication', description: 'Users can successfully sign up, log in, and log out.' },
@@ -81,6 +82,7 @@ const checklistData = {
         { id: 'cd1', label: 'Real-time Updates', description: 'Data across the app (events, communities) updates in real-time without page reloads.' },
         { id: 'cd2', label: 'Date & Time Handling', description: 'All dates and times are correctly handled and displayed across different timezones.' },
         { id: 'cd3', label: 'Static Content Review', description: 'All static content (About Us, India, Festivals, Legal pages) is proofread and finalized.' },
+        { id: 'cd4', label: 'Image Placeholders', description: 'All placeholder images have been replaced with final, high-quality images.' },
     ],
     admin: [
         { id: 'a1', label: 'Content Moderation', description: 'Admins can approve/archive events and verify/feature communities and businesses.' },
@@ -90,8 +92,9 @@ const checklistData = {
     ],
     technical: [
         { id: 't1', label: 'Sitemap Generation', description: 'The sitemap.ts file correctly generates URLs for all static and dynamic pages.' },
-        { id: 't2', label: 'Security Rules', description: 'Firestore security rules are in place to protect user data (implicit in Firebase setup).' },
+        { id: 't2', label: 'Security Rules', description: 'Firestore security rules are in place and have been tested to protect user data.' },
         { id: 't3', label: 'Dependencies', description: 'All package.json dependencies are up-to-date and free of known major vulnerabilities.' },
+        { id: 't4', label: 'Analytics Configuration', description: 'Firebase Analytics is correctly configured and tracking page views.' },
     ],
 };
 
@@ -760,10 +763,10 @@ export default function AdminDashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline text-3xl">Application Launch Checklist</CardTitle>
-                        <CardDescription>A final, comprehensive checklist to ensure all features are implemented correctly.</CardDescription>
+                        <CardDescription>A final, comprehensive checklist to ensure all features are implemented correctly before going live.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Accordion type="multiple" defaultValue={['item-1', 'item-2']} className="w-full">
+                        <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
                             <AccordionItem value="item-1">
                                 <AccordionTrigger className="text-xl font-semibold">Pre-Launch Readiness</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-4">
