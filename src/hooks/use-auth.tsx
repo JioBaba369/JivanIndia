@@ -139,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsAuthLoading(false);
         });
     } else {
+      setUser(null);
       setIsAuthLoading(false);
     }
 

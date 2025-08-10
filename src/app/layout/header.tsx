@@ -41,7 +41,7 @@ const mainNavLinks: { title: string; href: string; }[] = [
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
   
-  const handleItemClick = (e: React.MouseEvent) => {
+  const handleItemClick = () => {
     if (onLinkClick) {
         onLinkClick();
     }
@@ -98,7 +98,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
               {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { handleItemClick?.(undefined as any); logout(); }}>
+            <DropdownMenuItem onClick={() => { handleItemClick(); logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -110,10 +110,10 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
 
   return (
     <div className="flex items-center space-x-1 sm:space-x-2">
-      <Button variant="ghost" asChild onClick={() => onLinkClick?.()}>
+      <Button variant="ghost" asChild onClick={onLinkClick}>
         <Link href="/login">Login</Link>
       </Button>
-      <Button asChild onClick={() => onLinkClick?.()}>
+      <Button asChild onClick={onLinkClick}>
         <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
