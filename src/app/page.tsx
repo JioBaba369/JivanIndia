@@ -87,7 +87,7 @@ export default function HomePage() {
         </div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center px-4">
           <div className="p-4 md:p-8 rounded-lg">
-            <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Jivan: An Indian Community, For The People, By The People</h1>
+            <h1 className="font-body text-4xl sm:text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Jivan: An Indian Community, For The People, By The People</h1>
             <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-foreground/90 text-shadow">
               Discover local events, connect with community groups, support businesses, and find deals all in one place.
             </p>
