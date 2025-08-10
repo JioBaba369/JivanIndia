@@ -15,7 +15,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Trash2, UserPlus, Shield, Users, ArrowLeft, AlertCircle } from 'lucide-react';
-import { useCommunities, type Community } from '@/hooks/use-communities';
+import { useCommunities, type Community, type CommunityManager } from '@/hooks/use-communities';
 import { useAuth, type User } from '@/hooks/use-auth';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,8 +37,6 @@ export default function CommunityManagersPage() {
   
   const [isPending, startTransition] = useTransition();
   const [community, setCommunity] = useState<Community | null>(null);
-  const [managers, setManagers] = useState<User[]>([]);
-  const [isManagersLoading, setIsManagersLoading] = useState(true);
   
   const [newManagerEmail, setNewManagerEmail] = useState('');
   const [newManagerRole, setNewManagerRole] = useState<ManagerRole>('moderator');
@@ -51,23 +49,9 @@ export default function CommunityManagersPage() {
     }
   }, [slug, getCommunityBySlug, isLoadingCommunities]);
 
-  useEffect(() => {
-    async function fetchManagers() {
-      if (community?.managerUids && community.managerUids.length > 0) {
-        // This is a simplified fetch. In a real app, you might fetch users by their UIDs.
-        // For now, we'll assume the managerUids are just there for display logic.
-        // We'll simulate fetching for the UI.
-        setIsManagersLoading(false);
-      } else {
-        setIsManagersLoading(false);
-      }
-    }
-    fetchManagers();
-  }, [community?.managerUids]);
-
   const canManage = user && community && canManageCommunity(community, user);
 
-  if (isLoadingCommunities || isManagersLoading) {
+  if (isLoadingCommunities) {
     return (
       <div className="container mx-auto px-4 py-12 flex justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -101,7 +85,7 @@ export default function CommunityManagersPage() {
     if (community && foundUser) {
       startTransition(async () => {
         try {
-          await addManager(community, foundUser.email);
+          await addManager(community, foundUser.email, newManagerRole);
           toast({ title: 'Manager Added', description: `${foundUser.name} can now manage this community.` });
           setNewManagerEmail('');
           setFoundUser(null);
@@ -124,6 +108,41 @@ export default function CommunityManagersPage() {
       });
     }
   };
+  
+  const ManagerCard = ({ manager, isFounder }: { manager: { uid: string, name: string, email: string, role?: ManagerRole }, isFounder: boolean }) => (
+     <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+        <div className="flex items-center gap-4">
+        {/* Placeholder Avatar - in real app, fetch manager's avatar */}
+        <Avatar><AvatarFallback>{getInitials(manager.name)}</AvatarFallback></Avatar>
+        <div>
+            <p className="font-semibold">{manager.name}</p>
+            <p className="text-sm text-muted-foreground">{manager.email}</p>
+        </div>
+        </div>
+        <div className="flex items-center gap-2">
+            <Badge variant="secondary">
+                {isFounder ? <><Shield className="mr-1 h-3 w-3"/>Founder</> : manager.role}
+            </Badge>
+            {!isFounder && (
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" disabled={isPending}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                    <AlertDialogHeader><AlertDialogTitle>Remove {manager.name}?</AlertDialogTitle><AlertDialogDescription>This will revoke all management permissions for this user.</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveManager(manager.uid)}>Yes, remove</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+        </div>
+    </div>
+  );
+  
+  const managersWithDetails = community.managerUids.map(uid => {
+      // In a real app you'd fetch user details here. For now, we mock it.
+      return { uid, name: 'Manager User', email: 'loading...' , role: 'moderator' as ManagerRole}
+  });
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -145,40 +164,11 @@ export default function CommunityManagersPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Display Founder */}
-              {isManagersLoading ? (
-                <Skeleton className="h-16 w-full" />
-              ) : (
-                <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                  <div className="flex items-center gap-4">
-                    <Avatar><AvatarImage src={user.profileImageUrl} /><AvatarFallback>{getInitials(user.name)}</AvatarFallback></Avatar>
-                    <div>
-                      <p className="font-semibold">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary"><Shield className="mr-1 h-3 w-3"/> Founder</Badge>
-                </div>
-              )}
+              <ManagerCard manager={{uid: user.uid, name: user.name, email: user.email}} isFounder={true} />
               
               {/* Display other managers */}
               {community.managerUids?.filter(uid => uid !== user.uid).map(managerUid => (
-                <div key={managerUid} className="flex items-center justify-between p-3 rounded-lg border">
-                  {/* In a real app, you would fetch manager details here */}
-                   <div>
-                      <p className="font-semibold">Manager User</p>
-                      <p className="text-sm text-muted-foreground">email@example.com</p>
-                    </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" disabled={isPending}><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader><AlertDialogTitle>Remove Manager?</AlertDialogTitle><AlertDialogDescription>This will revoke all management permissions for this user.</AlertDialogDescription></AlertDialogHeader>
-                      <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveManager(managerUid)}>Yes, remove</AlertDialogAction></AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                  <ManagerCard key={managerUid} manager={{uid: managerUid, name: 'Manager User', email: 'email@example.com', role: 'moderator'}} isFounder={false} />
               ))}
             </div>
           </CardContent>
@@ -197,7 +187,16 @@ export default function CommunityManagersPage() {
                 onUserFound={setFoundUser}
                 placeholder="Enter user's email address"
               />
-              <Button onClick={handleAddManager} disabled={!foundUser || isPending}>
+              <Select value={newManagerRole} onValueChange={(value) => setNewManagerRole(value as ManagerRole)}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="moderator">Moderator</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={handleAddManager} disabled={!foundUser || isPending} className="mt-2 md:mt-0">
                 {isPending ? <Loader2 className="mr-2 animate-spin"/> : <UserPlus className="mr-2"/>} Add Manager
               </Button>
             </div>
