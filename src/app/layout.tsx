@@ -8,6 +8,10 @@ import { getDoc, doc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import Header from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
+import { Toaster } from "@/components/ui/toaster";
+import CookieConsentBanner from "@/components/cookie-consent-banner";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -53,7 +57,15 @@ export default function RootLayout({
             </div>
         }>
           <Providers>
-              {children}
+              <div className="relative flex min-h-screen flex-col">
+                  <Header />
+                  <main className="flex-1">
+                      {children}
+                  </main>
+                  <Footer />
+                  <Toaster />
+                  <CookieConsentBanner />
+              </div>
           </Providers>
         </Suspense>
       </body>

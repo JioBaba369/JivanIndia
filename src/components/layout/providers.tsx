@@ -14,10 +14,6 @@ import { DealsProvider } from "@/hooks/use-deals";
 import { ReportsProvider } from "@/hooks/use-reports";
 import { NotificationsProvider } from '@/hooks/use-notifications';
 import { FestivalsProvider } from '@/hooks/use-festivals';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
-import { Toaster } from '@/components/ui/toaster';
-import CookieConsentBanner from '@/components/cookie-consent-banner';
 import { CountriesProvider } from '@/hooks/use-countries';
 import { IndiaLocationsProvider } from '@/hooks/use-india-locations';
 import { SearchProvider } from '@/hooks/use-search';
@@ -39,15 +35,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                                             <BusinessesProvider>
                                                 <MoviesProvider>
                                                     <FestivalsProvider>
-                                                        <div className="relative flex min-h-screen flex-col">
-                                                            <Header />
-                                                            <main className="flex-1">
-                                                                {children}
-                                                            </main>
-                                                            <Footer />
-                                                            <Toaster />
-                                                            <CookieConsentBanner />
-                                                        </div>
+                                                      {children}
                                                     </FestivalsProvider>
                                                 </MoviesProvider>
                                             </BusinessesProvider>
