@@ -87,7 +87,7 @@ export default function CommunityDetailPage() {
   }
 
   const orgIsJoined = user ? isCommunityJoined(community.id) : false;
-  const isManager = user?.roles.includes('community-manager') && user?.affiliation?.orgId === community.id;
+  const isManager = user && community.managerUids.includes(user.uid);
 
   return (
     <div className="bg-background">

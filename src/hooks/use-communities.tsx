@@ -33,12 +33,13 @@ export interface Community {
     facebook?: string;
   };
   founderUid: string;
+  managerUids: string[];
   founderEmail: string;
   createdAt: any;
   updatedAt: any;
 }
 
-export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail' | 'isFeatured'>;
+export type NewCommunityInput = Omit<Community, 'id' | 'createdAt' | 'updatedAt' | 'isVerified' | 'founderEmail' | 'isFeatured' | 'managerUids'>;
 
 interface CommunitiesContextType {
   communities: Community[];
@@ -51,6 +52,8 @@ interface CommunitiesContextType {
   isSlugUnique: (slug: string, currentId?: string) => boolean;
   verifyCommunity: (communityId: string) => Promise<void>;
   updateCommunityFeaturedStatus: (communityId: string, isFeatured: boolean) => Promise<void>;
+  addManager: (community: Community, email: string) => Promise<void>;
+  removeManager: (community: Community, uidToRemove: string) => Promise<void>;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
@@ -93,6 +96,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       isVerified: false,
       isFeatured: false,
       founderEmail: user.email,
+      managerUids: [user.uid],
     };
     batch.set(newCommunityRef, newCommunityForDb);
 
@@ -188,6 +192,75 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
+  const addManager = useCallback(async (community: Community, email: string) => {
+    const usersRef = collection(firestore, 'users');
+    const q = query(usersRef, where("email", "==", email));
+    
+    try {
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        toast({ title: 'User Not Found', description: `No user with email ${email}.`, variant: 'destructive' });
+        return;
+      }
+      
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data() as User;
+      
+      if (community.managerUids.includes(userDoc.id)) {
+        toast({ title: 'Already a Manager', description: `${userData.name} is already a manager.`, variant: 'destructive' });
+        return;
+      }
+      
+      const batch = writeBatch(firestore);
+      
+      // Update community
+      const communityRef = doc(firestore, 'communities', community.id);
+      batch.update(communityRef, { managerUids: arrayUnion(userDoc.id) });
+      
+      // Update user
+      const userRef = doc(firestore, 'users', userDoc.id);
+      batch.update(userRef, {
+        roles: arrayUnion('community-manager'),
+        affiliation: { orgId: community.id, orgName: community.name, orgSlug: community.slug }
+      });
+      
+      await batch.commit();
+      toast({ title: 'Manager Added', description: `${userData.name} is now a manager.` });
+      
+    } catch (error) {
+      console.error("Error adding manager:", error);
+      toast({ title: 'Error', description: 'Could not add manager.', variant: 'destructive' });
+    }
+  }, [toast]);
+  
+  const removeManager = useCallback(async (community: Community, uidToRemove: string) => {
+    if (uidToRemove === community.founderUid) {
+      toast({ title: 'Action Not Allowed', description: 'The community founder cannot be removed.', variant: 'destructive' });
+      return;
+    }
+    
+    const batch = writeBatch(firestore);
+    
+    // Update community
+    const communityRef = doc(firestore, 'communities', community.id);
+    batch.update(communityRef, { managerUids: arrayRemove(uidToRemove) });
+    
+    // Update user
+    const userRef = doc(firestore, 'users', uidToRemove);
+    batch.update(userRef, {
+      roles: arrayRemove('community-manager'),
+      affiliation: null,
+    });
+    
+    try {
+      await batch.commit();
+      toast({ title: 'Manager Removed', description: `Manager has been removed successfully.` });
+    } catch (error) {
+      console.error("Error removing manager:", error);
+      toast({ title: 'Error', description: 'Could not remove manager.', variant: 'destructive' });
+    }
+  }, [toast]);
+
   const contextValue = {
     communities,
     isLoading,
@@ -199,6 +272,8 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     isSlugUnique,
     verifyCommunity,
     updateCommunityFeaturedStatus,
+    addManager,
+    removeManager,
   };
 
   return (

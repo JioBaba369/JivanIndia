@@ -11,13 +11,13 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, type User } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X, Trash2 } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, X, Trash2, UserPlus, Shield } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,6 +34,10 @@ import {
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import CountrySelector from '@/components/layout/country-selector';
 import ImageUpload from '@/components/feature/image-upload';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { firestore } from "@/lib/firebase";
 
 
 const NAME_MAX_LENGTH = 100;
@@ -80,13 +84,15 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique, addManager, removeManager } = useCommunities();
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
   
   const [isPending, startTransition] = useTransition();
   const [isDeleting, setIsDeleting] = useState(false);
   const [community, setCommunity] = useState<Community | null>(null);
+  const [managers, setManagers] = useState<User[]>([]);
+  const [isManagersLoading, setIsManagersLoading] = useState(true);
   
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(formSchema(isSlugUnique)),
@@ -122,6 +128,39 @@ export default function EditCommunityPage() {
       }
   }, [slug, getCommunityBySlug, form, isLoadingCommunities]);
 
+  useEffect(() => {
+    if (community?.managerUids && community.managerUids.length > 0) {
+      const fetchManagers = async () => {
+        setIsManagersLoading(true);
+        try {
+          const usersRef = collection(firestore, 'users');
+          const managerUidsChunks: string[][] = [];
+          for (let i = 0; i < community.managerUids.length; i += 10) {
+            managerUidsChunks.push(community.managerUids.slice(i, i + 10));
+          }
+          
+          const managerPromises = managerUidsChunks.map(chunk => 
+            getDocs(query(usersRef, where('__name__', 'in', chunk)))
+          );
+
+          const managerSnapshots = await Promise.all(managerPromises);
+          const managersData = managerSnapshots.flatMap(snapshot => 
+            snapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User))
+          );
+          setManagers(managersData);
+        } catch (error) {
+          console.error("Failed to fetch managers", error);
+          toast({ title: 'Error', description: 'Could not fetch manager list.', variant: 'destructive' });
+        } finally {
+          setIsManagersLoading(false);
+        }
+      };
+      fetchManagers();
+    } else {
+      setIsManagersLoading(false);
+    }
+  }, [community?.managerUids, toast]);
+
   if (isLoadingCommunities) {
     return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
@@ -130,7 +169,10 @@ export default function EditCommunityPage() {
     );
   }
 
-  if (!user || (community && user.uid !== community.founderUid)) {
+  const isManager = user && community && community.managerUids.includes(user.uid);
+  const isFounder = user && community && user.uid === community.founderUid;
+
+  if (!user || !isManager) {
     return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
@@ -229,231 +271,140 @@ export default function EditCommunityPage() {
       }
   }
 
+  const handleAddManager = async (email: string) => {
+    if (community && email) {
+      await addManager(community, email);
+    }
+  };
+
+  const handleRemoveManager = async (uid: string) => {
+    if (community) {
+      await removeManager(community, uid);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="mx-auto max-w-3xl shadow-xl shadow-black/5">
-        <CardHeader>
-          <CardTitle className="font-headline text-3xl">Edit Your Community</CardTitle>
-          <CardDescription>
-            Update your community's information below. Changes will be reflected publicly once you save.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Branding &amp; Media</h3>
-                <FormField
-                  control={form.control}
-                  name="logoUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Community Logo</FormLabel>
-                        <FormControl>
-                            <ImageUpload
-                                value={field.value}
-                                onChange={field.onChange}
-                                aspectRatio={1 / 1}
-                                toast={toast}
-                                folderName="community-logos"
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="bannerUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Community Banner Image</FormLabel>
-                        <FormControl>
-                            <ImageUpload
-                                value={field.value}
-                                onChange={field.onChange}
-                                aspectRatio={16 / 9}
-                                toast={toast}
-                                folderName="community-banners"
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
-                 <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Bay Area Tamil Sangam" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Community URL *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., bay-area-tamil-sangam" {...field} />
-                        </FormControl>
-                         <FormDescription>jivanindia.co/c/{form.getValues('slug') || '{your-url}'}</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-              </div>
-              
-              <div className="space-y-6">
-                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Details & Purpose</h3>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <FormField
-                          control={form.control}
-                          name="type"
-                          render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Community Category *</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                      <FormControl>
-                                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                          {communityTypes.map(type => (
-                                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                                          ))}
-                                      </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                              </FormItem>
-                          )}
-                      />
-                       <FormField
-                          control={form.control}
-                          name="founded"
-                          render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Year Founded *</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder="e.g., 2010" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                          )}
-                      />
-                  </div>
+      <div className="mx-auto max-w-3xl space-y-8">
+        <Card className="shadow-xl shadow-black/5">
+          <CardHeader>
+            <CardTitle className="font-headline text-3xl">Edit Your Community</CardTitle>
+            <CardDescription>
+              Update your community's information below. Changes will be reflected publicly once you save.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="space-y-4">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Branding &amp; Media</h3>
+                  <FormField control={form.control} name="logoUrl" render={({ field }) => (<FormItem><FormLabel>Community Logo</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} aspectRatio={1 / 1} toast={toast} folderName="community-logos" /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="bannerUrl" render={({ field }) => (<FormItem><FormLabel>Community Banner Image</FormLabel><FormControl><ImageUpload value={field.value} onChange={field.onChange} aspectRatio={16 / 9} toast={toast} folderName="community-banners" /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+                <div className="space-y-4">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Identity</h3>
+                  <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Community Name *</FormLabel><FormControl><Input placeholder="e.g., Bay Area Tamil Sangam" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="slug" render={({ field }) => (<FormItem><FormLabel>Community URL *</FormLabel><FormControl><Input placeholder="e.g., bay-area-tamil-sangam" {...field} /></FormControl><FormDescription>jivanindia.co/c/{form.getValues('slug') || '{your-url}'}</FormDescription><FormMessage /></FormItem>)} />
+                </div>
+                <div className="space-y-6">
+                    <h3 className="font-headline text-lg font-semibold border-b pb-2">Community Details & Purpose</h3>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>Community Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{communityTypes.map(type => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="founded" render={({ field }) => (<FormItem><FormLabel>Year Founded *</FormLabel><FormControl><Input placeholder="e.g., 2010" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="region" render={({ field }) => (<FormItem><FormLabel>Region *</FormLabel><FormControl><Input placeholder="e.g., San Francisco Bay Area" {...field} /></FormControl><FormDescription>State, province, or metropolitan area.</FormDescription><FormMessage /></FormItem>)} />
+                    </div>
+                    <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Short Description *</FormLabel><FormControl><Textarea placeholder="A brief, one-sentence summary for listing pages." {...field} rows={2} /></FormControl><FormDescription className="flex justify-between"><span>Max {DESC_MAX_LENGTH} characters.</span><span>{(field.value || '').length} / {DESC_MAX_LENGTH}</span></FormDescription><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="fullDescription" render={({ field }) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea placeholder="Provide a detailed description of your community's mission, activities, history, and who it's for." {...field} rows={5} /></FormControl><FormDescription className="flex justify-between"><span>This will appear on your main community profile page.</span><span>{(field.value || '').length} / {FULL_DESC_MAX_LENGTH}</span></FormDescription><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="tags" render={({ field }) => (<FormItem><FormLabel>Tags / Keywords</FormLabel><FormControl><Input placeholder="e.g., cultural, family-friendly, south-indian" {...field} /></FormControl><FormDescription>Separate with commas. Helps users discover your community.</FormDescription><FormMessage /></FormItem>)} />
+                </div>
+                <div className="space-y-6">
+                  <h3 className="font-headline text-lg font-semibold border-b pb-2">Contact & Social Media</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <FormField
-                          control={form.control}
-                          name="country"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Country *</FormLabel>
-                              <FormControl>
-                                <CountrySelector
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="region"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Region *</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., San Francisco Bay Area" {...field} />
-                                    </FormControl>
-                                    <FormDescription>State, province, or metropolitan area.</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                      <FormField control={form.control} name="contactEmail" render={({ field }) => (<FormItem><FormLabel>Contact Email *</FormLabel><FormControl><Input placeholder="e.g., contact@yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="e.g., (123) 456-7890" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   </div>
-                  <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Short Description *</FormLabel>
-                              <FormControl>
-                                  <Textarea placeholder="A brief, one-sentence summary for listing pages." {...field} rows={2} />
-                              </FormControl>
-                              <FormDescription className="flex justify-between">
-                                <span>Max {DESC_MAX_LENGTH} characters.</span>
-                                <span>{(field.value || '').length} / {DESC_MAX_LENGTH}</span>
-                              </FormDescription>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                   <FormField
-                      control={form.control}
-                      name="fullDescription"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Full Description *</FormLabel>
-                              <FormControl>
-                                  <Textarea placeholder="Provide a detailed description of your community's mission, activities, history, and who it's for." {...field} rows={5} />
-                              </FormControl>
-                              <FormDescription className="flex justify-between">
-                                <span>This will appear on your main community profile page.</span>
-                                <span>{(field.value || '').length} / {FULL_DESC_MAX_LENGTH}</span>
-                              </FormDescription>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-                   <FormField
-                      control={form.control}
-                      name="tags"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Tags / Keywords</FormLabel>
-                              <FormControl>
-                                  <Input placeholder="e.g., cultural, family-friendly, south-indian" {...field} />
-                              </FormControl>
-                              <FormDescription>Separate with commas. Helps users discover your community.</FormDescription>
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
-              </div>
-
-               <div className="space-y-6">
-                <h3 className="font-headline text-lg font-semibold border-b pb-2">Contact & Social Media</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="contactEmail" render={({ field }) => (<FormItem><FormLabel>Contact Email *</FormLabel><FormControl><Input placeholder="e.g., contact@yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="e.g., (123) 456-7890" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Public Address</FormLabel><FormControl><Input placeholder="e.g., 123 Community Lane, City, State" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  </div>
                 </div>
-                 <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Public Address</FormLabel><FormControl><Input placeholder="e.g., 123 Community Lane, City, State" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                 <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website URL</FormLabel><FormControl><Input placeholder="e.g., https://yourcommunity.org" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                <div className="flex justify-end gap-4 pt-4">
+                    <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
+                    <Button type="submit" disabled={!form.formState.isValid || isPending}>{isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}</Button>
                 </div>
-              </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
-              <div className="flex justify-between items-center gap-4 pt-4">
-                <AlertDialog>
+        {isFounder && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Community Managers</CardTitle>
+              <CardDescription>Add or remove users who can manage this community page.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isManagersLoading ? <Loader2 className="animate-spin" /> : (
+                <div className="space-y-4">
+                  {managers.map(manager => (
+                    <div key={manager.uid} className="flex items-center justify-between p-2 rounded-md border">
+                      <div className="flex items-center gap-3">
+                        <Avatar><AvatarFallback>{getInitials(manager.name)}</AvatarFallback></Avatar>
+                        <div>
+                          <p className="font-semibold">{manager.name}</p>
+                          <p className="text-sm text-muted-foreground">{manager.email}</p>
+                        </div>
+                         {manager.uid === community?.founderUid && <Badge variant="secondary"><Shield className="mr-1 h-3 w-3"/> Founder</Badge>}
+                      </div>
+                      <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" disabled={manager.uid === community?.founderUid}>
+                                <Trash2 className="h-4 w-4 text-destructive"/>
+                              </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>This will remove {manager.name} as a manager. They will lose all editing rights.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleRemoveManager(manager.uid)}>Yes, remove</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  ))}
+                </div>
+              )}
+               <form onSubmit={(e) => { e.preventDefault(); handleAddManager((e.currentTarget.elements.namedItem('email') as HTMLInputElement).value); e.currentTarget.reset(); }} className="mt-6 flex gap-2">
+                    <Input name="email" type="email" placeholder="Enter new manager's email" required />
+                    <Button type="submit"><UserPlus className="mr-2"/> Add Manager</Button>
+                </form>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                <CardDescription>These actions are irreversible. Please proceed with caution.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-between items-center p-6 border rounded-lg border-destructive bg-destructive/5">
+                <div>
+                    <h4 className="font-semibold text-destructive">Delete this Community</h4>
+                    <p className="text-sm text-muted-foreground">This will permanently delete the community and all its data.</p>
+                </div>
+                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                         <Button type="button" variant="destructive" disabled={isDeleting}>
-                            <Trash2 className="mr-2"/> Delete Community
+                         <Button type="button" variant="destructive" disabled={isDeleting || !isFounder}>
+                            {isDeleting ? <><Loader2 className="mr-2 animate-spin"/> Deleting...</> : <><Trash2 className="mr-2"/> Delete Community</>}
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -461,7 +412,7 @@ export default function EditCommunityPage() {
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
                                 This action cannot be undone. This will permanently delete your
-                                community and remove all of its associated data from our servers.
+                                community, <span className="font-bold">{community?.name}</span>, and remove all of its associated data from our servers.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -472,19 +423,9 @@ export default function EditCommunityPage() {
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
-                 <div className="flex justify-end gap-4">
-                    <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" disabled={!form.formState.isValid || isPending}>
-                      {isPending ? <><Loader2 className="mr-2 animate-spin" /> Saving...</> : 'Save Changes'}
-                    </Button>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
