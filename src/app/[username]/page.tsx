@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents } from '@/hooks/use-events';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -139,6 +139,7 @@ export default function UserPublicProfilePage() {
                         <div className="text-center">
                             <div className="inline-flex relative">
                                 <Avatar className="h-32 w-32 border-4 border-primary shadow-lg">
+                                    <AvatarImage src={profileUser.profileImageUrl} alt={profileUser.name} />
                                     <AvatarFallback className="font-headline text-5xl">{getInitials(profileUser.name)}</AvatarFallback>
                                 </Avatar>
                             </div>

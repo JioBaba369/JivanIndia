@@ -17,7 +17,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import ImageUpload from '@/components/feature/image-upload';
 import { getInitials } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,6 +50,7 @@ const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: str
   bio: z.string().max(280, { message: "Bio cannot exceed 280 characters." }).optional(),
   phone: z.string().optional(),
   website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  profileImageUrl: z.string().optional(),
   currentCountry: z.string().optional(),
   currentState: z.string().optional(),
   currentCity: z.string().optional(),
@@ -99,6 +101,7 @@ export default function EditProfilePage() {
         bio: user.bio || '',
         phone: user.phone || '',
         website: user.website || '',
+        profileImageUrl: user.profileImageUrl || '',
         currentCountry: user.currentLocation?.country || '',
         currentState: user.currentLocation?.state || '',
         currentCity: user.currentLocation?.city || '',
@@ -134,6 +137,7 @@ export default function EditProfilePage() {
               bio: data.bio,
               phone: data.phone,
               website: data.website,
+              profileImageUrl: data.profileImageUrl,
               currentLocation: {
                 country: data.currentCountry || '',
                 state: data.currentState || '',
@@ -162,7 +166,7 @@ export default function EditProfilePage() {
     });
   }
 
-  const onPasswordSubmit = (data: z.infer<typeof passwordFormSchema>) => {
+  const onPasswordSubmit = (data: z.infer<typeof passwordFormSchema>>) => {
     startPasswordTransition(async () => {
       try {
         await changePassword(data.currentPassword, data.newPassword);
@@ -198,9 +202,27 @@ export default function EditProfilePage() {
                         <h3 className="font-headline text-lg font-semibold border-b pb-2">Profile Avatar</h3>
                         <div className="flex items-center gap-6">
                             <Avatar className="h-24 w-24 border-4 border-primary">
+                                <AvatarImage src={profileForm.watch('profileImageUrl')} alt={profileForm.watch('name')} />
                                 <AvatarFallback className="font-headline text-3xl">{getInitials(profileForm.watch('name'))}</AvatarFallback>
                             </Avatar>
-                            <p className="text-sm text-muted-foreground">Profile picture functionality has been removed.</p>
+                            <FormField
+                                control={profileForm.control}
+                                name="profileImageUrl"
+                                render={({ field }) => (
+                                <FormItem className="flex-grow">
+                                    <FormControl>
+                                        <ImageUpload
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            aspectRatio={1/1}
+                                            folderName="profile-images"
+                                            toast={toast}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
                         </div>
                         </div>
 
@@ -321,5 +343,3 @@ export default function EditProfilePage() {
     </div>
   );
 }
-
-    

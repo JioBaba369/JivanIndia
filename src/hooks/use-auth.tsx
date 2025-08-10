@@ -19,6 +19,7 @@ export interface User {
   email: string;
   roles: UserRole[];
   bio?: string;
+  profileImageUrl?: string;
   affiliation?: {
     orgId: string;
     orgName: string;
@@ -184,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       bio: '',
       phone: '',
       website: '',
+      profileImageUrl: '',
       currentLocation: { country, state, city },
       originLocation: { indiaState: '', indiaDistrict: '' },
       languagesSpoken: [],
