@@ -34,7 +34,7 @@ export default function MoviesPage() {
     return matchesSearch;
   }), [movies, searchQuery]);
 
-  const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, movie: typeof movies[0]) => {
+  const handleSaveToggle = (e: MouseEvent, movie: typeof movies[0]) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -136,9 +136,6 @@ export default function MoviesPage() {
                         />
                        </Link>
                        <div className="absolute top-2 right-2 flex gap-1">
-                             <Button variant={isSaved ? 'default' : 'secondary'} size="icon" className="h-8 w-8" onClick={(e) => handleSaveToggle(e, movie)}>
-                                <Bookmark size={16} />
-                            </Button>
                              <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
@@ -146,6 +143,10 @@ export default function MoviesPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={(e) => handleSaveToggle(e, movie)}>
+                                      <Bookmark className="mr-2 h-4 w-4" />
+                                      {isSaved ? 'Saved' : 'Save'}
+                                    </DropdownMenuItem>
                                     <ReportDialog 
                                         contentId={movie.id} 
                                         contentType="Movie" 

@@ -64,7 +64,7 @@ export default function CommunitiesPage() {
     }, [communities, searchQuery, locationQuery, category]);
 
 
-    const handleJoinToggle = (e: MouseEvent<HTMLButtonElement>, orgName: string, orgId: string) => {
+    const handleJoinToggle = (e: MouseEvent, orgName: string, orgId: string) => {
         e.preventDefault();
         e.stopPropagation();
          if (!user) {
@@ -208,6 +208,9 @@ export default function CommunitiesPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
+                                            <Bookmark className="mr-2 h-4 w-4" /> {isJoined ? "Joined" : "Join"}
+                                        </DropdownMenuItem>
                                         <ReportDialog 
                                             contentId={org.id} 
                                             contentType="Community" 
@@ -239,10 +242,6 @@ export default function CommunitiesPage() {
                         <div className="mt-auto flex gap-2 p-4 pt-0">
                             <Button asChild className="flex-1">
                                 <Link href={`/c/${org.slug}`}>View</Link>
-                            </Button>
-                            <Button variant="secondary" className="flex-1" onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
-                                <Bookmark className="mr-2 h-4 w-4" />
-                                {isJoined ? "Joined" : "Join"}
                             </Button>
                         </div>
                     </Card>
@@ -288,7 +287,7 @@ export default function CommunitiesPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={(e) => { e.preventDefault(); handleJoinToggle(e, org.name, org.id); }}>
+                                        <DropdownMenuItem onClick={(e) => handleJoinToggle(e, org.name, org.id)}>
                                             <Bookmark className="mr-2 h-4 w-4" />
                                             {isJoined ? "Leave" : "Join"}
                                         </DropdownMenuItem>

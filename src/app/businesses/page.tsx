@@ -61,7 +61,7 @@ export default function BusinessesPage() {
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }, [approvedBusinesses, searchQuery, locationQuery, category]);
     
-    const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, business: typeof businesses[0]) => {
+    const handleSaveToggle = (e: MouseEvent, business: typeof businesses[0]) => {
       e.preventDefault();
       e.stopPropagation();
       if (!user) {
@@ -189,9 +189,6 @@ export default function BusinessesPage() {
                             </Link>
                             {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
                             <div className="absolute top-2 right-2 flex gap-1">
-                                <Button variant={isSaved ? 'default' : 'secondary'} size="icon" className="h-8 w-8" onClick={(e) => handleSaveToggle(e, business)}>
-                                    <Bookmark size={16} />
-                                </Button>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
@@ -199,6 +196,9 @@ export default function BusinessesPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={(e) => handleSaveToggle(e, business)}>
+                                            <Bookmark className="mr-2 h-4 w-4" /> {isSaved ? "Saved" : "Save"}
+                                        </DropdownMenuItem>
                                         <ReportDialog 
                                             contentId={business.id} 
                                             contentType="Business" 
