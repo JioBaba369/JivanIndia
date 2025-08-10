@@ -31,11 +31,19 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import ImageUpload from '@/components/feature/image-upload';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useCommunities } from '@/hooks/use-communities';
 import { useSponsors, type SponsorTier } from '@/hooks/use-sponsors';
-import CountrySelector from '@/components/layout/country-selector';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-48 w-full" />,
+    ssr: false
+});
+const CountrySelector = dynamic(() => import('@/components/layout/country-selector'), {
+    loading: () => <Skeleton className="h-10 w-full" />,
+});
 
 
 const eventTypes = ['Cultural', 'Religious', 'Professional', 'Sports', 'Festival', 'Workshop', 'Food', 'Other'] as const;
@@ -483,3 +491,5 @@ export default function NewEventPage() {
     </div>
   );
 }
+
+    

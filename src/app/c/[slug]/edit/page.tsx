@@ -32,14 +32,22 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import CountrySelector from '@/components/layout/country-selector';
-import ImageUpload from '@/components/feature/image-upload';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { Badge } from "@/components/ui/badge";
 import { EmailInput } from "@/components/feature/user-search";
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-48 w-full" />,
+    ssr: false
+});
+const CountrySelector = dynamic(() => import('@/components/layout/country-selector'), {
+    loading: () => <Skeleton className="h-10 w-full" />,
+});
 
 
 const NAME_MAX_LENGTH = 100;
@@ -359,3 +367,5 @@ export default function EditCommunityPage() {
     </div>
   );
 }
+
+    

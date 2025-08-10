@@ -31,9 +31,17 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hooks/use-businesses';
-import ImageUpload from '@/components/feature/image-upload';
-import CountrySelector from '@/components/layout/country-selector';
 import { useCountries, type StateProvince } from '@/hooks/use-countries';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-48 w-full" />,
+    ssr: false
+});
+const CountrySelector = dynamic(() => import('@/components/layout/country-selector'), {
+    loading: () => <Skeleton className="h-10 w-full" />,
+});
 
 
 const formSchema = z.object({
@@ -326,3 +334,5 @@ export default function NewBusinessEntryPage() {
     </div>
   );
 }
+
+    

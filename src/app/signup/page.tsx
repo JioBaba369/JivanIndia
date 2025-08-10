@@ -29,7 +29,12 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import CountrySelector from "@/components/layout/country-selector";
+import dynamic from 'next/dynamic';
+import { Skeleton } from "../ui/skeleton";
+
+const CountrySelector = dynamic(() => import('@/components/layout/country-selector'), {
+  loading: () => <Skeleton className="h-10 w-full" />,
+});
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -145,3 +150,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+    

@@ -32,7 +32,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { useMovies, type NewMovieInput } from '@/hooks/use-movies';
 import { useCommunities } from '@/hooks/use-communities';
-import ImageUpload from '@/components/feature/image-upload';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-48 w-full" />,
+    ssr: false
+});
+
 
 const theaterSchema = z.object({
   name: z.string().min(3, "Theater name is required."),
@@ -208,3 +215,5 @@ export default function NewMoviePage() {
     </div>
   );
 }
+
+    

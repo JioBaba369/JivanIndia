@@ -29,8 +29,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import ImageUpload from '@/components/feature/image-upload';
 import { useSponsors, type SponsorTier, type NewSponsorInput } from '@/hooks/use-sponsors';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-48 w-full" />,
+    ssr: false
+});
 
 const sponsorTiers: SponsorTier[] = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Supporter'];
 
@@ -182,3 +188,5 @@ export default function NewSponsorPage() {
     </div>
   );
 }
+
+    

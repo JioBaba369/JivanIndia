@@ -18,7 +18,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import ImageUpload from '@/components/feature/image-upload';
 import { getInitials } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,8 +31,19 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import CountrySelector from '@/components/layout/country-selector';
-import IndiaStateDistrictSelector from '@/components/feature/india-state-district-selector';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-24 w-full" />,
+    ssr: false,
+});
+const CountrySelector = dynamic(() => import('@/components/layout/country-selector'), {
+    loading: () => <Skeleton className="h-10 w-full" />,
+});
+const IndiaStateDistrictSelector = dynamic(() => import('@/components/feature/india-state-district-selector'), {
+    loading: () => <div className="grid grid-cols-2 gap-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>,
+});
 
 
 const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>, currentUid?: string) => z.object({
@@ -343,3 +353,5 @@ export default function EditProfilePage() {
     </div>
   );
 }
+
+    

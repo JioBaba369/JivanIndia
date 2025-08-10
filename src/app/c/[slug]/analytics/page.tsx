@@ -3,7 +3,7 @@
 
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import AnalyticsCard from '@/components/feature/analytics-card';
 import { Users, CalendarCheck, BarChart2, TrendingUp, TrendingDown, ArrowRight, Link as LinkIcon, AlertCircle, Loader2, Ticket } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
@@ -15,6 +15,14 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useEvents } from '@/hooks/use-events';
 import { format, subMonths, getMonth, getYear } from 'date-fns';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ChartContainer = dynamic(() => import('@/components/ui/chart').then(mod => mod.ChartContainer), {
+    loading: () => <Skeleton className="h-[300px] w-full" />,
+    ssr: false,
+});
+
 
 export default function AnalyticsDashboardPage() {
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -228,3 +236,5 @@ export default function AnalyticsDashboardPage() {
         </div>
     );
 }
+
+    

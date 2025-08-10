@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvents } from '@/hooks/use-events';
+import dynamic from 'next/dynamic';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,6 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import QRCode from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { useSponsors } from '@/hooks/use-sponsors';
@@ -28,6 +28,11 @@ import { Badge } from '@/components/ui/badge';
 import { useBusinesses } from '@/hooks/use-businesses';
 import CountryFlag from '@/components/feature/country-flag';
 import { useCountries } from '@/hooks/use-countries';
+
+const QRCode = dynamic(() => import('qrcode.react'), {
+  loading: () => <div className="h-48 w-48 flex items-center justify-center"><Loader2 className="animate-spin" /></div>,
+});
+
 
 export default function UserPublicProfilePage() {
     const params = useParams();
@@ -411,3 +416,5 @@ export default function UserPublicProfilePage() {
         </div>
     );
 }
+
+    
