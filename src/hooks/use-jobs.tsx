@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useNotifications } from './use-notifications';
@@ -30,6 +30,8 @@ interface JobsContextType {
   isLoading: boolean;
   getJobById: (id: string) => Job | undefined;
   addJob: (job: NewJobInput) => Promise<Job>;
+  updateJob: (id: string, job: Partial<NewJobInput>) => Promise<void>;
+  deleteJob: (id: string) => Promise<void>;
 }
 
 const JobsContext = createContext<JobsContextType | undefined>(undefined);
@@ -86,13 +88,37 @@ export function JobsProvider({ children }: { children: ReactNode }) {
         throw error;
     }
   }, [toast, communities, createNotificationForCommunity]);
+  
+  const updateJob = useCallback(async (id: string, jobData: Partial<NewJobInput>) => {
+    const jobDocRef = doc(firestore, 'jobs', id);
+    try {
+        await updateDoc(jobDocRef, jobData);
+        toast({ title: 'Job Updated', description: 'The job listing has been saved.' });
+    } catch(e) {
+        console.error("Error updating job:", e);
+        toast({ title: "Error", description: "Could not update the job listing.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
+  
+  const deleteJob = useCallback(async (id: string) => {
+    const jobDocRef = doc(firestore, 'jobs', id);
+    try {
+        await deleteDoc(jobDocRef);
+        toast({ title: 'Job Deleted', description: 'The job listing has been removed.' });
+    } catch (e) {
+        console.error("Error deleting job:", e);
+        toast({ title: "Error", description: "Could not delete the job listing.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
 
   const getJobById = useCallback((id: string): Job | undefined => {
     if (!id) return undefined;
     return jobs.find(j => j.id === id);
   }, [jobs]);
 
-  const value = { jobs, isLoading, getJobById, addJob };
+  const value = { jobs, isLoading, getJobById, addJob, updateJob, deleteJob };
 
   return (
     <JobsContext.Provider value={value}>

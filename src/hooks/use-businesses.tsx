@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
@@ -40,6 +40,8 @@ interface BusinessesContextType {
   isLoading: boolean;
   getBusinessById: (id: string) => Business | undefined;
   addBusiness: (business: NewBusinessInput) => Promise<Business>;
+  updateBusiness: (id: string, business: Partial<NewBusinessInput>) => Promise<void>;
+  deleteBusiness: (id: string) => Promise<void>;
   verifyBusiness: (businessId: string) => Promise<void>;
   updateBusinessFeaturedStatus: (businessId: string, isFeatured: boolean) => Promise<void>;
 }
@@ -89,6 +91,30 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
+  const updateBusiness = useCallback(async (id: string, businessData: Partial<NewBusinessInput>) => {
+    const businessDocRef = doc(firestore, 'businesses', id);
+    try {
+        await updateDoc(businessDocRef, businessData);
+        toast({ title: 'Business Updated', description: 'The business details have been saved.' });
+    } catch (e) {
+        console.error("Error updating business:", e);
+        toast({ title: "Error", description: "Could not update the business.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
+  
+  const deleteBusiness = useCallback(async (id: string) => {
+    const businessDocRef = doc(firestore, 'businesses', id);
+    try {
+        await deleteDoc(businessDocRef);
+        toast({ title: 'Business Deleted', description: 'The business has been removed.' });
+    } catch (e) {
+        console.error("Error deleting business:", e);
+        toast({ title: "Error", description: "Could not delete the business.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
+
   const getBusinessById = useCallback((id: string) => {
     if (!id) return undefined;
     return businesses.find(business => business.id === id);
@@ -123,6 +149,8 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
     isLoading,
     getBusinessById,
     addBusiness,
+    updateBusiness,
+    deleteBusiness,
     verifyBusiness,
     updateBusinessFeaturedStatus,
   };

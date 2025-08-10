@@ -4,7 +4,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building, Loader2, Users } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -27,6 +27,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { useCommunities } from "@/hooks/use-communities";
 
 const mainNavLinks: { title: string; href: string; }[] = [
     { title: "Events", href: "/events" },
@@ -39,17 +40,23 @@ const mainNavLinks: { title: string; href: string; }[] = [
 
 
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthLoading } = useAuth();
+  const { getCommunityBySlug, canManageCommunity } = useCommunities();
   
   const handleItemClick = () => {
     if (onLinkClick) {
         onLinkClick();
     }
   };
+  
+  if (isAuthLoading) {
+    return <Loader2 className="h-6 w-6 animate-spin" />;
+  }
 
   if (user) {
     const isAdmin = user.roles?.includes('admin');
-    const isCommunityManager = user.roles?.includes('community-manager') && user.affiliation;
+    const affiliatedCommunity = user.affiliation ? getCommunityBySlug(user.affiliation.communitySlug) : null;
+    const isCommunityManager = affiliatedCommunity ? canManageCommunity(affiliatedCommunity, user) : false;
 
     return (
       <div className="flex items-center gap-1">
@@ -102,19 +109,19 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
-            {isCommunityManager && (
+            {isCommunityManager && !isAdmin && user.affiliation && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>Community Manager</DropdownMenuLabel>
                     <DropdownMenuItem asChild onClick={handleItemClick}>
-                      <Link href={`/c/${user.affiliation!.orgSlug}`}>
+                      <Link href={`/c/${user.affiliation.communitySlug}`}>
                         <Building className="mr-2 h-4 w-4"/>
                         View Community
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild onClick={handleItemClick}>
-                      <Link href={`/c/${user.affiliation!.orgSlug}/edit`}>
+                      <Link href={`/c/${user.affiliation.communitySlug}/edit`}>
                         <Settings className="mr-2 h-4 w-4"/>
                         Community Settings
                       </Link>

@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useNotifications } from './use-notifications';
@@ -31,6 +31,8 @@ interface DealsContextType {
   error: Error | null;
   getDealById: (id: string) => Deal | undefined;
   addDeal: (deal: NewDealInput) => Promise<Deal>;
+  updateDeal: (id: string, deal: Partial<NewDealInput>) => Promise<void>;
+  deleteDeal: (id: string) => Promise<void>;
 }
 
 const DealsContext = createContext<DealsContextType | undefined>(undefined);
@@ -93,13 +95,37 @@ export function DealsProvider({ children }: { children: ReactNode }) {
         throw error;
     }
   }, [toast, communities, createNotificationForCommunity]);
+  
+  const updateDeal = useCallback(async (id: string, dealData: Partial<NewDealInput>) => {
+    const dealDocRef = doc(firestore, 'deals', id);
+    try {
+        await updateDoc(dealDocRef, dealData);
+        toast({ title: 'Deal Updated', description: 'The deal has been saved.'});
+    } catch (e) {
+        console.error("Error updating deal:", e);
+        toast({ title: "Error", description: "Could not update the deal.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
+  
+  const deleteDeal = useCallback(async (id: string) => {
+    const dealDocRef = doc(firestore, 'deals', id);
+    try {
+        await deleteDoc(dealDocRef);
+        toast({ title: 'Deal Deleted', description: 'The deal has been removed.'});
+    } catch (e) {
+        console.error("Error deleting deal:", e);
+        toast({ title: "Error", description: "Could not delete the deal.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
 
   const getDealById = useCallback((id: string): Deal | undefined => {
     if (!id) return undefined;
     return deals.find(d => d.id === id);
   }, [deals]);
 
-  const value = { deals, isLoading, error, getDealById, addDeal };
+  const value = { deals, isLoading, error, getDealById, addDeal, updateDeal, deleteDeal };
 
   return (
     <DealsContext.Provider value={value}>

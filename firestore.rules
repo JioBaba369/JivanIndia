@@ -2,126 +2,98 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper Functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
+  
+    // Helper function to check for Admin role from a user's custom claims
     function isAdmin() {
-      // Check for custom claim `admin`.
-      // Make sure to set this claim via the Firebase Admin SDK.
-      return isAuthenticated() && request.auth.token.admin == true;
+      return request.auth.token.admin == true;
     }
-
+    
+    // Helper function to check if the user is the owner of a document
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
-    function isCommunityFounder(communityId) {
-       return isAuthenticated() && get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid == request.auth.uid;
-    }
-
-    function isCommunityManager(communityId) {
-      // A user is a manager if they are the founder OR their UID is in the managerUids array.
-      // Note: `in` operator on a list is what you use here, not .map().
-      return isAuthenticated() && (
-        isCommunityFounder(communityId) ||
-        request.auth.uid in get(/databases/$(database)/documents/communities/$(communityId)).data.managerUids
-      );
-    }
-
-    function isEventSubmitter(eventId) {
-       return isAuthenticated() && get(/databases/$(database)/documents/events/$(eventId)).data.submittedByUid == request.auth.uid;
-    }
-
-    function isAffiliatedWithCommunity(communityId) {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == communityId;
-    }
-
-    // Collection Rules
-    match /users/{userId} {
-      allow read: if true;
-      allow create: if isAuthenticated() && isOwner(userId);
-      // Don't allow users to edit their own roles or affiliation directly.
-      // Affiliation is set server-side when a community is created.
-      allow update: if isOwner(userId) && !("roles" in request.resource.data) && !("affiliation" in request.resource.data);
+    // Default deny all reads/writes
+    match /{document=**} {
+      allow read, write: if false;
     }
     
-    match /communities/{communityId} {
-      allow read: if true;
-      
-      // Allow any logged-in user to create a community
-      allow create: if isAuthenticated();
-
-      // Allow founder, managers, or admin to update
-      allow update: if isCommunityManager(communityId) || isAdmin();
-      
-      // Allow founder or an admin to delete
-      allow delete: if isCommunityFounder(communityId) || isAdmin();
-    }
-    
+    // Publicly readable collections
     match /events/{eventId} {
       allow read: if true;
-      allow create: if isAuthenticated() && isAffiliatedWithCommunity(request.resource.data.organizerId);
-      // Allow original submitter or community manager/founder or Admin to update/delete
-      allow update, delete: if isEventSubmitter(eventId) || isCommunityManager(resource.data.organizerId) || isAdmin();
+      allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
+      allow update, delete: if request.auth != null && (isAdmin() || resource.data.submittedByUid == request.auth.uid);
     }
 
-    match /about/singleton {
-        allow read: if true;
-        // Only admins can update the 'About' page content
-        allow write: if isAdmin();
+    match /communities/{communityId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.founderUid == request.auth.uid;
+      allow update: if request.auth != null && (isAdmin() || request.auth.uid in resource.data.managerUids);
+      allow delete: if request.auth != null && (isAdmin() || resource.data.founderUid == request.auth.uid);
     }
     
     match /businesses/{businessId} {
-        allow read: if true;
-        allow create: if isAuthenticated() && isAffiliatedWithCommunity(request.resource.data.associatedCommunityId);
-        allow update, delete: if isCommunityManager(resource.data.associatedCommunityId) || isAdmin();
-    }
-
-    match /sponsors/{sponsorId} {
-        allow read: if true;
-        allow create, update, delete: if isAdmin();
-    }
-
-    match /deals/{dealId} {
-        allow read: if true;
-        allow create: if isAuthenticated() && isAffiliatedWithCommunity(request.resource.data.businessId);
-        allow update, delete: if isCommunityManager(resource.data.businessId) || isAdmin();
-    }
-    
-    match /jobs/{jobId} {
-        allow read: if true;
-        allow create: if isAuthenticated() && isAffiliatedWithCommunity(request.resource.data.companyId);
-        allow update, delete: if isCommunityManager(resource.data.companyId) || isAdmin();
+      allow read: if true;
+      allow create: if request.auth != null && isAdmin();
+      allow update, delete: if request.auth != null && isAdmin();
     }
     
     match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && isAdmin();
+    }
+
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
+      allow update, delete: if request.auth != null && (isAdmin() || resource.data.submittedByUid == request.auth.uid);
+    }
+    
+    match /careers/{jobId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
+      allow update, delete: if request.auth != null && (isAdmin() || resource.data.submittedByUid == request.auth.uid);
+    }
+    
+    match /sponsors/{sponsorId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && isAdmin();
+    }
+
+    match /festivals/{festivalId} {
         allow read: if true;
-        // Only admins can manage movie listings
-        allow create, update, delete: if isAdmin();
+        allow create, update, delete: if false; // Managed via code for now
     }
     
+    // User profiles
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.keys().diff(['roles']).size() == 0;
+    }
+    
+    // Site configuration
+    match /about/{docId} {
+        allow read: if true;
+        allow write: if request.auth != null && isAdmin();
+    }
+    
+    // Reports
     match /reports/{reportId} {
-        // Users can only create reports
-        allow create: if isAuthenticated();
-        // Admins can read, update (status), and delete reports
-        allow read, update, delete: if isAdmin();
+      allow create: if request.auth != null && request.resource.data.reportedByUid == request.auth.uid;
+      allow read, update: if request.auth != null && isAdmin();
     }
     
+    // Notifications
     match /notifications/{notificationId} {
-      // A user can only access their own notifications
-      allow read, update, delete: if isOwner(resource.data.userId);
-      // Creation is handled server-side via batch writes.
-      allow create: if false;
+        allow read, update: if request.auth != null && resource.data.userId == request.auth.uid;
+        allow create: if request.auth != null && isAdmin(); // Allow admins to create notifications for now
     }
     
+    // Contacts
     match /contacts/{contactId} {
-      // Any user can submit a contact form
       allow create: if true;
-      // Only admins can read contact submissions
-      allow read, update, delete: if isAdmin();
+      allow read, update, delete: if request.auth != null && isAdmin();
     }
   }
 }

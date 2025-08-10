@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, doc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
@@ -40,6 +40,8 @@ interface SponsorsContextType {
   isLoading: boolean;
   getSponsorById: (id: string) => Sponsor | undefined;
   addSponsor: (sponsor: NewSponsorInput) => Promise<Sponsor>;
+  updateSponsor: (id: string, sponsor: Partial<NewSponsorInput>) => Promise<void>;
+  deleteSponsor: (id: string) => Promise<void>;
 }
 
 const SponsorsContext = createContext<SponsorsContextType | undefined>(undefined);
@@ -72,11 +74,35 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
     try {
         const newSponsorData = { ...sponsorData, eventsSponsored: [], createdAt: serverTimestamp() };
         const docRef = await addDoc(collection(firestore, 'sponsors'), newSponsorData);
-        return { id: docRef.id, ...newSponsorData, createdAt: new Date() } as Sponsor;
+        return { id: docRef.id, ...newSponsorData, createdAt: { toDate: () => new Date() } } as Sponsor;
     } catch(error) {
         console.error("Error adding sponsor:", error);
         toast({ title: "Error", description: "Could not add new sponsor.", variant: "destructive" });
         throw error;
+    }
+  }, [toast]);
+
+  const updateSponsor = useCallback(async (id: string, sponsorData: Partial<NewSponsorInput>) => {
+    const sponsorDocRef = doc(firestore, 'sponsors', id);
+    try {
+        await updateDoc(sponsorDocRef, sponsorData);
+        toast({ title: 'Sponsor Updated', description: 'The sponsor details have been saved.' });
+    } catch (e) {
+        console.error("Error updating sponsor:", e);
+        toast({ title: "Error", description: "Could not update the sponsor.", variant: "destructive" });
+        throw e;
+    }
+  }, [toast]);
+
+  const deleteSponsor = useCallback(async (id: string) => {
+    const sponsorDocRef = doc(firestore, 'sponsors', id);
+    try {
+        await deleteDoc(sponsorDocRef);
+        toast({ title: 'Sponsor Deleted', description: 'The sponsor has been removed.' });
+    } catch (e) {
+        console.error("Error deleting sponsor:", e);
+        toast({ title: "Error", description: "Could not delete the sponsor.", variant: "destructive" });
+        throw e;
     }
   }, [toast]);
 
@@ -90,7 +116,9 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
     sponsors,
     isLoading,
     getSponsorById,
-    addSponsor
+    addSponsor,
+    updateSponsor,
+    deleteSponsor
   };
 
   return (

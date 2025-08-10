@@ -21,7 +21,7 @@ import { getInitials } from '@/lib/utils';
 import { useBusinesses } from '@/hooks/use-businesses';
 
 export default function ProfilePage() {
-  const { user, logout, isLoading: isAuthLoading } = useAuth();
+  const { user, logout, isLoading: isAuthLoading, isItemSaved } = useAuth();
   const router = useRouter();
 
   const { events: allEvents, isLoading: isEventsLoading } = useEvents();
@@ -38,11 +38,11 @@ export default function ProfilePage() {
     }
   }, [user, isAuthLoading, router]);
 
-  const savedEvents = useMemo(() => allEvents.filter(event => user?.savedEvents?.includes(String(event.id))), [allEvents, user]);
-  const joinedCommunities = useMemo(() => allCommunities.filter(org => user?.joinedCommunities?.includes(org.id)), [allCommunities, user]);
-  const savedDeals = useMemo(() => allDeals.filter(deal => user?.savedDeals?.includes(deal.id)), [allDeals, user]);
-  const savedMovies = useMemo(() => allMovies.filter(movie => user?.savedMovies?.includes(movie.id)), [allMovies, user]);
-  const savedBusinesses = useMemo(() => allBusinesses.filter(b => user?.savedBusinesses?.includes(b.id)), [allBusinesses, user]);
+  const savedEvents = useMemo(() => allEvents.filter(event => isItemSaved('savedEvents', String(event.id))), [allEvents, isItemSaved]);
+  const joinedCommunities = useMemo(() => allCommunities.filter(org => isItemSaved('joinedCommunities', org.id)), [allCommunities, isItemSaved]);
+  const savedDeals = useMemo(() => allDeals.filter(deal => isItemSaved('savedDeals', deal.id)), [allDeals, isItemSaved]);
+  const savedMovies = useMemo(() => allMovies.filter(movie => isItemSaved('savedMovies', movie.id)), [allMovies, isItemSaved]);
+  const savedBusinesses = useMemo(() => allBusinesses.filter(b => isItemSaved('savedBusinesses', b.id)), [allBusinesses, isItemSaved]);
   
 
   if (isLoading || !user) {
