@@ -64,10 +64,8 @@ export default function ProfilePage() {
     <div className="rounded-lg border-2 border-dashed py-12 text-center">
         <h3 className="font-headline text-lg">{title}</h3>
         <p className="text-muted-foreground mt-2">{description}</p>
-        <div className="mt-4 flex items-center justify-between">
-            <div></div>
+        <div className="mt-4 flex items-center justify-center">
             <Button asChild variant="secondary" className="mt-4"><Link href={link}>{linkText}</Link></Button>
-            <Button asChild variant="link"><Link href={link}>View All <ArrowRight className="ml-2 h-4 w-4"/></Link></Button>
         </div>
     </div>
   );
@@ -233,13 +231,11 @@ export default function ProfilePage() {
                                         {joinedCommunities.map((community) => (
                                             <Card key={community.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
                                                 <Link href={`/c/${community.slug}`} className="flex h-full flex-col">
-                                                    <div className="relative h-40 w-full">
+                                                    <div className="relative h-40 w-full bg-muted flex items-center justify-center">
                                                         {community.logoUrl ? (
                                                           <Image src={community.logoUrl} alt={community.name} fill className="object-contain p-4 transition-transform group-hover:scale-105" data-ai-hint="community photo"/>
                                                         ) : (
-                                                          <div className="bg-muted h-full w-full flex items-center justify-center">
-                                                              <Users className="h-12 w-12 text-muted-foreground" />
-                                                          </div>
+                                                            <Users className="h-12 w-12 text-muted-foreground" />
                                                         )}
                                                     </div>
                                                     <CardContent className="flex flex-grow flex-col p-4">
