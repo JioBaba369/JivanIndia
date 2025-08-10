@@ -175,6 +175,13 @@ export default function EditCommunityPage() {
     if (!community) return;
     
     startTransition(async () => {
+        const socialMedia: { [key: string]: string } = {};
+        if (values.socialTwitter) socialMedia.twitter = `https://x.com/${values.socialTwitter.replace('@', '')}`;
+        if (values.socialInstagram) socialMedia.instagram = `https://instagram.com/${values.socialInstagram.replace('@', '')}`;
+        if (values.socialLinkedin) socialMedia.linkedin = `https://linkedin.com/company/${values.socialLinkedin}`;
+        if (values.socialFacebook) socialMedia.facebook = `https://facebook.com/${values.socialFacebook}`;
+        if (values.socialFacebookGroup) socialMedia.facebookGroup = values.socialFacebookGroup;
+
         const updatedData: Partial<Community> = {
           name: values.name,
           slug: values.slug,
@@ -191,13 +198,7 @@ export default function EditCommunityPage() {
           contactEmail: values.contactEmail,
           website: values.website || '',
           founded: values.founded,
-          socialMedia: {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@', '')}` : undefined,
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
-            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@', '')}` : undefined,
-            facebookGroup: values.socialFacebookGroup || undefined,
-          },
+          socialMedia,
         };
 
         try {
@@ -367,5 +368,3 @@ export default function EditCommunityPage() {
     </div>
   );
 }
-
-    

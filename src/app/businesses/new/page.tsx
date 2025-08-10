@@ -130,18 +130,12 @@ export default function NewBusinessEntryPage() {
     }
 
     startTransition(async () => {
-        const socialMedia: { [key: string]: string | undefined } = {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@','')}` : undefined,
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
-            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@','')}` : undefined,
-            facebookGroup: values.socialFacebookGroup || undefined,
-        };
-
-        // Filter out any undefined social media links before submission
-        const definedSocialMedia = Object.fromEntries(
-            Object.entries(socialMedia).filter(([_, value]) => value !== undefined)
-        );
+        const socialMedia: { [key: string]: string | undefined } = {};
+        if (values.socialTwitter) socialMedia.twitter = `https://x.com/${values.socialTwitter.replace('@', '')}`;
+        if (values.socialLinkedin) socialMedia.linkedin = `https://linkedin.com/company/${values.socialLinkedin}`;
+        if (values.socialFacebook) socialMedia.facebook = `https://facebook.com/${values.socialFacebook}`;
+        if (values.socialInstagram) socialMedia.instagram = `https://instagram.com/${values.socialInstagram.replace('@', '')}`;
+        if (values.socialFacebookGroup) socialMedia.facebookGroup = values.socialFacebookGroup;
         
         const newBusinessData: NewBusinessInput = {
           name: values.name,
@@ -163,7 +157,7 @@ export default function NewBusinessEntryPage() {
             address: values.address,
             businessNumber: values.businessNumber,
           },
-          socialMedia: definedSocialMedia,
+          socialMedia: Object.keys(socialMedia).length > 0 ? socialMedia : {},
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
           ownerId: user.uid,
         };
