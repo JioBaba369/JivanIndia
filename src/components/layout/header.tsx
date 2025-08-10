@@ -4,7 +4,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -41,7 +41,7 @@ const mainNavLinks: { title: string; href: string; }[] = [
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuth();
   
-  const handleItemClick = (e: React.MouseEvent) => {
+  const handleItemClick = (e?: React.MouseEvent) => {
     if (onLinkClick) {
         onLinkClick();
     }
@@ -89,10 +89,16 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
                     <span>My Saved Items</span>
                   </Link>
                 </DropdownMenuItem>
+              <DropdownMenuItem asChild onClick={handleItemClick}>
+                  <Link href="/profile/edit">
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>Edit Profile</span>
+                  </Link>
+              </DropdownMenuItem>
               {isAdmin && <DropdownMenuItem asChild onClick={handleItemClick}><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { handleItemClick?.(undefined as any); logout(); }}>
+            <DropdownMenuItem onClick={() => { handleItemClick(); logout(); }}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -166,43 +172,12 @@ export default function Header() {
         </div>
         
         <div className="flex items-center gap-2">
-            <div className="hidden md:flex">
-                <UserActions />
-            </div>
-             <div className="md:hidden flex items-center">
-                <NotificationBell />
-                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <Avatar className="h-10 w-10">
-                        {useAuth().user?.profileImageUrl ? <AvatarImage src={useAuth().user?.profileImageUrl} alt={useAuth().user?.name} /> : <AvatarFallback>{getInitials(useAuth().user?.name)}</AvatarFallback>}
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{useAuth().user?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {useAuth().user?.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                     <DropdownMenuGroup>
-                        <DropdownMenuItem asChild><Link href="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /><span>Dashboard</span></Link></DropdownMenuItem>
-                        {useAuth().user?.username && <DropdownMenuItem asChild><Link href={`/${useAuth().user?.username}`}><User className="mr-2 h-4 w-4" /><span>Public Profile</span></Link></DropdownMenuItem>}
-                        <DropdownMenuItem asChild><Link href="/profile"><Heart className="mr-2 h-4 w-4" /><span>My Saved Items</span></Link></DropdownMenuItem>
-                        {useAuth().user?.roles?.includes('admin') && <DropdownMenuItem asChild><Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => useAuth().logout()}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+          <div className="hidden md:flex">
+            <UserActions />
+          </div>
+          <div className="md:hidden">
+            <UserActions />
+          </div>
         </div>
       </div>
     </header>

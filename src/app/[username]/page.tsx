@@ -127,15 +127,12 @@ export default function UserPublicProfilePage() {
     const hasOriginLocation = profileUser.originLocation && (profileUser.originLocation.indiaDistrict || profileUser.originLocation.indiaState);
 
     const tabs = [
-        { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length, icon: Calendar },
-        { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length, icon: Film },
-        { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag },
-        { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users },
-    ];
-    
-    if (affiliatedCommunity && profileUser.affiliation) {
-        tabs.push({ value: 'community-activity', label: 'Affiliation', count: 0, icon: Building }); // Count isn't displayed for this one
-    }
+        { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length, icon: Calendar, isVisible: true },
+        { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length, icon: Film, isVisible: true },
+        { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag, isVisible: true },
+        { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users, isVisible: true },
+        { value: 'community-activity', label: 'Affiliation', count: 0, icon: Building, isVisible: !!(affiliatedCommunity && profileUser.affiliation) },
+    ].filter(tab => tab.isVisible);
 
     return (
         <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
@@ -235,7 +232,7 @@ export default function UserPublicProfilePage() {
                         </div>
 
                          <div className="mt-12">
-                            <Tabs defaultValue="saved-events" className="w-full">
+                            <Tabs defaultValue={tabs[0]?.value} className="w-full">
                                 <TabsList className="grid w-full" style={{gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`}}>
                                     {tabs.map(tab => (
                                         <TabsTrigger key={tab.value} value={tab.value} className="text-xs md:text-sm whitespace-nowrap px-2">
