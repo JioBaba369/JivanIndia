@@ -6,8 +6,36 @@ import { collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, serverTimest
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
-export type BusinessCategory = 'Professional Services' | 'Restaurant' | 'Retail' | 'Health & Wellness' | 'Entertainment' | 'Venue Hire' | 'Religious Services' | 'Other';
-export const businessCategories: BusinessCategory[] = ['Professional Services', 'Restaurant', 'Retail', 'Health & Wellness', 'Entertainment', 'Venue Hire', 'Religious Services', 'Other'];
+export type BusinessCategory = 
+  | 'Arts & Culture'
+  | 'Automotive'
+  | 'Education'
+  | 'Entertainment & Venues'
+  | 'Events & Planning'
+  | 'Financial Services'
+  | 'Food & Dining'
+  | 'Health & Wellness'
+  | 'Home Services'
+  | 'Professional Services'
+  | 'Religious Services'
+  | 'Retail & Shopping'
+  | 'Other';
+  
+export const businessCategories: BusinessCategory[] = [
+  'Arts & Culture',
+  'Automotive',
+  'Education',
+  'Entertainment & Venues',
+  'Events & Planning',
+  'Financial Services',
+  'Food & Dining',
+  'Health & Wellness',
+  'Home Services',
+  'Professional Services',
+  'Religious Services',
+  'Retail & Shopping',
+  'Other',
+];
 
 
 export interface Business {
