@@ -93,15 +93,10 @@ const stripUsernameFromUrl = (fullUrl?: string) => {
     if (!fullUrl) return '';
     try {
         const url = new URL(fullUrl);
-        const pathParts = url.pathname.split('/').filter(Boolean);
-        // Handles linkedin.com/company/handle, x.com/handle, etc.
-        let handle = pathParts.pop() || '';
-        if (url.hostname.includes('linkedin.com') && pathParts[0] === 'company') {
-            return handle;
-        }
-        return handle;
+        const pathParts = url.pathname.split('/').filter(p => p && p !== 'company' && p !== 'groups');
+        return pathParts.pop() || '';
     } catch (e) {
-      // if it's not a valid URL, it's probably just the handle
+      // if it's not a valid URL, it might be just the handle
       return fullUrl.split('/').pop() || '';
     }
 }
@@ -383,5 +378,3 @@ export default function EditCommunityPage() {
     </div>
   );
 }
-
-    

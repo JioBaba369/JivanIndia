@@ -130,7 +130,7 @@ export default function NewBusinessEntryPage() {
     }
 
     startTransition(async () => {
-        const socialMedia: { [key: string]: string } = {};
+        const socialMedia: { [key: string]: string | undefined } = {};
         if (values.socialTwitter) socialMedia.twitter = `https://x.com/${values.socialTwitter.replace('@', '')}`;
         if (values.socialLinkedin) socialMedia.linkedin = `https://linkedin.com/company/${values.socialLinkedin}`;
         if (values.socialFacebook) socialMedia.facebook = `https://facebook.com/${values.socialFacebook}`;

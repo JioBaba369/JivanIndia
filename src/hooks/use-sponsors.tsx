@@ -86,7 +86,7 @@ export function SponsorsProvider({ children }: { children: ReactNode }) {
   const updateSponsor = useCallback(async (id: string, sponsorData: Partial<NewSponsorInput>) => {
     const sponsorDocRef = doc(firestore, 'sponsors', id);
     try {
-        await updateDoc(sponsorDocRef, sponsorData);
+        await updateDoc(sponsorDocRef, { ...sponsorData, updatedAt: serverTimestamp() });
         toast({ title: 'Sponsor Updated', description: 'The sponsor details have been saved.' });
     } catch (e) {
         console.error("Error updating sponsor:", e);
