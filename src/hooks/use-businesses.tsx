@@ -35,6 +35,12 @@ export interface Business {
     address: string;
     businessNumber?: string;
   };
+  socialMedia?: {
+    twitter?: string;
+    linkedin?: string;
+    facebook?: string;
+  };
+  tags?: string[];
   ownerId?: string; // The UID of the user who submitted the business
   createdAt?: any;
 }

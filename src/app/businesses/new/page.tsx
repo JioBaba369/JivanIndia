@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTransition, useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -51,6 +52,10 @@ const formSchema = z.object({
   website: z.string().url("A valid website URL is required."),
   address: z.string().min(10, "A full address is required."),
   businessNumber: z.string().optional(),
+  tags: z.string().optional(),
+  socialTwitter: z.string().optional(),
+  socialFacebook: z.string().optional(),
+  socialLinkedin: z.string().optional(),
 });
 
 type BusinessFormValues = z.infer<typeof formSchema>;
@@ -83,6 +88,10 @@ export default function NewBusinessEntryPage() {
       website: '',
       address: '',
       businessNumber: '',
+      tags: '',
+      socialTwitter: '',
+      socialFacebook: '',
+      socialLinkedin: '',
     },
     mode: 'onChange'
   });
@@ -129,6 +138,12 @@ export default function NewBusinessEntryPage() {
             address: values.address,
             businessNumber: values.businessNumber,
           },
+          socialMedia: {
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : '',
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
+          },
+          tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
           ownerId: user.uid,
         };
         
@@ -268,6 +283,7 @@ export default function NewBusinessEntryPage() {
                 <FormField name="description" control={form.control} render={({field}) => (<FormItem><FormLabel>Short Description *</FormLabel><FormControl><Textarea {...field} placeholder="A brief one-sentence summary." rows={2}/></FormControl><FormMessage /></FormItem>)}/>
                 <FormField name="fullDescription" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea {...field} placeholder="A detailed description of the place or service." rows={5}/></FormControl><FormMessage /></FormItem>)}/>
                 <FormField name="services" control={form.control} render={({field}) => (<FormItem><FormLabel>Products / Services Offered *</FormLabel><FormControl><Input {...field} placeholder="e.g., Daily puja, wedding services, Indian spices" /></FormControl><FormDescription>Separate items with a comma.</FormDescription><FormMessage /></FormItem>)}/>
+                <FormField name="tags" control={form.control} render={({field}) => (<FormItem><FormLabel>Tags / Keywords</FormLabel><FormControl><Input {...field} placeholder="e.g., temple, vegetarian, family-friendly" /></FormControl><FormDescription>Separate with commas. Helps users discover your business.</FormDescription><FormMessage /></FormItem>)}/>
               </div>
 
               <div className="space-y-4">
@@ -278,6 +294,16 @@ export default function NewBusinessEntryPage() {
                 </div>
                 <FormField name="website" control={form.control} render={({field}) => (<FormItem><FormLabel>Website *</FormLabel><FormControl><Input {...field} type="url" placeholder="https://example.com" /></FormControl><FormMessage /></FormItem>)}/>
               </div>
+
+              <div className="space-y-4">
+                <h3 className="font-headline text-lg font-semibold border-b pb-2">Social Media (Optional)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                </div>
+              </div>
+
 
               <div className="flex justify-end gap-4 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>

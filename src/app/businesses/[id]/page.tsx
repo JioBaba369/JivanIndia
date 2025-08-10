@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2, Edit } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2, Edit, X, Facebook, Linkedin } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,7 +15,7 @@ import { useBusinesses } from "@/hooks/use-businesses";
 import ReportDialog from "@/components/feature/report-dialog";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
+import { getInitials, formatUrl } from "@/lib/utils";
 
 export default function BusinessDetailPage() {
   const params = useParams();
@@ -142,6 +142,11 @@ export default function BusinessDetailPage() {
                             <span className="text-sm text-muted-foreground">({business.reviewCount} reviews)</span>
                         </div>
                 </div>
+                 <div className="mt-4 flex justify-center md:justify-start items-center gap-2">
+                    {business.socialMedia?.twitter && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.twitter} target="_blank"><X className="h-4 w-4"/></Link></Button>}
+                    {business.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
+                    {business.socialMedia?.facebook && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.facebook} target="_blank"><Facebook/></Link></Button>}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
@@ -156,6 +161,10 @@ export default function BusinessDetailPage() {
                 <h3 className="font-headline text-xl font-semibold mt-8 mb-4 border-b pb-2">Services Offered</h3>
                 <div className="flex flex-wrap gap-2">
                     {business.services.map((service: string) => <Badge key={service} variant="outline">{service}</Badge>)}
+                </div>
+                 <h3 className="font-headline text-xl font-semibold mt-8 mb-4 border-b pb-2">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                    {business.tags?.map((tag: string) => <Badge key={tag} variant="secondary">{tag}</Badge>)}
                 </div>
 
                 {relatedEvents.length > 0 && <div className="mt-10">
@@ -212,7 +221,7 @@ export default function BusinessDetailPage() {
                      <div className="flex items-start gap-4">
                       <Globe className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                       <div>
-                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={`https://${business.contact.website}`} target="_blank" rel="noopener noreferrer">{business.contact.website}</a></p>
+                         <p className="text-muted-foreground text-sm hover:text-primary"><a href={formatUrl(business.contact.website)} target="_blank" rel="noopener noreferrer">{business.contact.website}</a></p>
                       </div>
                     </div>
                   </CardContent>
