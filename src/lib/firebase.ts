@@ -16,12 +16,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app: FirebaseApp;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
-}
+const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 const firestore = getFirestore(app);
@@ -29,11 +24,11 @@ const storage = getStorage(app);
 
 // Initialize Analytics if supported
 if (typeof window !== 'undefined') {
-  isSupported().then(supported => {
-    if (supported) {
-      getAnalytics(app);
-    }
-  });
+    isSupported().then(supported => {
+        if (supported) {
+            getAnalytics(app);
+        }
+    });
 }
 
 

@@ -4,8 +4,6 @@ import { PT_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/layout/providers";
-import { getDoc, doc } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/layout/header";
@@ -48,26 +46,17 @@ export default function RootLayout({
           spaceGrotesk.variable
         )}
       >
-        <Suspense fallback={
-            <div className="flex h-screen w-full items-center justify-center">
-              <div className="flex flex-col items-center gap-4">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="text-muted-foreground">Loading Community...</p>
-              </div>
-            </div>
-        }>
-          <Providers>
-              <div className="relative flex min-h-screen flex-col">
-                  <Header />
-                  <main className="flex-1">
-                      {children}
-                  </main>
-                  <Footer />
-                  <Toaster />
-                  <CookieConsentBanner />
-              </div>
-          </Providers>
-        </Suspense>
+        <Providers>
+          <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">
+                  {children}
+              </main>
+              <Footer />
+              <Toaster />
+              <CookieConsentBanner />
+          </div>
+        </Providers>
       </body>
     </html>
   );
