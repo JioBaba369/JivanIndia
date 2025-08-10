@@ -22,8 +22,12 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: 'Deploy Cloud Functions'
+      - name: 'Build and Deploy Cloud Functions'
         run: |-
+          cd functions
+          npm install
+          npm run build
+          cd ..
           gcloud functions deploy updateUserClaims \
             --gen2 \
             --runtime=nodejs20 \
@@ -49,4 +53,3 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JIVANINDIA_CO }}'
           channelId: live
           projectId: jivanindia-co
-
