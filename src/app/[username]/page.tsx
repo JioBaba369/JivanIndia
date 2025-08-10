@@ -61,7 +61,6 @@ export default function UserPublicProfilePage() {
 
                 if (foundUser?.affiliation?.orgId) {
                     const community = getCommunityById(foundUser.affiliation.orgId);
-                    // Ensure community exists before setting it
                     setAffiliatedCommunity(community || null);
                 }
             }
@@ -76,8 +75,8 @@ export default function UserPublicProfilePage() {
     const userSavedEvents = useMemo(() => 
         (profileUser?.savedEvents || [])
             .map(eventId => getEventById(eventId))
-            .filter(event => event !== undefined), 
-        [profileUser, getEventById]
+            .filter(event => !!event),
+        [profileUser?.savedEvents, getEventById]
     );
 
     const userJoinedCommunities = useMemo(() => allCommunities.filter(org => profileUser?.joinedCommunities?.includes(org.id)), [allCommunities, profileUser]);
@@ -147,7 +146,7 @@ export default function UserPublicProfilePage() {
         { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length, icon: Film, isVisible: true },
         { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag, isVisible: true },
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users, isVisible: true },
-        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!(affiliatedCommunity && profileUser.affiliation) },
+        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!affiliatedCommunity },
     ].filter(tab => tab.isVisible);
 
     return (

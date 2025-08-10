@@ -237,6 +237,9 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
     const community = getCommunityById(communityId);
     if (!community) throw new Error("Community not found.");
+    if (userToAdd.uid === community.founderUid) {
+      throw new Error("The founder is already the primary admin.");
+    }
     if ((community.managers || []).some(m => m.uid === userToAdd.uid)) {
       throw new Error(`${userToAdd.name} is already a manager of this community.`);
     }
