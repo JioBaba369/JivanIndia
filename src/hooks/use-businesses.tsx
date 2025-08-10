@@ -19,6 +19,7 @@ export type BusinessCategory =
   | 'Professional Services'
   | 'Religious Services'
   | 'Retail & Shopping'
+  | 'Technology'
   | 'Other';
   
 export const businessCategories: BusinessCategory[] = [
@@ -34,6 +35,7 @@ export const businessCategories: BusinessCategory[] = [
   'Professional Services',
   'Religious Services',
   'Retail & Shopping',
+  'Technology',
   'Other',
 ];
 
