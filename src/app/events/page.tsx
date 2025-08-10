@@ -18,7 +18,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar } from "@/components/ui/calendar";
 
 export default function EventsPage() {
   const { events, isLoading } = useEvents();
@@ -28,8 +27,6 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [category, setCategory] = useState('all');
-  const [view, setView] = useState<'calendar' | 'list'>('calendar');
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
@@ -52,12 +49,10 @@ export default function EventsPage() {
 
       const matchesCategory = category === 'all' || event.eventType === category;
       
-      const matchesDate = !selectedDate || isSameDay(new Date(event.startDateTime), selectedDate);
-
-      return matchesSearch && matchesLocation && matchesCategory && (view === 'list' || matchesDate);
+      return matchesSearch && matchesLocation && matchesCategory;
     })
     .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-  }, [approvedEvents, searchQuery, locationQuery, category, selectedDate, view]);
+  }, [approvedEvents, searchQuery, locationQuery, category]);
 
   const EventSkeletons = () => (
     Array.from({ length: 6 }).map((_, i) => (
@@ -78,19 +73,6 @@ export default function EventsPage() {
       </Card>
     ))
   );
-  
-  const eventsByDay = useMemo(() => {
-    const eventMap = new Map<string, Event[]>();
-    approvedEvents.forEach(event => {
-      const day = format(new Date(event.startDateTime), 'yyyy-MM-dd');
-      if (!eventMap.has(day)) {
-        eventMap.set(day, []);
-      }
-      eventMap.get(day)?.push(event);
-    });
-    return eventMap;
-  }, [approvedEvents]);
-
 
   return (
     <div className="container mx-auto py-12">
@@ -131,76 +113,24 @@ export default function EventsPage() {
                     </SelectContent>
                 </Select>
                  <div className="flex items-center gap-2">
-                    <Button variant={view === 'calendar' ? 'default' : 'outline'} onClick={() => setView('calendar')} className="flex-1">
-                      <CalendarIcon className="mr-2 h-4 w-4" /> Calendar
+                    <Button asChild className="flex-1" variant="outline">
+                        <Link href="/events/calendar">
+                            <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
+                        </Link>
                     </Button>
-                    <Button variant={view === 'list' ? 'default' : 'outline'} onClick={() => setView('list')} className="flex-1">
-                      <List className="mr-2 h-4 w-4" /> List
-                    </Button>
+                    {user?.affiliation && (
+                       <Button asChild className="flex-1">
+                            <Link href="/events/new">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Post Event
+                            </Link>
+                        </Button>
+                    )}
                   </div>
             </div>
         </Card>
         
-        {view === 'calendar' ? (
-          <Card>
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="p-0"
-              classNames={{
-                months: "flex flex-col sm:flex-row",
-                month: "space-y-4 p-3",
-                caption_label: 'text-xl',
-                table: 'w-full border-collapse',
-                head_cell: 'w-full text-muted-foreground rounded-md font-normal text-sm',
-                cell: 'w-full text-center text-sm p-0 relative first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                day: 'h-24 w-full p-1 rounded-md hover:bg-accent hover:text-accent-foreground',
-                day_selected: 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
-              }}
-              components={{
-                DayContent: ({ date }) => {
-                  const dayKey = format(date, 'yyyy-MM-dd');
-                  const dayEvents = eventsByDay.get(dayKey) || [];
-                  return (
-                    <div className="flex flex-col h-full w-full items-start p-1">
-                      <time dateTime={date.toISOString()}>{date.getDate()}</time>
-                      {dayEvents.length > 0 && 
-                        <div className="flex flex-col items-start w-full mt-1 overflow-hidden">
-                          {dayEvents.slice(0, 2).map(e => (
-                             <div key={e.id} className="text-xs truncate rounded-sm px-1 bg-primary/20 text-primary-foreground w-full text-left">{e.title}</div>
-                          ))}
-                          {dayEvents.length > 2 && <div className="text-xs text-muted-foreground">+{dayEvents.length-2} more</div>}
-                        </div>
-                      }
-                    </div>
-                  );
-                },
-              }}
-            />
-             <div className="p-4 border-t">
-              <h3 className="font-headline text-lg mb-2">Events on {selectedDate ? format(selectedDate, 'PPP') : '...'}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {isLoading ? <EventSkeletons /> : filteredEvents.length > 0 ? filteredEvents.map(event => {
-                  const formattedDate = format(new Date(event.startDateTime), 'p');
-                  return (
-                     <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary")}>
-                         <Link href={`/events/${event.id}`} className="group/link flex flex-col h-full">
-                           <div className="relative h-32 w-full"><Image src={event.imageUrl} alt={event.title} fill className="object-cover" data-ai-hint="event photo"/></div>
-                           <CardContent className="p-4 flex flex-col flex-grow">
-                             <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
-                             <h3 className="mt-2 font-semibold group-hover/link:text-primary flex-grow">{event.title}</h3>
-                             <div className="mt-2 text-sm text-muted-foreground">{formattedDate} @ {event.location.venueName}</div>
-                           </CardContent>
-                         </Link>
-                    </Card>
-                  )
-                }) : <p className="text-muted-foreground col-span-full">No events found for this day.</p>}
-              </div>
-            </div>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             {isLoading ? (
                 <EventSkeletons />
             ) : approvedEvents.length === 0 ? (
@@ -285,7 +215,6 @@ export default function EventsPage() {
                 </div>
               )}
           </div>
-        )}
     </div>
   );
 }
