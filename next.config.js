@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
@@ -24,11 +25,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'firebasestorage.googleapis.com',
-        pathname: '/v0/b/jivanindiaco.appspot.com/o/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'flagcdn.com',
+        pathname: '/**',
       },
     ],
   },
