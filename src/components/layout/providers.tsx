@@ -30,29 +30,29 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                   <ReportsProvider>
                     <CommunitiesProvider>
                         <NotificationsProvider>
-                          <EventsProvider>
-                              <BusinessesProvider>
-                                  <SponsorsProvider>
-                                      <DealsProvider>
-                                          <MoviesProvider>
-                                              <JobsProvider>
-                                                  <FestivalsProvider>
-                                                      <div className="relative flex min-h-screen flex-col">
-                                                          <Header />
-                                                          <main className="flex-1">
-                                                              {children}
-                                                          </main>
-                                                          <Footer />
-                                                          <Toaster />
-                                                          <CookieConsentBanner />
-                                                      </div>
-                                                  </FestivalsProvider>
-                                              </JobsProvider>
-                                          </MoviesProvider>
-                                      </DealsProvider>
-                                  </SponsorsProvider>
-                              </BusinessesProvider>
-                          </EventsProvider>
+                            <SponsorsProvider>
+                                <DealsProvider>
+                                    <JobsProvider>
+                                        <EventsProvider>
+                                            <BusinessesProvider>
+                                                <MoviesProvider>
+                                                    <FestivalsProvider>
+                                                        <div className="relative flex min-h-screen flex-col">
+                                                            <Header />
+                                                            <main className="flex-1">
+                                                                {children}
+                                                            </main>
+                                                            <Footer />
+                                                            <Toaster />
+                                                            <CookieConsentBanner />
+                                                        </div>
+                                                    </FestivalsProvider>
+                                                </MoviesProvider>
+                                            </BusinessesProvider>
+                                        </EventsProvider>
+                                    </JobsProvider>
+                                </DealsProvider>
+                            </SponsorsProvider>
                         </NotificationsProvider>
                     </CommunitiesProvider>
                   </ReportsProvider>
@@ -62,4 +62,3 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       </CountriesProvider>
     )
 }
-    

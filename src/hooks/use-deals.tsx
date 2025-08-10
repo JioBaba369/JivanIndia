@@ -5,6 +5,8 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
+import { useNotifications } from './use-notifications';
+import { useCommunities } from './use-communities';
 
 export interface Deal {
   id: string;
@@ -38,6 +40,9 @@ export function DealsProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
+  const { createNotificationForCommunity } = useNotifications();
+  const { communities } = useCommunities();
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -63,18 +68,31 @@ export function DealsProvider({ children }: { children: ReactNode }) {
 
   const addDeal = useCallback(async (dealData: NewDealInput): Promise<Deal> => {
     try {
-        const newDeal = {
+        const newDealForDb = {
           ...dealData,
           postedAt: serverTimestamp(),
         };
-        const docRef = await addDoc(collection(firestore, 'deals'), newDeal);
-        return { id: docRef.id, ...newDeal, postedAt: new Date() } as Deal;
+        const docRef = await addDoc(collection(firestore, 'deals'), newDealForDb);
+        const newDeal = { id: docRef.id, ...newDealForDb, postedAt: { toDate: () => new Date() } } as Deal;
+
+        const community = communities.find(c => c.id === newDeal.businessId);
+        if (community) {
+            await createNotificationForCommunity(community.id, {
+                title: `New Deal: ${newDeal.title}`,
+                description: `${community.name} has a new offer!`,
+                link: `/deals/${newDeal.id}`,
+                icon: 'Tag',
+            });
+        }
+        
+        return newDeal;
+
     } catch (error) {
         console.error("Error adding deal:", error);
         toast({ title: "Error", description: "Could not add the new deal.", variant: "destructive" });
         throw error;
     }
-  }, [toast]);
+  }, [toast, communities, createNotificationForCommunity]);
 
   const getDealById = useCallback((id: string): Deal | undefined => {
     if (!id) return undefined;

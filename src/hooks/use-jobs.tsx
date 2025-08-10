@@ -5,6 +5,8 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, onSnapshot, doc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
+import { useNotifications } from './use-notifications';
+import { useCommunities } from './use-communities';
 
 export interface Job {
   id: string;
@@ -36,6 +38,8 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { createNotificationForCommunity } = useNotifications();
+  const { communities } = useCommunities();
 
   useEffect(() => {
     setIsLoading(true);
@@ -58,18 +62,30 @@ export function JobsProvider({ children }: { children: ReactNode }) {
   
   const addJob = useCallback(async (jobData: NewJobInput): Promise<Job> => {
     try {
-        const newJob = {
+        const newJobForDb = {
           ...jobData,
           postedAt: serverTimestamp(),
         };
-        const docRef = await addDoc(collection(firestore, 'jobs'), newJob);
-        return { id: docRef.id, ...newJob, postedAt: new Date() } as Job;
+        const docRef = await addDoc(collection(firestore, 'jobs'), newJobForDb);
+        const newJob = { id: docRef.id, ...newJobForDb, postedAt: { toDate: () => new Date() } } as Job;
+        
+        const community = communities.find(c => c.id === newJob.companyId);
+        if (community) {
+            await createNotificationForCommunity(community.id, {
+                title: `New Job: ${newJob.title}`,
+                description: `A new role at ${community.name} has been posted.`,
+                link: `/careers`, // Link to careers page, not specific job
+                icon: 'Briefcase',
+            });
+        }
+        
+        return newJob;
     } catch (error) {
         console.error("Error adding job:", error);
         toast({ title: "Error", description: "Could not add the new job.", variant: "destructive" });
         throw error;
     }
-  }, [toast]);
+  }, [toast, communities, createNotificationForCommunity]);
 
   const getJobById = useCallback((id: string): Job | undefined => {
     return jobs.find(j => j.id === id);
