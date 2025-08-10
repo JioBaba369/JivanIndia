@@ -188,7 +188,9 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
                     <div className="mb-8">
-                       <Logo as={Link} href="/" onClick={() => setIsOpen(false)} />
+                       <SheetClose asChild>
+                           <Logo as={Link} href="/" />
+                       </SheetClose>
                     </div>
                     <div className="flex flex-col space-y-4">
                         <nav className="flex flex-col space-y-2">

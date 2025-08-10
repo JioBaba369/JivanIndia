@@ -168,7 +168,7 @@ const TeamMemberDialog = ({
   )
 }
 
-const AddAdminDialog = ({ onSave }: { onSave: (email: string) => void }) => {
+const AddAdminDialog = ({ onSave }: { onSave: (email: string) => Promise<void> }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [email, setEmail] = useState('');
 
