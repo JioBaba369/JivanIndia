@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -70,6 +69,7 @@ export default function NewBusinessEntryPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      category: undefined,
       logoUrl: '',
       bannerUrl: '',
       description: '',
@@ -96,7 +96,6 @@ export default function NewBusinessEntryPage() {
         setProvinces([]);
     }
     form.setValue('state', '');
-    form.setValue('city', '');
   }, [selectedCountry, getStatesByCountry, form]);
 
   const onSubmit = async (values: BusinessFormValues) => {
