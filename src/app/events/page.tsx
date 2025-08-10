@@ -114,7 +114,7 @@ export default function EventsPage() {
                 </Select>
                  <div className="flex items-center gap-2">
                     <Button asChild className="flex-1" variant="outline">
-                        <Link href="/events/calendar">
+                        <Link href="/calendar">
                             <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
                         </Link>
                     </Button>
