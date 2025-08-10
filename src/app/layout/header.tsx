@@ -58,7 +58,8 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                {user.profileImageUrl ? <AvatarImage src={user.profileImageUrl} alt={user.name} /> : <AvatarFallback>{getInitials(user.name)}</AvatarFallback>}
+                <AvatarImage src={user.profileImageUrl} alt={user.name} />
+                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
