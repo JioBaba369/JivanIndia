@@ -87,7 +87,7 @@ export default function CommunityDetailPage() {
   }
 
   const orgIsJoined = user ? isCommunityJoined(community.id) : false;
-  const isManager = user && community.managerUids.includes(user.uid);
+  const isManager = user && community.managerUids?.includes(user.uid);
 
   return (
     <div className="bg-background">
@@ -100,8 +100,8 @@ export default function CommunityDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
 
-      <div className="container mx-auto px-4 pb-12">
-        <Card className="overflow-hidden -mt-24 relative z-10 shadow-xl">
+      <div className="container mx-auto px-4 pb-12 -mt-24 relative z-10 shadow-xl">
+        <Card className="overflow-hidden">
            <CardContent className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 text-center md:text-left">
