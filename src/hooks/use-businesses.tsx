@@ -75,9 +75,10 @@ export interface Business {
   tags?: string[];
   ownerId?: string; // The UID of the user who submitted the business
   createdAt?: any;
+  updatedAt?: any;
 }
 
-export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount' | 'isFeatured' | 'createdAt'>;
+export type NewBusinessInput = Omit<Business, 'id' | 'isVerified' | 'rating' | 'reviewCount' | 'isFeatured' | 'createdAt' | 'updatedAt'>;
 
 interface BusinessesContextType {
   businesses: Business[];
@@ -125,9 +126,10 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
           rating: 0, 
           reviewCount: 0,
           createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         };
         const docRef = await addDoc(collection(firestore, 'businesses'), newBusinessForDb);
-        return { ...newBusinessForDb, id: docRef.id, createdAt: { toDate: () => new Date() } } as Business;
+        return { ...newBusinessForDb, id: docRef.id, createdAt: { toDate: () => new Date() }, updatedAt: { toDate: () => new Date() } } as Business;
     } catch (error) {
         console.error("Error adding business:", error);
         toast({ title: 'Error', description: 'Could not add the new business.', variant: 'destructive' });
@@ -138,7 +140,7 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
   const updateBusiness = useCallback(async (id: string, businessData: Partial<NewBusinessInput>) => {
     const businessDocRef = doc(firestore, 'businesses', id);
     try {
-        await updateDoc(businessDocRef, businessData);
+        await updateDoc(businessDocRef, { ...businessData, updatedAt: serverTimestamp() });
         toast({ title: 'Business Updated', description: 'The business details have been saved.' });
     } catch (e) {
         console.error("Error updating business:", e);

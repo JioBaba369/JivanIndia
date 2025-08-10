@@ -47,8 +47,8 @@ const CountrySelector = dynamic(() => import('@/components/layout/country-select
 const formSchema = z.object({
   name: z.string().min(3, "Business name must be at least 3 characters."),
   category: z.enum(businessCategories, { required_error: "A category is required."}),
-  logoUrl: z.string().url({ message: "A logo image URL is required." }),
-  bannerUrl: z.string().url({ message: "A banner image URL is required." }),
+  logoUrl: z.string().url({ message: "A logo image URL is required." }).or(z.literal('')),
+  bannerUrl: z.string().url({ message: "A banner image URL is required." }).or(z.literal('')),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
   country: z.string().min(1, "Country is required."),
@@ -113,10 +113,10 @@ export default function NewBusinessEntryPage() {
   useEffect(() => {
     if (selectedCountry) {
         setProvinces(getStatesByCountry(selectedCountry));
+        form.setValue('state', ''); 
     } else {
         setProvinces([]);
     }
-    form.setValue('state', '');
   }, [selectedCountry, getStatesByCountry, form]);
 
   const onSubmit = async (values: BusinessFormValues) => {
@@ -151,11 +151,11 @@ export default function NewBusinessEntryPage() {
             businessNumber: values.businessNumber,
           },
           socialMedia: {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@','')}` : undefined,
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
-            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@','')}` : undefined,
-            facebookGroup: values.socialFacebookGroup || undefined,
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@','')}` : '',
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
+            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@','')}` : '',
+            facebookGroup: values.socialFacebookGroup || '',
           },
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
           ownerId: user.uid,
@@ -334,5 +334,3 @@ export default function NewBusinessEntryPage() {
     </div>
   );
 }
-
-    
