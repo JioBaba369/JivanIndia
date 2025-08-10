@@ -86,7 +86,7 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique, addManager, removeManager } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique, addManager, removeManager, canManageCommunity } = useCommunities();
   const { toast } = useToast();
   const { user, setAffiliation } = useAuth();
   
@@ -174,10 +174,8 @@ export default function EditCommunityPage() {
     );
   }
 
+  const canEdit = user && community && canManageCommunity(community, user);
   const isFounder = user && community && user.uid === community.founderUid;
-  const isManager = user && community && (community.managerUids?.includes(user.uid) ?? false);
-  const isAdmin = user?.roles.includes('admin');
-  const canEdit = isFounder || isManager || isAdmin;
 
   if (!user || !canEdit) {
     return (
@@ -418,7 +416,7 @@ export default function EditCommunityPage() {
                 <CardContent className="flex justify-between items-center p-6 border rounded-lg border-destructive bg-destructive/5">
                     <div>
                         <h4 className="font-semibold text-destructive">Delete this Community</h4>
-                        <p className="text-sm text-muted-foreground">This will permanently delete the community and all its data.</p>
+                        <p className="text-sm text-muted-foreground">This will permanently delete the community and all of its data.</p>
                     </div>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>

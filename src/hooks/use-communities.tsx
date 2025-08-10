@@ -55,6 +55,7 @@ interface CommunitiesContextType {
   updateCommunityFeaturedStatus: (communityId: string, isFeatured: boolean) => Promise<void>;
   addManager: (community: Community, email: string) => Promise<void>;
   removeManager: (community: Community, uidToRemove: string) => Promise<void>;
+  canManageCommunity: (community: Community, user: User) => boolean;
 }
 
 const CommunitiesContext = createContext<CommunitiesContextType | undefined>(undefined);
@@ -107,7 +108,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       affiliation: {
         orgId: newCommunityRef.id,
         orgName: communityData.name,
-        orgSlug: communityData.slug,
+        communitySlug: communityData.slug,
       },
     });
 
@@ -223,7 +224,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       const userRef = doc(firestore, 'users', userDoc.id);
       if (!userData.affiliation) {
           batch.update(userRef, {
-            affiliation: { orgId: community.id, orgName: community.name, orgSlug: community.slug }
+            affiliation: { orgId: community.id, orgName: community.name, communitySlug: community.slug }
           });
       }
       
@@ -271,6 +272,14 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
+  const canManageCommunity = useCallback((community: Community, user: User) => {
+    if (!user) return false;
+    if (user.roles.includes('admin')) return true;
+    if (user.uid === community.founderUid) return true;
+    if (community.managerUids?.includes(user.uid)) return true;
+    return false;
+  }, []);
+
   const contextValue = {
     communities,
     isLoading,
@@ -284,6 +293,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     updateCommunityFeaturedStatus,
     addManager,
     removeManager,
+    canManageCommunity,
   };
 
   return (

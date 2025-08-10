@@ -31,7 +31,7 @@ export default function CommunityManagersPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, isLoading: isLoadingCommunities, addManager, removeManager } = useCommunities();
+  const { getCommunityBySlug, isLoading: isLoadingCommunities, addManager, removeManager, canManageCommunity } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -65,8 +65,7 @@ export default function CommunityManagersPage() {
     fetchManagers();
   }, [community?.managerUids]);
 
-  const isFounder = user && community && user.uid === community.founderUid;
-  const canManage = isFounder || user?.roles.includes('admin');
+  const canManage = user && community && canManageCommunity(community, user);
 
   if (isLoadingCommunities || isManagersLoading) {
     return (
