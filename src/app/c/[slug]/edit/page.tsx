@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X, Trash2, UserPlus, Shield } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, X, Trash2, UserPlus, Shield, Settings, Users } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -135,9 +135,10 @@ export default function EditCommunityPage() {
         setIsManagersLoading(true);
         try {
           const usersRef = collection(firestore, 'users');
+          // Firestore 'in' queries are limited to 30 items
           const managerUidsChunks: string[][] = [];
-          for (let i = 0; i < community.managerUids.length; i += 10) {
-            managerUidsChunks.push(community.managerUids.slice(i, i + 10));
+          for (let i = 0; i < community.managerUids.length; i += 30) {
+            managerUidsChunks.push(community.managerUids.slice(i, i + 30));
           }
           
           const managerPromises = managerUidsChunks.map(chunk => 
@@ -397,40 +398,42 @@ export default function EditCommunityPage() {
           </Card>
         )}
 
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-destructive">Danger Zone</CardTitle>
-                <CardDescription>These actions are irreversible. Please proceed with caution.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-between items-center p-6 border rounded-lg border-destructive bg-destructive/5">
-                <div>
-                    <h4 className="font-semibold text-destructive">Delete this Community</h4>
-                    <p className="text-sm text-muted-foreground">This will permanently delete the community and all its data.</p>
-                </div>
-                 <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                         <Button type="button" variant="destructive" disabled={isDeleting || !isFounder}>
-                            {isDeleting ? <><Loader2 className="mr-2 animate-spin"/> Deleting...</> : <><Trash2 className="mr-2"/> Delete Community</>}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your
-                                community, <span className="font-bold">{community?.name}</span>, and remove all of its associated data from our servers.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                                {isDeleting ? 'Deleting...' : 'Yes, delete it'}
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </CardContent>
-        </Card>
+        {isFounder && (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                    <CardDescription>These actions are irreversible. Please proceed with caution.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-between items-center p-6 border rounded-lg border-destructive bg-destructive/5">
+                    <div>
+                        <h4 className="font-semibold text-destructive">Delete this Community</h4>
+                        <p className="text-sm text-muted-foreground">This will permanently delete the community and all its data.</p>
+                    </div>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button type="button" variant="destructive" disabled={isDeleting}>
+                                {isDeleting ? <><Loader2 className="mr-2 animate-spin"/> Deleting...</> : <><Trash2 className="mr-2"/> Delete Community</>}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your
+                                    community, <span className="font-bold">{community?.name}</span>, and remove all of its associated data from our servers.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                                    {isDeleting ? 'Deleting...' : 'Yes, delete it'}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardContent>
+            </Card>
+        )}
       </div>
     </div>
   );

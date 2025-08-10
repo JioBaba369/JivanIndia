@@ -175,12 +175,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         attempts++;
     }
     
-    const newUser: User = {
+    const newUser: Omit<User, 'roles'> = {
       uid: fbUser.uid,
       name,
       username,
       email: fbUser.email!,
-      roles: [],
       affiliation: null,
       bio: '',
       phone: '',
@@ -197,7 +196,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       savedMovies: [],
     };
     await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
-    setUser(newUser);
   };
 
   const login = async (email: string, pass: string) => {
@@ -299,7 +297,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isCommunityJoined: (communityId: string) => isItemSaved('joinedCommunities', communityId),
     saveDeal: (dealId: string) => saveItem('savedDeals', dealId),
     unsaveDeal: (dealId: string) => unsaveItem('savedDeals', dealId),
-    isDealSaved: (dealId: string) => isItemSaved('deals', dealId),
+    isDealSaved: (dealId: string) => isItemSaved('savedDeals', dealId),
     saveBusiness: (businessId: string) => saveItem('savedBusinesses', businessId),
     unsaveBusiness: (businessId: string) => unsaveItem('savedBusinesses', businessId),
     isBusinessSaved: (businessId: string) => isItemSaved('savedBusinesses', businessId),
