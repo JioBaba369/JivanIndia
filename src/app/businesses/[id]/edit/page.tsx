@@ -76,10 +76,14 @@ const stripUsernameFromUrl = (fullUrl?: string) => {
         const url = new URL(fullUrl);
         const pathParts = url.pathname.split('/').filter(Boolean);
         // Handles linkedin.com/company/handle, twitter.com/handle, etc.
-        return pathParts.pop() || '';
+        let handle = pathParts.pop() || '';
+         if (url.hostname.includes('linkedin.com') && pathParts[0] === 'company') {
+            return handle;
+        }
+        return handle;
     } catch (e) {
       // if it's not a valid URL, it's probably just the handle
-      return fullUrl;
+      return fullUrl.split('/').pop() || '';
     }
 }
 
@@ -356,3 +360,5 @@ export default function EditBusinessPage() {
     </div>
   );
 }
+
+    

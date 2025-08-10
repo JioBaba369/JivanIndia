@@ -56,7 +56,7 @@ const FULL_DESC_MAX_LENGTH = 2000;
 const SLUG_MAX_LENGTH = 50;
 const communityTypes = ['Social', 'Cultural', 'Business', 'Religious', 'Charitable', 'Regional', 'Professional', 'Other'] as const;
 
-const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean) => z.object({
+const formSchema = (isSlugUnique: (slug: string, currentId?: string) => Promise<boolean>) => z.object({
   id: z.string(),
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
   slug: z.string().min(3, "URL must be at least 3 characters.").max(SLUG_MAX_LENGTH)
@@ -95,10 +95,14 @@ const stripUsernameFromUrl = (fullUrl?: string) => {
         const url = new URL(fullUrl);
         const pathParts = url.pathname.split('/').filter(Boolean);
         // Handles linkedin.com/company/handle, x.com/handle, etc.
-        return pathParts.pop() || '';
+        let handle = pathParts.pop() || '';
+        if (url.hostname.includes('linkedin.com') && pathParts[0] === 'company') {
+            return handle;
+        }
+        return handle;
     } catch (e) {
       // if it's not a valid URL, it's probably just the handle
-      return fullUrl;
+      return fullUrl.split('/').pop() || '';
     }
 }
 
@@ -379,3 +383,5 @@ export default function EditCommunityPage() {
     </div>
   );
 }
+
+    

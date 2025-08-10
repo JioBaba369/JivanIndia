@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useTransition, useCallback, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, Twitter, Instagram } from 'lucide-react';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,7 +39,6 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { generateSlug } from '@/lib/utils';
@@ -547,7 +546,7 @@ export default function NewCommunityPage() {
                       <FormItem>
                         <FormLabel>
                           <div className="flex items-center gap-2">
-                            <X aria-hidden="true" /> X (Twitter)
+                            <Twitter aria-hidden="true" /> X (Twitter)
                           </div>
                         </FormLabel>
                         <div className="flex items-center">
@@ -658,3 +657,5 @@ export default function NewCommunityPage() {
     </div>
   );
 }
+
+    
