@@ -16,7 +16,7 @@ import { formatUrl, getInitials } from "@/lib/utils";
 import { format } from "date-fns";
 import ReportDialog from "@/components/feature/report-dialog";
 import Image from "next/image";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 export default function CommunityDetailPage() {
   const params = useParams();
@@ -30,7 +30,7 @@ export default function CommunityDetailPage() {
   const relatedEvents = community ? events.filter(event => event.organizerId === community.id && event.status === 'Approved').slice(0, 3) : [];
   
   const { toast } = useToast();
-  const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
+  const { user, saveItem, unsaveItem, isItemSaved, canManageCommunity } = useAuth();
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -88,7 +88,7 @@ export default function CommunityDetailPage() {
   }
 
   const orgIsJoined = user ? isItemSaved('joinedCommunities', community.id) : false;
-  const isManager = user && community.managerUids?.includes(user.uid);
+  const isManager = user ? canManageCommunity(community, user) : false;
 
   return (
     <div className="bg-background">
@@ -123,23 +123,7 @@ export default function CommunityDetailPage() {
                             </div>
                             <p className="text-muted-foreground mt-2">{community.description}</p>
                         </div>
-                         {!isManager && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon">
-                                        <MoreVertical />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <ReportDialog 
-                                        contentId={community.id} 
-                                        contentType="Community" 
-                                        contentTitle={community.name} 
-                                        triggerComponent={<DropdownMenuItem onSelect={e => e.preventDefault()}>Report Community</DropdownMenuItem>}
-                                    />
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                         )}
+                         
                     </div>
                      <div className="mt-4 flex justify-center md:justify-start items-center gap-2">
                         {community.socialMedia?.twitter && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.twitter} target="_blank"><X className="h-4 w-4"/></Link></Button>}
@@ -185,8 +169,10 @@ export default function CommunityDetailPage() {
                 <div className="flex flex-col gap-4">
                     {isManager ? (
                         <Card>
-                            <CardContent className="p-4">
-                                <h3 className="font-headline font-semibold mb-2">Manager Dashboard</h3>
+                            <CardHeader className="p-4">
+                                <CardTitle className="font-headline font-semibold">Manager Dashboard</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4 pt-0">
                                 <div className="flex flex-col gap-2">
                                      <Button asChild>
                                         <Link href={`/c/${community.slug}/edit`}>
@@ -204,15 +190,37 @@ export default function CommunityDetailPage() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
-                            <Bookmark className="mr-2 h-4 w-4"/>
-                            {orgIsJoined ? "Leave Community" : "Join Community"}
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
+                                <Bookmark className="mr-2 h-4 w-4"/>
+                                {orgIsJoined ? "Leave" : "Join"}
+                            </Button>
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="lg" className="px-3">
+                                        <MoreVertical />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                     <DropdownMenuItem onClick={handleShare}>
+                                        <Share2 className="mr-2 h-4 w-4" />
+                                        Share Profile
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <ReportDialog 
+                                        contentId={community.id} 
+                                        contentType="Community" 
+                                        contentTitle={community.name} 
+                                        triggerComponent={
+                                            <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                                                Report Community
+                                            </DropdownMenuItem>
+                                        }
+                                    />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     )}
-                    <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
-                        <Share2 className="mr-2 h-4 w-4"/>
-                        Share Profile
-                    </Button>
                 </div>
                  <Card>
                   <CardContent className="p-4 space-y-4">
