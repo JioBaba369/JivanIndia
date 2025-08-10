@@ -177,7 +177,8 @@ function useToast() {
         }
       };
     },
-    () => memoryState
+    () => memoryState,
+    () => ({ toasts: [] }) // getServerSnapshot
   );
 
   return {
