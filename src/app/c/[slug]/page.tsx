@@ -22,7 +22,7 @@ export default function CommunityDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = typeof params.slug === 'string' ? params.slug : '';
-  const { getCommunityBySlug, isLoading } = useCommunities();
+  const { getCommunityBySlug, isLoading, canManageCommunity } = useCommunities();
   const community = getCommunityBySlug(slug);
   
   const { events } = useEvents();
@@ -30,7 +30,7 @@ export default function CommunityDetailPage() {
   const relatedEvents = community ? events.filter(event => event.organizerId === community.id && event.status === 'Approved').slice(0, 3) : [];
   
   const { toast } = useToast();
-  const { user, saveItem, unsaveItem, isItemSaved, canManageCommunity } = useAuth();
+  const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -191,17 +191,17 @@ export default function CommunityDetailPage() {
                         </Card>
                     ) : (
                         <div className="flex gap-2">
-                            <Button size="lg" variant={orgIsJoined ? "secondary" : "default"} className="w-full" onClick={handleJoinToggle}>
-                                <Bookmark className="mr-2 h-4 w-4"/>
-                                {orgIsJoined ? "Leave" : "Join"}
-                            </Button>
                              <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="lg" className="px-3">
-                                        <MoreVertical />
+                                    <Button variant="outline" size="lg" className="px-3 w-full">
+                                        Actions <MoreVertical className="ml-2" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={handleJoinToggle}>
+                                        <Bookmark className="mr-2 h-4 w-4" />
+                                        {orgIsJoined ? "Leave Community" : "Join Community"}
+                                    </DropdownMenuItem>
                                      <DropdownMenuItem onClick={handleShare}>
                                         <Share2 className="mr-2 h-4 w-4" />
                                         Share Profile
