@@ -169,10 +169,12 @@ export default function EditCommunityPage() {
     );
   }
 
-  const isManager = user && community && community.managerUids?.includes(user.uid);
   const isFounder = user && community && user.uid === community.founderUid;
+  const isManager = user && community && community.managerUids?.includes(user.uid);
+  const isAdmin = user?.roles.includes('admin');
+  const canEdit = isFounder || isManager || isAdmin;
 
-  if (!user || !isManager) {
+  if (!user || !canEdit) {
     return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
