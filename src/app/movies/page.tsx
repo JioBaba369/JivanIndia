@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,6 @@ import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-
 
 export default function MoviesPage() {
   const { movies, isLoading } = useMovies();
@@ -75,43 +72,38 @@ export default function MoviesPage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative bg-background py-20">
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="container relative mx-auto px-4 text-center">
-          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl text-foreground">
+      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Movies In Theaters
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-shadow text-foreground/80">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Catch the latest Bollywood and regional hits near you.
           </p>
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-4">
-               <div className="flex flex-col gap-4 md:flex-row">
-                 <div className="relative flex-grow">
-                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                   <Input
-                     placeholder="Search for a movie..."
-                     className="pl-10 text-base"
-                     value={searchQuery}
-                     onChange={(e) => setSearchQuery(e.target.value)}
-                   />
-                 </div>
-                  {user?.isAdmin && (
-                    <Button asChild>
-                      <Link href="/movies/new">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Movie
-                      </Link>
-                    </Button>
-                  )}
-              </div>
-            </CardContent>
-          </Card>
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+           <div className="flex flex-col gap-4 md:flex-row">
+             <div className="relative flex-grow">
+               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+               <Input
+                 placeholder="Search for a movie..."
+                 className="pl-10 text-base h-12"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+               />
+             </div>
+              {user?.isAdmin && (
+                <Button asChild className="h-12">
+                  <Link href="/movies/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Movie
+                  </Link>
+                </Button>
+              )}
+          </div>
         </div>
       </div>
       
@@ -123,13 +115,16 @@ export default function MoviesPage() {
             <Film className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="font-headline text-xl font-semibold mt-4">No Movies Listed</h3>
             <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
+            {user?.isAdmin && (
+              <Button asChild className="mt-4"><Link href="/movies/new">Add a Movie</Link></Button>
+            )}
           </div>
        ) : filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => {
                 const isSaved = user ? isItemSaved('savedMovies', movie.id) : false;
                 return (
-                <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <div className="relative aspect-[2/3] w-full">
+                <Card key={movie.id} className="group overflow-hidden border-none shadow-none bg-transparent transition-all hover:-translate-y-1">
+                    <div className="relative aspect-[2/3] w-full rounded-lg overflow-hidden shadow-xl">
                        <Link href={`/movies/${movie.id}`}>
                         <Image
                             src={movie.imageUrl}
@@ -160,10 +155,10 @@ export default function MoviesPage() {
                             </DropdownMenu>
                         </div>
                     </div>
-                    <CardContent className="p-4">
+                    <CardContent className="p-2 pt-3">
                       <Link href={`/movies/${movie.id}`} className="group/link">
                         <h3 className="font-headline truncate text-lg font-bold group-hover/link:text-primary">{movie.title}</h3>
-                        <div className="mt-2 flex flex-col space-y-1 text-sm text-muted-foreground">
+                        <div className="mt-1 flex flex-col space-y-1 text-sm text-muted-foreground">
                             <div className="flex items-center gap-2">
                                 <Film className="h-4 w-4" />
                                 <span>{movie.genre}</span>

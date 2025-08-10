@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -70,34 +69,42 @@ export default function CareersPage() {
   );
 
   return (
-    <div className="container mx-auto py-12">
-        <div className="space-y-4 mb-8">
-            <h1 className="font-headline text-4xl font-bold">Career Opportunities</h1>
-            <p className="text-lg text-muted-foreground">Find your next role in our community-focused job board.</p>
+    <div className="flex flex-col">
+       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
+            Career Opportunities
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Find your next role in our community-focused job board.
+          </p>
         </div>
-        <div className="rounded-lg bg-card p-4 shadow-md">
+      </section>
+
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="relative">
+                <div className="relative lg:col-span-2">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="pl-10 text-base md:text-sm"
-                        placeholder="Search Jobs..."
+                        className="pl-10 text-base h-12"
+                        placeholder="Search by job title or company..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <div className="relative">
+                 <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                        className="pl-10 text-base md:text-sm"
-                        placeholder="Location (e.g. San Jose)"
+                        className="pl-10 text-base h-12"
+                        placeholder="Location..."
                          value={locationQuery}
                         onChange={(e) => setLocationQuery(e.target.value)}
                     />
                 </div>
                  <Select value={jobType} onValueChange={setJobType}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="All Categories" />
+                    <SelectTrigger className="text-base h-12">
+                        <SelectValue placeholder="All Job Types" />
                     </SelectTrigger>
                     <SelectContent>
                     {jobTypes.map((cat, index) => (
@@ -107,17 +114,12 @@ export default function CareersPage() {
                     ))}
                     </SelectContent>
                 </Select>
-                 {user?.affiliation && (
-                    <Button asChild>
-                        <Link href="/careers/new">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Post a Job
-                        </Link>
-                    </Button>
-                )}
             </div>
         </div>
-        <div className="space-y-8 mt-8">
+      </div>
+        
+        <section className="container mx-auto px-4 py-12">
+        <div className="space-y-8">
           {isLoading ? <JobSkeletons /> : (
             jobs.length === 0 ? (
               <div className="rounded-lg border-2 border-dashed py-16 text-center">
@@ -136,7 +138,7 @@ export default function CareersPage() {
                               <CardTitle className="font-headline text-2xl tracking-tight">{job.title}</CardTitle>
                               <div className="text-md text-muted-foreground">{job.companyName}</div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 mt-2 md:mt-0">
                              <Badge variant="secondary">{job.type}</Badge>
                              <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -188,6 +190,7 @@ export default function CareersPage() {
             )
           )}
         </div>
+        </section>
     </div>
   );
 }

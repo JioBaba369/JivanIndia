@@ -1,17 +1,16 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical, LayoutGrid, List } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { useEvents, type Event } from "@/hooks/use-events";
+import { useEvents } from "@/hooks/use-events";
 import { useMemo, useState, useEffect } from "react";
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -51,7 +50,7 @@ export default function EventsPage() {
       
       return matchesSearch && matchesLocation && matchesCategory;
     })
-    .sort((a, b) => new Date(b.createdAt.toDate()).getTime() - new Date(a.createdAt.toDate()).getTime())
+    .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
     .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
   }, [approvedEvents, searchQuery, locationQuery, category]);
 
@@ -76,18 +75,26 @@ export default function EventsPage() {
   );
 
   return (
-    <div className="container mx-auto py-12">
-        <div className="space-y-4 mb-8">
-            <h1 className="font-headline text-4xl font-bold">What's On</h1>
-            <p className="text-lg text-muted-foreground">Discover cultural celebrations, professional meetups, concerts, and more.</p>
+    <div className="flex flex-col">
+       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
+            What's On
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Discover cultural celebrations, professional meetups, concerts, and more.
+          </p>
         </div>
-        <Card className="p-4 shadow-md mb-8">
+      </section>
+
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                 <div className="relative">
+                 <div className="relative lg:col-span-2">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                     placeholder="Search Events..."
-                    className="pl-10 text-base md:text-sm"
+                    className="pl-10 text-base h-12"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -95,14 +102,14 @@ export default function EventsPage() {
                  <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                    placeholder="Location (e.g. San Jose)"
-                    className="pl-10 text-base md:text-sm"
+                    placeholder="Location..."
+                    className="pl-10 text-base h-12"
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                     />
                 </div>
                 <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-base h-12">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -113,35 +120,37 @@ export default function EventsPage() {
                     ))}
                     </SelectContent>
                 </Select>
-                 <div className="flex items-center gap-2">
-                    <Button asChild className="flex-1" variant="outline">
-                        <Link href="/calendar">
-                            <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
+            </div>
+             <div className="flex items-center gap-2 mt-4">
+                <Button asChild className="flex-1" variant="outline">
+                    <Link href="/calendar">
+                        <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
+                    </Link>
+                </Button>
+                {user?.affiliation && (
+                   <Button asChild className="flex-1">
+                        <Link href="/events/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Post Event
                         </Link>
                     </Button>
-                    {user?.affiliation && (
-                       <Button asChild className="flex-1">
-                            <Link href="/events/new">
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Post Event
-                            </Link>
-                        </Button>
-                    )}
-                  </div>
-            </div>
-        </Card>
+                )}
+              </div>
+        </div>
+      </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+      <section className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
                 <EventSkeletons />
             ) : approvedEvents.length === 0 ? (
                 <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <Megaphone className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="font-headline text-xl font-semibold mt-4">No Events Yet</h3>
+                    <h3 className="font-headline text-xl font-semibold mt-4">Be the First to Post an Event!</h3>
                     <p className="text-muted-foreground mt-2">No upcoming events have been posted. Be the first to share one!</p>
-                    <Button asChild className="mt-4">
+                    {user?.affiliation && <Button asChild className="mt-4">
                         <Link href="/events/new">Post an Event</Link>
-                    </Button>
+                    </Button>}
                 </div>
             ) : filteredEvents.length > 0 ? (
                 filteredEvents.map((event) => {
@@ -216,6 +225,7 @@ export default function EventsPage() {
                 </div>
               )}
           </div>
+      </section>
     </div>
   );
 }

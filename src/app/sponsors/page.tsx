@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -101,45 +100,41 @@ export default function SponsorsPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 border-t bg-background/80 py-4 backdrop-blur-md">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-4">
-               <div className="flex flex-col gap-4 md:flex-row">
-                 <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="relative md:col-span-1">
-                      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Search by sponsor name..."
-                        className="pl-10 text-base"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <Select value={industry} onValueChange={setIndustry}>
-                      <SelectTrigger className="text-base">
-                        <SelectValue placeholder="All Industries" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sponsorIndustries.map((ind, index) => (
-                          <SelectItem key={index} value={ind}>
-                            {ind === 'all' ? 'All Industries' : ind}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                 </div>
-                 <div className="flex items-center gap-2">
-                    <Button variant={view === 'grid' ? 'default' : 'outline'} size="icon" onClick={() => setView('grid')}>
-                        <LayoutGrid />
-                    </Button>
-                    <Button variant={view === 'list' ? 'default' : 'outline'} size="icon" onClick={() => setView('list')}>
-                        <List />
-                    </Button>
-                 </div>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+           <div className="flex flex-col gap-4 md:flex-row">
+             <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="relative md:col-span-1">
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by sponsor name..."
+                    className="pl-10 text-base h-12"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={industry} onValueChange={setIndustry}>
+                  <SelectTrigger className="text-base h-12">
+                    <SelectValue placeholder="All Industries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sponsorIndustries.map((ind, index) => (
+                      <SelectItem key={index} value={ind}>
+                        {ind === 'all' ? 'All Industries' : ind}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+             </div>
+             <div className="flex items-center gap-2">
+                <Button variant={view === 'grid' ? 'secondary' : 'outline'} size="lg" onClick={() => setView('grid')} className="w-full h-12 md:w-auto">
+                    <LayoutGrid />
+                </Button>
+                <Button variant={view === 'list' ? 'secondary' : 'outline'} size="lg" onClick={() => setView('list')} className="w-full h-12 md:w-auto">
+                    <List />
+                </Button>
+             </div>
+          </div>
         </div>
       </div>
       
@@ -155,8 +150,8 @@ export default function SponsorsPage() {
           ) : sponsors.length === 0 ? (
             <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
               <Handshake className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="font-headline text-xl font-semibold mt-4">No Sponsors Yet</h3>
-              <p className="text-muted-foreground mt-2">Interested in sponsoring the community? Contact us!</p>
+              <h3 className="font-headline text-xl font-semibold mt-4">Become a Community Pillar</h3>
+              <p className="text-muted-foreground mt-2">Interested in sponsoring the community? Contact us to learn more!</p>
               {user?.isAdmin && <Button asChild className="mt-4"><Link href="/sponsors/new">Add a Sponsor</Link></Button>}
             </div>
           ) : filteredSponsors.length > 0 ? (

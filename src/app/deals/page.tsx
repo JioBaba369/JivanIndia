@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -45,12 +44,13 @@ export default function DealsPage() {
   const DealSkeletons = () => (
     Array.from({ length: 6 }).map((_, i) => (
       <Card key={i} className="flex flex-col overflow-hidden">
-        <Skeleton className="h-48 w-full" />
+         <div className="relative h-48 w-full bg-muted flex items-center justify-center">
+            <Skeleton className="h-16 w-16" />
+        </div>
         <CardContent className="flex flex-grow flex-col p-4">
           <Skeleton className="h-4 w-1/3 mb-2" />
           <Skeleton className="h-6 w-full mb-4" />
-          <Skeleton className="h-4 w-full mb-2 flex-grow" />
-           <div className="mt-4 space-y-3">
+          <div className="mt-4 space-y-3 flex-grow">
              <Skeleton className="h-4 w-5/6" />
           </div>
           <div className="mt-4">
@@ -82,37 +82,33 @@ export default function DealsPage() {
         </div>
       </section>
 
-      <div className="sticky top-[65px] z-30 border-y bg-background/80 py-4 backdrop-blur-md">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-4">
-               <div className="flex flex-col gap-4 md:flex-row">
-                 <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="relative md:col-span-1">
-                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Search for a deal or business..."
-                      className="pl-10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {dealCategories.map((cat, index) => (
-                        <SelectItem key={index} value={cat}>
-                          {cat === 'all' ? 'All Categories' : cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+      <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+           <div className="flex flex-col gap-4 md:flex-row">
+             <div className="grid flex-grow grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="relative md:col-span-1">
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search for a deal or business..."
+                  className="pl-10 text-base h-12"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-            </CardContent>
-          </Card>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="text-base h-12">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dealCategories.map((cat, index) => (
+                    <SelectItem key={index} value={cat}>
+                      {cat === 'all' ? 'All Categories' : cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -122,11 +118,11 @@ export default function DealsPage() {
           deals.length === 0 ? (
             <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                 <Tag className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="font-headline text-xl font-semibold mt-4">No Deals Available</h3>
-                <p className="text-muted-foreground mt-2">There are currently no deals. Be the first to post one and support local businesses!</p>
-                <Button asChild className="mt-4">
+                <h3 className="font-headline text-xl font-semibold mt-4">No Deals to Be Found</h3>
+                <p className="text-muted-foreground mt-2">There are currently no deals available. Know a business that could offer one?</p>
+                {user?.affiliation && <Button asChild className="mt-4">
                     <Link href="/deals/new">Post a Deal</Link>
-                </Button>
+                </Button>}
             </div>
           ) : filteredDeals.length > 0 ? (
             filteredDeals.map((deal) => (

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,6 @@ import {
 } from "@/components/ui/select";
 import { Building2, MapPin, Search, Users, Bookmark, BadgeCheck, PlusCircle, LayoutGrid, List, Star, MoreVertical } from "lucide-react";
 import Link from "next/link";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import type { MouseEvent } from 'react';
 import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
@@ -50,10 +42,6 @@ export default function CommunitiesPage() {
     useEffect(() => {
         setSearchQuery(searchParams.get('q') || '');
     }, [searchParams]);
-
-    const featuredCommunities = useMemo(() => {
-      return communities.filter(c => c.isFeatured || c.isVerified).sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)).slice(0, 5);
-    }, [communities]);
 
     const communityCategories = useMemo(() => {
       const categories = new Set(communities.map(c => c.type));
@@ -144,52 +132,6 @@ export default function CommunitiesPage() {
           </Button>
         </div>
       </section>
-
-      {communities.length > 0 && featuredCommunities.length > 0 && (
-        <section className="container mx-auto px-4 py-16">
-          <h2 className="font-headline mb-8 text-3xl font-bold text-center">Featured Communities</h2>
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {featuredCommunities.map((org) => (
-                <CarouselItem key={org.id} className="md:basis-1/2 lg:basis-1/3">
-                  <Card className={cn("flex h-full flex-col overflow-hidden transition-all hover:shadow-lg", org.isFeatured && "border-primary border-2")}>
-                      <Link href={`/c/${org.slug}`} className="flex h-full flex-col">
-                          <div className="relative h-48 w-full bg-muted flex items-center justify-center">
-                              {org.logoUrl ? (
-                                <Image src={org.logoUrl} alt={`${org.name} logo`} fill className="object-contain p-4" />
-                              ) : (
-                                <Building2 className="h-16 w-16 text-muted-foreground" />
-                              )}
-                              {org.isFeatured && <Badge variant="default" className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                          </div>
-                          <CardContent className="flex flex-grow flex-col p-4">
-                              <div className="flex items-center gap-2">
-                                  <CardTitle className="font-headline">{org.name}</CardTitle>
-                                  {org.isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
-                              </div>
-                              <p className="font-semibold text-primary">{org.type}</p>
-                              <p className="mt-2 flex-grow text-sm text-muted-foreground">{org.description}</p>
-                              <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                                  <MapPin className="h-4 w-4" />
-                                  <span>{org.region}</span>
-                              </div>
-                          </CardContent>
-                      </Link>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex" />
-            <CarouselNext  className="hidden sm:flex" />
-          </Carousel>
-        </section>
-      )}
 
       <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm py-4">
         <div className="container mx-auto px-4">
