@@ -21,6 +21,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export default function HomePage() {
   const { events, isLoading: isLoadingEvents, error: eventsError } = useEvents();
@@ -160,6 +161,9 @@ export default function HomePage() {
                   )}
                 >
                   <Link href={`/events/${event.id}`} className="flex h-full flex-col" aria-label={`View ${event.title}`}>
+                    <div className="relative h-48 w-full">
+                        <Image src={event.imageUrl} alt={event.title} fill className="object-cover" data-ai-hint="event photo"/>
+                    </div>
                     <CardContent className="flex flex-grow flex-col p-6">
                       <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
                       <h3 className="font-headline flex-grow text-xl font-semibold mt-4 group-hover:text-primary">{event.title}</h3>
