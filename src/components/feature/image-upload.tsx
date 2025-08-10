@@ -38,24 +38,28 @@ const MAX_IMAGE_DIMENSION = 1920; // Max width/height for resizing
 function getCroppedAndResizedImg(
   image: HTMLImageElement,
   crop: Crop,
-  aspectRatio: number,
   quality: number = 0.85
 ): Promise<Blob> {
   const canvas = document.createElement('canvas');
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
   
-  let targetWidth = crop.width * scaleX;
-  let targetHeight = crop.height * scaleY;
+  const cropX = crop.x * scaleX;
+  const cropY = crop.y * scaleY;
+  const cropWidth = crop.width * scaleX;
+  const cropHeight = crop.height * scaleY;
+
+  let targetWidth = cropWidth;
+  let targetHeight = cropHeight;
 
   // Resize logic
   if (targetWidth > MAX_IMAGE_DIMENSION || targetHeight > MAX_IMAGE_DIMENSION) {
-    if (aspectRatio >= 1) { // Landscape or square
+    if (cropWidth > cropHeight) {
       targetWidth = MAX_IMAGE_DIMENSION;
-      targetHeight = MAX_IMAGE_DIMENSION / aspectRatio;
-    } else { // Portrait
+      targetHeight = (MAX_IMAGE_DIMENSION / cropWidth) * cropHeight;
+    } else {
       targetHeight = MAX_IMAGE_DIMENSION;
-      targetWidth = MAX_IMAGE_DIMENSION * aspectRatio;
+      targetWidth = (MAX_IMAGE_DIMENSION / cropHeight) * cropWidth;
     }
   }
 
@@ -69,10 +73,10 @@ function getCroppedAndResizedImg(
 
   ctx.drawImage(
     image,
-    crop.x * scaleX,
-    crop.y * scaleY,
-    crop.width * scaleX,
-    crop.height * scaleY,
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight,
     0,
     0,
     targetWidth,
@@ -133,8 +137,9 @@ export default function ImageUpload({
     const initialCrop = centerCrop(
       makeAspectCrop(
         {
-          unit: '%',
-          width: 90,
+          unit: 'px',
+          width: Math.min(width, height * aspectRatio),
+          height: Math.min(height, width / aspectRatio),
         },
         aspectRatio,
         width,
@@ -166,7 +171,8 @@ export default function ImageUpload({
   };
 
   const handleUploadCroppedImage = async () => {
-    if (!imgRef.current || !crop) {
+    if (!imgRef.current || !crop || !crop.width || !crop.height) {
+      toast({ title: 'Crop Failed', description: 'Invalid crop area. Please try again.', variant: 'destructive' });
       return;
     }
     
@@ -174,7 +180,7 @@ export default function ImageUpload({
     setUploadState({ isUploading: true, progress: 0 });
 
     try {
-      const imageBlob = await getCroppedAndResizedImg(imgRef.current, crop, aspectRatio);
+      const imageBlob = await getCroppedAndResizedImg(imgRef.current, crop);
       const fileName = `${folderName}/${uuidv4()}.webp`;
       const storageRef = ref(storage, fileName);
 
@@ -247,7 +253,7 @@ export default function ImageUpload({
           fileInputRef.current?.click()
         }
       >
-        {preview && (
+        {preview && !uploadState.isUploading && (
           <>
             <Image src={preview} alt="Preview" fill className="object-cover" />
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -301,11 +307,12 @@ export default function ImageUpload({
             <DialogTitle>Crop & Resize Image</DialogTitle>
           </DialogHeader>
           {sourceImage && (
-            <div className="relative w-full h-96">
+            <div className="relative w-full h-96 bg-muted">
                 <ReactCrop
                     crop={crop}
                     onChange={c => setCrop(c)}
                     aspect={aspectRatio}
+                    className="max-h-96"
                 >
                     <Image
                         ref={imgRef}
