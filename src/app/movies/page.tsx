@@ -4,20 +4,27 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Film, Search, Star, MoreVertical } from "lucide-react";
+import { Film, Search, Star, MoreVertical, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, type MouseEvent } from "react";
 import { useMovies } from "@/hooks/use-movies";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 
 export default function MoviesPage() {
   const { movies, isLoading } = useMovies();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { user, isMovieSaved, saveMovie, unsaveMovie } = useAuth();
+  const { toast } = useToast();
+  
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -28,6 +35,30 @@ export default function MoviesPage() {
     const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   }), [movies, searchQuery]);
+
+  const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, movie: typeof movies[0]) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to save movies.",
+        variant: "destructive",
+      });
+      router.push('/login');
+      return;
+    }
+    
+    const currentlySaved = isMovieSaved(movie.id);
+    if (currentlySaved) {
+        unsaveMovie(movie.id);
+        toast({ title: "Removed from Watchlist", description: `${movie.title} has been removed from your saved movies.` });
+    } else {
+        saveMovie(movie.id);
+        toast({ title: "Added to Watchlist!", description: `${movie.title} has been saved to your profile.` });
+    }
+  };
   
   const MovieSkeletons = () => (
     Array.from({ length: 8 }).map((_, i) => (
@@ -86,7 +117,9 @@ export default function MoviesPage() {
             <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
           </div>
        ) : filteredMovies.length > 0 ? (
-            filteredMovies.map((movie) => (
+            filteredMovies.map((movie) => {
+                const isSaved = user ? isMovieSaved(movie.id) : false;
+                return (
                 <Card key={movie.id} className="group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg">
                     <div className="relative aspect-[2/3] w-full">
                        <Link href={`/movies/${movie.id}`}>
@@ -98,7 +131,10 @@ export default function MoviesPage() {
                             data-ai-hint="movie poster"
                         />
                        </Link>
-                       <div className="absolute top-2 right-2">
+                       <div className="absolute top-2 right-2 flex gap-1">
+                             <Button variant={isSaved ? 'default' : 'secondary'} size="icon" className="h-8 w-8" onClick={(e) => handleSaveToggle(e, movie)}>
+                                <Bookmark size={16} />
+                            </Button>
                              <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
@@ -132,7 +168,8 @@ export default function MoviesPage() {
                       </Link>
                     </CardContent>
                 </Card>
-            ))
+                )
+            })
        ) : (
             <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                 <h3 className="font-headline text-xl font-semibold">No Movies Found</h3>

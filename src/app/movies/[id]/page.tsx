@@ -3,16 +3,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Film, Star, Ticket, Clock, Users, History, Building, Loader2 } from "lucide-react";
+import { Film, Star, Ticket, Clock, Users, History, Building, Loader2, Share2, Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { useState, useEffect, useMemo } from 'react';
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMovies } from "@/hooks/use-movies";
 import { useCommunities } from "@/hooks/use-communities";
 import ReportDialog from "@/components/feature/report-dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MovieDetailPage() {
   const params = useParams();
@@ -22,6 +24,10 @@ export default function MovieDetailPage() {
   
   const { getCommunityBySlug, isLoading: isLoadingCommunities } = useCommunities();
   const distributor = getCommunityBySlug(movie?.details.distributorId || '');
+  
+  const { user, isMovieSaved, saveMovie, unsaveMovie } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const postedAt = useMemo(() => {
     if (!movie?.postedAt) return 'a while ago';
@@ -37,6 +43,36 @@ export default function MovieDetailPage() {
   }, [movie?.postedAt]);
 
   const isLoading = isLoadingMovies || isLoadingCommunities;
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied!",
+      description: "Movie link copied to clipboard.",
+    });
+  };
+
+  const handleSaveToggle = () => {
+    if (!user || !movie) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to save movies.",
+        variant: "destructive",
+      });
+      if (!user) router.push('/login');
+      return;
+    }
+
+    const currentlySaved = isMovieSaved(movie.id);
+    if (currentlySaved) {
+      unsaveMovie(movie.id);
+      toast({ title: "Removed from Watchlist", description: `${movie.title} has been removed from your saved movies.` });
+    } else {
+      saveMovie(movie.id);
+      toast({ title: "Added to Watchlist!", description: `${movie.title} has been saved to your profile.` });
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -57,6 +93,8 @@ export default function MovieDetailPage() {
       </div>
     );
   }
+  
+  const movieIsSaved = user ? isMovieSaved(movie.id) : false;
 
   return (
     <div className="bg-background">
@@ -109,6 +147,17 @@ export default function MovieDetailPage() {
                         </div>
                         <ReportDialog contentId={movie.id} contentType="Movie" contentTitle={movie.title} triggerVariant="ghost" />
                     </div>
+                </div>
+                
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <Button size="lg" onClick={handleSaveToggle} variant={movieIsSaved ? 'default' : 'secondary'}>
+                      <Bookmark className="mr-2 h-4 w-4"/>
+                      {movieIsSaved ? 'Saved to Watchlist' : 'Save to Watchlist'}
+                  </Button>
+                  <Button size="lg" variant="outline" onClick={handleShare}>
+                      <Share2 className="mr-2 h-4 w-4"/>
+                      Share Movie
+                  </Button>
                 </div>
 
                 <div className="mt-8">
