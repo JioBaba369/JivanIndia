@@ -28,6 +28,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { useCommunities } from "@/hooks/use-communities";
+import { useAbout } from "@/hooks/use-about";
 
 const mainNavLinks: { title: string; href: string; }[] = [
     { title: "Events", href: "/events" },
@@ -36,12 +37,14 @@ const mainNavLinks: { title: string; href: string; }[] = [
     { title: "Movies", href: "/movies" },
     { title: "Deals", href: "/deals" },
     { title: "Careers", href: "/careers" },
+    { title: "Sponsors", href: "/sponsors" },
 ];
 
 
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout, isAuthLoading } = useAuth();
-  const { getCommunityBySlug, canManageCommunity } = useCommunities();
+  const { communities, canManageCommunity } = useCommunities();
+  const { aboutContent } = useAbout();
   
   const handleItemClick = () => {
     if (onLinkClick) {
@@ -54,8 +57,8 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
   }
 
   if (user) {
-    const isAdmin = user.roles?.includes('admin');
-    const affiliatedCommunity = user.affiliation ? getCommunityBySlug(user.affiliation.communitySlug) : null;
+    const isAdmin = aboutContent.adminUids.includes(user.uid);
+    const affiliatedCommunity = communities.find(c => user.affiliation && c.id === user.affiliation.orgId);
     const isCommunityManager = affiliatedCommunity ? canManageCommunity(affiliatedCommunity, user) : false;
 
     return (

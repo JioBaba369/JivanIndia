@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Film, Search, Star, MoreVertical, Bookmark } from "lucide-react";
+import { Film, Search, Star, MoreVertical, Bookmark, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useMemo, type MouseEvent } from "react";
@@ -101,6 +101,14 @@ export default function MoviesPage() {
                      onChange={(e) => setSearchQuery(e.target.value)}
                    />
                  </div>
+                  {user?.isAdmin && (
+                    <Button asChild>
+                      <Link href="/movies/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Movie
+                      </Link>
+                    </Button>
+                  )}
               </div>
             </CardContent>
           </Card>
