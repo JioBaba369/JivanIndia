@@ -45,7 +45,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsLoading(true);
-    const q = query(collection(firestore, 'jobs'));
+    const q = query(collection(firestore, 'jobs'), orderBy('postedAt', 'desc'));
     const unsubscribe = onSnapshot(q,
       (querySnapshot) => {
         const jobsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
