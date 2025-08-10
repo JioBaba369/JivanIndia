@@ -27,8 +27,7 @@ export default function BusinessDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const associatedCommunity = business?.associatedCommunityId ? getCommunityById(business.associatedCommunityId) : null;
-  const relatedEvents = associatedCommunity ? events.filter(event => event.organizerId === associatedCommunity.id && event.status === 'Approved').slice(0, 3) : [];
+  const relatedEvents = []; // Business pages no longer link to community events
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -49,20 +48,8 @@ export default function BusinessDetailPage() {
         return;
     }
 
-    const isBusinessSaved = user.savedBusinesses?.includes(business.id)
-    if (isBusinessSaved) {
-        // unsaveBusiness(business.id);
-        toast({
-            title: "Listing Unsaved",
-            description: `${business.name} has been removed from your saved list.`,
-        });
-    } else {
-        // saveBusiness(business.id);
-        toast({
-            title: "Listing Saved!",
-            description: `${business.name} has been saved to your profile.`,
-        });
-    }
+    // This functionality requires `saveItem` and `isItemSaved` in useAuth, which is not implemented for businesses yet
+    toast({ title: 'Coming Soon!', description: 'Saving businesses will be available soon.' });
   }
   
   const handleDelete = async () => {
@@ -104,7 +91,7 @@ export default function BusinessDetailPage() {
   }
 
   const businessIsSaved = user ? user.savedBusinesses?.includes(business.id) : false;
-  const canEdit = user && user.isAdmin;
+  const canEdit = user && (user.roles.includes('admin') || user.uid === business.ownerId);
 
   return (
     <div className="bg-background">
@@ -163,25 +150,9 @@ export default function BusinessDetailPage() {
                     {business.services.map((service: string) => <Badge key={service} variant="outline">{service}</Badge>)}
                 </div>
 
-                {associatedCommunity && (
-                <div className="mt-10">
+                {relatedEvents.length > 0 && <div className="mt-10">
                    <h3 className="font-headline text-xl font-semibold mb-4">
-                     Associated with
-                   </h3>
-                   <Card>
-                       <CardContent className="p-4">
-                            <Link href={`/c/${associatedCommunity.slug}`} className="group">
-                               <p className="font-semibold group-hover:text-primary">{associatedCommunity.name}</p>
-                               <p className="text-sm text-muted-foreground">View community profile</p>
-                            </Link>
-                       </CardContent>
-                   </Card>
-                </div>
-                )}
-
-                 {relatedEvents.length > 0 && <div className="mt-10">
-                   <h3 className="font-headline text-xl font-semibold mb-4">
-                     Upcoming Events Hosted by their Community
+                     Upcoming Events
                    </h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {relatedEvents.map(event => (

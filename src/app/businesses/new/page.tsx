@@ -77,13 +77,13 @@ export default function NewBusinessEntryPage() {
   });
 
   const onSubmit = async (values: BusinessFormValues) => {
-    if (!user?.roles.includes('admin')) {
-      toast({
-        title: 'Admin Access Required',
-        description: 'Only platform administrators can add new business listings.',
-        variant: 'destructive',
-      });
-      return;
+    if (!user) {
+        toast({
+            title: 'Authentication Required',
+            description: 'You must be logged in to create a business listing.',
+            variant: 'destructive',
+        });
+        return;
     }
 
     startTransition(async () => {
@@ -101,14 +101,14 @@ export default function NewBusinessEntryPage() {
             website: values.website,
             address: values.address,
           },
-          associatedCommunityId: user.affiliation?.orgId,
+          ownerId: user.uid,
         };
         
         try {
           await addBusiness(newBusinessData);
           toast({
               title: 'Business Submitted!',
-              description: `${values.name} has been added to the directory.`,
+              description: `${values.name} has been submitted for review. It will be visible after approval.`,
           });
           router.push('/businesses');
         } catch (error) {
@@ -138,30 +138,13 @@ export default function NewBusinessEntryPage() {
     );
   }
 
-   if (!user.roles.includes('admin')) {
-     return (
-       <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="mx-auto max-w-md">
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">Permission Required</CardTitle>
-                <CardDescription>Only administrators can add new listings to ensure they are trusted and verified.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button asChild className="mt-2"><Link href="/dashboard">Return to Dashboard</Link></Button>
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-
   return (
     <div className="container mx-auto px-4 py-12">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Create a New Business Listing</CardTitle>
           <CardDescription>
-            Add a trusted business, sponsor, or professional to the business directory. This feature is limited to community administrators.
+            Add a business to the directory. Your submission will be reviewed by an administrator before it is published.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -203,7 +186,7 @@ export default function NewBusinessEntryPage() {
               <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
                 <Button type="submit" disabled={isPending || !form.formState.isValid}>
-                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Adding...</> : "Add to Businesses"}
+                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : "Submit for Review"}
                 </Button>
               </div>
             </form>

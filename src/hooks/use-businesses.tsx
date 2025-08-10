@@ -29,7 +29,7 @@ export interface Business {
     website: string;
     address: string;
   };
-  associatedCommunityId?: string; // ID of the community
+  ownerId?: string; // The UID of the user who submitted the business
   createdAt?: any;
 }
 
@@ -78,7 +78,7 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
           ...businessData,
           isVerified: false, 
           isFeatured: false,
-          rating: 4.5, // Placeholder
+          rating: 0, 
           reviewCount: 0,
           createdAt: serverTimestamp(),
         };

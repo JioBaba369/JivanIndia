@@ -31,13 +31,15 @@ export default function BusinessesPage() {
     const [locationQuery, setLocationQuery] = useState('');
     const [category, setCategory] = useState('all');
 
+    const approvedBusinesses = useMemo(() => businesses.filter(b => b.isVerified), [businesses]);
+
     const businessCategories = useMemo(() => {
-        const categories = new Set(businesses.map(p => p.category));
+        const categories = new Set(approvedBusinesses.map(p => p.category));
         return ['all', ...Array.from(categories)];
-    }, [businesses]);
+    }, [approvedBusinesses]);
 
     const filteredBusinesses = useMemo(() => {
-        return businesses
+        return approvedBusinesses
         .filter(business => {
           const matchesSearch =
             business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,7 +52,7 @@ export default function BusinessesPage() {
           return matchesSearch && matchesLocation && matchesCategory;
         })
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-    }, [businesses, searchQuery, locationQuery, category]);
+    }, [approvedBusinesses, searchQuery, locationQuery, category]);
     
     const BusinessSkeletons = () => (
       Array.from({ length: 6 }).map((_, i) => (
@@ -81,11 +83,11 @@ export default function BusinessesPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find trusted local businesses and professional services in the community.
           </p>
-          {user?.roles.includes('admin') && (
+          {user && (
             <Button asChild size="lg" className="mt-8">
               <Link href="/businesses/new">
                 <PlusCircle className="mr-2 h-5 w-5"/>
-                Create a Business
+                Add Your Business
               </Link>
             </Button>
           )}
@@ -132,12 +134,12 @@ export default function BusinessesPage() {
         <section className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {isLoading ? <BusinessSkeletons /> : (
-            businesses.length === 0 ? (
+            approvedBusinesses.length === 0 ? (
                 <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <Building className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
                     <p className="text-muted-foreground mt-2">There are currently no businesses listed. Check back soon for new opportunities!</p>
-                    {user?.roles.includes('admin') && <Button asChild className="mt-4">
+                    {user && <Button asChild className="mt-4">
                         <Link href="/businesses/new">Add a Business</Link>
                     </Button>}
                 </div>
