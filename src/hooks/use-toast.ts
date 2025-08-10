@@ -25,8 +25,8 @@ const actionTypes = {
 let count = 0
 
 function genId() {
-  count = (count + 1) % 100
-  return count.toString()
+  count = (count + 1)
+  return `toast-${count}-${Date.now()}`
 }
 
 type ActionType = typeof actionTypes
@@ -167,17 +167,18 @@ function toast(props: Toast) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
-
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
-    }
-  }, [state])
+   const state = React.useSyncExternalStore(
+    (callback) => {
+      listeners.push(callback);
+      return () => {
+        const index = listeners.indexOf(callback);
+        if (index > -1) {
+          listeners.splice(index, 1);
+        }
+      };
+    },
+    () => memoryState
+  );
 
   return {
     ...state,
