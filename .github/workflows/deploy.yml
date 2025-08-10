@@ -13,6 +13,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: 'Authenticate to Google Cloud'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JIVANINDIA_CO }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Deploy Cloud Functions'
+        run: |-
+          gcloud functions deploy updateUserClaims \
+            --gen2 \
+            --runtime=nodejs20 \
+            --trigger-event-filters="type=google.cloud.firestore.document.v1.updated" \
+            --trigger-event-filters="database=(default)" \
+            --trigger-event-filters-path-pattern="about/singleton" \
+            --source=./functions \
+            --entry-point=updateUserClaims \
+            --region=us-central1 \
+            --project=${{ secrets.PROJECT_ID }}
+
+      - name: 'Allow unauthenticated invocations to function'
+        run: >
+          gcloud functions add-invoker-policy-binding updateUserClaims
+          --member="allUsers"
+          --region=us-central1
+          --project=${{ secrets.PROJECT_ID }}
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -20,3 +49,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JIVANINDIA_CO }}'
           channelId: live
           projectId: jivanindia-co
+
