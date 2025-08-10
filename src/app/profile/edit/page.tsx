@@ -50,7 +50,7 @@ const profileFormSchema = (isUsernameUnique: (username: string, currentUid?: str
   bio: z.string().max(280, { message: "Bio cannot exceed 280 characters." }).optional(),
   phone: z.string().optional(),
   website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-  profileImageUrl: z.string().optional(),
+  profileImageUrl: z.string().url().optional().or(z.literal('')),
   currentCountry: z.string().optional(),
   currentState: z.string().optional(),
   currentCity: z.string().optional(),
@@ -164,9 +164,9 @@ export default function EditProfilePage() {
             });
         }
     });
-  }
+  };
 
-  const onPasswordSubmit = (data: z.infer<typeof passwordFormSchema>>) => {
+  const onPasswordSubmit = (data: z.infer<typeof passwordFormSchema>) => {
     startPasswordTransition(async () => {
       try {
         await changePassword(data.currentPassword, data.newPassword);
