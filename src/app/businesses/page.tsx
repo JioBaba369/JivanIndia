@@ -81,7 +81,7 @@ export default function BusinessesPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find trusted local businesses and professional services in the community.
           </p>
-          {user?.isAdmin && (
+          {user?.roles.includes('admin') && (
             <Button asChild size="lg" className="mt-8">
               <Link href="/businesses/new">
                 <PlusCircle className="mr-2 h-5 w-5"/>
@@ -137,7 +137,7 @@ export default function BusinessesPage() {
                     <Building className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
                     <p className="text-muted-foreground mt-2">There are currently no businesses listed. Check back soon for new opportunities!</p>
-                    {user?.isAdmin && <Button asChild className="mt-4">
+                    {user?.roles.includes('admin') && <Button asChild className="mt-4">
                         <Link href="/businesses/new">Add a Business</Link>
                     </Button>}
                 </div>

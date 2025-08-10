@@ -92,7 +92,7 @@ export default function NewMoviePage() {
   });
 
   const onSubmit = (values: MovieFormValues) => {
-    if (!user?.isAdmin) {
+    if (!user?.roles.includes('admin')) {
       toast({ title: 'Admin Access Required', variant: 'destructive' });
       return;
     }
@@ -137,7 +137,7 @@ export default function NewMoviePage() {
     });
   };
 
-  if (!user || !user.isAdmin) {
+  if (!user || !user.roles.includes('admin')) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">

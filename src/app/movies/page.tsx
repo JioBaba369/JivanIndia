@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -95,7 +96,7 @@ export default function MoviesPage() {
                  onChange={(e) => setSearchQuery(e.target.value)}
                />
              </div>
-              {user?.isAdmin && (
+              {user?.roles.includes('admin') && (
                 <Button asChild className="h-12">
                   <Link href="/movies/new">
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -115,7 +116,7 @@ export default function MoviesPage() {
             <Film className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="font-headline text-xl font-semibold mt-4">No Movies Listed</h3>
             <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
-            {user?.isAdmin && (
+            {user?.roles.includes('admin') && (
               <Button asChild className="mt-4"><Link href="/movies/new">Add a Movie</Link></Button>
             )}
           </div>

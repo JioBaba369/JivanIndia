@@ -81,7 +81,7 @@ export default function NewSponsorPage() {
   });
 
   const onSubmit = async (values: SponsorFormValues) => {
-     if (!user?.isAdmin) {
+     if (!user?.roles.includes('admin')) {
       toast({
         title: 'Admin Access Required',
         description: 'Only platform administrators can add new sponsors.',
@@ -118,7 +118,7 @@ export default function NewSponsorPage() {
     });
   };
 
-  if (!user || !user.isAdmin) {
+  if (!user || !user.roles.includes('admin')) {
     return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
