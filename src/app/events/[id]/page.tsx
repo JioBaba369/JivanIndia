@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building, Loader2, Handshake } from "lucide-react";
+import { Calendar, MapPin, Ticket, Share2, Bookmark, Users, Clock, History, Building, Loader2, Handshake, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -133,6 +133,7 @@ export default function EventDetailPage() {
   }
 
   const eventIsSaved = user ? isEventSaved(event.id) : false;
+  const canEditEvent = user && (user.uid === event.submittedByUid || user.roles.includes('admin'));
 
   const TicketButton = () => {
     if (event.ticketLink) {
@@ -178,7 +179,14 @@ export default function EventDetailPage() {
                 {event.title}
               </h1>
             </div>
-             <div className="absolute top-4 right-4">
+             <div className="absolute top-4 right-4 flex gap-2">
+                {canEditEvent && (
+                    <Button asChild variant="secondary">
+                        <Link href={`/events/${event.id}/edit`}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit
+                        </Link>
+                    </Button>
+                )}
                 <ReportDialog contentId={event.id} contentType="Event" contentTitle={event.title} triggerVariant="default" />
             </div>
           </div>

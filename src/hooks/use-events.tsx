@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
@@ -48,6 +48,8 @@ interface EventsContextType {
   isLoading: boolean;
   error: Error | null;
   addEvent: (event: NewEventInput, sponsors: EventSponsor[]) => Promise<Event>;
+  updateEvent: (eventId: string, eventData: Partial<NewEventInput>, sponsors: EventSponsor[]) => Promise<void>;
+  deleteEvent: (eventId: string) => Promise<void>;
   getEventById: (id: string) => Event | undefined;
   updateEventStatus: (eventId: string, status: Event['status']) => Promise<void>;
   updateEventFeaturedStatus: (eventId: string, isFeatured: boolean) => Promise<void>;
@@ -114,6 +116,35 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       throw error;
     }
   }, [toast]);
+  
+  const updateEvent = useCallback(async (eventId: string, eventData: Partial<NewEventInput>, sponsors: EventSponsor[]) => {
+    const eventDocRef = doc(firestore, 'events', eventId);
+    try {
+        await updateDoc(eventDocRef, {
+            ...eventData,
+            sponsors,
+            updatedAt: serverTimestamp()
+        });
+        toast({ title: 'Event Updated', description: 'Your event has been successfully updated.' });
+    } catch (error) {
+        console.error("Error updating event:", error);
+        toast({ title: 'Update Failed', description: 'Could not update the event.', variant: 'destructive' });
+        throw error;
+    }
+  }, [toast]);
+
+  const deleteEvent = useCallback(async (eventId: string) => {
+      const eventDocRef = doc(firestore, 'events', eventId);
+      try {
+          await deleteDoc(eventDocRef);
+          toast({ title: 'Event Deleted', description: 'The event has been permanently removed.' });
+      } catch (error) {
+          console.error("Error deleting event:", error);
+          toast({ title: 'Deletion Failed', description: 'Could not delete the event.', variant: 'destructive' });
+          throw error;
+      }
+  }, [toast]);
+
 
   const getEventById = useCallback((id: string) => {
     if (!id) return undefined;
@@ -164,6 +195,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     isLoading,
     error,
     addEvent,
+    updateEvent,
+    deleteEvent,
     getEventById,
     updateEventStatus,
     updateEventFeaturedStatus,
