@@ -168,7 +168,7 @@ export default function CommunityDetailPage() {
                 </div>}
               </div>
               <div className="space-y-6">
-                <div className="flex flex-col gap-4">
+                 <div className="flex flex-col gap-4">
                     {isManager ? (
                         <Card>
                             <CardHeader className="p-4">
@@ -192,37 +192,23 @@ export default function CommunityDetailPage() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="flex gap-2">
-                             <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="lg" className="px-3 w-full">
-                                        Actions <MoreVertical className="ml-2" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={handleJoinToggle}>
-                                        <Bookmark className="mr-2 h-4 w-4" />
-                                        {orgIsJoined ? "Leave Community" : "Join Community"}
-                                    </DropdownMenuItem>
-                                     <DropdownMenuItem onClick={handleShare}>
-                                        <Share2 className="mr-2 h-4 w-4" />
-                                        Share Profile
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <ReportDialog 
-                                        contentId={community.id} 
-                                        contentType="Community" 
-                                        contentTitle={community.name} 
-                                        triggerComponent={
-                                            <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                                                Report Community
-                                            </DropdownMenuItem>
-                                        }
-                                    />
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
+                        <Button size="lg" variant={orgIsJoined ? 'default' : 'secondary'} className="w-full" onClick={handleJoinToggle}>
+                           <Bookmark className="mr-2 h-4 w-4"/>
+                           {orgIsJoined ? "Leave Community" : "Join Community"}
+                        </Button>
                     )}
+                     <div className="flex gap-2">
+                        <Button variant="outline" className="w-full" onClick={handleShare}>
+                            <Share2 className="mr-2 h-4 w-4"/>
+                            Share
+                        </Button>
+                         <ReportDialog 
+                            contentId={community.id} 
+                            contentType="Community" 
+                            contentTitle={community.name} 
+                            triggerVariant="outline"
+                        />
+                    </div>
                 </div>
                  <Card>
                   <CardContent className="p-4 space-y-4">

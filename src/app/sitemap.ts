@@ -11,7 +11,7 @@ import { type Business } from '@/hooks/use-businesses';
 import { type Sponsor } from '@/hooks/use-sponsors';
 
 const BASE_URL = 'https://jivanindia.co';
-const FALLBACK_LAST_MOD = new Date().toISOString();
+const FALLBACK_LAST_MOD = new Date('2024-01-01').toISOString();
 
 async function fetchCollection<T>(collectionName: string): Promise<(T & { id: string })[]> {
     try {
@@ -65,13 +65,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const users = await fetchCollection<User>('users');
-  const userRoutes = users.map(user => {
-      return user.username ? {
+  const userRoutes = users
+    .filter(user => user.username)
+    .map(user => ({
         url: `${BASE_URL}/${user.username}`,
         lastModified: FALLBACK_LAST_MOD,
         changeFrequency: 'monthly' as 'monthly',
-      } : null;
-  }).filter(Boolean) as MetadataRoute.Sitemap;
+      }
+  ));
 
 
   // 3. Dynamic Pages from other collections
@@ -90,10 +91,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
   
   const businesses = await fetchCollection<Business>('businesses');
-  const businessRoutes = businesses.map(business => ({
-    url: `${BASE_URL}/businesses/${business.id}`,
-    lastModified: (business.createdAt?.toDate() || new Date()).toISOString(),
-    changeFrequency: 'monthly' as 'monthly',
+  const businessRoutes = businesses
+    .filter(b => b.isVerified)
+    .map(business => ({
+        url: `${BASE_URL}/businesses/${business.id}`,
+        lastModified: (business.updatedAt?.toDate() || business.createdAt?.toDate() || new Date()).toISOString(),
+        changeFrequency: 'monthly' as 'monthly',
   }));
   
   const sponsors = await fetchCollection<Sponsor>('sponsors');

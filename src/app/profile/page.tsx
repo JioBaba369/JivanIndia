@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star, User as UserIcon, Loader2 } from 'lucide-react';
+import { Edit, LogOut, Heart, Users, Tag, Calendar, Building, MapPin, Film, Star, User as UserIcon, Loader2, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -59,6 +59,18 @@ export default function ProfilePage() {
   const handleLogout = () => {
       logout();
   }
+
+  const renderEmptyState = (title: string, description: string, link: string, linkText: string) => (
+    <div className="rounded-lg border-2 border-dashed py-12 text-center">
+        <h3 className="font-headline text-lg">{title}</h3>
+        <p className="text-muted-foreground mt-2">{description}</p>
+        <div className="mt-4 flex items-center justify-between">
+            <div></div>
+            <Button asChild variant="secondary" className="mt-4"><Link href={link}>{linkText}</Link></Button>
+            <Button asChild variant="link"><Link href={link}>View All <ArrowRight className="ml-2 h-4 w-4"/></Link></Button>
+        </div>
+    </div>
+  );
 
   return (
     <div className="bg-muted/40 min-h-[calc(100vh-65px)]">
@@ -135,11 +147,7 @@ export default function ProfilePage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                        <h3 className="font-headline text-lg">No Saved Events</h3>
-                                        <p className="text-muted-foreground mt-2">You haven't saved any events yet.</p>
-                                        <Button asChild variant="secondary" className="mt-4"><Link href="/events">Explore Events</Link></Button>
-                                    </div>
+                                    renderEmptyState('No Saved Events', "You haven't saved any events yet.", '/events', 'Explore Events')
                                 )}
                             </TabsContent>
                              <TabsContent value="saved-movies" className="mt-6">
@@ -163,11 +171,7 @@ export default function ProfilePage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                        <h3 className="font-headline text-lg">No Saved Movies</h3>
-                                        <p className="text-muted-foreground mt-2">You haven't saved any movies yet.</p>
-                                        <Button asChild variant="secondary" className="mt-4"><Link href="/movies">Explore Movies</Link></Button>
-                                    </div>
+                                    renderEmptyState('No Saved Movies', "You haven't saved any movies yet.", '/movies', 'Explore Movies')
                                 )}
                             </TabsContent>
                              <TabsContent value="saved-deals" className="mt-6">
@@ -190,11 +194,7 @@ export default function ProfilePage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                        <h3 className="font-headline text-lg">No Saved Deals</h3>
-                                        <p className="text-muted-foreground mt-2">You haven't saved any deals yet.</p>
-                                        <Button asChild variant="secondary" className="mt-4"><Link href="/deals">Explore Deals</Link></Button>
-                                    </div>
+                                    renderEmptyState('No Saved Deals', "You haven't saved any deals yet.", '/deals', 'Explore Deals')
                                 )}
                             </TabsContent>
                             <TabsContent value="saved-businesses" className="mt-6">
@@ -224,11 +224,7 @@ export default function ProfilePage() {
                                         ))}
                                     </div>
                                 ) : (
-                                     <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                        <h3 className="font-headline text-lg">No Saved Businesses</h3>
-                                        <p className="text-muted-foreground mt-2">You haven't saved any businesses yet.</p>
-                                        <Button asChild variant="secondary" className="mt-4"><Link href="/businesses">Explore Businesses</Link></Button>
-                                    </div>
+                                    renderEmptyState('No Saved Businesses', "You haven't saved any businesses yet.", '/businesses', 'Explore Businesses')
                                 )}
                             </TabsContent>
                             <TabsContent value="joined-communities" className="mt-6">
@@ -258,11 +254,7 @@ export default function ProfilePage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="rounded-lg border-2 border-dashed py-12 text-center">
-                                        <h3 className="font-headline text-lg">No Joined Communities</h3>
-                                        <p className="text-muted-foreground mt-2">You haven't joined any communities yet.</p>
-                                        <Button asChild variant="secondary" className="mt-4"><Link href="/communities">Explore Communities</Link></Button>
-                                    </div>
+                                    renderEmptyState('No Joined Communities', "You haven't joined any communities yet.", '/communities', 'Explore Communities')
                                 )}
                             </TabsContent>
                         </Tabs>
