@@ -20,13 +20,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { getInitials } from '@/lib/utils';
 import { firestore } from '@/lib/firebase';
 import { collection, getDocs, where, query } from 'firebase/firestore';
 import { useBusinesses } from '@/hooks/use-businesses';
-import ImageUpload from '@/components/feature/image-upload';
 import { useReports } from '@/hooks/use-reports';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -111,14 +110,12 @@ const TeamMemberDialog = ({
   const [name, setName] = useState(member?.name || '');
   const [role, setRole] = useState(member?.role || '');
   const [bio, setBio] = useState(member?.bio || '');
-  const [avatarUrl, setAvatarUrl] = useState(member?.avatarUrl || '');
 
   useEffect(() => {
     if (isOpen) {
       setName(member?.name || '');
       setRole(member?.role || '');
       setBio(member?.bio || '');
-      setAvatarUrl(member?.avatarUrl || '');
     }
   }, [isOpen, member]);
 
@@ -126,7 +123,7 @@ const TeamMemberDialog = ({
     if (!name || !role) {
       return;
     }
-    onSave({ name, role, bio, avatarUrl });
+    onSave({ name, role, bio });
     setIsOpen(false);
   };
 
@@ -140,7 +137,6 @@ const TeamMemberDialog = ({
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-center">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={avatarUrl} alt={name} />
               <AvatarFallback>{getInitials(name)}</AvatarFallback>
             </Avatar>
           </div>
@@ -155,16 +151,6 @@ const TeamMemberDialog = ({
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
             <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="avatarUrl">Avatar URL</Label>
-             <ImageUpload
-                value={avatarUrl}
-                onChange={(url) => setAvatarUrl(url)}
-                aspectRatio={1}
-                toast={toast}
-                folderName="team-avatars"
-              />
           </div>
         </div>
         <DialogFooter>
@@ -234,8 +220,6 @@ export default function AdminDashboardPage() {
   const [isUsersLoading, setIsUsersLoading] = useState(true);
   
   const [story, setStory] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
-  const [faviconUrl, setFaviconUrl] = useState('');
   
   const [countryFilter, setCountryFilter] = useState(ALL_COUNTRIES_VALUE);
   const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
@@ -306,8 +290,6 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (aboutContent) {
         setStory(aboutContent.story);
-        setLogoUrl(aboutContent.logoUrl || '');
-        setFaviconUrl(aboutContent.faviconUrl || '');
     }
   }, [aboutContent]);
 
@@ -668,7 +650,7 @@ export default function AdminDashboardPage() {
                                 <TableBody>
                                     {adminUsers.map(admin => (
                                         <TableRow key={admin.uid}>
-                                            <TableCell><Avatar><AvatarImage src={admin.profileImageUrl} alt={admin.name} /><AvatarFallback>{getInitials(admin.name)}</AvatarFallback></Avatar></TableCell>
+                                            <TableCell><Avatar><AvatarFallback>{getInitials(admin.name)}</AvatarFallback></Avatar></TableCell>
                                             <TableCell className="font-medium">{admin.name}</TableCell>
                                             <TableCell>{admin.email}</TableCell>
                                             <TableCell className="text-right">
@@ -713,7 +695,7 @@ export default function AdminDashboardPage() {
                                 <TableBody>
                                     {aboutContent.teamMembers.map(member => (
                                         <TableRow key={member.id}>
-                                            <TableCell><Avatar><AvatarImage src={member.avatarUrl} alt={member.name} /><AvatarFallback>{getInitials(member.name)}</AvatarFallback></Avatar></TableCell>
+                                            <TableCell><Avatar><AvatarFallback>{getInitials(member.name)}</AvatarFallback></Avatar></TableCell>
                                             <TableCell className="font-medium">{member.name}</TableCell>
                                             <TableCell>{member.role}</TableCell>
                                             <TableCell className="text-right space-x-2">
@@ -749,17 +731,7 @@ export default function AdminDashboardPage() {
                             <CardDescription>Manage your site's logo and favicon.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="space-y-2">
-                                <Label>Site Logo</Label>
-                                <ImageUpload value={logoUrl} onChange={(url) => setLogoUrl(url)} aspectRatio={4/1} toast={toast} folderName="branding" className="max-h-[100px]"/>
-                                <p className="text-sm text-muted-foreground">Recommended: Transparent PNG, ~200x50px</p>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Site Favicon</Label>
-                                <ImageUpload value={faviconUrl} onChange={(url) => setFaviconUrl(url)} aspectRatio={1} toast={toast} folderName="branding" className="max-h-[100px]"/>
-                                <p className="text-sm text-muted-foreground">Recommended: ICO or PNG, 32x32px</p>
-                            </div>
-                            <Button onClick={() => handleAboutContentSave({ logoUrl, faviconUrl })}>Save Branding</Button>
+                            <p className="text-sm text-muted-foreground">Image uploading functionality has been removed.</p>
                         </CardContent>
                     </Card>
 
