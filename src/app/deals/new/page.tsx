@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useTransition, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -42,7 +42,7 @@ const formSchema = z.object({
   terms: z.string().min(10, "Terms must be at least 10 characters."),
   category: z.enum(['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other']),
   expires: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid expiration date is required." }),
-  businessId: z.string().min(1, "You must select a business or community."),
+  affiliatedEntityId: z.string().min(1, "You must select a business or community."),
 });
 
 type DealFormValues = z.infer<typeof formSchema>;
@@ -61,6 +61,12 @@ export default function NewDealPage() {
 
   const userAffiliatedBusinesses = businesses.filter(b => b.ownerId === user?.uid);
   const userAffiliatedCommunities = communities.filter(c => c.founderUid === user?.uid);
+  
+  const affiliatedEntities = useMemo(() => [
+      ...userAffiliatedBusinesses.map(b => ({ label: `Business: ${b.name}`, value: `business_${b.id}`, entity: b })),
+      ...userAffiliatedCommunities.map(c => ({ label: `Community: ${c.name}`, value: `community_${c.id}`, entity: c }))
+  ], [userAffiliatedBusinesses, userAffiliatedCommunities]);
+
 
   const form = useForm<DealFormValues>({
     resolver: zodResolver(formSchema),
@@ -70,7 +76,7 @@ export default function NewDealPage() {
       terms: '',
       category: 'Food & Dining',
       expires: '',
-      businessId: '',
+      affiliatedEntityId: '',
     },
     mode: 'onChange'
   });
@@ -85,10 +91,10 @@ export default function NewDealPage() {
       });
       return;
     }
-    const allAffiliations = [...userAffiliatedBusinesses, ...userAffiliatedCommunities];
-    const selectedAffiliation = allAffiliations.find(a => a.id === values.businessId);
-
-    if (!selectedAffiliation) {
+    const [type, id] = values.affiliatedEntityId.split('_');
+    const selectedEntity = affiliatedEntities.find(e => e.value === values.affiliatedEntityId)?.entity;
+    
+    if (!selectedEntity) {
       toast({
         title: 'Affiliation Not Found',
         description: 'Could not find details for your selected business or community.',
@@ -98,21 +104,26 @@ export default function NewDealPage() {
     }
     
     startTransition(async () => {
-      const newDealData: NewDealInput = {
+      const newDealData: Omit<NewDealInput, 'businessId' | 'communityId'> = {
         title: values.title,
         description: values.description,
         terms: values.terms,
         category: values.category,
         expires: values.expires,
-        business: selectedAffiliation.name,
-        businessId: selectedAffiliation.id,
-        businessLocation: 'address' in selectedAffiliation ? selectedAffiliation.address : `${selectedAffiliation.location.city}, ${selectedAffiliation.location.country}`,
-        businessWebsite: selectedAffiliation.website || '',
+        business: selectedEntity.name,
+        businessLocation: 'address' in selectedEntity ? selectedEntity.address : `${selectedEntity.location.city}, ${selectedEntity.location.country}`,
+        businessWebsite: selectedEntity.website || '',
         submittedByUid: user.uid,
+      };
+      
+      const dealPayload: NewDealInput = {
+        ...newDealData,
+        businessId: type === 'business' ? id : undefined,
+        communityId: type === 'community' ? id : undefined,
       };
 
       try {
-        await addDeal(newDealData);
+        await addDeal(dealPayload);
         toast({
           title: 'Deal Submitted!',
           description: `Your deal "${values.title}" has been submitted for review.`,
@@ -146,7 +157,7 @@ export default function NewDealPage() {
     );
   }
   
-  if (userAffiliatedCommunities.length === 0 && userAffiliatedBusinesses.length === 0) {
+  if (affiliatedEntities.length === 0) {
      return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
@@ -157,6 +168,9 @@ export default function NewDealPage() {
             <CardContent>
                 <Button asChild className="mt-2">
                     <Link href="/businesses/new">Register Your Business</Link>
+                </Button>
+                 <Button asChild className="mt-2 ml-2" variant="secondary">
+                    <Link href="/communities/new">Register a Community</Link>
                 </Button>
             </CardContent>
         </Card>
@@ -194,17 +208,17 @@ export default function NewDealPage() {
               />
                <FormField
                   control={form.control}
-                  name="businessId"
+                  name="affiliatedEntityId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Business / Community *</FormLabel>
+                      <FormLabel>Offered By *</FormLabel>
                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger><SelectValue placeholder="Select a business or community you manage" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {[...userAffiliatedBusinesses, ...userAffiliatedCommunities].map(item => (
-                            <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                          {affiliatedEntities.map(item => (
+                            <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

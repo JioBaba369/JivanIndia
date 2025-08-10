@@ -7,7 +7,6 @@ import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useNotifications } from './use-notifications';
 import { useCommunities } from './use-communities';
-import { useBusinesses } from './use-businesses';
 
 export interface Deal {
   id: string;
@@ -16,8 +15,9 @@ export interface Deal {
   terms: string;
   category: 'Food & Dining' | 'Retail & Shopping' | 'Services' | 'Entertainment' | 'Other';
   expires: string; 
-  business: string;
-  businessId: string; // This can be a community ID or a business ID
+  business: string; // Name of the business or community
+  businessId?: string; // This is for businesses
+  communityId?: string; // This is for communities
   businessLocation: string;
   businessWebsite: string;
   postedAt: any; 
@@ -78,14 +78,16 @@ export function DealsProvider({ children }: { children: ReactNode }) {
         const docRef = await addDoc(collection(firestore, 'deals'), newDealForDb);
         const newDeal = { id: docRef.id, ...newDealForDb, postedAt: { toDate: () => new Date() } } as Deal;
 
-        const community = communities.find(c => c.id === newDeal.businessId);
-        if (community) {
-            await createNotificationForCommunity(community.id, {
-                title: `New Deal: ${newDeal.title}`,
-                description: `${community.name} has a new offer!`,
-                link: `/deals/${newDeal.id}`,
-                icon: 'Tag',
-            });
+        if (newDeal.communityId) {
+            const community = communities.find(c => c.id === newDeal.communityId);
+            if (community) {
+                await createNotificationForCommunity(community.id, {
+                    title: `New Deal: ${newDeal.title}`,
+                    description: `${community.name} has a new offer!`,
+                    link: `/deals/${newDeal.id}`,
+                    icon: 'Tag',
+                });
+            }
         }
         
         return newDeal;

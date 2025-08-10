@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2, Link as LinkIcon } from "lucide-react";
+import { Calendar, Tag, Building, Share2, Globe, MapPin, Bookmark, History, Loader2, Link as LinkIcon, Users } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,12 +30,14 @@ export default function DealDetailPage() {
 
   const affiliatedEntity = useMemo(() => {
     if (!deal) return null;
-    const community = getCommunityById(deal.businessId);
-    if (community) return { type: 'community', data: community, slug: community.slug };
-    
-    const business = getBusinessById(deal.businessId);
-    if (business) return { type: 'business', data: business, slug: business.id };
-
+    if (deal.communityId) {
+        const community = getCommunityById(deal.communityId);
+        if (community) return { type: 'community' as const, data: community, link: `/c/${community.slug}` };
+    }
+    if (deal.businessId) {
+        const business = getBusinessById(deal.businessId);
+        if (business) return { type: 'business' as const, data: business, link: `/businesses/${business.id}` };
+    }
     return null;
   }, [deal, getCommunityById, getBusinessById]);
 
@@ -117,7 +119,7 @@ export default function DealDetailPage() {
 
   const dealIsSaved = user ? isItemSaved('savedDeals', deal.id) : false;
   const expirationDate = isValid(new Date(deal.expires)) ? format(new Date(deal.expires), 'PPP') : 'N/A';
-
+  const EntityIcon = affiliatedEntity?.type === 'community' ? Users : Building;
 
   return (
     <div className="bg-background">
@@ -170,11 +172,11 @@ export default function DealDetailPage() {
                     </CardHeader>
                     <CardContent className="p-4 pt-0 space-y-4">
                         <div className="flex items-start gap-4">
-                            <Building className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                            <EntityIcon className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
                             <div>
                                 {affiliatedEntity ? (
                                     <Link 
-                                        href={affiliatedEntity.type === 'community' ? `/c/${affiliatedEntity.slug}` : `/businesses/${affiliatedEntity.slug}`} 
+                                        href={affiliatedEntity.link} 
                                         className="font-semibold hover:text-primary"
                                     >
                                         {deal.business}
@@ -182,7 +184,7 @@ export default function DealDetailPage() {
                                 ) : (
                                     <p className="font-semibold">{deal.business}</p>
                                 )}
-                                <p className="text-sm text-muted-foreground">Visit the profile for more information.</p>
+                                <p className="text-sm text-muted-foreground">Visit their profile for more information.</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-4">
