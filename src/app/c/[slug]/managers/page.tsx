@@ -100,6 +100,7 @@ export default function CommunityManagersPage() {
             toast({ title: 'Manager Added', description: `${foundUser.name} can now manage this community.` });
             setNewManagerEmail('');
             setFoundUser(null);
+            setNewManagerRole('moderator');
         } catch(error: any) {
             toast({ title: 'Error Adding Manager', description: error.message, variant: 'destructive' });
         }

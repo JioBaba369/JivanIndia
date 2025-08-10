@@ -110,9 +110,9 @@ const TeamMemberDialog = ({
 }) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState(member?.name || '');
-  const [role, setRole] = useState(member?.role || '');
-  const [bio, setBio] = useState(member?.bio || '');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('');
+  const [bio, setBio] = useState('');
 
   useEffect(() => {
     if (isOpen) {

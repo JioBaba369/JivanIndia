@@ -149,7 +149,7 @@ export default function UserPublicProfilePage() {
         { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag, isVisible: true },
         { value: 'saved-businesses', label: 'Saved Businesses', count: userSavedBusinesses.length, icon: Building, isVisible: true },
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users, isVisible: true },
-        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!affiliatedCommunity },
+        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!(affiliatedCommunity && profileUser.affiliation) },
     ].filter(tab => tab.isVisible);
 
     return (
@@ -187,7 +187,7 @@ export default function UserPublicProfilePage() {
                         
                             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
                                 {(profileUser.languagesSpoken && profileUser.languagesSpoken.length > 0) && (
-                                <div className="flex items-center gap-2"><Languages className="h-4 w-4"/> {profileUser.languagesSpoken.join(', ')}</div>
+                                <div className="flex items-center gap-2"><Languages className="mr-1 h-4 w-4"/> {profileUser.languagesSpoken.join(', ')}</div>
                                 )}
                                 {profileUser.website && (
                                      <div className="flex items-center gap-2"><Globe className="h-4 w-4"/> <a href={formatUrl(profileUser.website)} target="_blank" rel="noopener noreferrer" className="hover:text-primary">{profileUser.website}</a></div>
@@ -205,13 +205,13 @@ export default function UserPublicProfilePage() {
                             {affiliatedCommunity && profileUser.affiliation && (
                                 <Button asChild>
                                     <Link href={`/c/${affiliatedCommunity.slug}`}>
-                                        <Building className="mr-2"/> View {profileUser.affiliation.orgName}
+                                        <Building className="mr-2 h-4 w-4"/> View {profileUser.affiliation.orgName}
                                     </Link>
                                 </Button>
                             )}
                              <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline"><Share2 className="mr-2"/>Share</Button>
+                                    <Button variant="outline"><Share2 className="mr-2 h-4 w-4"/>Share</Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-md">
                                     <DialogHeader>
