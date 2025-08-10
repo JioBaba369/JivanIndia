@@ -130,6 +130,19 @@ export default function NewBusinessEntryPage() {
     }
 
     startTransition(async () => {
+        const socialMedia: { [key: string]: string | undefined } = {
+            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@','')}` : undefined,
+            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
+            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
+            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@','')}` : undefined,
+            facebookGroup: values.socialFacebookGroup || undefined,
+        };
+
+        // Filter out any undefined social media links before submission
+        const definedSocialMedia = Object.fromEntries(
+            Object.entries(socialMedia).filter(([_, value]) => value !== undefined)
+        );
+        
         const newBusinessData: NewBusinessInput = {
           name: values.name,
           category: values.category,
@@ -150,13 +163,7 @@ export default function NewBusinessEntryPage() {
             address: values.address,
             businessNumber: values.businessNumber,
           },
-          socialMedia: {
-            twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter.replace('@','')}` : '',
-            linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
-            facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
-            instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram.replace('@','')}` : '',
-            facebookGroup: values.socialFacebookGroup || '',
-          },
+          socialMedia: definedSocialMedia,
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
           ownerId: user.uid,
         };
