@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTransition, useEffect } from 'react';
+import { useTransition, useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -33,7 +33,7 @@ import {
 import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hooks/use-businesses';
 import ImageUpload from '@/components/feature/image-upload';
 import CountrySelector from '@/components/layout/country-selector';
-import { useIndiaLocations } from '@/hooks/use-india-locations';
+import { useCountries, type StateProvince } from '@/hooks/use-countries';
 
 
 const formSchema = z.object({
@@ -44,7 +44,7 @@ const formSchema = z.object({
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
   country: z.string().min(1, "Country is required."),
-  state: z.string().min(2, "State/Province is required."),
+  state: z.string().min(1, "State/Province is required."),
   city: z.string().min(2, "City is required."),
   services: z.string().min(3, "Please list at least one service or product."),
   phone: z.string().min(10, "A valid phone number is required."),
@@ -61,9 +61,10 @@ export default function NewBusinessEntryPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { addBusiness } = useBusinesses();
-  const { states: indianStates } = useIndiaLocations();
+  const { getStatesByCountry } = useCountries();
   
   const [isPending, startTransition] = useTransition();
+  const [provinces, setProvinces] = useState<StateProvince[]>([]);
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(formSchema),
@@ -89,10 +90,14 @@ export default function NewBusinessEntryPage() {
   const selectedCountry = form.watch("country");
 
   useEffect(() => {
-    // When country changes, reset state and city if they are no longer valid.
+    if (selectedCountry) {
+        setProvinces(getStatesByCountry(selectedCountry));
+    } else {
+        setProvinces([]);
+    }
     form.setValue('state', '');
     form.setValue('city', '');
-  }, [selectedCountry, form]);
+  }, [selectedCountry, getStatesByCountry, form]);
 
   const onSubmit = async (values: BusinessFormValues) => {
     if (!user) {
@@ -217,7 +222,7 @@ export default function NewBusinessEntryPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
-                 <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={(value) => { field.onChange(value); form.setValue('state', ''); form.setValue('city', ''); }} /></FormControl><FormMessage /></FormItem>)} />
+                 <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={(value) => { field.onChange(value); }} /></FormControl><FormMessage /></FormItem>)} />
               </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField
@@ -226,26 +231,20 @@ export default function NewBusinessEntryPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>State/Province *</FormLabel>
-                        {selectedCountry === 'India' ? (
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={provinces.length === 0}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a state" />
+                                <SelectValue placeholder="Select a state/province" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {indianStates.map((state) => (
-                                <SelectItem key={state} value={state}>
-                                  {state}
+                              {provinces.map((province) => (
+                                <SelectItem key={province.name} value={province.name}>
+                                  {province.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
-                        ) : (
-                          <FormControl>
-                            <Input placeholder="e.g., California" {...field} />
-                          </FormControl>
-                        )}
                         <FormMessage />
                       </FormItem>
                     )}
