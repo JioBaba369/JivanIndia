@@ -75,9 +75,9 @@ const stripUsernameFromUrl = (fullUrl?: string) => {
     try {
         const url = new URL(fullUrl);
         const pathParts = url.pathname.split('/').filter(p => p && p !== 'company' && p !== 'groups');
-        return pathParts.pop() || '';
+        const handle = pathParts.pop() || '';
+        return handle.replace('@', '');
     } catch (e) {
-      // if it's not a valid URL, it might be just the handle
       return fullUrl.split('/').pop() || '';
     }
 }

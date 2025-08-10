@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useTransition, useCallback, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, Twitter, Instagram, Users } from 'lucide-react';
 import { useCommunities, type NewCommunityInput } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -90,14 +90,19 @@ const formSchema = (isSlugUnique: (slug: string) => Promise<boolean>) =>
       .string()
       .optional()
       .refine((val) => !val || /^[a-zA-Z0-9_]+$/.test(val), 'Invalid Twitter handle.'),
-    socialFacebook: z
-      .string()
-      .optional()
-      .refine((val) => !val || /^[a-zA-Z0-9.]+$/.test(val), 'Invalid Facebook handle.'),
     socialLinkedin: z
       .string()
       .optional()
       .refine((val) => !val || /^[a-zA-Z0-9-]+$/.test(val), 'Invalid LinkedIn handle.'),
+    socialFacebook: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[a-zA-Z0-9.]+$/.test(val), 'Invalid Facebook handle.'),
+    socialInstagram: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[a-zA-Z0-9_.]+$/.test(val), 'Invalid Instagram handle.'),
+    socialFacebookGroup: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   });
 
 // Type for form values
@@ -146,6 +151,8 @@ export default function NewCommunityPage() {
       socialTwitter: '',
       socialFacebook: '',
       socialLinkedin: '',
+      socialInstagram: '',
+      socialFacebookGroup: '',
     },
     mode: 'onChange',
   });
@@ -171,8 +178,24 @@ export default function NewCommunityPage() {
       });
       return;
     }
+     if (user.affiliation) {
+        toast({
+            title: 'Already Affiliated',
+            description: 'You are already managing a community and cannot create another.',
+            variant: 'destructive',
+        });
+        return;
+    }
 
     startTransition(async () => {
+       const socialMedia: { [key: string]: string | undefined } = {};
+        if (values.socialTwitter) socialMedia.twitter = `https://x.com/${values.socialTwitter.replace('@', '')}`;
+        if (values.socialInstagram) socialMedia.instagram = `https://instagram.com/${values.socialInstagram.replace('@', '')}`;
+        if (values.socialLinkedin) socialMedia.linkedin = `https://linkedin.com/company/${values.socialLinkedin}`;
+        if (values.socialFacebook) socialMedia.facebook = `https://facebook.com/${values.socialFacebook}`;
+        if (values.socialFacebookGroup) socialMedia.facebookGroup = values.socialFacebookGroup;
+
+
       const newCommunity: NewCommunityInput = {
         name: values.name,
         slug: values.slug,
@@ -187,11 +210,7 @@ export default function NewCommunityPage() {
         phone: values.phone || '',
         contactEmail: values.contactEmail,
         website: values.website || '',
-        socialMedia: {
-          twitter: values.socialTwitter ? `https://x.com/${values.socialTwitter}` : undefined,
-          linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : undefined,
-          facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : undefined,
-        },
+        socialMedia: Object.fromEntries(Object.entries(socialMedia).filter(([_, v]) => v)),
         founded: values.founded,
         founderUid: user.uid,
       };
@@ -538,86 +557,13 @@ export default function NewCommunityPage() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="socialTwitter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          <div className="flex items-center gap-2">
-                            <Twitter aria-hidden="true" /> X (Twitter)
-                          </div>
-                        </FormLabel>
-                        <div className="flex items-center">
-                          <span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">
-                            x.com/
-                          </span>
-                          <FormControl>
-                            <Input
-                              className="rounded-l-none"
-                              placeholder="yourhandle"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialLinkedin"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          <div className="flex items-center gap-2">
-                            <Linkedin aria-hidden="true" /> LinkedIn
-                          </div>
-                        </FormLabel>
-                        <div className="flex items-center">
-                          <span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">
-                            linkedin.com/company/
-                          </span>
-                          <FormControl>
-                            <Input
-                              className="rounded-l-none"
-                              placeholder="yourhandle"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialFacebook"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          <div className="flex items-center gap-2">
-                            <Facebook aria-hidden="true" /> Facebook
-                          </div>
-                        </FormLabel>
-                        <div className="flex items-center">
-                          <span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">
-                            facebook.com/
-                          </span>
-                          <FormControl>
-                            <Input
-                              className="rounded-l-none"
-                              placeholder="yourhandle"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Twitter/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialInstagram" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Instagram /> Instagram</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">instagram.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook Page</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                 </div>
+                 <FormField control={form.control} name="socialFacebookGroup" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Users /> Facebook Group</div></FormLabel><FormControl><Input {...field} type="url" placeholder="https://www.facebook.com/groups/yourgroup" /></FormControl><FormMessage /></FormItem>)}/>
               </div>
 
               <div className="flex justify-end gap-4 pt-4">
@@ -657,5 +603,3 @@ export default function NewCommunityPage() {
     </div>
   );
 }
-
-    
