@@ -4,7 +4,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building, Loader2 } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building, Loader2, Users } from "lucide-react";
 import Logo from "../logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -121,6 +121,12 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
                       <Link href={`/c/${user.affiliation!.orgSlug}/edit`}>
                         <Settings className="mr-2 h-4 w-4"/>
                         Community Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild onClick={handleItemClick}>
+                      <Link href={`/c/${user.affiliation!.orgSlug}/managers`}>
+                        <Users className="mr-2 h-4 w-4"/>
+                        Manage Team
                       </Link>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
