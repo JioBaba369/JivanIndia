@@ -34,10 +34,11 @@ import {
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import CountrySelector from '@/components/layout/country-selector';
 import ImageUpload from '@/components/feature/image-upload';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
+import { Badge } from "@/components/ui/badge";
 
 
 const NAME_MAX_LENGTH = 100;
@@ -170,7 +171,7 @@ export default function EditCommunityPage() {
   }
 
   const isFounder = user && community && user.uid === community.founderUid;
-  const isManager = user && community && community.managerUids?.includes(user.uid);
+  const isManager = user && community?.managerUids?.includes(user.uid);
   const isAdmin = user?.roles.includes('admin');
   const canEdit = isFounder || isManager || isAdmin;
 
@@ -357,7 +358,10 @@ export default function EditCommunityPage() {
                   {managers.map(manager => (
                     <div key={manager.uid} className="flex items-center justify-between p-2 rounded-md border">
                       <div className="flex items-center gap-3">
-                        <Avatar><AvatarFallback>{getInitials(manager.name)}</AvatarFallback></Avatar>
+                        <Avatar>
+                           <AvatarImage src={manager.profileImageUrl} alt={manager.name} />
+                           <AvatarFallback>{getInitials(manager.name)}</AvatarFallback>
+                        </Avatar>
                         <div>
                           <p className="font-semibold">{manager.name}</p>
                           <p className="text-sm text-muted-foreground">{manager.email}</p>

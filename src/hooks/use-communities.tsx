@@ -212,21 +212,21 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       }
 
       if (userData.affiliation && userData.affiliation.orgId !== community.id) {
-        toast({ title: 'User Already Affiliated', description: `${userData.name} is already a manager of another community.`, variant: 'destructive' });
+        toast({ title: 'User Already Affiliated', description: `${userData.name} is already a manager of another community and can't be added.`, variant: 'destructive' });
         return;
       }
       
       const batch = writeBatch(firestore);
       
-      // Update community
       const communityRef = doc(firestore, 'communities', community.id);
       batch.update(communityRef, { managerUids: arrayUnion(userDoc.id) });
       
-      // Update user
       const userRef = doc(firestore, 'users', userDoc.id);
-      batch.update(userRef, {
-        affiliation: { orgId: community.id, orgName: community.name, orgSlug: community.slug }
-      });
+      if (!userData.affiliation) {
+          batch.update(userRef, {
+            affiliation: { orgId: community.id, orgName: community.name, orgSlug: community.slug }
+          });
+      }
       
       await batch.commit();
       toast({ title: 'Manager Added', description: `${userData.name} is now a manager.` });
@@ -245,11 +245,9 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     
     const batch = writeBatch(firestore);
     
-    // Update community
     const communityRef = doc(firestore, 'communities', community.id);
     batch.update(communityRef, { managerUids: arrayRemove(uidToRemove) });
     
-    // Update user
     const userRef = doc(firestore, 'users', uidToRemove);
     batch.update(userRef, {
       affiliation: null,
