@@ -52,14 +52,16 @@ export default function CountrySelector({
           aria-expanded={open}
           className={cn('w-full justify-between', className)}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 truncate">
             {selectedOption && <CountryFlag countryCode={selectedOption.code} />}
-            {selectedOption ? selectedOption.label : 'Select country...'}
+            <span className="truncate">
+              {selectedOption ? selectedOption.label : 'Select country...'}
+            </span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
           <CommandInput placeholder="Search country..." />
           <CommandList>

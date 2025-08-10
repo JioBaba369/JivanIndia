@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useTransition, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -87,6 +87,12 @@ export default function NewBusinessEntryPage() {
   });
 
   const selectedCountry = form.watch("country");
+
+  useEffect(() => {
+    // When country changes, reset state and city if they are no longer valid.
+    form.setValue('state', '');
+    form.setValue('city', '');
+  }, [selectedCountry, form]);
 
   const onSubmit = async (values: BusinessFormValues) => {
     if (!user) {
@@ -211,7 +217,7 @@ export default function NewBusinessEntryPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
-                 <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
+                 <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={(value) => { field.onChange(value); form.setValue('state', ''); form.setValue('city', ''); }} /></FormControl><FormMessage /></FormItem>)} />
               </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <FormField
