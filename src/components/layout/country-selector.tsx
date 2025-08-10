@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -68,11 +69,8 @@ export default function CountrySelector({
                 <CommandItem
                   key={option.value}
                   value={option.value}
-                  onSelect={(currentValue) => {
-                    const selectedValue = countries.find(c => c.name.toLowerCase() === currentValue.toLowerCase())?.name || ''
-                    onValueChange(
-                      selectedValue === value ? '' : selectedValue
-                    );
+                  onSelect={() => {
+                    onValueChange(option.value === value ? '' : option.value);
                     setOpen(false);
                   }}
                   className="flex items-center gap-2"
