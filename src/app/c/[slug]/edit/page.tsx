@@ -171,7 +171,7 @@ export default function EditCommunityPage() {
   }
 
   const isFounder = user && community && user.uid === community.founderUid;
-  const isManager = user && community?.managerUids?.includes(user.uid);
+  const isManager = user && community && (community.managerUids?.includes(user.uid) ?? false);
   const isAdmin = user?.roles.includes('admin');
   const canEdit = isFounder || isManager || isAdmin;
 
