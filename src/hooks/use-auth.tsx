@@ -7,8 +7,6 @@ import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndP
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, onSnapshot, writeBatch } from 'firebase/firestore';
 import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
-import { useAbout } from './use-about';
-import { useCommunities } from './use-communities';
 
 
 export type UserRole = 'admin' | 'community-manager';
@@ -56,7 +54,6 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
-  isLoading: boolean;
   isAuthLoading: boolean;
   signup: (name: string, email: string, pass: string, country: string, state: string, city: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
@@ -78,11 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const { aboutContent, isLoading: isAboutLoading } = useAbout();
-  const { communities, isLoading: isCommunitiesLoading } = useCommunities();
   const { toast } = useToast();
-  
-  const isLoading = isAuthLoading || isAboutLoading || isCommunitiesLoading;
 
   useEffect(() => {
     const authUnsubscribe = onAuthStateChanged(auth, (fbUser) => {
@@ -100,27 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let userUnsubscribe: (() => void) | undefined;
 
-    if (firebaseUser && !isAboutLoading && !isCommunitiesLoading) {
+    if (firebaseUser) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
-                const userData = userDocSnap.data() as Omit<User, 'uid' | 'roles'>;
-                
-                const newRoles: UserRole[] = [];
-
-                if (aboutContent.adminUids?.includes(firebaseUser.uid)) {
-                    newRoles.push('admin');
-                }
-
-                const managedCommunity = communities.find(c => 
-                    c.founderUid === firebaseUser.uid || c.managers?.some(m => m.uid === firebaseUser.uid)
-                );
-
-                if (managedCommunity) {
-                    newRoles.push('community-manager');
-                }
-                
-                setUser({ ...userData, uid: firebaseUser.uid, roles: Array.from(new Set(newRoles)) });
+                const userData = userDocSnap.data() as User;
+                setUser({ ...userData, uid: firebaseUser.uid });
             } else {
                 setUser(null);
             }
@@ -130,8 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
             setIsAuthLoading(false);
         });
-    } else if (!firebaseUser) {
-      setUser(null);
+    } else {
       setIsAuthLoading(false);
     }
 
@@ -140,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             userUnsubscribe();
         }
     };
-  }, [firebaseUser, aboutContent.adminUids, communities, isAboutLoading, isCommunitiesLoading]);
+  }, [firebaseUser]);
 
   const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
     if (!username) return false;
@@ -166,11 +143,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         attempts++;
     }
     
-    const newUser: Omit<User, 'roles'> = {
-      uid: fbUser.uid,
+    const newUser: Omit<User, 'uid'> = {
       name,
       username,
       email: fbUser.email!,
+      roles: [],
       affiliation: null,
       bio: '',
       phone: '',
@@ -271,7 +248,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = { 
     user,
     firebaseUser,
-    isLoading,
     isAuthLoading,
     signup,
     login, 

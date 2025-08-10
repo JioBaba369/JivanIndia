@@ -27,6 +27,8 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { useCommunities } from "@/hooks/use-communities";
+import { useAbout } from "@/hooks/use-about";
 
 const mainNavLinks: { title: string; href: string; }[] = [
     { title: "Events", href: "/events" },
@@ -40,6 +42,8 @@ const mainNavLinks: { title: string; href: string; }[] = [
 
 const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout, isAuthLoading } = useAuth();
+  const { communities, canManageCommunity } = useCommunities();
+  const { aboutContent } = useAbout();
   
   const handleItemClick = () => {
     if (onLinkClick) {
@@ -52,8 +56,9 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
   }
 
   if (user) {
-    const isAdmin = user.roles.includes('admin');
-    const isCommunityManager = user.roles.includes('community-manager');
+    const isAdmin = aboutContent.adminUids.includes(user.uid);
+    const affiliatedCommunity = communities.find(c => user.affiliation && c.id === user.affiliation.orgId);
+    const isCommunityManager = affiliatedCommunity ? canManageCommunity(affiliatedCommunity, user) : false;
 
     return (
       <div className="flex items-center gap-1">

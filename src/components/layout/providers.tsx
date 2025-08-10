@@ -23,31 +23,31 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <CountriesProvider>
         <IndiaLocationsProvider>
           <AboutProvider>
-            <NotificationsProvider>
-              <AuthProvider>
-                  <SearchProvider>
-                    <ReportsProvider>
-                        <CommunitiesProvider>
-                            <SponsorsProvider>
-                                <DealsProvider>
-                                    <JobsProvider>
-                                        <EventsProvider>
-                                            <BusinessesProvider>
-                                                <MoviesProvider>
-                                                    <FestivalsProvider>
-                                                      {children}
-                                                    </FestivalsProvider>
-                                                </MoviesProvider>
-                                            </BusinessesProvider>
-                                        </EventsProvider>
-                                    </JobsProvider>
-                                </DealsProvider>
-                            </SponsorsProvider>
-                        </CommunitiesProvider>
-                    </ReportsProvider>
-                  </SearchProvider>
-              </AuthProvider>
-            </NotificationsProvider>
+            <AuthProvider>
+              <NotificationsProvider>
+                <SearchProvider>
+                  <ReportsProvider>
+                      <CommunitiesProvider>
+                          <SponsorsProvider>
+                              <DealsProvider>
+                                  <JobsProvider>
+                                      <EventsProvider>
+                                          <BusinessesProvider>
+                                              <MoviesProvider>
+                                                  <FestivalsProvider>
+                                                    {children}
+                                                  </FestivalsProvider>
+                                              </MoviesProvider>
+                                          </BusinessesProvider>
+                                      </EventsProvider>
+                                  </JobsProvider>
+                              </DealsProvider>
+                          </SponsorsProvider>
+                      </CommunitiesProvider>
+                  </ReportsProvider>
+                </SearchProvider>
+              </NotificationsProvider>
+            </AuthProvider>
           </AboutProvider>
         </IndiaLocationsProvider>
       </CountriesProvider>
