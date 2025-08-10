@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart, Film, Edit } from 'lucide-react';
+import { Building, Calendar, MapPin, Star, Ticket, Share2, Copy, Globe, Loader2, Users, Tag, Flag, Languages, Heart, Film, Edit, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -28,6 +28,7 @@ import { Badge } from '@/components/ui/badge';
 import { useBusinesses } from '@/hooks/use-businesses';
 import CountryFlag from '@/components/feature/country-flag';
 import { useCountries } from '@/hooks/use-countries';
+import Image from 'next/image';
 
 const QRCode = dynamic(() => import('qrcode.react'), {
   loading: () => <div className="h-48 w-48 flex items-center justify-center"><Loader2 className="animate-spin" /></div>,
@@ -42,7 +43,7 @@ export default function UserPublicProfilePage() {
 
     const { user: currentUser, getUserByUsername } = useAuth();
     const { events: allEvents, getEventById } = useEvents();
-    const { businesses } = useBusinesses();
+    const { businesses: allBusinesses } = useBusinesses();
     const { sponsors } = useSponsors();
     const { communities: allCommunities, getCommunityById } = useCommunities();
     const { deals: allDeals } = useDeals();
@@ -82,14 +83,15 @@ export default function UserPublicProfilePage() {
     const userJoinedCommunities = useMemo(() => allCommunities.filter(org => profileUser?.joinedCommunities?.includes(org.id)), [allCommunities, profileUser]);
     const userSavedDeals = useMemo(() => allDeals.filter(deal => profileUser?.savedDeals?.includes(deal.id)), [allDeals, profileUser]);
     const userSavedMovies = useMemo(() => allMovies.filter(movie => profileUser?.savedMovies?.includes(movie.id)), [allMovies, profileUser]);
-        
+    const userSavedBusinesses = useMemo(() => allBusinesses.filter(b => profileUser?.savedBusinesses?.includes(b.id)), [allBusinesses, profileUser]);
+
     const userAffiliatedEvents = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
         ? allEvents.filter(e => e.organizerId === affiliatedCommunity.id && e.status === 'Approved')
         : [], [allEvents, affiliatedCommunity, profileUser]);
     
     const userAffiliatedBusinesses = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
-        ? businesses.filter(p => p.ownerId === profileUser.uid)
-        : [], [businesses, affiliatedCommunity, profileUser]);
+        ? allBusinesses.filter(p => p.ownerId === profileUser.uid)
+        : [], [allBusinesses, affiliatedCommunity, profileUser]);
 
     const userAffiliatedSponsors = useMemo(() => (affiliatedCommunity && profileUser?.affiliation)
         ? sponsors.filter(s => s.eventsSponsored.some(e => allEvents.find(ev => ev.id === e.eventId)?.organizerId === affiliatedCommunity.id))
@@ -145,6 +147,7 @@ export default function UserPublicProfilePage() {
         { value: 'saved-events', label: 'Saved Events', count: userSavedEvents.length, icon: Calendar, isVisible: true },
         { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length, icon: Film, isVisible: true },
         { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag, isVisible: true },
+        { value: 'saved-businesses', label: 'Saved Businesses', count: userSavedBusinesses.length, icon: Building, isVisible: true },
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users, isVisible: true },
         { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!affiliatedCommunity },
     ].filter(tab => tab.isVisible);
@@ -317,6 +320,38 @@ export default function UserPublicProfilePage() {
                                         </div>
                                     )}
                                 </TabsContent>
+                                <TabsContent value="saved-businesses" className="mt-6">
+                                {userSavedBusinesses.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {userSavedBusinesses.map((business) => (
+                                            <Card key={business.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
+                                                <Link href={`/businesses/${business.id}`} className="flex h-full flex-col">
+                                                    <div className="relative h-40 w-full">
+                                                        {business.logoUrl ? (
+                                                          <Image src={business.logoUrl} alt={business.name} fill className="object-contain p-4 transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
+                                                        ) : (
+                                                          <div className="bg-muted h-full w-full flex items-center justify-center">
+                                                            <Building className="h-12 w-12 text-muted-foreground"/>
+                                                          </div>
+                                                        )}
+                                                    </div>
+                                                    <CardContent className="flex flex-grow flex-col p-4">
+                                                        <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{business.name}</h3>
+                                                        <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
+                                                            <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{business.category}</span></div>
+                                                            <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{business.rating.toFixed(1)} ({business.reviewCount} reviews)</span></div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Link>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                     <div className="rounded-lg border-2 border-dashed py-12 text-center">
+                                        <p className="text-muted-foreground">This user hasn't saved any businesses yet.</p>
+                                    </div>
+                                )}
+                            </TabsContent>
                                 <TabsContent value="joined-communities" className="mt-6">
                                      {userJoinedCommunities.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
