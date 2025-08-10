@@ -5,39 +5,16 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import AnalyticsCard from '@/components/feature/analytics-card';
-import { Users, CalendarCheck, BarChart2, TrendingUp, TrendingDown, ArrowRight, Link as LinkIcon, AlertCircle, Loader2 } from 'lucide-react';
+import { Users, CalendarCheck, BarChart2, TrendingUp, TrendingDown, ArrowRight, Link as LinkIcon, AlertCircle, Loader2, Ticket } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useCommunities } from '@/hooks/use-communities';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Community } from '@/hooks/use-communities';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-
-const memberData = [
-  { month: 'Jan', members: 186 },
-  { month: 'Feb', members: 305 },
-  { month: 'Mar', members: 237 },
-  { month: 'Apr', members: 73 },
-  { month: 'May', members: 209 },
-  { month: 'Jun', members: 214 },
-];
-
-const eventPerformanceData = [
-    { name: 'Diwali Gala', registrations: 240, attendance: 190 },
-    { name: 'Holi Fest', registrations: 300, attendance: 250 },
-    { name: 'Startup Meet', registrations: 150, attendance: 120 },
-    { name: 'Food Fair', registrations: 400, attendance: 350 },
-    { name: 'Charity Run', registrations: 500, attendance: 450 },
-];
-
-const topReferrersData = [
-    { source: 'Direct Link', count: 450, percentage: 45 },
-    { source: 'Google Search', count: 250, percentage: 25 },
-    { source: 'Facebook', count: 150, percentage: 15 },
-    { source: 'Instagram', count: 100, percentage: 10 },
-    { source: 'Other', count: 50, percentage: 5 },
-];
+import { useEvents } from '@/hooks/use-events';
+import { format, subMonths, getMonth, getYear } from 'date-fns';
 
 export default function AnalyticsDashboardPage() {
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -45,6 +22,7 @@ export default function AnalyticsDashboardPage() {
     const params = useParams();
     const slug = typeof params.slug === 'string' ? params.slug : '';
     const { getCommunityBySlug, isLoading: areCommunitiesLoading } = useCommunities();
+    const { events, isLoading: areEventsLoading } = useEvents();
     const [community, setCommunity] = useState<Community | null>(null);
 
     useEffect(() => {
@@ -54,8 +32,57 @@ export default function AnalyticsDashboardPage() {
         }
     }, [slug, getCommunityBySlug, areCommunitiesLoading]);
     
+    const communityEvents = useMemo(() => {
+        if (!community) return [];
+        return events.filter(event => event.organizerId === community.id);
+    }, [community, events]);
+
+    const totalEventsCreated = communityEvents.length;
+    const totalEventRegistrations = useMemo(() => {
+        return communityEvents.reduce((acc, event) => acc + (event.attendees || 0), 0);
+    }, [communityEvents]);
+
+    const eventsOverTimeData = useMemo(() => {
+        const monthMap = new Map<string, number>();
+        const last12Months: { month: string, events: number }[] = [];
+        const now = new Date();
+
+        for (let i = 11; i >= 0; i--) {
+            const date = subMonths(now, i);
+            const monthKey = format(date, 'MMM yy');
+            monthMap.set(monthKey, 0);
+        }
+
+        communityEvents.forEach(event => {
+            if (event.createdAt?.toDate) {
+                const eventDate = event.createdAt.toDate();
+                const monthKey = format(eventDate, 'MMM yy');
+                if (monthMap.has(monthKey)) {
+                    monthMap.set(monthKey, (monthMap.get(monthKey) || 0) + 1);
+                }
+            }
+        });
+        
+        monthMap.forEach((count, month) => {
+            last12Months.push({ month, events: count });
+        });
+        
+        return last12Months;
+    }, [communityEvents]);
+
+    const eventPerformanceData = useMemo(() => {
+        return communityEvents
+            .sort((a, b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime())
+            .slice(0, 5)
+            .map(event => ({
+                name: event.title,
+                registrations: event.attendees || 0
+            }))
+            .reverse();
+    }, [communityEvents]);
+    
     // Authorization check
-    if (isAuthLoading || areCommunitiesLoading) {
+    if (isAuthLoading || areCommunitiesLoading || areEventsLoading) {
       return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -83,13 +110,12 @@ export default function AnalyticsDashboardPage() {
     }
     
 
-    const memberChartConfig = {
-        members: { label: 'New Members', color: 'hsl(var(--primary))' },
+    const eventsChartConfig = {
+        events: { label: 'New Events', color: 'hsl(var(--primary))' },
     };
 
-     const eventChartConfig = {
-        attendance: { label: 'Attendance', color: 'hsl(var(--primary))' },
-        registrations: { label: 'Registrations', color: 'hsl(var(--muted-foreground))' },
+     const eventPerformanceChartConfig = {
+        registrations: { label: 'Registrations', color: 'hsl(var(--primary))' },
     };
 
     return (
@@ -109,34 +135,27 @@ export default function AnalyticsDashboardPage() {
                 </div>
                 
                 {/* KPI Cards */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <AnalyticsCard
                         title="Total Members"
                         value={community?.membersCount.toLocaleString() || 'N/A'}
-                        change="+22% from last month"
+                        change="All-time members"
                         icon={<Users />}
-                        trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
-                    />
-                    <AnalyticsCard
-                        title="Active Members"
-                        value="670"
-                        change="-5% this week"
-                        icon={<Users className="text-green-500"/>}
-                         trend={<TrendingDown className="h-4 w-4 text-destructive" />}
+                        trend={<Users className="h-4 w-4 text-muted-foreground" />}
                     />
                      <AnalyticsCard
-                        title="Events This Month"
-                        value="4"
-                        change="+2 from last month"
+                        title="Events Created"
+                        value={totalEventsCreated.toString()}
+                        change="All-time events"
                         icon={<CalendarCheck />}
-                        trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
+                        trend={<CalendarCheck className="h-4 w-4 text-muted-foreground" />}
                     />
                     <AnalyticsCard
-                        title="Engagement Rate"
-                        value="57%"
-                        change="+3% from last month"
-                        icon={<BarChart2 />}
-                        trend={<TrendingUp className="h-4 w-4 text-emerald-500" />}
+                        title="Total Event Registrations"
+                        value={totalEventRegistrations.toLocaleString()}
+                        change="All-time attendees"
+                        icon={<Ticket />}
+                        trend={<Ticket className="h-4 w-4 text-muted-foreground" />}
                     />
                 </div>
 
@@ -144,27 +163,27 @@ export default function AnalyticsDashboardPage() {
                 <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
                     <Card>
                         <CardHeader>
-                            <CardTitle>New Member Growth</CardTitle>
-                            <CardDescription>New members in the last 6 months.</CardDescription>
+                            <CardTitle>Events Over Time</CardTitle>
+                            <CardDescription>New events created in the last 12 months.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                           {memberData.length > 0 ? (
+                           {eventsOverTimeData.length > 0 ? (
                             <div className="h-[300px] w-full">
-                                <ChartContainer config={memberChartConfig}>
-                                    <BarChart data={memberData} accessibilityLayer>
+                                <ChartContainer config={eventsChartConfig}>
+                                    <BarChart data={eventsOverTimeData} accessibilityLayer>
                                         <CartesianGrid vertical={false} />
                                         <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
-                                        <YAxis />
+                                        <YAxis allowDecimals={false} />
                                         <Tooltip content={<ChartTooltipContent />} />
-                                        <Bar dataKey="members" fill="var(--color-members)" radius={4} />
+                                        <Bar dataKey="events" fill="var(--color-events)" radius={4} />
                                     </BarChart>
                                 </ChartContainer>
                             </div>
                            ) : (
                             <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground text-center p-4">
                                 <div>
-                                <p>No member data to display.</p>
-                                <p className="text-xs mt-1">This chart will populate as new users join your community.</p>
+                                <p>No event data to display.</p>
+                                <p className="text-xs mt-1">This chart will populate as you create new events.</p>
                                 </div>
                             </div>
                            )}
@@ -172,28 +191,26 @@ export default function AnalyticsDashboardPage() {
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Event Performance</CardTitle>
-                            <CardDescription>Registration vs. Attendance for recent events.</CardDescription>
+                            <CardTitle>Recent Event Performance</CardTitle>
+                            <CardDescription>Registrations for your 5 most recent events.</CardDescription>
                         </CardHeader>
                          <CardContent>
                           {eventPerformanceData.length > 0 ? (
                              <div className="h-[300px] w-full">
-                                <ChartContainer config={eventChartConfig}>
-                                    <LineChart data={eventPerformanceData} accessibilityLayer>
+                                <ChartContainer config={eventPerformanceChartConfig}>
+                                    <BarChart data={eventPerformanceData} accessibilityLayer>
                                         <CartesianGrid vertical={false} />
                                         <XAxis
                                             dataKey="name"
                                             tickLine={false}
                                             axisLine={false}
                                             tickMargin={8}
-                                            tickFormatter={(value) => value.slice(0, 3)}
+                                            tickFormatter={(value) => value.slice(0, 8) + (value.length > 8 ? '...' : '')}
                                         />
-                                        <YAxis />
+                                        <YAxis allowDecimals={false} />
                                         <Tooltip content={<ChartTooltipContent />} />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="registrations" stroke="var(--color-registrations)" strokeWidth={2} dot={false}/>
-                                        <Line type="monotone" dataKey="attendance" stroke="var(--color-attendance)" strokeWidth={2} dot={false}/>
-                                    </LineChart>
+                                        <Bar dataKey="registrations" fill="var(--color-registrations)" radius={4} />
+                                    </BarChart>
                                 </ChartContainer>
                             </div>
                             ) : (
@@ -204,38 +221,6 @@ export default function AnalyticsDashboardPage() {
                                    </div>
                                </div>
                             )}
-                        </CardContent>
-                    </Card>
-                </div>
-                
-                 <div className="mt-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Top Referrers</CardTitle>
-                            <CardDescription>Where your new members are coming from.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          {topReferrersData.length > 0 ? (
-                            <div className="space-y-4">
-                                {topReferrersData.map((referrer) => (
-                                    <div key={referrer.source} className="flex items-center">
-                                        <LinkIcon className="h-4 w-4 text-muted-foreground mr-2" />
-                                        <span className="flex-1 font-medium">{referrer.source}</span>
-                                        <span className="text-muted-foreground">{referrer.count} members</span>
-                                        <div className="w-24 ml-4 h-2 bg-muted rounded-full">
-                                            <div className="h-2 bg-primary rounded-full" style={{width: `${referrer.percentage}%`}}></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                           ) : (
-                              <div className="h-[100px] w-full flex items-center justify-center text-muted-foreground text-center p-4">
-                                  <div>
-                                    <p>No referrer data to display.</p>
-                                    <p className="text-xs mt-1">Referral tracking is not yet implemented.</p>
-                                  </div>
-                              </div>
-                           )}
                         </CardContent>
                     </Card>
                 </div>

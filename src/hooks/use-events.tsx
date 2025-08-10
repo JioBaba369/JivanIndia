@@ -18,6 +18,7 @@ export interface Event {
   title: string;
   description: string;
   tags?: string[];
+  imageUrl: string;
   location: {
     venueName: string;
     address: string;
@@ -36,10 +37,11 @@ export interface Event {
   isFeatured?: boolean;
   submittedByUid?: string;
   createdAt: any; 
-  updatedAt?: any; 
+  updatedAt?: any;
+  attendees?: number;
 }
 
-export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'isFeatured' | 'sponsors'>;
+export type NewEventInput = Omit<Event, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'isFeatured' | 'sponsors' | 'attendees'>;
 
 interface EventsContextType {
   events: Event[];
@@ -101,6 +103,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         updatedAt: serverTimestamp(),
         status: 'Pending' as Event['status'],
         isFeatured: false,
+        attendees: 0,
       };
       
       const docRef = await addDoc(collection(firestore, 'events'), newEventData);
