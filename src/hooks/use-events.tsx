@@ -60,7 +60,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthLoading } = useAuth();
 
   useEffect(() => {
     if (isAuthLoading) {
@@ -71,16 +71,15 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     const eventsCollectionRef = collection(firestore, 'events');
-    const q = query(eventsCollectionRef, orderBy('createdAt', 'desc'));
+    const isAdmin = user?.roles?.includes('admin');
+    
+    // Admins see all events, others see only 'Approved' ones.
+    const q = isAdmin 
+      ? query(eventsCollectionRef, orderBy('createdAt', 'desc'))
+      : query(eventsCollectionRef, where('status', '==', 'Approved'), orderBy('createdAt', 'desc'));
     
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        let fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        
-        // Admins see all events. Others see only approved events.
-        if (!user?.roles.includes('admin')) {
-            fetchedEvents = fetchedEvents.filter(event => event.status === 'Approved');
-        }
-        
+        const fetchedEvents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         setEvents(fetchedEvents);
         setIsLoading(false);
     }, (err) => {

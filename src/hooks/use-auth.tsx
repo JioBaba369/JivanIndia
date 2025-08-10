@@ -56,6 +56,7 @@ interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
+  isAuthLoading: boolean;
   signup: (name: string, email: string, pass: string, country: string, state: string, city: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -90,17 +91,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { aboutContent } = useAbout();
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { aboutContent, isLoading: isAboutLoading } = useAbout();
   const { toast } = useToast();
+  
+  const isLoading = isAuthLoading || isAboutLoading;
 
   useEffect(() => {
     const authUnsubscribe = onAuthStateChanged(auth, (fbUser) => {
-        setIsLoading(true);
+        setIsAuthLoading(true);
         setFirebaseUser(fbUser);
         if (!fbUser) {
             setUser(null);
-            setIsLoading(false);
+            setIsAuthLoading(false);
         }
     });
 
@@ -129,14 +132,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
                 setUser(null);
             }
-            setIsLoading(false);
+            setIsAuthLoading(false);
         }, (error) => {
             console.error("Error listening to user document:", error);
             setUser(null);
-            setIsLoading(false);
+            setIsAuthLoading(false);
         });
     } else {
-      setIsLoading(false);
+      setIsAuthLoading(false);
     }
 
     return () => {
@@ -265,6 +268,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     firebaseUser,
     isLoading,
+    isAuthLoading,
     signup,
     login, 
     logout, 

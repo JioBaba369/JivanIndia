@@ -36,7 +36,6 @@ import { useJobs } from '@/hooks/use-jobs';
 import { useSponsors } from '@/hooks/use-sponsors';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CountrySelector from '@/components/layout/country-selector';
-import { ALL_COUNTRIES_VALUE } from '@/hooks/use-country';
 
 
 interface ChecklistItemProps {
@@ -215,6 +214,7 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => void }) => {
     )
 }
 
+const ALL_COUNTRIES_VALUE = 'All Countries';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -450,7 +450,7 @@ export default function AdminDashboardPage() {
                                     ))}
                                 </TabsList>
                                 <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                    <CountrySelector selectedCountry={countryFilter} setSelectedCountry={setCountryFilter} />
+                                    <CountrySelector value={countryFilter} onValueChange={setCountryFilter} />
                                     <Select value={sponsorCountFilter} onValueChange={setSponsorCountFilter}>
                                         <SelectTrigger className="w-full md:w-[180px]">
                                             <SelectValue placeholder="Filter by sponsors" />
