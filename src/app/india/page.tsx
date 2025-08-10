@@ -17,17 +17,7 @@ export default function AboutIndiaPage() {
   return (
     <div className="bg-background">
       <section className="relative bg-primary/10 py-20 md:py-32 text-center">
-         <div className="absolute inset-0">
-            <Image 
-                src="https://images.unsplash.com/photo-1594323533358-061559404617?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxUYWolMjBNYWhhbCUyMHN1bnJpc2V8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="A majestic view of the Taj Mahal at sunrise"
-                fill
-                className="object-cover opacity-10"
-                priority
-                data-ai-hint="Taj Mahal sunrise"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         <div className="container mx-auto px-4 relative">
           <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             The Spirit of India, Worldwide
@@ -71,14 +61,7 @@ export default function AboutIndiaPage() {
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image 
-                            src="https://images.unsplash.com/photo-1542038784-56eD6D45525g?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBjdWx0dXJlJTIwZGl2ZXJzaXR5fGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                            alt="A collage representing diverse Indian culture"
-                            width={600}
-                            height={400}
-                            className="rounded-lg shadow-xl"
-                            data-ai-hint="culture diversity"
-                        />
+                        <div className="rounded-lg shadow-xl aspect-video bg-muted"></div>
                     </div>
                     <div className="max-w-xl">
                         <h2 className="font-headline text-3xl font-bold mb-4">Cultural Ambassadors</h2>
@@ -100,14 +83,7 @@ export default function AboutIndiaPage() {
                         </p>
                     </div>
                     <div className="md:order-1">
-                        <Image 
-                            src="https://images.unsplash.com/photo-1620674156044-55e4b38b184d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvbGQlMjBJbmRpYW4lMjBtYXB8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                            alt="An old map showing historical migration routes from India"
-                            width={600}
-                            height={400}
-                            className="rounded-lg shadow-xl"
-                            data-ai-hint="old map"
-                        />
+                         <div className="rounded-lg shadow-xl aspect-video bg-muted"></div>
                     </div>
                 </div>
             </div>
@@ -117,14 +93,7 @@ export default function AboutIndiaPage() {
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image 
-                            src="https://images.unsplash.com/photo-1579532582937-16c128983486?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBlY29ub215JTIwZ3JhcGh8ZW58MHx8fHwxNzU0MTk3NDM2fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                            alt="A graph showing economic growth and contribution"
-                            width={600}
-                            height={400}
-                            className="rounded-lg shadow-xl"
-                            data-ai-hint="economic graph"
-                        />
+                        <div className="rounded-lg shadow-xl aspect-video bg-muted"></div>
                     </div>
                     <div className="max-w-xl">
                         <h2 className="font-headline text-3xl font-bold mb-4">Economic & Social Contributions</h2>

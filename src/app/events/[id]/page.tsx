@@ -287,16 +287,6 @@ export default function EventDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-                 <div className="relative h-48 w-full rounded-lg overflow-hidden">
-                    <Image
-                      src="https://placehold.co/600x400.png"
-                      alt={`Map of ${event.location.address}`}
-                      fill
-                      className="object-cover"
-                      data-ai-hint="map location"
-                      priority
-                    />
-                 </div>
               </div>
             </div>
           </CardContent>

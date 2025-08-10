@@ -45,17 +45,7 @@ export default function MoviesPage() {
   return (
     <div className="flex flex-col">
       <section className="relative bg-background py-20">
-        <div className="absolute inset-0">
-             <Image 
-                src="https://images.unsplash.com/photo-1579581454848-8af8a268926b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3ZpZSUyMHBvc3RlcnMlMjBjb2xsYWdlfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="A vibrant collage of various movie posters"
-                fill
-                className="object-cover opacity-20"
-                priority
-                data-ai-hint="movie posters collage"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         <div className="container relative mx-auto px-4 text-center">
           <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl text-foreground">
             Movies In Theaters

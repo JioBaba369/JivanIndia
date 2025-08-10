@@ -31,17 +31,7 @@ export default function AboutUsPage() {
     <div className="bg-background">
       {/* Hero Section */}
       <section className="relative bg-primary/10 py-20 md:py-32 text-center">
-         <div className="absolute inset-0">
-            <Image 
-                src="https://images.unsplash.com/photo-1594917409245-8a245973c8b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxJbmRpYW4lMjBmZXN0aXZhbCUyMGNyb3dkfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="A vibrant Indian festival with a large, joyful crowd"
-                fill
-                className="object-cover opacity-10"
-                priority
-                data-ai-hint="festival crowd"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        </div>
+         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         <div className="container mx-auto px-4 relative">
           <h1 className="font-headline text-4xl font-bold md:text-6xl text-shadow-lg">
             Connecting Our Community

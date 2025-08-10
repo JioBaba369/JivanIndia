@@ -82,17 +82,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col bg-background">
       <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center bg-primary/10">
-         <div className="absolute inset-0">
-            <Image 
-                src="https://images.unsplash.com/photo-1617634667363-554158b4e76a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmZXN0aXZhbCUyMGRlY29yYXRpb25zfGVufDB8fHx8MTc1NDE5NzQzNnww&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="Colorful Indian festival decorations"
-                fill
-                className="object-cover opacity-10"
-                priority
-                data-ai-hint="festival decorations"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        </div>
+         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center text-center px-4">
           <div className="p-4 md:p-8 rounded-lg">
             <h1 className="font-body text-4xl sm:text-5xl md:text-7xl font-bold leading-tight text-shadow-lg">Jivan: An Indian Community, For The People, By The People</h1>
