@@ -204,7 +204,7 @@ const ALL_COUNTRIES_VALUE = 'All Countries';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isAuthLoading } = useAuth();
   const { events, updateEventStatus, updateEventFeaturedStatus } = useEvents();
   const { communities, verifyCommunity, updateCommunityFeaturedStatus } = useCommunities();
   const { aboutContent, updateAboutContent, addTeamMember, updateTeamMember, deleteTeamMember, addAdmin, removeAdmin, isLoading: isAboutLoading } = useAbout();
@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
   const [countryFilter, setCountryFilter] = useState(ALL_COUNTRIES_VALUE);
   const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
   
-  const hasAdminRole = user?.roles.includes('admin');
+  const hasAdminRole = useMemo(() => user?.roles.includes('admin') ?? false, [user]);
   
   const eventsWithSponsorCount = useMemo(() => events.map(event => ({
     ...event,
@@ -247,10 +247,10 @@ export default function AdminDashboardPage() {
   const pendingReports = useMemo(() => reports.filter(r => r.status === 'pending'), [reports]);
 
   useEffect(() => {
-    if (!isLoading && !hasAdminRole) {
+    if (!isAuthLoading && !hasAdminRole) {
       router.push('/');
     }
-  }, [user, isLoading, hasAdminRole, router]);
+  }, [user, isAuthLoading, hasAdminRole, router]);
 
   useEffect(() => {
     if (aboutContent.adminUids && aboutContent.adminUids.length > 0 && hasAdminRole) {
@@ -362,9 +362,9 @@ export default function AdminDashboardPage() {
     }
   }
   
-  const totalLoading = isLoading || isAboutLoading || isReportsLoading || (hasAdminRole && isUsersLoading);
+  const totalLoading = isAuthLoading || isAboutLoading || isReportsLoading || isUsersLoading;
 
-  if (totalLoading && !user) {
+  if (totalLoading || !user) {
     return (
         <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

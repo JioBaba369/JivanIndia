@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
-                const userData = userDocSnap.data() as Omit<User, 'uid'>;
+                const userData = userDocSnap.data() as Omit<User, 'uid' | 'roles'> & { roles?: UserRole[] };
                 let roles: UserRole[] = userData.roles || [];
                 
                 const isAdmin = aboutContent.adminUids?.includes(firebaseUser.uid);
