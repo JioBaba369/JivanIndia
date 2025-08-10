@@ -204,8 +204,8 @@ export default function ProfilePage() {
                                             <Card key={business.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
                                                 <Link href={`/businesses/${business.id}`} className="flex h-full flex-col">
                                                     <div className="relative h-40 w-full">
-                                                        {business.imageUrl ? (
-                                                          <Image src={business.imageUrl} alt={business.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
+                                                        {business.logoUrl ? (
+                                                          <Image src={business.logoUrl} alt={business.name} fill className="object-contain p-4 transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
                                                         ) : (
                                                           <div className="bg-muted h-full w-full flex items-center justify-center">
                                                             <Building className="h-12 w-12 text-muted-foreground"/>
@@ -216,7 +216,7 @@ export default function ProfilePage() {
                                                         <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{business.name}</h3>
                                                         <div className="mt-3 flex flex-col space-y-2 text-sm text-muted-foreground">
                                                             <div className="flex items-center gap-2"><Tag className="h-4 w-4" /><span>{business.category}</span></div>
-                                                            <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{business.rating} ({business.reviewCount} reviews)</span></div>
+                                                            <div className="flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /><span>{business.rating.toFixed(1)} ({business.reviewCount} reviews)</span></div>
                                                         </div>
                                                     </CardContent>
                                                 </Link>

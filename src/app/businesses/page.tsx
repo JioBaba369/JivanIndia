@@ -11,9 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building, Star, PlusCircle } from "lucide-react";
+import { MapPin, Search, BadgeCheck, ArrowRight, MoreVertical, Building, Star, PlusCircle, Bookmark } from "lucide-react";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, type MouseEvent } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { useBusinesses } from "@/hooks/use-businesses";
@@ -24,10 +24,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function BusinessesPage() {
     const { businesses, isLoading } = useBusinesses();
-    const { user } = useAuth();
+    const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
+    const router = useRouter();
+    const { toast } = useToast();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [locationQuery, setLocationQuery] = useState('');
@@ -56,6 +60,28 @@ export default function BusinessesPage() {
         })
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }, [approvedBusinesses, searchQuery, locationQuery, category]);
+    
+    const handleSaveToggle = (e: MouseEvent<HTMLButtonElement>, business: typeof businesses[0]) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!user) {
+          toast({
+              title: "Please log in",
+              description: "You need to be logged in to save businesses.",
+              variant: "destructive",
+          });
+          router.push("/login");
+          return;
+      }
+      const isSaved = isItemSaved('savedBusinesses', business.id);
+      if (isSaved) {
+          unsaveItem('savedBusinesses', business.id);
+          toast({ title: 'Removed from Saved', description: `${business.name} removed from your saved businesses.`});
+      } else {
+          saveItem('savedBusinesses', business.id);
+          toast({ title: 'Business Saved!', description: `${business.name} added to your saved businesses.`});
+      }
+    };
     
     const BusinessSkeletons = () => (
       Array.from({ length: 6 }).map((_, i) => (
@@ -147,7 +173,9 @@ export default function BusinessesPage() {
                     </Button>}
                 </div>
             ) : filteredBusinesses.length > 0 ? (
-                filteredBusinesses.map(business => (
+                filteredBusinesses.map(business => {
+                    const isSaved = user ? isItemSaved('savedBusinesses', business.id) : false;
+                    return (
                     <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
                         <div className="relative h-48 w-full bg-muted flex items-center justify-center">
                             <Link href={`/businesses/${business.id}`}>
@@ -160,7 +188,10 @@ export default function BusinessesPage() {
                                )}
                             </Link>
                             {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
-                            <div className="absolute top-2 right-2">
+                            <div className="absolute top-2 right-2 flex gap-1">
+                                <Button variant={isSaved ? 'default' : 'secondary'} size="icon" className="h-8 w-8" onClick={(e) => handleSaveToggle(e, business)}>
+                                    <Bookmark size={16} />
+                                </Button>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
@@ -177,7 +208,7 @@ export default function BusinessesPage() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <Badge variant="secondary" className="absolute right-3 top-3">{business.category}</Badge>
+                            <Badge variant="secondary" className="absolute bottom-3 right-3">{business.category}</Badge>
                         </div>
                         <CardContent className="flex-grow p-4">
                             <Link href={`/businesses/${business.id}`} className="group/link">
@@ -206,7 +237,7 @@ export default function BusinessesPage() {
                             </Button>
                         </div>
                     </Card>
-                ))
+                )})
             ) : (
                 <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <h3 className="font-headline text-xl font-semibold">No Matching Businesses Found</h3>
