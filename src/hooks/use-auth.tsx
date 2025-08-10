@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arra
 import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
 import { useAbout } from './use-about';
+import { useCommunities } from './use-communities';
 
 
 export type UserRole = 'admin' | 'community-manager';
@@ -66,9 +67,9 @@ interface AuthContextType {
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
-  saveItem: (listType: keyof User, itemId: string) => Promise<void>;
-  unsaveItem: (listType: keyof User, itemId: string) => Promise<void>;
-  isItemSaved: (listType: keyof User, itemId: string) => boolean;
+  saveItem: (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => Promise<void>;
+  unsaveItem: (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => Promise<void>;
+  isItemSaved: (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,9 +79,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const { aboutContent, isLoading: isAboutLoading } = useAbout();
+  const { communities, isLoading: isCommunitiesLoading } = useCommunities();
   const { toast } = useToast();
   
-  const isLoading = isAuthLoading || isAboutLoading;
+  const isLoading = isAuthLoading || isAboutLoading || isCommunitiesLoading;
 
   useEffect(() => {
     const authUnsubscribe = onAuthStateChanged(auth, (fbUser) => {
@@ -98,18 +100,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let userUnsubscribe: (() => void) | undefined;
 
-    if (firebaseUser) {
+    if (firebaseUser && !isAboutLoading && !isCommunitiesLoading) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data() as Omit<User, 'uid' | 'roles'>;
-                let newRoles: UserRole[] = [];
+                
+                const newRoles: UserRole[] = [];
 
                 if (aboutContent.adminUids?.includes(firebaseUser.uid)) {
                     newRoles.push('admin');
                 }
+
+                const managedCommunity = communities.find(c => 
+                    c.founderUid === firebaseUser.uid || c.managers?.some(m => m.uid === firebaseUser.uid)
+                );
+
+                if (managedCommunity) {
+                    newRoles.push('community-manager');
+                }
                 
-                setUser({ ...userData, uid: firebaseUser.uid, roles: newRoles });
+                setUser({ ...userData, uid: firebaseUser.uid, roles: Array.from(new Set(newRoles)) });
             } else {
                 setUser(null);
             }
@@ -119,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
             setIsAuthLoading(false);
         });
-    } else {
+    } else if (!firebaseUser) {
       setUser(null);
       setIsAuthLoading(false);
     }
@@ -129,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             userUnsubscribe();
         }
     };
-  }, [firebaseUser, aboutContent.adminUids]);
+  }, [firebaseUser, aboutContent.adminUids, communities, isAboutLoading, isCommunitiesLoading]);
 
   const isUsernameUnique = useCallback(async (username: string, currentUid?: string): Promise<boolean> => {
     if (!username) return false;
@@ -235,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return undefined;
   }, []);
 
-  const saveItem = useCallback(async (listType: keyof User, itemId: string) => {
+  const saveItem = useCallback(async (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => {
     if (!firebaseUser) return;
     const userRef = doc(firestore, 'users', firebaseUser.uid);
     try {
@@ -243,7 +254,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) { console.error(`Failed to save item to ${String(listType)}`, e); }
   }, [firebaseUser]);
 
-  const unsaveItem = useCallback(async (listType: keyof User, itemId: string) => {
+  const unsaveItem = useCallback(async (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => {
     if (!firebaseUser) return;
     const userRef = doc(firestore, 'users', firebaseUser.uid);
      try {
@@ -251,10 +262,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) { console.error(`Failed to unsave item from ${String(listType)}`, e); }
   }, [firebaseUser]);
 
-  const isItemSaved = useCallback((listType: keyof User, itemId: string) => {
-    if (!user || !Array.isArray(user[listType])) return false;
+  const isItemSaved = useCallback((listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => {
+    if (!user || !user[listType] || !Array.isArray(user[listType])) return false;
     return (user[listType] as string[]).includes(itemId);
   }, [user]);
+
 
   const value = { 
     user,

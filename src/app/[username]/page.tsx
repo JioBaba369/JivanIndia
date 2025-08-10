@@ -56,6 +56,7 @@ export default function UserPublicProfilePage() {
 
                 if (foundUser?.affiliation?.orgId) {
                     const community = getCommunityById(foundUser.affiliation.orgId);
+                    // Ensure community exists before setting it
                     setAffiliatedCommunity(community || null);
                 }
             }
@@ -135,7 +136,7 @@ export default function UserPublicProfilePage() {
         { value: 'saved-movies', label: 'Saved Movies', count: userSavedMovies.length, icon: Film, isVisible: true },
         { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag, isVisible: true },
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users, isVisible: true },
-        { value: 'community-activity', label: 'Affiliation', count: 0, icon: Building, isVisible: !!(affiliatedCommunity && profileUser.affiliation) },
+        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!(affiliatedCommunity && profileUser.affiliation) },
     ].filter(tab => tab.isVisible);
 
     return (
