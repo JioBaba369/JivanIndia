@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         userUnsubscribe = onSnapshot(userDocRef, (userDocSnap) => {
             if (userDocSnap.exists()) {
-                const userData = userDocSnap.data() as Omit<User, 'uid' | 'roles'> & { roles?: UserRole[] };
+                const userData = userDocSnap.data() as Omit<User, 'uid' | 'roles'>;
                 let newRoles: UserRole[] = [];
 
                 if (aboutContent.adminUids?.includes(firebaseUser.uid)) {
@@ -299,7 +299,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isCommunityJoined: (communityId: string) => isItemSaved('joinedCommunities', communityId),
     saveDeal: (dealId: string) => saveItem('savedDeals', dealId),
     unsaveDeal: (dealId: string) => unsaveItem('savedDeals', dealId),
-    isDealSaved: (dealId: string) => isItemSaved('savedDeals', dealId),
+    isDealSaved: (dealId: string) => isItemSaved('deals', dealId),
     saveBusiness: (businessId: string) => saveItem('savedBusinesses', businessId),
     unsaveBusiness: (businessId: string) => unsaveItem('savedBusinesses', businessId),
     isBusinessSaved: (businessId: string) => isItemSaved('savedBusinesses', businessId),

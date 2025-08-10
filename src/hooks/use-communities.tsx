@@ -107,12 +107,12 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
         orgName: communityData.name,
         orgSlug: communityData.slug,
       },
-      roles: arrayUnion('community-manager')
     });
 
     try {
         await batch.commit();
-        return { ...newCommunityForDb, createdAt: new Date(), updatedAt: new Date() } as Community;
+        toast({ title: 'Community Created!', description: 'Your community page is now live.'});
+        return { ...newCommunityForDb, id: newCommunityRef.id, createdAt: new Date(), updatedAt: new Date() } as Community;
     } catch (error) {
         console.error("Error adding community and updating user:", error);
         toast({ title: "Error", description: "Failed to create community.", variant: "destructive" });
@@ -143,7 +143,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
         if (!querySnapshot.empty) {
             const batch = writeBatch(firestore);
             querySnapshot.forEach(userDoc => {
-                batch.update(userDoc.ref, { affiliation: null, roles: arrayRemove('community-manager') });
+                batch.update(userDoc.ref, { affiliation: null });
             });
             await batch.commit();
         }
@@ -220,7 +220,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
       // Update user
       const userRef = doc(firestore, 'users', userDoc.id);
       batch.update(userRef, {
-        roles: arrayUnion('community-manager'),
         affiliation: { orgId: community.id, orgName: community.name, orgSlug: community.slug }
       });
       
@@ -248,7 +247,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     // Update user
     const userRef = doc(firestore, 'users', uidToRemove);
     batch.update(userRef, {
-      roles: arrayRemove('community-manager'),
       affiliation: null,
     });
     

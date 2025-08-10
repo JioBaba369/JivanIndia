@@ -423,7 +423,7 @@ export default function NewEventPage() {
              <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Sponsorships (Optional)</h3>
                 {sponsorsField.map((field, index) => (
-                  <Card key={field.id} className="p-4 bg-muted/50">
+                  <Card key={index} className="p-4 bg-muted/50">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                        <FormField
                         control={form.control}
