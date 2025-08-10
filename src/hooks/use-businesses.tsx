@@ -127,7 +127,7 @@ export function BusinessesProvider({ children }: { children: ReactNode }) {
           createdAt: serverTimestamp(),
         };
         const docRef = await addDoc(collection(firestore, 'businesses'), newBusinessForDb);
-        return { ...newBusinessForDb, id: docRef.id, createdAt: new Date() } as Business;
+        return { ...newBusinessForDb, id: docRef.id, createdAt: { toDate: () => new Date() } } as Business;
     } catch (error) {
         console.error("Error adding business:", error);
         toast({ title: 'Error', description: 'Could not add the new business.', variant: 'destructive' });

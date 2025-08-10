@@ -106,6 +106,7 @@ export function MoviesProvider({ children }: { children: ReactNode }) {
 
 
   const getMovieById = useCallback((id: string): Movie | undefined => {
+    if (!id) return undefined;
     return movies.find(m => m.id === id);
   }, [movies]);
   

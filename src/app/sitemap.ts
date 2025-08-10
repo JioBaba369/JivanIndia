@@ -11,6 +11,7 @@ import { type Business } from '@/hooks/use-businesses';
 import { type Sponsor } from '@/hooks/use-sponsors';
 
 const BASE_URL = 'https://jivanindia.co';
+const FALLBACK_LAST_MOD = new Date().toISOString();
 
 async function fetchCollection<T>(collectionName: string): Promise<(T & { id: string })[]> {
     try {
@@ -52,14 +53,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter(event => event.status === 'Approved')
     .map(event => ({
       url: `${BASE_URL}/events/${event.id}`,
-      lastModified: event.updatedAt || event.createdAt || new Date().toISOString(),
+      lastModified: (event.updatedAt?.toDate() || event.createdAt?.toDate() || new Date()).toISOString(),
       changeFrequency: 'weekly' as 'weekly',
   }));
 
   const communities = await fetchCollection<Community>('communities');
   const communityRoutes = communities.map(community => ({
       url: `${BASE_URL}/c/${community.slug}`,
-      lastModified: community.updatedAt || community.createdAt,
+      lastModified: (community.updatedAt?.toDate() || community.createdAt?.toDate() || new Date()).toISOString(),
       changeFrequency: 'daily' as 'daily',
   }));
 
@@ -67,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const userRoutes = users.map(user => {
       return user.username ? {
         url: `${BASE_URL}/${user.username}`,
-        lastModified: new Date().toISOString(), // User documents don't have a timestamp
+        lastModified: FALLBACK_LAST_MOD,
         changeFrequency: 'monthly' as 'monthly',
       } : null;
   }).filter(Boolean) as MetadataRoute.Sitemap;
@@ -77,28 +78,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const deals = await fetchCollection<Deal>('deals');
   const dealRoutes = deals.map(deal => ({
     url: `${BASE_URL}/deals/${deal.id}`,
-    lastModified: deal.postedAt || new Date().toISOString(),
+    lastModified: (deal.postedAt?.toDate() || new Date()).toISOString(),
     changeFrequency: 'weekly' as 'weekly',
   }));
   
   const movies = await fetchCollection<Movie>('movies');
   const movieRoutes = movies.map(movie => ({
     url: `${BASE_URL}/movies/${movie.id}`,
-    lastModified: movie.postedAt || new Date().toISOString(),
+    lastModified: (movie.postedAt?.toDate() || new Date()).toISOString(),
     changeFrequency: 'weekly' as 'weekly',
   }));
   
   const businesses = await fetchCollection<Business>('businesses');
   const businessRoutes = businesses.map(business => ({
     url: `${BASE_URL}/businesses/${business.id}`,
-    lastModified: new Date().toISOString(), // No timestamp on this data
+    lastModified: (business.createdAt?.toDate() || new Date()).toISOString(),
     changeFrequency: 'monthly' as 'monthly',
   }));
   
   const sponsors = await fetchCollection<Sponsor>('sponsors');
   const sponsorRoutes = sponsors.map(sponsor => ({
     url: `${BASE_URL}/sponsors/${sponsor.id}`,
-    lastModified: new Date().toISOString(), // No timestamp on this data
+    lastModified: (sponsor.createdAt?.toDate() || new Date()).toISOString(),
     changeFrequency: 'monthly' as 'monthly',
   }));
 
