@@ -38,6 +38,7 @@ const MAX_IMAGE_DIMENSION = 1920; // Max width/height for resizing
 function getCroppedAndResizedImg(
   image: HTMLImageElement,
   crop: Crop,
+  aspectRatio: number,
   quality: number = 0.85
 ): Promise<Blob> {
   const canvas = document.createElement('canvas');
@@ -49,12 +50,12 @@ function getCroppedAndResizedImg(
 
   // Resize logic
   if (targetWidth > MAX_IMAGE_DIMENSION || targetHeight > MAX_IMAGE_DIMENSION) {
-    if (targetWidth > targetHeight) {
-      targetHeight = (targetHeight * MAX_IMAGE_DIMENSION) / targetWidth;
+    if (aspectRatio >= 1) { // Landscape or square
       targetWidth = MAX_IMAGE_DIMENSION;
-    } else {
-      targetWidth = (targetWidth * MAX_IMAGE_DIMENSION) / targetHeight;
+      targetHeight = MAX_IMAGE_DIMENSION / aspectRatio;
+    } else { // Portrait
       targetHeight = MAX_IMAGE_DIMENSION;
+      targetWidth = MAX_IMAGE_DIMENSION * aspectRatio;
     }
   }
 
@@ -173,7 +174,7 @@ export default function ImageUpload({
     setUploadState({ isUploading: true, progress: 0 });
 
     try {
-      const imageBlob = await getCroppedAndResizedImg(imgRef.current, crop);
+      const imageBlob = await getCroppedAndResizedImg(imgRef.current, crop, aspectRatio);
       const fileName = `${folderName}/${uuidv4()}.webp`;
       const storageRef = ref(storage, fileName);
 
