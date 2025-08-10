@@ -210,6 +210,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
         toast({ title: 'Already a Manager', description: `${userData.name} is already a manager.`, variant: 'destructive' });
         return;
       }
+
+      if (userData.affiliation && userData.affiliation.orgId !== community.id) {
+        toast({ title: 'User Already Affiliated', description: `${userData.name} is already a manager of another community.`, variant: 'destructive' });
+        return;
+      }
       
       const batch = writeBatch(firestore);
       
