@@ -18,6 +18,7 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useCountries } from '@/hooks/use-countries';
+import CountryFlag from '@/components/feature/country-flag';
 
 interface CountrySelectorProps {
   value: string;
@@ -36,11 +37,10 @@ export default function CountrySelector({
   const countryOptions = countries.map((country) => ({
     value: country.name,
     label: country.name,
+    code: country.code,
   }));
 
-  const selectedLabel =
-    countryOptions.find((option) => option.value === value)?.label ||
-    'Select country...';
+  const selectedOption = countryOptions.find((option) => option.value === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -51,7 +51,10 @@ export default function CountrySelector({
           aria-expanded={open}
           className={cn('w-full justify-between', className)}
         >
-          {selectedLabel}
+          <div className="flex items-center gap-2">
+            {selectedOption && <CountryFlag countryCode={selectedOption.code} />}
+            {selectedOption ? selectedOption.label : 'Select country...'}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -66,11 +69,13 @@ export default function CountrySelector({
                   key={option.value}
                   value={option.value}
                   onSelect={(currentValue) => {
+                    const selectedValue = countries.find(c => c.name.toLowerCase() === currentValue.toLowerCase())?.name || ''
                     onValueChange(
-                      currentValue === value ? '' : currentValue
+                      selectedValue === value ? '' : selectedValue
                     );
                     setOpen(false);
                   }}
+                  className="flex items-center gap-2"
                 >
                   <Check
                     className={cn(
@@ -78,6 +83,7 @@ export default function CountrySelector({
                       value === option.value ? 'opacity-100' : 'opacity-0'
                     )}
                   />
+                  <CountryFlag countryCode={option.code} />
                   {option.label}
                 </CommandItem>
               ))}
