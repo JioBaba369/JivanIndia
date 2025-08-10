@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,14 @@ export default function CareersPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Find your next role in our community-focused job board.
           </p>
+           {user?.affiliation && (
+              <Button asChild size="lg" className="mt-8">
+                <Link href="/careers/new">
+                  <PlusCircle className="mr-2 h-5 w-5" />
+                  Post a Job
+                </Link>
+              </Button>
+           )}
         </div>
       </section>
 

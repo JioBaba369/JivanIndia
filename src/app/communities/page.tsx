@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -116,7 +117,7 @@ export default function CommunitiesPage() {
 
   return (
     <div className="flex flex-col">
-      <section className="bg-gradient-to-b from-primary/10 via-background to-background pt-20 pb-12 text-center">
+      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
           <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             Community Hub

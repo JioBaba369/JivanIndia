@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -84,6 +85,14 @@ export default function EventsPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Discover cultural celebrations, professional meetups, concerts, and more.
           </p>
+           {user?.affiliation && (
+            <Button asChild size="lg" className="mt-8">
+              <Link href="/events/new">
+                <PlusCircle className="mr-2 h-5 w-5"/>
+                Post an Event
+              </Link>
+            </Button>
+          )}
         </div>
       </section>
 
@@ -127,14 +136,6 @@ export default function EventsPage() {
                         <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
                     </Link>
                 </Button>
-                {user?.affiliation && (
-                   <Button asChild className="flex-1">
-                        <Link href="/events/new">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Post Event
-                        </Link>
-                    </Button>
-                )}
               </div>
         </div>
       </div>
