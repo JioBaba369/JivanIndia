@@ -1,18 +1,15 @@
 # See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
 #
-# Allow all crawlers access to all content.
+# Allow all crawlers
 User-agent: *
 Allow: /
 
-# Disallow specific paths that are not useful for search engines
+# Disallow specific private routes
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /profile
-Disallow: /profile/edit
 Disallow: /login
 Disallow: /signup
-Disallow: /c/*/edit
-Disallow: /c/*/analytics
 
-# Point to the sitemap for better indexing
+# Point to the sitemap
 Sitemap: https://jivanindia.co/sitemap.xml
