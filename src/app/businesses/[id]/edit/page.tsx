@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useTransition, useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Linkedin, Facebook, X, Instagram, Users } from 'lucide-react';
@@ -30,7 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hooks/use-businesses';
+import { useBusinesses, businessCategories, type Business } from '@/hooks/use-businesses';
 import { useCountries, type StateProvince } from '@/hooks/use-countries';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -70,64 +70,103 @@ const formSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof formSchema>;
 
-export default function NewBusinessEntryPage() {
+const stripBaseUrl = (baseUrl: string, fullUrl?: string) => {
+    if (!fullUrl) return '';
+    try {
+        const url = new URL(fullUrl);
+        const base = new URL(baseUrl);
+        if (url.hostname === base.hostname) {
+             return url.pathname.substring(base.pathname.length).replace(/^\//, '');
+        }
+    } catch (e) {
+      // Ignore invalid URLs
+    }
+    return fullUrl;
+}
+
+export default function EditBusinessPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : '';
+
   const { toast } = useToast();
   const { user } = useAuth();
-  const { addBusiness } = useBusinesses();
+  const { businesses, updateBusiness, isLoading } = useBusinesses();
   const { getStatesByCountry } = useCountries();
   
   const [isPending, startTransition] = useTransition();
   const [provinces, setProvinces] = useState<StateProvince[]>([]);
+  const [business, setBusiness] = useState<Business | null>(null);
 
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      category: undefined,
-      logoUrl: '',
-      bannerUrl: '',
-      description: '',
-      fullDescription: '',
-      country: '',
-      state: '',
-      city: '',
-      services: '',
-      phone: '',
-      email: '',
-      website: '',
-      address: '',
-      businessNumber: '',
-      tags: '',
-      socialTwitter: '',
-      socialFacebook: '',
-      socialLinkedin: '',
-      socialInstagram: '',
-      socialFacebookGroup: '',
-    },
-    mode: 'onChange'
+    mode: 'onChange',
   });
+
+  useEffect(() => {
+    const foundBusiness = businesses.find(b => b.id === id);
+    if(foundBusiness) {
+      setBusiness(foundBusiness);
+      form.reset({
+        name: foundBusiness.name || '',
+        category: foundBusiness.category,
+        logoUrl: foundBusiness.logoUrl || '',
+        bannerUrl: foundBusiness.bannerUrl || '',
+        description: foundBusiness.description || '',
+        fullDescription: foundBusiness.fullDescription || '',
+        country: foundBusiness.location?.country || '',
+        state: foundBusiness.location?.state || '',
+        city: foundBusiness.location?.city || '',
+        services: foundBusiness.services?.join(', ') || '',
+        phone: foundBusiness.contact?.phone || '',
+        email: foundBusiness.contact?.email || '',
+        website: foundBusiness.contact?.website || '',
+        address: foundBusiness.contact?.address || '',
+        businessNumber: foundBusiness.contact?.businessNumber || '',
+        tags: foundBusiness.tags?.join(', ') || '',
+        socialTwitter: stripBaseUrl('https://x.com/', foundBusiness.socialMedia?.twitter),
+        socialFacebook: stripBaseUrl('https://facebook.com/', foundBusiness.socialMedia?.facebook),
+        socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundBusiness.socialMedia?.linkedin),
+        socialInstagram: stripBaseUrl('https://instagram.com/', foundBusiness.socialMedia?.instagram),
+        socialFacebookGroup: foundBusiness.socialMedia?.facebookGroup || '',
+      });
+    }
+  }, [id, businesses, form]);
 
   const selectedCountry = form.watch("country");
 
   useEffect(() => {
     if (selectedCountry) {
         setProvinces(getStatesByCountry(selectedCountry));
-        form.setValue('state', ''); 
     } else {
         setProvinces([]);
     }
   }, [selectedCountry, getStatesByCountry, form]);
+  
+  const canEdit = user && business && (user.roles.includes('admin') || user.uid === business.ownerId);
+
+  if (isLoading) {
+    return <div className="container mx-auto flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin"/></div>
+  }
+  
+  if (!business || !canEdit) {
+     return (
+       <div className="container mx-auto px-4 py-12 text-center">
+        <Card className="mx-auto max-w-md">
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
+                <CardDescription>You do not have permission to edit this listing.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="mt-2"><Link href="/businesses">Back to Businesses</Link></Button>
+            </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const onSubmit = async (values: BusinessFormValues) => {
-    if (!user) {
-        toast({
-            title: 'Authentication Required',
-            description: 'You must be logged in to create a business listing.',
-            variant: 'destructive',
-        });
-        return;
-    }
+    if (!business) return;
 
     startTransition(async () => {
         const socialMedia: { [key: string]: string } = {};
@@ -137,7 +176,7 @@ export default function NewBusinessEntryPage() {
         if (values.socialInstagram) socialMedia.instagram = `https://instagram.com/${values.socialInstagram.replace('@', '')}`;
         if (values.socialFacebookGroup) socialMedia.facebookGroup = values.socialFacebookGroup;
         
-        const newBusinessData: NewBusinessInput = {
+        const updatedBusinessData = {
           name: values.name,
           category: values.category,
           logoUrl: values.logoUrl,
@@ -159,20 +198,19 @@ export default function NewBusinessEntryPage() {
           },
           socialMedia: Object.fromEntries(Object.entries(socialMedia).filter(([_, v]) => v)),
           tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
-          ownerId: user.uid,
         };
         
         try {
-          await addBusiness(newBusinessData);
+          await updateBusiness(id, updatedBusinessData);
           toast({
-              title: 'Business Submitted!',
-              description: `${values.name} has been submitted for review. It will be visible after approval.`,
+              title: 'Business Updated!',
+              description: `Details for ${values.name} have been updated.`,
           });
-          router.push('/businesses');
+          router.push(`/businesses/${id}`);
         } catch (error) {
           console.error(error);
           toast({
-            title: 'Submission Failed',
+            title: 'Update Failed',
             description: 'An unexpected error occurred. Please try again.',
             variant: 'destructive',
           });
@@ -180,29 +218,13 @@ export default function NewBusinessEntryPage() {
     });
   };
 
-  if (!user) {
-    return (
-       <div className="container mx-auto px-4 py-12 text-center">
-        <Card className="mx-auto max-w-md">
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">Access Denied</CardTitle>
-                <CardDescription>You must be logged in to add a business listing.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button asChild className="mt-2"><Link href="/login">Login</Link></Button>
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-12">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Create a New Business Listing</CardTitle>
+          <CardTitle className="font-headline text-3xl">Edit Business Listing</CardTitle>
           <CardDescription>
-            Add a business to the directory. Your submission will be reviewed by an administrator before it is published.
+            Update the details for your business listing below.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -212,10 +234,10 @@ export default function NewBusinessEntryPage() {
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Business Identity</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Business/Place Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Fremont Hindu Temple" /></FormControl><FormMessage /></FormItem>)}/>
-                  <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
+                  <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Business/Place Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                  <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>
                 </div>
-                 <FormField name="businessNumber" control={form.control} render={({field}) => (<FormItem><FormLabel>Business Number (Optional)</FormLabel><FormControl><Input {...field} placeholder="e.g., ABN, ACN, EIN" /></FormControl><FormDescription>e.g., ABN, ACN, GSTIN, EIN</FormDescription><FormMessage /></FormItem>)}/>
+                 <FormField name="businessNumber" control={form.control} render={({field}) => (<FormItem><FormLabel>Business Number (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormDescription>e.g., ABN, ACN, GSTIN, EIN</FormDescription><FormMessage /></FormItem>)}/>
               </div>
 
                <div className="space-y-4">
@@ -288,17 +310,17 @@ export default function NewBusinessEntryPage() {
                             </FormItem>
                           )}
                         />
-                       <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input placeholder="e.g., Fremont" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                       <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                     </div>
                   <FormField name="address" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Street Address *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
               </div>
 
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Details</h3>
-                <FormField name="description" control={form.control} render={({field}) => (<FormItem><FormLabel>Short Description *</FormLabel><FormControl><Textarea {...field} placeholder="A brief one-sentence summary." rows={2}/></FormControl><FormMessage /></FormItem>)}/>
-                <FormField name="fullDescription" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea {...field} placeholder="A detailed description of the place or service." rows={5}/></FormControl><FormMessage /></FormItem>)}/>
-                <FormField name="services" control={form.control} render={({field}) => (<FormItem><FormLabel>Products / Services Offered *</FormLabel><FormControl><Input {...field} placeholder="e.g., Daily puja, wedding services, Indian spices" /></FormControl><FormDescription>Separate items with a comma.</FormDescription><FormMessage /></FormItem>)}/>
-                <FormField name="tags" control={form.control} render={({field}) => (<FormItem><FormLabel>Tags / Keywords</FormLabel><FormControl><Input {...field} placeholder="e.g., temple, vegetarian, family-friendly" /></FormControl><FormDescription>Separate with commas. Helps users discover your business.</FormDescription><FormMessage /></FormItem>)}/>
+                <FormField name="description" control={form.control} render={({field}) => (<FormItem><FormLabel>Short Description *</FormLabel><FormControl><Textarea {...field} rows={2}/></FormControl><FormMessage /></FormItem>)}/>
+                <FormField name="fullDescription" control={form.control} render={({field}) => (<FormItem><FormLabel>Full Description *</FormLabel><FormControl><Textarea {...field} rows={5}/></FormControl><FormMessage /></FormItem>)}/>
+                <FormField name="services" control={form.control} render={({field}) => (<FormItem><FormLabel>Products / Services Offered *</FormLabel><FormControl><Input {...field} /></FormControl><FormDescription>Separate items with a comma.</FormDescription><FormMessage /></FormItem>)}/>
+                <FormField name="tags" control={form.control} render={({field}) => (<FormItem><FormLabel>Tags / Keywords</FormLabel><FormControl><Input {...field} /></FormControl><FormDescription>Separate with commas. Helps users discover your business.</FormDescription><FormMessage /></FormItem>)}/>
               </div>
 
               <div className="space-y-4">
@@ -325,7 +347,7 @@ export default function NewBusinessEntryPage() {
               <div className="flex justify-end gap-4 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>
                 <Button type="submit" disabled={isPending || !form.formState.isValid}>
-                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : "Submit for Review"}
+                  {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Saving...</> : "Save Changes"}
                 </Button>
               </div>
             </form>
