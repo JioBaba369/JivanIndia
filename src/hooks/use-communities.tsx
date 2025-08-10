@@ -41,6 +41,7 @@ export interface Community {
     linkedin?: string;
     facebook?: string;
     instagram?: string;
+    facebookGroup?: string;
   };
   founderUid: string;
   managerUids: string[];

@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2, Edit, X, Facebook, Linkedin, Instagram } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Share2, Star, Bookmark, BadgeCheck, Loader2, Edit, X, Facebook, Linkedin, Instagram, Users } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -147,6 +147,7 @@ export default function BusinessDetailPage() {
                     {business.socialMedia?.instagram && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.instagram} target="_blank"><Instagram/></Link></Button>}
                     {business.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
                     {business.socialMedia?.facebook && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.facebook} target="_blank"><Facebook/></Link></Button>}
+                    {business.socialMedia?.facebookGroup && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.facebookGroup} target="_blank"><Users/></Link></Button>}
                 </div>
             </div>
 

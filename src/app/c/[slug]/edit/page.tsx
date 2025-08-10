@@ -70,6 +70,7 @@ const formSchema = (isSlugUnique: (slug: string, currentId?: string) => boolean)
   socialFacebook: z.string().optional(),
   socialLinkedin: z.string().optional(),
   socialInstagram: z.string().optional(),
+  socialFacebookGroup: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 }).refine((data) => isSlugUnique(data.slug, data.id), {
   message: "This URL is already taken.",
   path: ["slug"],
@@ -126,6 +127,7 @@ export default function EditCommunityPage() {
               socialFacebook: stripBaseUrl('https://facebook.com/', foundCommunity.socialMedia?.facebook),
               socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundCommunity.socialMedia?.linkedin),
               socialInstagram: stripBaseUrl('https://instagram.com/', foundCommunity.socialMedia?.instagram),
+              socialFacebookGroup: foundCommunity.socialMedia?.facebookGroup || '',
           });
       }
   }, [slug, getCommunityBySlug, form, isLoadingCommunities]);
@@ -186,6 +188,7 @@ export default function EditCommunityPage() {
             linkedin: values.socialLinkedin ? `https://linkedin.com/company/${values.socialLinkedin}` : '',
             facebook: values.socialFacebook ? `https://facebook.com/${values.socialFacebook}` : '',
             instagram: values.socialInstagram ? `https://instagram.com/${values.socialInstagram}` : '',
+            facebookGroup: values.socialFacebookGroup || '',
           },
         };
 
@@ -303,8 +306,9 @@ export default function EditCommunityPage() {
                       <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                       <FormField control={form.control} name="socialInstagram" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Instagram /> Instagram</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">instagram.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                       <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
-                      <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                      <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook Page</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   </div>
+                   <FormField control={form.control} name="socialFacebookGroup" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Users /> Facebook Group</div></FormLabel><FormControl><Input {...field} type="url" placeholder="https://www.facebook.com/groups/yourgroup" /></FormControl><FormMessage /></FormItem>)}/>
                 </div>
                 <div className="flex justify-end gap-4 pt-4">
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>Cancel</Button>

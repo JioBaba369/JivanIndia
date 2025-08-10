@@ -130,6 +130,7 @@ export default function CommunityDetailPage() {
                         {community.socialMedia?.instagram && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.instagram} target="_blank"><Instagram /></Link></Button>}
                         {community.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
                         {community.socialMedia?.facebook && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.facebook} target="_blank"><Facebook/></Link></Button>}
+                        {community.socialMedia?.facebookGroup && <Button variant="outline" size="icon" asChild><Link href={community.socialMedia.facebookGroup} target="_blank"><Users/></Link></Button>}
                     </div>
                 </div>
             </div>

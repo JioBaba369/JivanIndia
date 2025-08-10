@@ -40,6 +40,7 @@ export interface Business {
     linkedin?: string;
     facebook?: string;
     instagram?: string;
+    facebookGroup?: string;
   };
   tags?: string[];
   ownerId?: string; // The UID of the user who submitted the business
