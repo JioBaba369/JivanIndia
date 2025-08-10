@@ -12,102 +12,81 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-
-    // Correctly checks if the user document's 'roles' array contains 'admin'
+    
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['admin']);
-    }
-
-    // Correctly checks if the user document's 'roles' array contains 'community-manager'
-    function isCommunityManager() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(['community-manager']);
+      return request.auth.token.admin == true;
     }
     
-    // Correctly checks if the authenticated user's affiliation matches the communityId
-    function isAffiliatedWith(communityId) {
-      let userAffiliation = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation;
-      return userAffiliation != null && userAffiliation.orgId == communityId;
+    function isCommunityManager() {
+        return request.auth.token.communityManager == true;
+    }
+    
+    function isAffiliatedWith(orgId) {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == orgId;
     }
 
-    // Public User Profiles: Allow public read, but only owner or admin can write.
+    // Collection Rules
     match /users/{userId} {
-      allow read: if true;
-      allow write: if isOwner(userId) || isAdmin();
-    }
-
-    // Communities: Public read. Create requires sign-in. Update requires affiliation or admin.
-    match /communities/{communityId} {
-      allow read: if true;
+      allow read;
       allow create: if isSignedIn();
-      allow update, delete: if isAffiliatedWith(communityId) || isAdmin();
+      allow update: if isOwner(userId);
     }
 
-    // Events: Public read for approved events. Admins/Managers can read all their events.
-    // Create for affiliated managers. Update/delete for admin or affiliated manager.
     match /events/{eventId} {
       allow read: if resource.data.status == 'Approved' || isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.organizerId));
-      allow create: if isSignedIn() && isCommunityManager();
-      allow update, delete: if isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.organizerId));
+      allow create: if isSignedIn() && request.resource.data.submittedByUid == request.auth.uid && isAffiliatedWith(request.resource.data.organizerId);
+      allow update: if isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.organizerId));
+    }
+
+    match /communities/{communityId} {
+      allow read;
+      allow create: if isSignedIn() && request.resource.data.founderUid == request.auth.uid;
+      allow update, delete: if isAdmin() || (isCommunityManager() && isAffiliatedWith(communityId));
     }
     
-    // Deals: Public read. Create for affiliated managers. Update/delete for admin or affiliated manager.
-    match /deals/{dealId} {
-        allow read: if true;
-        allow create: if isSignedIn() && isCommunityManager();
-        allow update, delete: if isAdmin() || (isCommunityManager() && isAffiliatedWith(resource.data.businessId));
-    }
-    
-    // Businesses: Public read. Create/update/delete for admin only.
     match /businesses/{businessId} {
-        allow read: if true;
-        allow write: if isAdmin();
+        allow read;
+        allow create, update: if isAdmin();
     }
     
-    // Sponsors: Public read. Create/update/delete for admin only.
     match /sponsors/{sponsorId} {
-      allow read: if true;
-      allow write: if isAdmin();
+        allow read;
+        allow create, update: if isAdmin();
     }
-    
-    // Jobs: Public read. Create for affiliated managers. Update/delete for admin.
-    match /jobs/{jobId} {
-        allow read: if true;
-        allow create: if isSignedIn() && isCommunityManager();
-        allow update, delete: if isAdmin();
-    }
-    
-    // Movies: Public read. Admin write only.
-    match /movies/{movieId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Reports: Admin only for read/update/delete. Create for any signed-in user.
+
     match /reports/{reportId} {
-        allow read, update, delete: if isAdmin();
-        allow create: if isSignedIn();
+      allow read, update: if isAdmin();
+      allow create: if isSignedIn() && request.resource.data.reportedByUid == request.auth.uid;
     }
     
-    // Notifications: Only owner can access.
     match /notifications/{notificationId} {
-        allow read, write, create: if isOwner(resource.data.userId);
+        allow read, update: if isOwner(resource.data.userId);
+        allow create: if isAdmin() || isCommunityManager(); 
     }
     
-     // Collection Group for Notifications on user's dashboard (no change needed here)
-    match /{path=**}/notifications/{notificationId} {
-       allow read, write: if isOwner(get(/databases/$(database)/documents/$(path)).data.userId);
-    }
-    
-    // About page content: public read, admin write
-    match /about/singleton {
-        allow read: if true;
-        allow write: if isAdmin();
-    }
-    
-    // Contact form submissions: Write only for anyone. Admin read/delete.
     match /contacts/{contactId} {
-        allow read, update, delete: if isAdmin();
+        allow read: if isAdmin();
         allow create: if true;
     }
+    
+    match /about/singleton {
+        allow read;
+        allow update: if isAdmin();
+    }
+    
+    match /movies/{movieId} {
+      allow read;
+    }
+    
+     match /deals/{dealId} {
+      allow read;
+      allow create: if isSignedIn() && isAffiliatedWith(request.resource.data.businessId);
+    }
+    
+     match /jobs/{jobId} {
+      allow read;
+      allow create: if isSignedIn() && isAffiliatedWith(request.resource.data.companyId);
+    }
+
   }
 }
