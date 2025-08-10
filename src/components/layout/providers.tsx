@@ -30,33 +30,33 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <AuthProvider>
                   <SearchProvider>
                     <ReportsProvider>
-                      <CommunitiesProvider>
-                          <NotificationsProvider>
-                              <SponsorsProvider>
-                                  <DealsProvider>
-                                      <JobsProvider>
-                                          <EventsProvider>
-                                              <BusinessesProvider>
-                                                  <MoviesProvider>
-                                                      <FestivalsProvider>
-                                                          <div className="relative flex min-h-screen flex-col">
-                                                              <Header />
-                                                              <main className="flex-1">
-                                                                  {children}
-                                                              </main>
-                                                              <Footer />
-                                                              <Toaster />
-                                                              <CookieConsentBanner />
-                                                          </div>
-                                                      </FestivalsProvider>
-                                                  </MoviesProvider>
-                                              </BusinessesProvider>
-                                          </EventsProvider>
-                                      </JobsProvider>
-                                  </DealsProvider>
-                              </SponsorsProvider>
-                          </NotificationsProvider>
-                      </CommunitiesProvider>
+                      <NotificationsProvider>
+                        <CommunitiesProvider>
+                            <SponsorsProvider>
+                                <DealsProvider>
+                                    <JobsProvider>
+                                        <EventsProvider>
+                                            <BusinessesProvider>
+                                                <MoviesProvider>
+                                                    <FestivalsProvider>
+                                                        <div className="relative flex min-h-screen flex-col">
+                                                            <Header />
+                                                            <main className="flex-1">
+                                                                {children}
+                                                            </main>
+                                                            <Footer />
+                                                            <Toaster />
+                                                            <CookieConsentBanner />
+                                                        </div>
+                                                    </FestivalsProvider>
+                                                </MoviesProvider>
+                                            </BusinessesProvider>
+                                        </EventsProvider>
+                                    </JobsProvider>
+                                </DealsProvider>
+                            </SponsorsProvider>
+                        </CommunitiesProvider>
+                      </NotificationsProvider>
                     </ReportsProvider>
                   </SearchProvider>
               </AuthProvider>
