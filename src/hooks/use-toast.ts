@@ -166,6 +166,8 @@ function toast(props: Toast) {
   }
 }
 
+const initialServerState = { toasts: [] };
+
 function useToast() {
    const state = React.useSyncExternalStore(
     (callback) => {
@@ -178,7 +180,7 @@ function useToast() {
       };
     },
     () => memoryState,
-    () => ({ toasts: [] }) // getServerSnapshot
+    () => initialServerState 
   );
 
   return {
