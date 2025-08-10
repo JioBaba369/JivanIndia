@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { auth, firestore } from '@/lib/firebase';
-import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type User as FirebaseUser, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, onSnapshot, writeBatch } from 'firebase/firestore';
 import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
@@ -60,6 +60,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   setAffiliation: (orgId: string, orgName: string, orgSlug: string) => Promise<void>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
@@ -215,6 +216,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await updateDoc(userDocRef, updatedData);
   }, [firebaseUser]);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    if (!firebaseUser || !firebaseUser.email) {
+      throw new Error("You must be logged in to change your password.");
+    }
+    
+    const credential = EmailAuthProvider.credential(firebaseUser.email, currentPassword);
+    
+    try {
+      await reauthenticateWithCredential(firebaseUser, credential);
+      await updatePassword(firebaseUser, newPassword);
+    } catch (error: any) {
+      console.error("Password change error:", error);
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        throw new Error("The current password you entered is incorrect.");
+      }
+      throw new Error("An unexpected error occurred while changing your password.");
+    }
+  }, [firebaseUser]);
+
+
   const setAffiliation = useCallback(async (orgId: string, orgName: string, orgSlug: string) => {
     if (user) {
         const batch = writeBatch(firestore);
@@ -272,6 +293,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login, 
     logout, 
     updateUser,
+    changePassword,
     setAffiliation,
     getUserByUsername,
     isUsernameUnique,
