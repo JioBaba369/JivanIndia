@@ -93,10 +93,6 @@ export default function EditCommunityPage() {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, setIsDeleting] = useState(false);
   const [community, setCommunity] = useState<Community | null>(null);
-  const [managers, setManagers] = useState<User[]>([]);
-  const [isManagersLoading, setIsManagersLoading] = useState(true);
-  const [newManagerEmail, setNewManagerEmail] = useState('');
-  const [foundUser, setFoundUser] = useState<User | null>(null);
   
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(formSchema(isSlugUnique)),
@@ -132,39 +128,6 @@ export default function EditCommunityPage() {
       }
   }, [slug, getCommunityBySlug, form, isLoadingCommunities]);
 
-  useEffect(() => {
-    if (community?.managerUids && community.managerUids.length > 0) {
-      const fetchManagers = async () => {
-        setIsManagersLoading(true);
-        try {
-          const usersRef = collection(firestore, 'users');
-          // Firestore 'in' queries are limited to 30 items
-          const managerUidsChunks: string[][] = [];
-          for (let i = 0; i < community.managerUids.length; i += 30) {
-            managerUidsChunks.push(community.managerUids.slice(i, i + 30));
-          }
-          
-          const managerPromises = managerUidsChunks.map(chunk => 
-            getDocs(query(usersRef, where('__name__', 'in', chunk)))
-          );
-
-          const managerSnapshots = await Promise.all(managerPromises);
-          const managersData = managerSnapshots.flatMap(snapshot => 
-            snapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User))
-          );
-          setManagers(managersData);
-        } catch (error) {
-          console.error("Failed to fetch managers", error);
-          toast({ title: 'Error', description: 'Could not fetch manager list.', variant: 'destructive' });
-        } finally {
-          setIsManagersLoading(false);
-        }
-      };
-      fetchManagers();
-    } else {
-      setIsManagersLoading(false);
-    }
-  }, [community?.managerUids, toast]);
 
   if (isLoadingCommunities) {
     return (
@@ -174,7 +137,7 @@ export default function EditCommunityPage() {
     );
   }
 
-  const canEdit = user && community && canManageCommunity(community, user);
+  const canEdit = user && community && canManageCommunity(community.id, user);
   const isFounder = user && community && user.uid === community.founderUid;
 
   if (!user || !canEdit) {
@@ -276,20 +239,6 @@ export default function EditCommunityPage() {
       }
   }
 
-  const handleAddManager = async () => {
-    if (community && foundUser) {
-      await addManager(community, foundUser.email);
-      setNewManagerEmail('');
-      setFoundUser(null);
-    }
-  };
-
-  const handleRemoveManager = async (uid: string) => {
-    if (community) {
-      await removeManager(community, uid);
-    }
-  };
-
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-3xl space-y-8">
@@ -301,6 +250,18 @@ export default function EditCommunityPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {isFounder && (
+                <div className="mb-8 p-4 bg-muted/50 rounded-lg">
+                    <h3 className="font-headline text-lg font-semibold mb-4 flex items-center gap-2"><Settings className="h-5 w-5"/>Community Management</h3>
+                    <div className="flex flex-wrap gap-3">
+                        <Button asChild variant="outline">
+                            <Link href={`/c/${slug}/managers`}>
+                                <Users className="mr-2 h-4 w-4"/>Manage Community Managers
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="space-y-4">
@@ -349,63 +310,6 @@ export default function EditCommunityPage() {
             </Form>
           </CardContent>
         </Card>
-
-        {isFounder && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Community Managers</CardTitle>
-              <CardDescription>Add or remove users who can manage this community page.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isManagersLoading ? <Loader2 className="animate-spin" /> : (
-                <div className="space-y-4">
-                  {managers.map(manager => (
-                    <div key={manager.uid} className="flex items-center justify-between p-2 rounded-md border">
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                           <AvatarImage src={manager.profileImageUrl} alt={manager.name} />
-                           <AvatarFallback>{getInitials(manager.name)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-semibold">{manager.name}</p>
-                          <p className="text-sm text-muted-foreground">{manager.email}</p>
-                        </div>
-                         {manager.uid === community?.founderUid && <Badge variant="secondary"><Shield className="mr-1 h-3 w-3"/> Founder</Badge>}
-                      </div>
-                      <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" disabled={manager.uid === community?.founderUid}>
-                                <Trash2 className="h-4 w-4 text-destructive"/>
-                              </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>This will remove {manager.name} as a manager. They will lose all editing rights.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleRemoveManager(manager.uid)}>Yes, remove</AlertDialogAction>
-                              </AlertDialogFooter>
-                          </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  ))}
-                </div>
-              )}
-               <div className="mt-6 flex gap-2">
-                    <EmailInput
-                        value={newManagerEmail}
-                        onChange={setNewManagerEmail}
-                        onUserFound={setFoundUser}
-                    />
-                    <Button onClick={handleAddManager} disabled={!foundUser}>
-                        <UserPlus className="mr-2"/> Add Manager
-                    </Button>
-                </div>
-            </CardContent>
-          </Card>
-        )}
 
         {isFounder && (
             <Card>

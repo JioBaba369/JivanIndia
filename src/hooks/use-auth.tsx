@@ -125,10 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     newRoles.push('admin');
                 }
                 
-                if (userData.affiliation?.orgId) {
-                    newRoles.push('community-manager');
-                }
-                
                 setUser({ ...userData, uid: firebaseUser.uid, roles: newRoles });
             } else {
                 setUser(null);

@@ -56,7 +56,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
   if (user) {
     const isAdmin = user.roles?.includes('admin');
     const affiliatedCommunity = user.affiliation ? getCommunityBySlug(user.affiliation.communitySlug) : null;
-    const isCommunityManager = affiliatedCommunity ? canManageCommunity(affiliatedCommunity, user) : false;
+    const isCommunityManager = affiliatedCommunity ? canManageCommunity(affiliatedCommunity.id, user.uid) : false;
 
     return (
       <div className="flex items-center gap-1">
