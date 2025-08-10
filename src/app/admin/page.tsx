@@ -735,13 +735,10 @@ export default function AdminDashboardPage() {
                             <CardDescription>Manage your site's logo and favicon.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                           <div className="space-y-2">
-                               <Label>Logo</Label>
-                               <p className="text-sm text-muted-foreground">Image uploading functionality has been removed.</p>
-                           </div>
-                           <div className="space-y-2">
-                               <Label>Favicon</Label>
-                               <p className="text-sm text-muted-foreground">Image uploading functionality has been removed.</p>
+                           <div className="space-y-2 rounded-lg border-2 border-dashed p-8 text-center">
+                                <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+                                <h3 className="font-semibold mt-4">Feature Not Available</h3>
+                               <p className="text-sm text-muted-foreground">The ability to upload a custom logo and favicon from the admin dashboard has not been implemented in this version.</p>
                            </div>
                         </CardContent>
                     </Card>

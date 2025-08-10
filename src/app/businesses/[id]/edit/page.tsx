@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useTransition, useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, X, Instagram, Users } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, Twitter, Instagram, Users } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -70,18 +70,17 @@ const formSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof formSchema>;
 
-const stripBaseUrl = (baseUrl: string, fullUrl?: string) => {
+const stripUsernameFromUrl = (fullUrl?: string) => {
     if (!fullUrl) return '';
     try {
         const url = new URL(fullUrl);
-        const base = new URL(baseUrl);
-        if (url.hostname === base.hostname) {
-             return url.pathname.substring(base.pathname.length).replace(/^\//, '');
-        }
+        const pathParts = url.pathname.split('/').filter(Boolean);
+        // Handles linkedin.com/company/handle, twitter.com/handle, etc.
+        return pathParts.pop() || '';
     } catch (e) {
-      // Ignore invalid URLs
+      // if it's not a valid URL, it's probably just the handle
+      return fullUrl;
     }
-    return fullUrl;
 }
 
 export default function EditBusinessPage() {
@@ -124,10 +123,10 @@ export default function EditBusinessPage() {
         address: foundBusiness.contact?.address || '',
         businessNumber: foundBusiness.contact?.businessNumber || '',
         tags: foundBusiness.tags?.join(', ') || '',
-        socialTwitter: stripBaseUrl('https://x.com/', foundBusiness.socialMedia?.twitter),
-        socialFacebook: stripBaseUrl('https://facebook.com/', foundBusiness.socialMedia?.facebook),
-        socialLinkedin: stripBaseUrl('https://linkedin.com/company/', foundBusiness.socialMedia?.linkedin),
-        socialInstagram: stripBaseUrl('https://instagram.com/', foundBusiness.socialMedia?.instagram),
+        socialTwitter: stripUsernameFromUrl(foundBusiness.socialMedia?.twitter),
+        socialFacebook: stripUsernameFromUrl(foundBusiness.socialMedia?.facebook),
+        socialLinkedin: stripUsernameFromUrl(foundBusiness.socialMedia?.linkedin),
+        socialInstagram: stripUsernameFromUrl(foundBusiness.socialMedia?.instagram),
         socialFacebookGroup: foundBusiness.socialMedia?.facebookGroup || '',
       });
     }
@@ -335,7 +334,7 @@ export default function EditBusinessPage() {
               <div className="space-y-4">
                 <h3 className="font-headline text-lg font-semibold border-b pb-2">Social Media (Optional)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><X/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="socialTwitter" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Twitter/> X (Twitter)</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">x.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="socialInstagram" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Instagram /> Instagram</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">instagram.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="socialLinkedin" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Linkedin /> LinkedIn</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">linkedin.com/company/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="socialFacebook" render={({ field }) => (<FormItem><FormLabel><div className="flex items-center gap-2"><Facebook /> Facebook Page</div></FormLabel><div className="flex items-center"><span className="text-sm text-muted-foreground px-2 py-1 rounded-l-md border border-r-0 h-10 flex items-center bg-muted">facebook.com/</span><FormControl><Input className="rounded-l-none" placeholder="yourhandle" {...field} /></FormControl></div><FormMessage /></FormItem>)} />
