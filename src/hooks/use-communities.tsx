@@ -6,7 +6,6 @@ import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where
 import { firestore, auth } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
-import { useNotifications } from './use-notifications';
 
 export interface CommunityManager {
   uid: string;
@@ -78,7 +77,6 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { createNotificationForUser } = useNotifications();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -269,18 +267,11 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
         managers: updatedManagers
       });
       
-      await createNotificationForUser(userDoc.id, {
-          title: "You're a Community Manager!",
-          description: `You have been added as a manager for "${community.name}".`,
-          link: `/c/${community.slug}/edit`,
-          icon: 'Shield',
-      });
-      
     } catch (error: any) {
       console.error("Error adding manager:", error);
       throw error;
     }
-  }, [getCommunityById, createNotificationForUser]);
+  }, [getCommunityById]);
   
   const removeManager = useCallback(async (communityId: string, managerUid: string) => {
     const community = getCommunityById(communityId);

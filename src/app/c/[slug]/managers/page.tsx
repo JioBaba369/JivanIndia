@@ -23,6 +23,7 @@ import { getInitials } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { EmailInput } from "@/components/feature/user-search";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNotifications } from "@/hooks/use-notifications";
 
 type ManagerRole = 'admin' | 'moderator';
 
@@ -34,6 +35,7 @@ export default function CommunityManagersPage() {
   const { getCommunityBySlug, isLoading: isLoadingCommunities, addManager, removeManager, canManageCommunity } = useCommunities();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { createNotificationForUser } = useNotifications();
   
   const [isPending, startTransition] = useTransition();
   const [community, setCommunity] = useState<Community | null>(null);
@@ -86,6 +88,14 @@ export default function CommunityManagersPage() {
       startTransition(async () => {
         try {
           await addManager(community.id, foundUser.email, newManagerRole);
+          
+          await createNotificationForUser(foundUser.uid, {
+              title: "You're a Community Manager!",
+              description: `You have been added as a manager for "${community.name}".`,
+              link: `/c/${community.slug}/edit`,
+              icon: 'Shield',
+          });
+
           toast({ title: 'Manager Added', description: `${foundUser.name} can now manage this community.` });
           setNewManagerEmail('');
           setFoundUser(null);

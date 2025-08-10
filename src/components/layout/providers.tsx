@@ -23,10 +23,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <CountriesProvider>
         <IndiaLocationsProvider>
           <AboutProvider>
+            <NotificationsProvider>
               <AuthProvider>
                   <SearchProvider>
                     <ReportsProvider>
-                      <NotificationsProvider>
                         <CommunitiesProvider>
                             <SponsorsProvider>
                                 <DealsProvider>
@@ -44,10 +44,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                                 </DealsProvider>
                             </SponsorsProvider>
                         </CommunitiesProvider>
-                      </NotificationsProvider>
                     </ReportsProvider>
                   </SearchProvider>
               </AuthProvider>
+            </NotificationsProvider>
           </AboutProvider>
         </IndiaLocationsProvider>
       </CountriesProvider>
