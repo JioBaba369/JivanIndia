@@ -31,11 +31,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useBusinesses, businessCategories, type NewBusinessInput } from '@/hooks/use-businesses';
+import ImageUpload from '@/components/feature/image-upload';
 
 
 const formSchema = z.object({
   name: z.string().min(3, "Business name must be at least 3 characters."),
   category: z.enum(businessCategories),
+  imageUrl: z.string().url({ message: "An image URL is required." }),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
   region: z.string().min(2, "Region is required."),
@@ -61,6 +63,7 @@ export default function NewBusinessEntryPage() {
     defaultValues: {
       name: '',
       category: 'Other',
+      imageUrl: '',
       description: '',
       fullDescription: '',
       region: '',
@@ -87,6 +90,7 @@ export default function NewBusinessEntryPage() {
         const newBusinessData: NewBusinessInput = {
           name: values.name,
           category: values.category,
+          imageUrl: values.imageUrl,
           description: values.description,
           fullDescription: values.fullDescription,
           region: values.region,
@@ -163,6 +167,25 @@ export default function NewBusinessEntryPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Business Image *</FormLabel>
+                        <FormControl>
+                            <ImageUpload
+                                value={field.value}
+                                onChange={field.onChange}
+                                aspectRatio={16/9}
+                                toast={toast}
+                                folderName="business-images"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
               <FormField name="name" control={form.control} render={({field}) => (<FormItem><FormLabel>Business/Place Name *</FormLabel><FormControl><Input {...field} placeholder="e.g., Fremont Hindu Temple" /></FormControl><FormMessage /></FormItem>)}/>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField name="category" control={form.control} render={({field}) => (<FormItem><FormLabel>Category *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent>{businessCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)}/>

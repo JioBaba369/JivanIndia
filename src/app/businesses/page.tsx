@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 export default function BusinessesPage() {
     const { businesses, isLoading } = useBusinesses();
@@ -127,9 +128,13 @@ export default function BusinessesPage() {
                     <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
                         <div className="relative h-48 w-full bg-muted">
                             <Link href={`/businesses/${business.id}`}>
-                              <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                                <Building className="h-16 w-16 text-muted-foreground" />
-                              </div>
+                              {business.imageUrl ? (
+                                <Image src={business.imageUrl} alt={business.name} fill className="object-cover" data-ai-hint="business photo" />
+                               ) : (
+                                <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                                  <Building className="h-16 w-16 text-muted-foreground" />
+                                </div>
+                               )}
                             </Link>
                             {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
                             <div className="absolute top-2 right-2">

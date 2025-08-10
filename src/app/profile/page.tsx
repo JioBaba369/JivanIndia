@@ -176,8 +176,8 @@ export default function ProfilePage() {
                                         {savedDeals.map((deal) => (
                                             <Card key={deal.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
                                                 <Link href={`/deals/${deal.id}`} className="flex h-full flex-col">
-                                                    <div className="relative h-40 w-full">
-                                                        <Image src={deal.imageUrl} alt={deal.title} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="deal photo"/>
+                                                    <div className="relative h-40 w-full bg-muted flex items-center justify-center">
+                                                      <Tag className="h-12 w-12 text-muted-foreground"/>
                                                     </div>
                                                     <CardContent className="flex flex-grow flex-col p-4">
                                                         <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{deal.title}</h3>
@@ -204,7 +204,13 @@ export default function ProfilePage() {
                                             <Card key={business.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
                                                 <Link href={`/businesses/${business.id}`} className="flex h-full flex-col">
                                                     <div className="relative h-40 w-full">
-                                                        <Image src={business.imageUrl} alt={business.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
+                                                        {business.imageUrl ? (
+                                                          <Image src={business.imageUrl} alt={business.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
+                                                        ) : (
+                                                          <div className="bg-muted h-full w-full flex items-center justify-center">
+                                                            <Building className="h-12 w-12 text-muted-foreground"/>
+                                                          </div>
+                                                        )}
                                                     </div>
                                                     <CardContent className="flex flex-grow flex-col p-4">
                                                         <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{business.name}</h3>
@@ -232,7 +238,13 @@ export default function ProfilePage() {
                                             <Card key={community.id} className="group flex flex-col overflow-hidden transition-all hover:shadow-lg">
                                                 <Link href={`/c/${community.slug}`} className="flex h-full flex-col">
                                                     <div className="relative h-40 w-full">
-                                                        <Image src={community.imageUrl} alt={community.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint="community photo"/>
+                                                        {community.logoUrl ? (
+                                                          <Image src={community.logoUrl} alt={community.name} fill className="object-contain p-4 transition-transform group-hover:scale-105" data-ai-hint="community photo"/>
+                                                        ) : (
+                                                          <div className="bg-muted h-full w-full flex items-center justify-center">
+                                                              <Users className="h-12 w-12 text-muted-foreground" />
+                                                          </div>
+                                                        )}
                                                     </div>
                                                     <CardContent className="flex flex-grow flex-col p-4">
                                                         <h3 className="font-headline flex-grow text-lg font-semibold group-hover:text-primary">{community.name}</h3>

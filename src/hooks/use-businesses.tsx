@@ -16,6 +16,7 @@ export interface Business {
   category: BusinessCategory;
   description: string;
   fullDescription: string;
+  imageUrl?: string;
   isVerified: boolean;
   isFeatured?: boolean;
   region: string;

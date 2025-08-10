@@ -13,6 +13,7 @@ import { useEvents } from "@/hooks/use-events";
 import { useCommunities } from "@/hooks/use-communities";
 import { useBusinesses } from "@/hooks/use-businesses";
 import ReportDialog from "@/components/feature/report-dialog";
+import Image from "next/image";
 
 export default function BusinessDetailPage() {
   const params = useParams();
@@ -93,6 +94,15 @@ export default function BusinessDetailPage() {
       <div className="container mx-auto px-4 py-12">
         <Card className="overflow-hidden">
           <div className="relative h-64 md:h-96 w-full bg-muted">
+            {business.imageUrl && (
+              <Image
+                src={business.imageUrl}
+                alt={business.name}
+                fill
+                className="object-cover"
+                data-ai-hint="business photo"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 p-6 md:p-8">
               <Badge variant="secondary">
