@@ -1,7 +1,7 @@
 
 import { MetadataRoute } from 'next';
-import { getDocs, collection } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 import { type Community } from '@/hooks/use-communities';
 import { type Event } from '@/hooks/use-events';
 import { type User } from '@/hooks/use-auth';
@@ -10,12 +10,28 @@ import { type Movie } from '@/hooks/use-movies';
 import { type Business } from '@/hooks/use-businesses';
 import { type Sponsor } from '@/hooks/use-sponsors';
 
+// Securely initialize Firebase Admin SDK for server-side operations
+if (!getApps().length) {
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!);
+        initializeApp({
+            credential: cert(serviceAccount)
+        });
+    } catch (e) {
+        console.error('Firebase Admin initialization error:', e);
+        // Fallback for local development if env var is not set, 
+        // though it's better to use emulators or have it set.
+    }
+}
+
+
+const db = getFirestore();
 const BASE_URL = 'https://jivanindia.co';
 const FALLBACK_LAST_MOD = new Date('2024-01-01').toISOString();
 
 async function fetchCollection<T>(collectionName: string): Promise<(T & { id: string })[]> {
     try {
-        const snapshot = await getDocs(collection(firestore, collectionName));
+        const snapshot = await db.collection(collectionName).get();
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T & { id: string }));
     } catch (error) {
         console.error(`Error fetching collection ${collectionName}:`, error);

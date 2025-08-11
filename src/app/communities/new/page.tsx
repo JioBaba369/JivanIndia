@@ -88,20 +88,16 @@ const formSchema = (isSlugUnique: (slug: string) => Promise<boolean>) =>
     address: z.string().min(10, 'Please enter a valid address.').optional().or(z.literal('')),
     socialTwitter: z
       .string()
-      .optional()
-      .refine((val) => !val || /^[a-zA-Z0-9_]+$/.test(val), 'Invalid Twitter handle.'),
+      .optional(),
     socialLinkedin: z
       .string()
-      .optional()
-      .refine((val) => !val || /^[a-zA-Z0-9-]+$/.test(val), 'Invalid LinkedIn handle.'),
+      .optional(),
     socialFacebook: z
       .string()
-      .optional()
-      .refine((val) => !val || /^[a-zA-Z0-9.]+$/.test(val), 'Invalid Facebook handle.'),
+      .optional(),
     socialInstagram: z
       .string()
-      .optional()
-      .refine((val) => !val || /^[a-zA-Z0-9_.]+$/.test(val), 'Invalid Instagram handle.'),
+      .optional(),
     socialFacebookGroup: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   });
 

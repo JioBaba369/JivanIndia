@@ -13,6 +13,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'firebasestorage.googleapis.com',
         port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -50,6 +51,9 @@ const nextConfig = {
         pathname: '/**',
       }
     ],
+    dangerouslyAllowSVG: false,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

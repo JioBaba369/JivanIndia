@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, collection, query, where, getDocs, onSnapshot, writeBatch } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import type { User } from './use-auth';
@@ -131,24 +131,41 @@ export function AboutProvider({ children }: { children: ReactNode }) {
           return;
         }
         
-        const userToAdd = querySnapshot.docs[0];
+        const userDoc = querySnapshot.docs[0];
+        const userToAdd = { id: userDoc.id, ...userDoc.data() } as User;
         
-        if (aboutContent.adminUids.includes(userToAdd.id)) {
+        if (userToAdd.roles?.includes('admin')) {
             toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
             return;
         }
 
-        await updateDoc(aboutDocRef, { adminUids: arrayUnion(userToAdd.id) });
+        const batch = writeBatch(firestore);
+        // Add to singleton document
+        batch.update(aboutDocRef, { adminUids: arrayUnion(userToAdd.id) });
+        // Add to user's roles array
+        const userRef = doc(firestore, 'users', userToAdd.id);
+        batch.update(userRef, { roles: arrayUnion('admin') });
+        
+        await batch.commit();
+        
         toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
     } catch (e) {
       console.error("Error adding admin: ", e);
       toast({ title: 'Error', description: 'Could not add admin.', variant: 'destructive' });
     }
-  }, [aboutContent.adminUids, aboutDocRef, toast]);
+  }, [aboutDocRef, toast]);
 
   const removeAdmin = useCallback(async (uid: string) => {
     try {
-      await updateDoc(aboutDocRef, { adminUids: arrayRemove(uid) });
+      const batch = writeBatch(firestore);
+      // Remove from singleton document
+      batch.update(aboutDocRef, { adminUids: arrayRemove(uid) });
+      // Remove from user's roles array
+      const userRef = doc(firestore, 'users', uid);
+      batch.update(userRef, { roles: arrayRemove('admin') });
+      
+      await batch.commit();
+
       toast({ title: 'Admin Removed', description: 'Admin privileges have been revoked.' });
     } catch (e) {
       console.error("Error removing admin: ", e);

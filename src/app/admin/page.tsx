@@ -263,19 +263,11 @@ export default function AdminDashboardPage() {
         setIsUsersLoading(true);
         try {
           const usersCollectionRef = collection(firestore, 'users');
-          const adminUidsChunks: string[][] = [];
-          for (let i = 0; i < aboutContent.adminUids.length; i += 30) {
-              adminUidsChunks.push(aboutContent.adminUids.slice(i, i + 30));
-          }
+          // Query for users who have 'admin' in their roles array
+          const q = query(usersCollectionRef, where('roles', 'array-contains', 'admin'));
           
-          const userPromises = adminUidsChunks.map(chunk => 
-            getDocs(query(usersCollectionRef, where('__name__', 'in', chunk)))
-          );
-          
-          const userSnapshots = await Promise.all(userPromises);
-          const adminUsersData = userSnapshots.flatMap(snapshot => 
-            snapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User))
-          );
+          const querySnapshot = await getDocs(q);
+          const adminUsersData = querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User));
           
           setAdminUsers(adminUsersData);
         } catch (error) {
