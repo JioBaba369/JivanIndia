@@ -115,10 +115,14 @@ const TeamMemberDialog = ({
   const [bio, setBio] = useState('');
 
   useEffect(() => {
-    if (isOpen) {
-      setName(member?.name || '');
-      setRole(member?.role || '');
-      setBio(member?.bio || '');
+    if (isOpen && member) {
+      setName(member.name);
+      setRole(member.role);
+      setBio(member.bio);
+    } else if (isOpen) {
+      setName('');
+      setRole('');
+      setBio('');
     }
   }, [isOpen, member]);
 
@@ -258,12 +262,11 @@ export default function AdminDashboardPage() {
   }, [user, isAuthLoading, hasAdminRole, router]);
 
   useEffect(() => {
-    if (aboutContent.adminUids && aboutContent.adminUids.length > 0 && hasAdminRole) {
+    if (hasAdminRole) {
       const fetchAdminUsers = async () => {
         setIsUsersLoading(true);
         try {
           const usersCollectionRef = collection(firestore, 'users');
-          // Query for users who have 'admin' in their roles array
           const q = query(usersCollectionRef, where('roles', 'array-contains', 'admin'));
           
           const querySnapshot = await getDocs(q);
@@ -334,7 +337,11 @@ export default function AdminDashboardPage() {
   }
 
   const handleAddAdmin = async (email: string) => {
-    await addAdmin(email);
+    try {
+      await addAdmin(email);
+    } catch(e) {
+      // Error is handled in the hook with a toast
+    }
   }
 
   const handleRemoveAdmin = async (uid: string) => {

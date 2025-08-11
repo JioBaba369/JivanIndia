@@ -107,17 +107,21 @@ export default function CommunityManagersPage() {
     });
   };
 
-  const handleRemoveManager = async (uid: string) => {
-    if (community) {
-      startTransition(async () => {
-        try {
-          await removeManager(community.id, uid);
-          toast({ title: 'Manager Removed', description: `Manager has been removed successfully.` });
-        } catch(error: any) {
-          toast({ title: 'Error', description: error.message, variant: 'destructive' });
-        }
-      });
+  const handleRemoveManager = async (manager: CommunityManager) => {
+    if (!community) return;
+    if (manager.uid === community.founderUid) {
+      toast({ title: "Action Not Allowed", description: "The community founder cannot be removed.", variant: "destructive" });
+      return;
     }
+    
+    startTransition(async () => {
+      try {
+        await removeManager(community.id, manager.uid);
+        toast({ title: 'Manager Removed', description: `${manager.name} has been removed successfully.` });
+      } catch(error: any) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    });
   };
   
   const ManagerCard = ({ manager, isFounder }: { manager: CommunityManager, isFounder: boolean }) => (
@@ -140,7 +144,7 @@ export default function CommunityManagersPage() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                     <AlertDialogHeader><AlertDialogTitle>Remove {manager.name}?</AlertDialogTitle><AlertDialogDescription>This will revoke all management permissions for this user.</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveManager(manager.uid)}>Yes, remove</AlertDialogAction></AlertDialogFooter>
+                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveManager(manager)}>Yes, remove</AlertDialogAction></AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
             )}
