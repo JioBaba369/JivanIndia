@@ -124,9 +124,9 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild onClick={handleItemClick}>
-                      <Link href={`/c/${user.affiliation.communitySlug}/edit`}>
-                        <Settings className="mr-2 h-4 w-4"/>
-                        Community Settings
+                      <Link href={`/c/${user.affiliation.communitySlug}/managers`}>
+                        <Users className="mr-2 h-4 w-4"/>
+                        Manage Managers
                       </Link>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>

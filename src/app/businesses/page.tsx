@@ -183,7 +183,9 @@ export default function BusinessesPage() {
                                 <Image src={business.logoUrl} alt={business.name} fill className="object-contain p-4" data-ai-hint="business logo" />
                                ) : (
                                 <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                                  <Building className="h-16 w-16 text-muted-foreground" />
+                                    <Avatar className="h-24 w-24">
+                                        <AvatarFallback className="text-3xl font-headline">{getInitials(business.name)}</AvatarFallback>
+                                    </Avatar>
                                 </div>
                                )}
                             </Link>

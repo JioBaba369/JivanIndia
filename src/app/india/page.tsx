@@ -4,6 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Briefcase, LandPlot, Sprout, Milestone, LineChart } from "lucide-react";
 import StatCard from "@/components/feature/stat-card";
+import Image from "next/image";
 
 export default function AboutIndiaPage() {
   const stats = [
@@ -59,8 +60,8 @@ export default function AboutIndiaPage() {
       <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <div className="rounded-lg shadow-xl aspect-video bg-muted"></div>
+                    <div className="relative rounded-lg shadow-xl aspect-video bg-muted overflow-hidden">
+                        <Image src="https://images.unsplash.com/photo-1524850011238-e32643a5d871?q=80&w=2070&auto=format&fit=crop" alt="Indian festival celebration" fill className="object-cover" data-ai-hint="indian festival" />
                     </div>
                     <div className="max-w-xl">
                         <h2 className="font-headline text-3xl font-bold mb-4">Cultural Ambassadors</h2>
@@ -81,8 +82,8 @@ export default function AboutIndiaPage() {
                            The Indian diaspora's roots trace back centuries. Early migrations occurred through trade with ancient civilizations in Southeast Asia and the Middle East. The 19th century saw large-scale movements under British colonial rule, with indentured laborers sent to plantations in the Caribbean, Africa, and Fiji. Post-independence, skilled professionals migrated to the West for education and opportunities, particularly during the IT boom of the 1990s. Today, migration continues for work, study, and family reunification, making India the top source of international migrants annually.
                         </p>
                     </div>
-                    <div className="md:order-1">
-                         <div className="rounded-lg shadow-xl aspect-video bg-muted"></div>
+                    <div className="md:order-1 relative rounded-lg shadow-xl aspect-video bg-muted overflow-hidden">
+                        <Image src="https://images.unsplash.com/photo-1619493652395-654e2f694a12?q=80&w=2070&auto=format&fit=crop" alt="Vintage map showing India" fill className="object-cover" data-ai-hint="historical migration" />
                     </div>
                 </div>
             </div>
@@ -91,8 +92,8 @@ export default function AboutIndiaPage() {
         <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <div className="rounded-lg shadow-xl aspect-video bg-muted"></div>
+                    <div className="relative rounded-lg shadow-xl aspect-video bg-muted overflow-hidden">
+                        <Image src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2070&auto=format&fit=crop" alt="People in a business meeting" fill className="object-cover" data-ai-hint="business meeting" />
                     </div>
                     <div className="max-w-xl">
                         <h2 className="font-headline text-3xl font-bold mb-4">Economic & Social Contributions</h2>
