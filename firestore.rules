@@ -3,176 +3,116 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Deny all reads and writes by default
+    
+    // Helper Functions
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return get(/databases/$(database)/documents/about/singleton).data.adminUids.hasAny([request.auth.uid]);
+    }
+    
+    function isCommunityManager(communityId) {
+        let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
+        return request.auth.uid == community.founderUid || (community.managers != null && community.managers.exists(m, m.uid == request.auth.uid));
+    }
+    
+    function getRole(communityId, userId) {
+      let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
+      if (request.auth.uid == community.founderUid) {
+        return 'admin';
+      }
+      if (community.managers != null) {
+        let manager = community.managers.filter(m, m.uid == userId);
+        if (manager.size() > 0) {
+            return manager[0].role;
+        }
+      }
+      return 'none';
+    }
+
+    // Default: Deny all reads/writes unless explicitly allowed
     match /{document=**} {
       allow read, write: if false;
     }
 
-    //------------------------------------------------------------
-    //  User Profiles (users)
-    //------------------------------------------------------------
+    // Static content is readable by all
+    match /about/singleton {
+      allow read: if true;
+      allow write: if isAdmin(); 
+    }
+    match /countries/{docId} {
+      allow read: if true;
+    }
+    match /india_locations/{docId} {
+      allow read: if true;
+    }
+
+    // Users
     match /users/{userId} {
-      // ANYONE can read the public profile fields
-      allow get: if true;
-      allow list: if request.auth != null;
-
-      // ONLY the authenticated user can read their full document
-      allow read: if request.auth != null && request.auth.uid == userId;
-      
-      // A user can only create THEIR OWN profile document
-      allow create: if request.auth != null && request.auth.uid == userId;
-      
-      // A user can only update THEIR OWN profile
-      // The `roles` field cannot be changed by the user.
-      allow update: if request.auth != null && request.auth.uid == userId
-                    && !('roles' in request.resource.data);
-    }
-    
-    //------------------------------------------------------------
-    //  About Page & Admin Management (about)
-    //------------------------------------------------------------
-    match /about/{docId} {
-      // ANYONE can read the about page content
-      allow get: if true;
-      
-      // ONLY an admin can write to the about page content.
-      // An admin is defined as a user whose UID is in the 'adminUids' list
-      // in the document *before* the change. For the initial document, this
-      // must be seeded manually in Firestore.
-      allow write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids;
+      allow read: if true; 
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.keys().hasOnly(['name', 'username', 'bio', 'profileImageUrl', 'phone', 'website', 'currentLocation', 'originLocation', 'languagesSpoken', 'interests', 'savedEvents', 'joinedCommunities', 'savedDeals', 'savedBusinesses', 'savedMovies', 'notificationPreferences', 'calendarSyncEnabled']);
     }
 
-    //------------------------------------------------------------
-    //  Communities
-    //------------------------------------------------------------
+    // Communities
     match /communities/{communityId} {
       allow read: if true;
-      
-      // Any authenticated user can create a community
-      allow create: if request.auth != null && request.resource.data.founderUid == request.auth.uid;
-      
-      // Update allowed if user is founder, manager, or platform admin
-      allow update: if request.auth != null && (
-                      (resource.data.founderUid == request.auth.uid) ||
-                      (resource.data.managers.exists(m, m.uid == request.auth.uid)) ||
-                      (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids)
-                    );
-                    
-      // Delete allowed ONLY for founder or platform admin
-      allow delete: if request.auth != null && (
-                      (resource.data.founderUid == request.auth.uid) ||
-                      (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids)
-                    );
+      allow create: if isAuth() && request.resource.data.founderUid == request.auth.uid;
+      allow update: if isAuth() && (isAdmin() || isCommunityManager(communityId));
+      allow delete: if isAuth() && (isAdmin() || isOwner(get(/databases/$(database)/documents/communities/$(communityId)).data.founderUid));
     }
 
-    //------------------------------------------------------------
-    //  Events
-    //------------------------------------------------------------
+    // Events
     match /events/{eventId} {
-      allow read: if true;
-
-      // Allow create if user is authenticated and affiliated with an org
-      allow create: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation.orgId == request.resource.data.organizerId;
-      
-      // Allow update if user is the original submitter, a manager of the community, or a platform admin
-      allow update: if request.auth != null && (
-                      (resource.data.submittedByUid == request.auth.uid) ||
-                      (get(/databases/$(database)/documents/communities/$(resource.data.organizerId)).data.founderUid == request.auth.uid) ||
-                      (get(/databases/$(database)/documents/communities/$(resource.data.organizerId)).data.managers.exists(m, m.uid == request.auth.uid)) ||
-                      (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids)
-                    );
-                    
-      // Allow delete if user is a manager of the community or a platform admin
-      allow delete: if request.auth != null && (
-                      (get(/databases/$(database)/documents/communities/$(resource.data.organizerId)).data.founderUid == request.auth.uid) ||
-                      (get(/databases/$(database)/documents/communities/$(resource.data.organizerId)).data.managers.exists(m, m.uid == request.auth.uid)) ||
-                      (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids)
-                    );
+      allow read: if resource.data.status == 'Approved' || (isAuth() && (isAdmin() || isCommunityManager(resource.data.organizerId)));
+      allow create: if isAuth() && isCommunityManager(request.resource.data.organizerId);
+      allow update: if isAuth() && (isAdmin() || isCommunityManager(resource.data.organizerId));
+      allow delete: if isAuth() && (isAdmin() || isCommunityManager(resource.data.organizerId));
     }
 
-    //------------------------------------------------------------
-    //  Businesses
-    //------------------------------------------------------------
-    match /businesses/{businessId} {
-        allow read: if true;
-        // Allow create if user is authenticated
-        allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
-        // Allow update if user is owner or platform admin
-        allow update: if request.auth != null && (
-                        (resource.data.ownerId == request.auth.uid) ||
-                        (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids)
-                      );
-        // Allow delete if user is owner or platform admin
-        allow delete: if request.auth != null && (
-                        (resource.data.ownerId == request.auth.uid) ||
-                        (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids)
-                      );
-    }
-
-    //------------------------------------------------------------
-    //  Deals
-    //------------------------------------------------------------
-     match /deals/{dealId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
-      // You can expand update/delete rules later if needed
-    }
-
-    //------------------------------------------------------------
-    //  Movies
-    //------------------------------------------------------------
-    match /movies/{movieId} {
-      allow read: if true;
-      // Only admins can create/update/delete movies
-      allow write: if request.auth != null && (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids);
-    }
-    
-    //------------------------------------------------------------
-    //  Jobs
-    //------------------------------------------------------------
-    match /jobs/{jobId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.resource.data.submittedByUid == request.auth.uid;
-    }
-
-    //------------------------------------------------------------
-    //  Sponsors
-    //------------------------------------------------------------
-    match /sponsors/{sponsorId} {
-      allow read: if true;
-      // Only admins can write to sponsors
-      allow write: if request.auth != null && (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids);
-    }
-    
-    //------------------------------------------------------------
-    //  Reports
-    //------------------------------------------------------------
+    // Reports: Users can create, Admins can read/update
     match /reports/{reportId} {
-      // Any authenticated user can create a report
-      allow create: if request.auth != null && request.resource.data.reportedByUid == request.auth.uid;
-      
-      // Only admins can read or update (e.g., change status) reports
-      allow read, update: if request.auth != null && (request.auth.uid in get(/databases/$(database)/documents/about/singleton).data.adminUids);
+        allow create: if isAuth() && request.resource.data.reportedByUid == request.auth.uid;
+        allow read, update: if isAuth() && isAdmin();
+    }
+
+    // Deals, Jobs, Sponsors, Movies: Affiliated users can create, Admins can manage
+    match /deals/{dealId} {
+        allow read: if true;
+        allow create: if isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation != null;
+        allow update, delete: if isAuth() && (isAdmin() || isOwner(resource.data.submittedByUid));
     }
     
-    //------------------------------------------------------------
-    //  Notifications
-    //------------------------------------------------------------
+    match /jobs/{jobId} {
+        allow read: if true;
+        allow create: if isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.affiliation != null;
+        allow update, delete: if isAuth() && isAdmin();
+    }
+
+    match /sponsors/{sponsorId} {
+        allow read: if true;
+        allow create, update, delete: if isAuth() && isAdmin();
+    }
+    
+    match /movies/{movieId} {
+        allow read: if true;
+        allow create, update, delete: if isAuth() && isAdmin();
+    }
+
+    // Notifications: Read/write by the owner only
     match /notifications/{notificationId} {
-      // A user can only access their own notifications
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
-      // Notifications are created server-side, so no client-create rule is needed.
+        allow read, write: if isAuth() && isOwner(resource.data.userId);
     }
     
-    //------------------------------------------------------------
-    //  Contact Submissions
-    //------------------------------------------------------------
+    // Contact submissions: Write only
     match /contacts/{contactId} {
-        // Allow anyone to create a contact message
         allow create: if true;
     }
-    
   }
 }

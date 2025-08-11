@@ -328,7 +328,7 @@ export default function UserPublicProfilePage() {
                                                 <Link href={`/businesses/${business.id}`} className="flex h-full flex-col">
                                                     <div className="relative h-40 w-full">
                                                         {business.logoUrl ? (
-                                                          <Image src={business.logoUrl} alt={business.name} fill className="object-contain p-4 transition-transform group-hover:scale-105" data-ai-hint="business photo"/>
+                                                          <Image src={business.logoUrl} alt={business.name} fill className="object-contain p-4 transition-transform group-hover:scale-105" data-ai-hint="business logo" />
                                                         ) : (
                                                           <div className="bg-muted h-full w-full flex items-center justify-center">
                                                             <Building className="h-12 w-12 text-muted-foreground"/>
