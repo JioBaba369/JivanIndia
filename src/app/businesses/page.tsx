@@ -163,7 +163,7 @@ export default function BusinessesPage() {
         <section className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {isLoading ? <BusinessSkeletons /> : (
-            approvedBusinesses.length === 0 ? (
+            filteredBusinesses.length === 0 ? (
                 <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <Building className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
