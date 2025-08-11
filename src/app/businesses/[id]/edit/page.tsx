@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
+import { useAbout } from '@/hooks/use-about';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
@@ -26,6 +27,7 @@ export default function EditBusinessPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { businesses, updateBusiness, isLoading } = useBusinesses();
+  const { aboutContent } = useAbout();
   
   const [isPending, startTransition] = useTransition();
   const [business, setBusiness] = useState<Business | null>(null);
@@ -37,7 +39,7 @@ export default function EditBusinessPage() {
     }
   }, [id, businesses]);
   
-  const canEdit = user && business && (user.roles.includes('admin') || user.uid === business.ownerId);
+  const canEdit = user && business && (aboutContent.adminUids.includes(user.uid) || user.uid === business.ownerId);
 
   const onSubmit = async (values: any) => {
     if (!business) return;

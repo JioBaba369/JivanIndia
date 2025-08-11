@@ -16,6 +16,7 @@ import ReportDialog from "@/components/feature/report-dialog";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials, formatUrl } from "@/lib/utils";
+import { useAbout } from "@/hooks/use-about";
 
 export default function BusinessDetailPage() {
   const params = useParams();
@@ -25,6 +26,7 @@ export default function BusinessDetailPage() {
   const business = businesses.find(p => p.id === id);
   
   const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
+  const { aboutContent } = useAbout();
   const { toast } = useToast();
 
   const relatedEvents = []; // Business pages no longer link to community events
@@ -79,7 +81,7 @@ export default function BusinessDetailPage() {
   }
 
   const businessIsSaved = user ? isItemSaved('savedBusinesses', business.id) : false;
-  const canEdit = user && (user.roles.includes('admin') || user.uid === business.ownerId);
+  const canEdit = user && (aboutContent.adminUids.includes(user.uid) || user.uid === business.ownerId);
 
   return (
     <div className="bg-background">

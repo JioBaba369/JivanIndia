@@ -9,8 +9,6 @@ import { useToast } from './use-toast';
 import { generateSlug } from '@/lib/utils';
 
 
-export type UserRole = 'admin' | 'community-manager';
-
 export interface User {
   uid: string;
   name: string;

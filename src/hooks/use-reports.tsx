@@ -6,6 +6,7 @@ import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query,
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
+import { useAbout } from './use-about';
 
 export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
 export type ContentType = 'Event' | 'Community' | 'Business' | 'Movie' | 'Deal' | 'Career' | 'Sponsor';
@@ -37,14 +38,17 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthLoading } = useAuth();
+  const { aboutContent } = useAbout();
 
   useEffect(() => {
     if (isAuthLoading) {
       return; 
     }
+    
+    const isAdmin = user ? aboutContent.adminUids.includes(user.uid) : false;
 
-    if (user?.roles.includes('admin')) {
+    if (isAdmin) {
       const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
@@ -61,7 +65,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       setReports([]);
       setIsLoading(false);
     }
-  }, [user, isAuthLoading, toast]);
+  }, [user, isAuthLoading, aboutContent, toast]);
 
   const addReport = useCallback(async (reportData: NewReportInput) => {
     try {

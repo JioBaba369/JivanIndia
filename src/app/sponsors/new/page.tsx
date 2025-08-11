@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
+import { useAbout } from '@/hooks/use-about';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -63,6 +64,7 @@ export default function NewSponsorPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { aboutContent } = useAbout();
   const { addSponsor } = useSponsors();
   
   const [isPending, startTransition] = useTransition();
@@ -87,9 +89,11 @@ export default function NewSponsorPage() {
     },
     mode: 'onChange'
   });
+  
+  const isAdmin = user && aboutContent.adminUids.includes(user.uid);
 
   const onSubmit = async (values: SponsorFormValues) => {
-     if (!user?.roles.includes('admin')) {
+     if (!isAdmin) {
       toast({
         title: 'Admin Access Required',
         description: 'Only platform administrators can add new sponsors.',
@@ -128,7 +132,7 @@ export default function NewSponsorPage() {
     });
   };
 
-  if (!user || !user.roles.includes('admin')) {
+  if (!isAdmin) {
     return (
        <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">

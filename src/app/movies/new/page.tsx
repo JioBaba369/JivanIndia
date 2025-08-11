@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
+import { useAbout } from '@/hooks/use-about';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -69,6 +70,7 @@ export default function NewMoviePage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { aboutContent } = useAbout();
   const { addMovie } = useMovies();
   const { communities } = useCommunities();
   const [isPending, startTransition] = useTransition();
@@ -97,9 +99,11 @@ export default function NewMoviePage() {
     control: form.control,
     name: "theaters",
   });
+  
+  const isAdmin = user && aboutContent.adminUids.includes(user.uid);
 
   const onSubmit = (values: MovieFormValues) => {
-    if (!user?.roles.includes('admin')) {
+    if (!isAdmin) {
       toast({ title: 'Admin Access Required', variant: 'destructive' });
       return;
     }
@@ -144,7 +148,7 @@ export default function NewMoviePage() {
     });
   };
 
-  if (!user || !user.roles.includes('admin')) {
+  if (!isAdmin) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <Card className="mx-auto max-w-md">
@@ -215,5 +219,3 @@ export default function NewMoviePage() {
     </div>
   );
 }
-
-    

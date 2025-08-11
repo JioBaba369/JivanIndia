@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import ReportDialog from "@/components/feature/report-dialog";
 import { useSponsors } from "@/hooks/use-sponsors";
+import { useAbout } from "@/hooks/use-about";
 
 
 export default function EventDetailPage() {
@@ -32,6 +33,7 @@ export default function EventDetailPage() {
 
   const { toast } = useToast();
   const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
+  const { aboutContent } = useAbout();
   const router = useRouter();
   
   const eventSponsors = useMemo(() => {
@@ -133,7 +135,7 @@ export default function EventDetailPage() {
   }
 
   const eventIsSaved = user ? isItemSaved('savedEvents', event.id) : false;
-  const canEditEvent = user && (user.uid === event.submittedByUid || user.roles.includes('admin'));
+  const canEditEvent = user && (user.uid === event.submittedByUid || aboutContent.adminUids.includes(user.uid));
 
   const TicketButton = () => {
     if (event.ticketLink) {

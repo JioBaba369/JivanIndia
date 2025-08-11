@@ -4,13 +4,16 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { useAbout } from '@/hooks/use-about';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const { aboutContent, isLoading: isAboutLoading } = useAbout();
   const router = useRouter();
 
   useEffect(() => {
+    const isLoading = isAuthLoading || isAboutLoading;
     if (isLoading) {
       return; 
     }
@@ -20,7 +23,7 @@ export default function DashboardPage() {
       return;
     }
     
-    const isAdmin = user.roles?.includes('admin');
+    const isAdmin = aboutContent.adminUids.includes(user.uid);
     
     if (isAdmin) {
       router.replace('/admin');
@@ -32,7 +35,7 @@ export default function DashboardPage() {
       router.replace('/profile');
     }
     
-  }, [user, isLoading]);
+  }, [user, isAuthLoading, aboutContent, isAboutLoading, router]);
 
   return (
     <div className="flex h-[calc(100vh-128px)] items-center justify-center">

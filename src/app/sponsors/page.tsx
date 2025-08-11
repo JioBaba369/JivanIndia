@@ -19,14 +19,18 @@ import { useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
 import { useSponsors } from "@/hooks/use-sponsors";
 import { useAuth } from "@/hooks/use-auth";
+import { useAbout } from "@/hooks/use-about";
 import { ItemCardSkeleton } from "@/components/reusable/item-card";
 
 export default function SponsorsPage() {
     const { sponsors, isLoading } = useSponsors();
     const { user } = useAuth();
+    const { aboutContent } = useAbout();
     const [searchQuery, setSearchQuery] = useState('');
     const [industry, setIndustry] = useState('all');
     const [view, setView] = useState<'grid' | 'list'>('grid');
+    
+    const isAdmin = user && aboutContent.adminUids.includes(user.uid);
 
     const sponsorIndustries = useMemo(() => {
         const industries = new Set(sponsors.map(s => s.industry));
@@ -59,7 +63,7 @@ export default function SponsorsPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Meet the organizations whose generous support helps our community thrive.
           </p>
-           {user?.roles.includes('admin') && (
+           {isAdmin && (
              <Button asChild size="lg" className="mt-8">
               <Link href="/sponsors/new">
                 <PlusCircle className="mr-2 h-5 w-5"/>
@@ -122,7 +126,7 @@ export default function SponsorsPage() {
               <Handshake className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="font-headline text-xl font-semibold mt-4">Become a Community Pillar</h3>
               <p className="text-muted-foreground mt-2">Interested in sponsoring the community? Contact us to learn more!</p>
-              {user?.roles.includes('admin') && <Button asChild className="mt-4"><Link href="/sponsors/new">Add a Sponsor</Link></Button>}
+              {isAdmin && <Button asChild className="mt-4"><Link href="/sponsors/new">Add a Sponsor</Link></Button>}
             </div>
           ) : filteredSponsors.length > 0 ? (
               filteredSponsors.map((sponsor) => (

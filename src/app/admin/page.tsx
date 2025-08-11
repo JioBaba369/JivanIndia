@@ -181,13 +181,9 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => Promise<void> }
 
     const handleSave = async () => {
         if (!email) return;
-        try {
-            await onSave(email);
-            setIsOpen(false);
-            setEmail('');
-        } catch (error) {
-            // Error is handled in the hook with a toast
-        }
+        await onSave(email);
+        setIsOpen(false);
+        setEmail('');
     }
 
     return (
@@ -398,7 +394,7 @@ export default function AdminDashboardPage() {
   const contentTabs = [
     { value: "events", label: "Events", count: filteredEvents.length, icon: Calendar },
     { value: "communities", label: "Communities", count: filteredCommunities.length, icon: Users },
-    { value: "businesses", label: "Businesses", count: filteredBusinesses.length, icon: Briefcase },
+    { value: "businesses", label: "Businesses", count: businesses.length, icon: Briefcase },
     { value: "movies", label: "Movies", count: movies.length, icon: Film },
     { value: "deals", label: "Deals", count: deals.length, icon: Tag },
     { value: "careers", label: "Careers", count: jobs.length, icon: Briefcase },
@@ -543,7 +539,7 @@ export default function AdminDashboardPage() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {filteredBusinesses.map(business => (
+                                            {businesses.map(business => (
                                                 <TableRow key={business.id}>
                                                     <TableCell className="font-medium"><Link href={`/businesses/${business.id}`} className="hover:underline" target="_blank">{business.name}</Link></TableCell>
                                                     <TableCell>{business.category}</TableCell>
@@ -557,7 +553,7 @@ export default function AdminDashboardPage() {
                                             ))}
                                         </TableBody>
                                     </Table>
-                                    {filteredBusinesses.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No businesses match the current filters.</p></div>}
+                                    {businesses.length === 0 && <div className="text-center py-12 text-muted-foreground"><p>No businesses match the current filters.</p></div>}
                                 </div>
                             </TabsContent>
                              <TabsContent value="movies" className="mt-6">

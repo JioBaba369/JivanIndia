@@ -292,8 +292,9 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
 
   const canManageCommunity = useCallback((community: Community, user: User) => {
+    const aboutContent = useAbout.getState().aboutContent;
     if (!user) return false;
-    if (user.roles.includes('admin')) return true;
+    if (aboutContent.adminUids.includes(user.uid)) return true;
     if (user.uid === community.founderUid) return true;
     if (community.managers?.some(m => m.uid === user.uid)) return true;
     return false;

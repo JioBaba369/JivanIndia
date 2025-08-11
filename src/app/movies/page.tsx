@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { useAbout } from "@/hooks/use-about";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MoviesPage() {
@@ -21,6 +22,7 @@ export default function MoviesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, isItemSaved, saveItem, unsaveItem } = useAuth();
+  const { aboutContent } = useAbout();
   const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +35,8 @@ export default function MoviesPage() {
     const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   }), [movies, searchQuery]);
+  
+  const isAdmin = user && aboutContent.adminUids.includes(user.uid);
 
   const handleSaveToggle = (e: MouseEvent, movie: typeof movies[0]) => {
     e.preventDefault();
@@ -96,7 +100,7 @@ export default function MoviesPage() {
                  onChange={(e) => setSearchQuery(e.target.value)}
                />
              </div>
-              {user?.roles.includes('admin') && (
+              {isAdmin && (
                 <Button asChild className="h-12">
                   <Link href="/movies/new">
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -116,7 +120,7 @@ export default function MoviesPage() {
             <Film className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="font-headline text-xl font-semibold mt-4">No Movies Listed</h3>
             <p className="text-muted-foreground mt-2">There are currently no movies listed. Please check back later.</p>
-            {user?.roles.includes('admin') && (
+            {isAdmin && (
               <Button asChild className="mt-4"><Link href="/movies/new">Add a Movie</Link></Button>
             )}
           </div>
