@@ -268,15 +268,25 @@ export default function AdminDashboardPage() {
   }, [user, isAuthLoading, hasAdminRole, router]);
 
   useEffect(() => {
-    if (hasAdminRole) {
+    if (hasAdminRole && aboutContent.adminUids.length > 0) {
       const fetchAdminUsers = async () => {
         setIsUsersLoading(true);
         try {
-          const usersCollectionRef = collection(firestore, 'users');
-          const q = query(usersCollectionRef, where('roles', 'array-contains', 'admin'));
-          
-          const querySnapshot = await getDocs(q);
-          const adminUsersData = querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User));
+          const usersRef = collection(firestore, 'users');
+          const adminUids = aboutContent.adminUids;
+          const adminUsersData: User[] = [];
+
+          // Firestore 'in' query is limited to 30 items, so chunk the UIDs
+          for (let i = 0; i < adminUids.length; i += 30) {
+            const chunk = adminUids.slice(i, i + 30);
+            if (chunk.length > 0) {
+              const q = query(usersRef, where('__name__', 'in', chunk));
+              const querySnapshot = await getDocs(q);
+              querySnapshot.forEach((doc) => {
+                adminUsersData.push({ ...doc.data(), uid: doc.id } as User);
+              });
+            }
+          }
           
           setAdminUsers(adminUsersData);
         } catch (error) {
@@ -290,7 +300,7 @@ export default function AdminDashboardPage() {
     } else {
         setIsUsersLoading(false);
     }
-  }, [hasAdminRole, toast]);
+  }, [hasAdminRole, aboutContent.adminUids, toast]);
 
   useEffect(() => {
     if (aboutContent) {
@@ -388,7 +398,7 @@ export default function AdminDashboardPage() {
   const contentTabs = [
     { value: "events", label: "Events", count: filteredEvents.length, icon: Calendar },
     { value: "communities", label: "Communities", count: filteredCommunities.length, icon: Users },
-    { value: "businesses", label: "Businesses", count: businesses.length, icon: Briefcase },
+    { value: "businesses", label: "Businesses", count: filteredBusinesses.length, icon: Briefcase },
     { value: "movies", label: "Movies", count: movies.length, icon: Film },
     { value: "deals", label: "Deals", count: deals.length, icon: Tag },
     { value: "careers", label: "Careers", count: jobs.length, icon: Briefcase },
