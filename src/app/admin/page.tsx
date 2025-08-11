@@ -115,14 +115,16 @@ const TeamMemberDialog = ({
   const [bio, setBio] = useState('');
 
   useEffect(() => {
-    if (member) {
-      setName(member.name);
-      setRole(member.role);
-      setBio(member.bio);
-    } else {
-      setName('');
-      setRole('');
-      setBio('');
+    if (isOpen) {
+        if (member) {
+        setName(member.name);
+        setRole(member.role);
+        setBio(member.bio);
+        } else {
+        setName('');
+        setRole('');
+        setBio('');
+        }
     }
   }, [isOpen, member]);
 
@@ -237,7 +239,7 @@ export default function AdminDashboardPage() {
   const [countryFilter, setCountryFilter] = useState(ALL_COUNTRIES_VALUE);
   const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
   
-  const hasAdminRole = useMemo(() => user?.roles.includes('admin') ?? false, [user]);
+  const hasAdminRole = useMemo(() => user ? aboutContent.adminUids.includes(user.uid) : false, [user, aboutContent]);
   
   const eventsWithSponsorCount = useMemo(() => events.map(event => ({
     ...event,
@@ -270,8 +272,13 @@ export default function AdminDashboardPage() {
       const fetchAdminUsers = async () => {
         setIsUsersLoading(true);
         try {
+          const adminUids = aboutContent.adminUids;
+          if (adminUids.length === 0) {
+            setAdminUsers([]);
+            return;
+          }
           const usersCollectionRef = collection(firestore, 'users');
-          const q = query(usersCollectionRef, where('roles', 'array-contains', 'admin'));
+          const q = query(usersCollectionRef, where('__name__', 'in', adminUids));
           
           const querySnapshot = await getDocs(q);
           const adminUsersData = querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User));
@@ -288,7 +295,7 @@ export default function AdminDashboardPage() {
     } else {
         setIsUsersLoading(false);
     }
-  }, [hasAdminRole, toast]);
+  }, [hasAdminRole, toast, aboutContent.adminUids]);
 
   useEffect(() => {
     if (aboutContent) {

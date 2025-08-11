@@ -132,46 +132,31 @@ export function AboutProvider({ children }: { children: ReactNode }) {
         }
         
         const userDoc = querySnapshot.docs[0];
-        const userToAdd = { id: userDoc.id, ...userDoc.data() } as User;
+        const userToAdd = { uid: userDoc.id, ...userDoc.data() } as User;
         
-        if (userToAdd.roles?.includes('admin')) {
+        if (aboutContent.adminUids?.includes(userToAdd.uid)) {
             toast({ title: 'Already Admin', description: `${email} is already an administrator.`, variant: 'destructive'});
             return;
         }
-
-        const batch = writeBatch(firestore);
-        // Add to singleton document
-        batch.update(aboutDocRef, { adminUids: arrayUnion(userToAdd.id) });
-        // Add to user's roles array
-        const userRef = doc(firestore, 'users', userToAdd.id);
-        batch.update(userRef, { roles: arrayUnion('admin') });
         
-        await batch.commit();
+        await updateAboutContent({ adminUids: arrayUnion(userToAdd.uid) as any });
         
         toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
     } catch (e) {
       console.error("Error adding admin: ", e);
       toast({ title: 'Error', description: 'Could not add admin.', variant: 'destructive' });
     }
-  }, [aboutDocRef, toast]);
+  }, [aboutContent, updateAboutContent, toast]);
 
   const removeAdmin = useCallback(async (uid: string) => {
     try {
-      const batch = writeBatch(firestore);
-      // Remove from singleton document
-      batch.update(aboutDocRef, { adminUids: arrayRemove(uid) });
-      // Remove from user's roles array
-      const userRef = doc(firestore, 'users', uid);
-      batch.update(userRef, { roles: arrayRemove('admin') });
-      
-      await batch.commit();
-
+      await updateAboutContent({ adminUids: arrayRemove(uid) as any });
       toast({ title: 'Admin Removed', description: 'Admin privileges have been revoked.' });
     } catch (e) {
       console.error("Error removing admin: ", e);
       toast({ title: 'Error', description: 'Could not remove admin.', variant: 'destructive' });
     }
-  }, [aboutDocRef, toast]);
+  }, [updateAboutContent, toast]);
 
   const value = {
     aboutContent,

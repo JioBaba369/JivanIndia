@@ -16,7 +16,6 @@ export interface User {
   name: string;
   username: string;
   email: string;
-  roles: UserRole[];
   bio?: string;
   profileImageUrl?: string;
   affiliation?: {
@@ -131,39 +130,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signup = async (name: string, email: string, pass: string, country: string, state: string, city: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const fbUser = userCredential.user;
-    
-    let username = generateSlug(name);
-    let isUnique = await isUsernameUnique(username, fbUser.uid);
-    let attempts = 0;
-    while (!isUnique && attempts < 5) {
-        username = `${generateSlug(name)}${Math.floor(Math.random() * 1000)}`;
-        isUnique = await isUsernameUnique(username, fbUser.uid);
-        attempts++;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      const fbUser = userCredential.user;
+      
+      let username = generateSlug(name);
+      let isUnique = await isUsernameUnique(username, fbUser.uid);
+      let attempts = 0;
+      while (!isUnique && attempts < 5) {
+          username = `${generateSlug(name)}${Math.floor(Math.random() * 1000)}`;
+          isUnique = await isUsernameUnique(username, fbUser.uid);
+          attempts++;
+      }
+      
+      const newUser: Omit<User, 'uid'> = {
+        name,
+        username,
+        email: fbUser.email!,
+        affiliation: null,
+        bio: '',
+        phone: '',
+        website: '',
+        profileImageUrl: '',
+        currentLocation: { country, state, city },
+        originLocation: { indiaState: '', indiaDistrict: '' },
+        languagesSpoken: [],
+        interests: [],
+        savedEvents: [],
+        joinedCommunities: [],
+        savedDeals: [],
+        savedBusinesses: [],
+        savedMovies: [],
+      };
+      await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
+    } catch (error) {
+      console.error('Signup Error:', error);
+      throw error;
     }
-    
-    const newUser: Omit<User, 'uid'> = {
-      name,
-      username,
-      email: fbUser.email!,
-      roles: [],
-      affiliation: null,
-      bio: '',
-      phone: '',
-      website: '',
-      profileImageUrl: '',
-      currentLocation: { country, state, city },
-      originLocation: { indiaState: '', indiaDistrict: '' },
-      languagesSpoken: [],
-      interests: [],
-      savedEvents: [],
-      joinedCommunities: [],
-      savedDeals: [],
-      savedBusinesses: [],
-      savedMovies: [],
-    };
-    await setDoc(doc(firestore, 'users', fbUser.uid), newUser);
   };
 
   const login = async (email: string, pass: string) => {
@@ -180,8 +183,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const updateUser = useCallback(async (updatedData: Partial<User>) => {
     if (!firebaseUser) return;
-    const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-    await updateDoc(userDocRef, updatedData);
+    try {
+      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+      await updateDoc(userDocRef, updatedData);
+    } catch(error) {
+      console.error('Update User Error:', error);
+      throw error;
+    }
   }, [firebaseUser]);
 
   const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
