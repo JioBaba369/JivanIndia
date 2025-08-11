@@ -115,11 +115,11 @@ const TeamMemberDialog = ({
   const [bio, setBio] = useState('');
 
   useEffect(() => {
-    if (isOpen && member) {
+    if (member) {
       setName(member.name);
       setRole(member.role);
       setBio(member.bio);
-    } else if (isOpen) {
+    } else {
       setName('');
       setRole('');
       setBio('');
@@ -179,9 +179,13 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => Promise<void> }
 
     const handleSave = async () => {
         if (!email) return;
-        await onSave(email);
-        setIsOpen(false);
-        setEmail('');
+        try {
+            await onSave(email);
+            setIsOpen(false);
+            setEmail('');
+        } catch (error) {
+            // Error is handled in the hook with a toast
+        }
     }
 
     return (
