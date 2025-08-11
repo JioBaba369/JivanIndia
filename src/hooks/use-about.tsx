@@ -87,7 +87,11 @@ export function AboutProvider({ children }: { children: ReactNode }) {
       id: new Date().getTime().toString(),
       avatarUrl: '', // Default avatar
     };
-    await updateAboutContent({ teamMembers: arrayUnion(newMember) as any });
+    try {
+        await updateAboutContent({ teamMembers: arrayUnion(newMember) as any });
+    } catch (error) {
+        console.error("Error adding team member:", error);
+    }
   }, [updateAboutContent]);
 
   const updateTeamMember = useCallback(async (memberId: string, updatedData: Omit<TeamMember, 'id' | 'avatarUrl'>) => {
@@ -97,13 +101,21 @@ export function AboutProvider({ children }: { children: ReactNode }) {
         ? { ...member, ...updatedData } 
         : member
     );
-    await updateAboutContent({ teamMembers: updatedMembers });
+    try {
+        await updateAboutContent({ teamMembers: updatedMembers });
+    } catch (error) {
+        console.error("Error updating team member:", error);
+    }
   }, [aboutContent.teamMembers, updateAboutContent]);
 
   const deleteTeamMember = useCallback(async (memberId: string) => {
     const memberToDelete = aboutContent.teamMembers.find(m => m.id === memberId);
     if (memberToDelete) {
-        await updateAboutContent({ teamMembers: arrayRemove(memberToDelete) as any });
+        try {
+            await updateAboutContent({ teamMembers: arrayRemove(memberToDelete) as any });
+        } catch(error) {
+             console.error("Error deleting team member:", error);
+        }
     }
   }, [aboutContent.teamMembers, updateAboutContent]);
 

@@ -124,6 +124,7 @@ const TeamMemberDialog = ({
 
   const handleSave = () => {
     if (!name || !role) {
+      toast({ title: "Validation Error", description: "Name and role are required.", variant: "destructive" });
       return;
     }
     onSave({ name, role, bio });
@@ -172,9 +173,9 @@ const AddAdminDialog = ({ onSave }: { onSave: (email: string) => Promise<void> }
     const [isOpen, setIsOpen] = useState(false);
     const [email, setEmail] = useState('');
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!email) return;
-        onSave(email);
+        await onSave(email);
         setIsOpen(false);
         setEmail('');
     }
@@ -262,7 +263,6 @@ export default function AdminDashboardPage() {
         setIsUsersLoading(true);
         try {
           const usersCollectionRef = collection(firestore, 'users');
-          // Firestore 'in' queries are limited to 30 items. We need to chunk the UIDs.
           const adminUidsChunks: string[][] = [];
           for (let i = 0; i < aboutContent.adminUids.length; i += 30) {
               adminUidsChunks.push(aboutContent.adminUids.slice(i, i + 30));
