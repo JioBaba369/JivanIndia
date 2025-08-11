@@ -57,7 +57,6 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-  setAffiliation: (orgId: string, orgName: string, communitySlug: string) => Promise<void>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
@@ -209,20 +208,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [firebaseUser]);
 
-
-  const setAffiliation = useCallback(async (orgId: string, orgName: string, communitySlug: string) => {
-    if (!user) return;
-    
-    const userRef = doc(firestore, 'users', user.uid);
-    let affiliationData = null;
-
-    if (orgId && orgName && communitySlug) {
-        affiliationData = { orgId, orgName, communitySlug };
-    }
-    
-    await updateDoc(userRef, { affiliation: affiliationData });
-  }, [user]);
-
   const getUserByUsername = useCallback(async (username: string): Promise<User | undefined> => {
     const q = query(collection(firestore, 'users'), where("username", "==", username));
     const querySnapshot = await getDocs(q);
@@ -264,7 +249,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout, 
     updateUser,
     changePassword,
-    setAffiliation,
     getUserByUsername,
     isUsernameUnique,
     saveItem,
