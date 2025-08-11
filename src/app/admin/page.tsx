@@ -284,7 +284,7 @@ export default function AdminDashboardPage() {
     } else {
         setIsUsersLoading(false);
     }
-  }, [hasAdminRole, aboutContent.adminUids, toast]);
+  }, [hasAdminRole, toast]);
 
   useEffect(() => {
     if (aboutContent) {
