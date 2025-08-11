@@ -62,7 +62,7 @@ interface CommunitiesContextType {
   deleteCommunity: (id: string) => Promise<void>;
   getCommunityById: (id: string) => Community | undefined;
   getCommunityBySlug: (slug: string) => Community | undefined;
-  isSlugUnique: (slug: string, currentId?: string) => boolean;
+  isSlugUnique: (slug: string, currentId?: string) => Promise<boolean>;
   verifyCommunity: (communityId: string) => Promise<void>;
   updateCommunityFeaturedStatus: (communityId: string, isFeatured: boolean) => Promise<void>;
   addManager: (communityId: string, userToAdd: User, role: 'admin' | 'moderator') => Promise<void>;
@@ -202,9 +202,14 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
     return communities.find(c => c.slug === slug);
   }, [communities]);
 
-  const isSlugUnique = useCallback((slug: string, currentId?: string): boolean => {
-    return !communities.some(c => c.slug === slug && c.id !== currentId);
-  }, [communities]);
+  const isSlugUnique = useCallback(async (slug: string, currentId?: string): Promise<boolean> => {
+    if (!slug) return false;
+    const q = query(collection(firestore, 'communities'), where("slug", "==", slug));
+    const querySnapshot = await getDocs(q);
+    if(querySnapshot.empty) return true;
+    if(currentId && querySnapshot.docs[0].id === currentId) return true;
+    return false;
+  }, []);
 
   const verifyCommunity = useCallback(async (communityId: string): Promise<void> => {
     const communityDocRef = doc(firestore, 'communities', communityId);

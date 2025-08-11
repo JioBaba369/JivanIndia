@@ -1,11 +1,9 @@
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { PT_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/layout/providers";
-import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,6 +27,13 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
   },
 };
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 
 export default function RootLayout({

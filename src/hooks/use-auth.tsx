@@ -205,12 +205,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   const setAffiliation = useCallback(async (orgId: string, orgName: string, communitySlug: string) => {
-    if (user) {
-        const userRef = doc(firestore, 'users', user.uid);
-        const affiliation = (orgId && orgName && communitySlug) ? { orgId, orgName, communitySlug } : null;
-        
-        await updateDoc(userRef, { affiliation });
+    if (!user) return;
+    
+    const userRef = doc(firestore, 'users', user.uid);
+    let affiliationData = null;
+
+    if (orgId && orgName && communitySlug) {
+        affiliationData = { orgId, orgName, communitySlug };
     }
+    
+    await updateDoc(userRef, { affiliation: affiliationData });
   }, [user]);
 
   const getUserByUsername = useCallback(async (username: string): Promise<User | undefined> => {

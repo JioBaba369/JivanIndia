@@ -112,7 +112,7 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
               </DropdownMenuItem>
             </DropdownMenuGroup>
             
-            {isCommunityManager && !isAdmin && user.affiliation && (
+            {isCommunityManager && user.affiliation?.communitySlug && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
@@ -187,17 +187,19 @@ export default function Header() {
                 </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
-                    <div className="mb-8">
-                       <Logo as={Link} href="/" onClick={() => setIsOpen(false)} />
-                    </div>
-                    <div className="flex flex-col space-y-4">
+                    <SheetClose asChild>
+                      <Logo as={Link} href="/" />
+                    </SheetClose>
+                    <div className="flex flex-col space-y-4 mt-8">
                         <nav className="flex flex-col space-y-2">
                              {mainNavLinks.map((link) => (
                                <SheetClose asChild key={link.href}><Link href={link.href} className="text-lg font-medium text-muted-foreground hover:text-primary">{link.title}</Link></SheetClose>
                             ))}
                         </nav>
                         <DropdownMenuSeparator />
-                        <UserActions onLinkClick={() => setIsOpen(false)} />
+                        <div className="mt-4">
+                          <UserActions onLinkClick={() => setIsOpen(false)} />
+                        </div>
                     </div>
                 </SheetContent>
             </Sheet>
