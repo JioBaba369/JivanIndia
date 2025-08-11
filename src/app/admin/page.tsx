@@ -272,13 +272,8 @@ export default function AdminDashboardPage() {
       const fetchAdminUsers = async () => {
         setIsUsersLoading(true);
         try {
-          const adminUids = aboutContent.adminUids;
-          if (adminUids.length === 0) {
-            setAdminUsers([]);
-            return;
-          }
           const usersCollectionRef = collection(firestore, 'users');
-          const q = query(usersCollectionRef, where('__name__', 'in', adminUids));
+          const q = query(usersCollectionRef, where('roles', 'array-contains', 'admin'));
           
           const querySnapshot = await getDocs(q);
           const adminUsersData = querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as User));
@@ -295,7 +290,7 @@ export default function AdminDashboardPage() {
     } else {
         setIsUsersLoading(false);
     }
-  }, [hasAdminRole, toast, aboutContent.adminUids]);
+  }, [hasAdminRole, toast]);
 
   useEffect(() => {
     if (aboutContent) {
@@ -393,7 +388,7 @@ export default function AdminDashboardPage() {
   const contentTabs = [
     { value: "events", label: "Events", count: filteredEvents.length, icon: Calendar },
     { value: "communities", label: "Communities", count: filteredCommunities.length, icon: Users },
-    { value: "businesses", label: "Businesses", count: filteredBusinesses.length, icon: Briefcase },
+    { value: "businesses", label: "Businesses", count: businesses.length, icon: Briefcase },
     { value: "movies", label: "Movies", count: movies.length, icon: Film },
     { value: "deals", label: "Deals", count: deals.length, icon: Tag },
     { value: "careers", label: "Careers", count: jobs.length, icon: Briefcase },
