@@ -6,6 +6,7 @@ import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where
 import { firestore, auth } from '@/lib/firebase';
 import type { User } from '@/hooks/use-auth';
 import { useToast } from './use-toast';
+import { useAbout } from './use-about';
 
 export interface CommunityManager {
   uid: string;
@@ -78,6 +79,7 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { aboutContent } = useAbout();
 
   const fetchCommunities = useCallback(async () => {
     setIsLoading(true);
@@ -292,13 +294,12 @@ export function CommunitiesProvider({ children }: { children: ReactNode }) {
 
 
   const canManageCommunity = useCallback((community: Community, user: User) => {
-    const aboutContent = useAbout.getState().aboutContent;
     if (!user) return false;
     if (aboutContent.adminUids.includes(user.uid)) return true;
     if (user.uid === community.founderUid) return true;
     if (community.managers?.some(m => m.uid === user.uid)) return true;
     return false;
-  }, []);
+  }, [aboutContent]);
 
   const retryFetch = useCallback(() => {
     fetchCommunities();
