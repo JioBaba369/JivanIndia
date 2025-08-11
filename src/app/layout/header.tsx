@@ -172,12 +172,14 @@ const UserActions = React.memo(function UserActionsMemo({ onLinkClick }: { onLin
 UserActions.displayName = 'UserActions';
 
 export default function Header() {
+  const [isOpen, setIsOpen] = React.useState(false);
+  
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="flex items-center gap-2 md:gap-6">
             <div className="flex md:hidden">
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Open menu">
                     <Menu />
@@ -196,7 +198,7 @@ export default function Header() {
                         </nav>
                         <DropdownMenuSeparator />
                         <div className="mt-4">
-                          <UserActions />
+                          <UserActions onLinkClick={() => setIsOpen(false)} />
                         </div>
                     </div>
                 </SheetContent>
