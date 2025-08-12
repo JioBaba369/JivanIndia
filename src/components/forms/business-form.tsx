@@ -125,7 +125,11 @@ export default function BusinessForm({ business, isPending, onSubmit, onCancel, 
     } else {
         setProvinces([]);
     }
-  }, [selectedCountry, getStatesByCountry]);
+    // Only reset state if the business object is not being loaded for the first time
+    if (business === undefined || (business && business.location.country !== selectedCountry)) {
+        form.setValue('state', '');
+    }
+  }, [selectedCountry, getStatesByCountry, form, business]);
   
   const handleFormSubmit = (values: BusinessFormValues) => {
     const socialMedia: { [key: string]: string | undefined } = {};
@@ -181,7 +185,7 @@ export default function BusinessForm({ business, isPending, onSubmit, onCancel, 
         <div className="space-y-4">
             <h3 className="font-headline text-lg font-semibold border-b pb-2">Location</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={(value) => { field.onChange(value); form.setValue('state', ''); }} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><CountrySelector value={field.value} onValueChange={(value) => { field.onChange(value); }} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="state" render={({ field }) => (<FormItem><FormLabel>State/Province *</FormLabel><Select onValueChange={field.onChange} value={field.value} disabled={provinces.length === 0}><FormControl><SelectTrigger><SelectValue placeholder="Select a state/province" /></SelectTrigger></FormControl><SelectContent>{provinces.map((province) => (<SelectItem key={province.name} value={province.name}>{province.name}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)}/>
                 <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>

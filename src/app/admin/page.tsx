@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -267,7 +268,7 @@ export default function AdminDashboardPage() {
   }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
 
   const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
-  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.location.country.includes(countryFilter)), [businesses, countryFilter]);
+  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.location.country === countryFilter), [businesses, countryFilter]);
   const pendingReports = useMemo(() => reports.filter(r => r.status === 'pending'), [reports]);
 
   useEffect(() => {

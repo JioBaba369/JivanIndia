@@ -55,14 +55,14 @@ export default function HomePage() {
     router.push(`${basePath}${query}`);
   };
 
-  const categoryLinks = [
+  const categoryLinks = useMemo(() => [
     { href: '/events', icon: Calendar, label: 'Events', placeholder: 'Search for cultural events...' },
     { href: '/deals', icon: Tag, label: 'Deals', placeholder: 'Search for local deals...' },
     { href: '/communities', icon: Users, label: 'Communities', placeholder: 'Search for local groups...' },
     { href: '/businesses', icon: Building, label: 'Businesses', placeholder: 'Search for restaurants, services...' },
     { href: '/careers', icon: Briefcase, label: 'Careers', placeholder: 'Search for job titles...' },
     { href: '/movies', icon: Film, label: 'Movies', placeholder: 'Search for movies...' },
-  ];
+  ], []);
   
   useEffect(() => {
     const selected = categoryLinks.find(c => c.href.substring(1) === searchCategory);
