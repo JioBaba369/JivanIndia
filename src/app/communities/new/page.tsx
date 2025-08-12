@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -270,7 +270,7 @@ export default function NewCommunityPage() {
           <CardContent>
             <p className="font-semibold">{user.affiliation.orgName}</p>
             <Button asChild className="mt-4">
-              <Link href={`/c/${user.affiliation.orgSlug}`}>View Your Community</Link>
+              <Link href={`/c/${user.affiliation.communitySlug}`}>View Your Community</Link>
             </Button>
           </CardContent>
         </Card>

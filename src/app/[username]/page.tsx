@@ -107,8 +107,19 @@ export default function UserPublicProfilePage() {
     
     const currentCountryCode = useMemo(() => {
         if (!profileUser?.currentLocation?.country) return '';
-        return countries.find(c => c.name === profileUser.currentLocation.country)?.code || '';
+        const country = countries.find(c => c.name === profileUser.currentLocation.country);
+        return country?.countryCode || '';
     }, [profileUser, countries]);
+
+    const originLocationDisplay = useMemo(() => {
+        if (!profileUser?.originLocation) return null;
+        const { indiaDistrict, indiaState } = profileUser.originLocation;
+        if (!indiaDistrict && !indiaState) return null;
+        
+        const parts = [indiaDistrict, indiaState].filter(Boolean);
+        return `From ${parts.join(', ')}`;
+
+    }, [profileUser]);
     
     if (profileUser === undefined) {
       return (
@@ -177,10 +188,10 @@ export default function UserPublicProfilePage() {
                                         <span>{profileUser.currentLocation.city}, {profileUser.currentLocation.country}</span>
                                     </div>
                                 )}
-                                {profileUser.originLocation?.indiaState && (
+                                {originLocationDisplay && (
                                     <div className="flex items-center gap-2">
                                          <CountryFlag countryCode="IN" />
-                                         <span>From {profileUser.originLocation.indiaDistrict}, {profileUser.originLocation.indiaState}</span>
+                                         <span>{originLocationDisplay}</span>
                                     </div>
                                 )}
                             </div>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -30,33 +31,42 @@ export default function EventsPage() {
   const [locationQuery, setLocationQuery] = useState(searchParams.get('location') || '');
   const [category, setCategory] = useState(searchParams.get('category') || 'all');
   
-  // Debounce filtering to improve performance on rapid inputs
-  const debouncedSetSearchQuery = useCallback(debounce((value) => setSearchQuery(value), 300), []);
-  const debouncedSetLocationQuery = useCallback(debounce((value) => setLocationQuery(value), 300), []);
-
-  // Sync URL params with state changes for bookmarkable/shareable URLs
-  useEffect(() => {
+  const debouncedSetSearchQuery = useCallback(debounce((value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (searchQuery) params.set('q', searchQuery); else params.delete('q');
-    if (locationQuery) params.set('location', locationQuery); else params.delete('location');
-    if (category !== 'all') params.set('category', category); else params.delete('category');
+    if (value) params.set('q', value); else params.delete('q');
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [searchQuery, locationQuery, category, pathname, router, searchParams]);
+  }, 300), [searchParams, pathname, router]);
+
+  const debouncedSetLocationQuery = useCallback(debounce((value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set('location', value); else params.delete('location');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, 300), [searchParams, pathname, router]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+    setLocationQuery(searchParams.get('location') || '');
+    setCategory(searchParams.get('category') || 'all');
+  }, [searchParams]);
+
 
   const approvedEvents = useMemo(() => events?.filter(e => e.status === 'Approved') || [], [events]);
   const eventCategories = useMemo(() => ['all', ...Array.from(new Set(approvedEvents.map(event => event.eventType)))], [approvedEvents]);
 
   const filteredEvents = useMemo(() => {
+    const lowerCaseSearch = searchQuery.toLowerCase();
+    const lowerCaseLocation = locationQuery.toLowerCase();
+
     return approvedEvents
       .filter(event => {
         const matchesSearch =
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.organizerName.toLowerCase().includes(searchQuery.toLowerCase());
+          event.title.toLowerCase().includes(lowerCaseSearch) ||
+          event.description.toLowerCase().includes(lowerCaseSearch) ||
+          event.organizerName.toLowerCase().includes(lowerCaseSearch);
         
         const matchesLocation = 
-          event.location.venueName.toLowerCase().includes(locationQuery.toLowerCase()) ||
-          event.location.address.toLowerCase().includes(locationQuery.toLowerCase());
+          event.location.venueName.toLowerCase().includes(lowerCaseLocation) ||
+          event.location.address.toLowerCase().includes(lowerCaseLocation);
 
         const matchesCategory = category === 'all' || event.eventType === category;
         
@@ -127,7 +137,11 @@ export default function EventsPage() {
                 onChange={(e) => debouncedSetLocationQuery(e.target.value)}
               />
             </div>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(value) => {
+              const params = new URLSearchParams(searchParams.toString());
+              if (value !== 'all') params.set('category', value); else params.delete('category');
+              router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+            }}>
               <SelectTrigger className="text-base h-12">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
@@ -250,9 +264,7 @@ export default function EventsPage() {
                 <h3 className="font-headline text-xl font-semibold">No Events Found</h3>
                 <p className="text-muted-foreground mt-2">No events match your criteria. Try adjusting your search or check back later.</p>
                 <Button variant="link" onClick={() => {
-                  setSearchQuery('');
-                  setLocationQuery('');
-                  setCategory('all');
+                  router.replace(pathname, { scroll: false });
                 }}>Clear Filters</Button>
               </div>
             )}
