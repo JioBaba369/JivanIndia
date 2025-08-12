@@ -47,7 +47,7 @@ const formSchema = z.object({
   phone: z.string().min(10, "A valid phone number is required."),
   email: z.string().email("A valid email address is required."),
   website: z.string().url("A valid website URL is required."),
-  address: z.string().min(10, "A full address is required."),
+  address: z.string().min(10, "A full street address is required."),
   businessNumber: z.string().optional(),
   tags: z.string().optional(),
   socialTwitter: z.string().optional(),

@@ -132,9 +132,9 @@ export default function BusinessDetailPage() {
                 </div>
                  <div className="mt-4 flex justify-center md:justify-start items-center gap-2">
                     {business.socialMedia?.twitter && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.twitter} target="_blank"><Twitter className="h-4 w-4"/></Link></Button>}
-                    {business.socialMedia?.instagram && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.instagram} target="_blank"><Instagram/></Link></Button>}
-                    {business.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.linkedin} target="_blank"><Linkedin/></Link></Button>}
-                    {business.socialMedia?.facebook && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.facebook} target="_blank"><Facebook/></Link></Button>}
+                    {business.socialMedia?.instagram && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.instagram} target="_blank"><Instagram className="h-4 w-4" /></Link></Button>}
+                    {business.socialMedia?.linkedin && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.linkedin} target="_blank"><Linkedin className="h-4 w-4"/></Link></Button>}
+                    {business.socialMedia?.facebook && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.facebook} target="_blank"><Facebook className="h-4 w-4"/></Link></Button>}
                     {business.socialMedia?.facebookGroup && <Button variant="outline" size="icon" asChild><Link href={business.socialMedia.facebookGroup} target="_blank"><Users/></Link></Button>}
                 </div>
             </div>

@@ -44,8 +44,8 @@ export default function NewBusinessEntryPage() {
         try {
           await addBusiness(newBusinessData);
           toast({
-              title: 'Business Submitted!',
-              description: `${values.name} has been submitted for review. It will be visible after approval.`,
+              title: 'Business Submitted for Review!',
+              description: `${values.name} has been submitted. It will be visible to the public after approval by an administrator.`,
           });
           router.push('/businesses');
         } catch (error) {
