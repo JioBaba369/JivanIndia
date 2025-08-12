@@ -28,21 +28,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: 'Build and Deploy Cloud Functions'
-        run: |-
-          cd functions
-          npm install
-          npm run build
-          gcloud functions deploy updateUserClaims \
-            --gen2 \
-            --runtime=nodejs20 \
-            --trigger-event-filters="type=google.cloud.firestore.document.v1.updated" \
-            --trigger-event-filters="database=(default)" \
-            --trigger-event-filters-path-pattern="about/singleton" \
-            --source=. \
-            --entry-point=updateUserClaims \
-            --region=us-central1 \
-            --project=${{ secrets.PROJECT_ID }}
+      # - name: 'Build and Deploy Cloud Functions'
+      #   run: |-
+      #     cd functions
+      #     npm install
+      #     npm run build
+      #     gcloud functions deploy updateUserClaims \
+      #       --gen2 \
+      #       --runtime=nodejs20 \
+      #       --trigger-event-filters="type=google.cloud.firestore.document.v1.updated" \
+      #       --trigger-event-filters="database=(default)" \
+      #       --trigger-event-filters-path-pattern="about/singleton" \
+      #       --source=. \
+      #       --entry-point=updateUserClaims \
+      #       --region=us-central1 \
+      #       --project=${{ secrets.PROJECT_ID }}
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
