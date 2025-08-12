@@ -40,23 +40,20 @@ export default function BusinessesPage() {
     const [category, setCategory] = useState('all');
 
     const isAdmin = useMemo(() => user && aboutContent.adminUids.includes(user.uid), [user, aboutContent]);
-
-    const approvedBusinesses = useMemo(() => {
-        if (isAdmin) {
-            return businesses; // Admins see all businesses
-        }
-        return businesses.filter(b => b.isVerified); // Public sees only verified
-    }, [businesses, isAdmin]);
-
-
+    
     const businessCategories = useMemo(() => {
-        const categories = new Set(approvedBusinesses.map(p => p.category));
+        const categories = new Set(businesses.map(p => p.category));
         return ['all', ...Array.from(categories)];
-    }, [approvedBusinesses]);
+    }, [businesses]);
 
     const filteredBusinesses = useMemo(() => {
-        return approvedBusinesses
+        return businesses
         .filter(business => {
+          // Admin sees all, public sees only verified
+          if (!isAdmin && !business.isVerified) {
+            return false;
+          }
+            
           const matchesSearch =
             business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             business.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -69,7 +66,7 @@ export default function BusinessesPage() {
           return matchesSearch && matchesLocation && matchesCategory;
         })
         .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-    }, [approvedBusinesses, searchQuery, locationQuery, category]);
+    }, [businesses, searchQuery, locationQuery, category, isAdmin]);
     
     const handleSaveToggle = (e: MouseEvent, business: typeof businesses[0]) => {
       e.preventDefault();
@@ -173,7 +170,7 @@ export default function BusinessesPage() {
         <section className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {isLoading ? <BusinessSkeletons /> : (
-            approvedBusinesses.length === 0 ? (
+            businesses.length === 0 ? (
                 <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
                     <Building className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="font-headline text-xl font-semibold mt-4">No Businesses Listed</h3>
