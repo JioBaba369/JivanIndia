@@ -41,7 +41,14 @@ const formSchema = z.object({
   description: z.string().min(20, "Description must be at least 20 characters."),
   terms: z.string().min(10, "Terms must be at least 10 characters."),
   category: z.enum(['Food & Dining', 'Retail & Shopping', 'Services', 'Entertainment', 'Other']),
-  expires: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid expiration date is required." }),
+  expires: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid expiration date is required." })
+    .refine((val) => {
+        const selectedDate = new Date(val);
+        const today = new Date();
+        // Set hours to 0 to compare dates only, ignoring time
+        today.setHours(0, 0, 0, 0);
+        return selectedDate >= today;
+    }, { message: "Expiration date cannot be in the past." }),
   affiliatedEntityId: z.string().min(1, "You must select a business or community."),
 });
 
