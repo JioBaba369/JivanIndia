@@ -30,6 +30,15 @@ function ForgotPasswordDialog() {
     const handleForgotPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        if (!email) {
+            toast({
+                title: "Email Required",
+                description: "Please enter your email address.",
+                variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+        }
         try {
             const response = await fetch('/api/auth/forgot-password', {
                 method: 'POST',

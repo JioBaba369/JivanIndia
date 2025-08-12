@@ -298,7 +298,7 @@ export default function AdminDashboardPage() {
             }
           }
           
-          setAdminUsers(adminUsersData);
+          setAdminUsers(adminUsersData.sort((a, b) => a.name.localeCompare(b.name)));
         } catch (error) {
           console.error("Failed to fetch admin users", error);
           toast({ title: 'Error', description: 'Could not fetch admin user list.', variant: 'destructive' });

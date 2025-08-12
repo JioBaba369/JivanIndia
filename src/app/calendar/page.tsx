@@ -34,9 +34,9 @@ const eventTypeColors: Record<Event['eventType'], string> = {
   Professional: 'hsl(var(--chart-3))',
   Sports: 'hsl(var(--chart-4))',
   Festival: 'hsl(var(--chart-5))',
-  Workshop: 'hsl(var(--primary))',
+  Workshop: 'hsl(310, 92%, 60%)', // A slightly different purple/pink for Workshop
   Food: 'hsl(20, 90%, 55%)',
-  Other: 'hsl(var(--muted-foreground))',
+  Other: 'hsl(215, 20%, 65%)', // A neutral grey for Other
 };
 
 const eventTypeColorsDark: Record<Event['eventType'], string> = {
@@ -45,9 +45,9 @@ const eventTypeColorsDark: Record<Event['eventType'], string> = {
   Professional: 'hsl(var(--chart-3) / 0.8)',
   Sports: 'hsl(var(--chart-4) / 0.8)',
   Festival: 'hsl(var(--chart-5) / 0.8)',
-  Workshop: 'hsl(var(--primary) / 0.8)',
+  Workshop: 'hsl(310, 80%, 50%)',
   Food: 'hsl(20, 80%, 45%)',
-  Other: 'hsl(var(--muted-foreground) / 0.8)',
+  Other: 'hsl(215, 15%, 55%)',
 };
 
 export default function EventsCalendarPage() {
@@ -68,8 +68,8 @@ export default function EventsCalendarPage() {
 
   const eventStyleGetter = (event: BigCalendarEvent) => {
     const eventType = (event.resource as Event)?.eventType || 'Other';
-    const backgroundColor = eventTypeColors[eventType];
-    const darkBackgroundColor = eventTypeColorsDark[eventType];
+    const backgroundColor = eventTypeColors[eventType] || eventTypeColors.Other;
+    const darkBackgroundColor = eventTypeColorsDark[eventType] || eventTypeColorsDark.Other;
     
     const style = {
       '--event-color': backgroundColor,
