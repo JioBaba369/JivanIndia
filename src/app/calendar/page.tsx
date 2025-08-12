@@ -4,17 +4,14 @@
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './react-big-calendar.css';
 
-import { Calendar as BigCalendar, dateFnsLocalizer, type Event as BigCalendarEvent } from 'react-big-calendar';
+import { Calendar as BigCalendar, dateFnsLocalizer, type Event as BigCalendarEvent, type View } from 'react-big-calendar';
 import { format as formatDate, parse, startOfWeek, getDay, isValid } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { useEvents } from '@/hooks/use-events';
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Event } from '@/hooks/use-events';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/ui/button';
-
 
 const locales = {
   'en-US': enUS,
@@ -34,9 +31,9 @@ const eventTypeColors: Record<Event['eventType'], string> = {
   Professional: 'hsl(var(--chart-3))',
   Sports: 'hsl(var(--chart-4))',
   Festival: 'hsl(var(--chart-5))',
-  Workshop: 'hsl(310, 92%, 60%)', // A slightly different purple/pink for Workshop
+  Workshop: 'hsl(310, 92%, 60%)',
   Food: 'hsl(20, 90%, 55%)',
-  Other: 'hsl(215, 20%, 65%)', // A neutral grey for Other
+  Other: 'hsl(215, 20%, 65%)',
 };
 
 const eventTypeColorsDark: Record<Event['eventType'], string> = {
@@ -53,6 +50,12 @@ const eventTypeColorsDark: Record<Event['eventType'], string> = {
 export default function EventsCalendarPage() {
   const { events, isLoading, error } = useEvents();
   const router = useRouter();
+
+  const [date, setDate] = useState(new Date());
+  const [view, setView] = useState<View>('month');
+
+  const onNavigate = useCallback((newDate: Date) => setDate(newDate), [setDate]);
+  const onView = useCallback((newView: View) => setView(newView), [setView]);
 
   const calendarEvents: BigCalendarEvent[] = useMemo(() => {
     return (events || [])
@@ -106,6 +109,10 @@ export default function EventsCalendarPage() {
         onSelectEvent={event => router.push(`/events/${(event.resource as Event).id}`)}
         eventPropGetter={eventStyleGetter}
         popup
+        date={date}
+        view={view}
+        onNavigate={onNavigate}
+        onView={onView}
       />
     </div>
   );
