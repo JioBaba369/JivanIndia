@@ -250,36 +250,19 @@ export default function AdminDashboardPage() {
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({});
 
   const hasAdminRole = useMemo(() => user ? aboutContent.adminUids.includes(user.uid) : false, [user, aboutContent]);
-
-  const eventsWithSponsorCount = useMemo(() => events.map(event => ({
-    ...event,
-    sponsorCount: sponsors.filter(s => s.eventsSponsored.some(e => e.eventId === event.id)).length
-  })), [events, sponsors]);
-
-  const filteredEvents = useMemo(() => {
-    return eventsWithSponsorCount
-      .filter(event => countryFilter === ALL_COUNTRIES_VALUE || event.location.country === countryFilter)
-      .filter(event => {
-        if (sponsorCountFilter === 'all') return true;
-        if (sponsorCountFilter === 'none') return event.sponsorCount === 0;
-        if (sponsorCountFilter === 'sponsored') return event.sponsorCount > 0;
-        return true;
-      });
-  }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
-
-  const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
-  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.location.country === countryFilter), [businesses, countryFilter]);
-  const pendingReports = useMemo(() => reports.filter(r => r.status === 'pending'), [reports]);
-
+  
   useEffect(() => {
-    if (!isAuthLoading && !hasAdminRole) {
+    if (isAuthLoading || isAboutLoading) {
+        return; 
+    }
+    if (!user || !hasAdminRole) {
       toast({ title: "Access Denied", description: "You do not have admin privileges.", variant: "destructive" });
       router.push('/');
     }
-  }, [user, isAuthLoading, hasAdminRole, router, toast]);
+  }, [user, isAuthLoading, hasAdminRole, router, toast, isAboutLoading]);
 
   useEffect(() => {
-    if (hasAdminRole && aboutContent.adminUids.length > 0) {
+    if (user && hasAdminRole && aboutContent.adminUids.length > 0) {
       const fetchAdminUsers = async () => {
         setIsUsersLoading(true);
         try {
@@ -310,7 +293,28 @@ export default function AdminDashboardPage() {
     } else {
       setIsUsersLoading(false);
     }
-  }, [hasAdminRole, aboutContent.adminUids, toast]);
+  }, [user, hasAdminRole, aboutContent.adminUids, toast]);
+
+
+  const eventsWithSponsorCount = useMemo(() => events.map(event => ({
+    ...event,
+    sponsorCount: sponsors.filter(s => s.eventsSponsored.some(e => e.eventId === event.id)).length
+  })), [events, sponsors]);
+
+  const filteredEvents = useMemo(() => {
+    return eventsWithSponsorCount
+      .filter(event => countryFilter === ALL_COUNTRIES_VALUE || event.location.country === countryFilter)
+      .filter(event => {
+        if (sponsorCountFilter === 'all') return true;
+        if (sponsorCountFilter === 'none') return event.sponsorCount === 0;
+        if (sponsorCountFilter === 'sponsored') return event.sponsorCount > 0;
+        return true;
+      });
+  }, [eventsWithSponsorCount, countryFilter, sponsorCountFilter]);
+
+  const filteredCommunities = useMemo(() => communities.filter(c => countryFilter === ALL_COUNTRIES_VALUE || c.country === countryFilter), [communities, countryFilter]);
+  const filteredBusinesses = useMemo(() => businesses.filter(b => countryFilter === ALL_COUNTRIES_VALUE || b.location.country === countryFilter), [businesses, countryFilter]);
+  const pendingReports = useMemo(() => reports.filter(r => r.status === 'pending'), [reports]);
 
   useEffect(() => {
     if (aboutContent) {
@@ -432,16 +436,12 @@ export default function AdminDashboardPage() {
 
   const totalLoading = isAuthLoading || isAboutLoading || isReportsLoading || isUsersLoading;
 
-  if (totalLoading || !user) {
+  if (totalLoading || !user || !hasAdminRole) {
     return (
       <div className="container mx-auto px-4 py-12 text-center flex items-center justify-center min-h-[calc(100vh-128px)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
-  }
-
-  if (!hasAdminRole) {
-    return null;
   }
 
   const contentTabs = [
