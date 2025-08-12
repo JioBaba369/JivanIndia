@@ -149,7 +149,7 @@ export default function UserPublicProfilePage() {
         { value: 'saved-deals', label: 'Saved Deals', count: userSavedDeals.length, icon: Tag, isVisible: true },
         { value: 'saved-businesses', label: 'Saved Businesses', count: userSavedBusinesses.length, icon: Building, isVisible: true },
         { value: 'joined-communities', label: 'Communities', count: userJoinedCommunities.length, icon: Users, isVisible: true },
-        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!(affiliatedCommunity && profileUser?.affiliation) },
+        { value: 'community-activity', label: 'Affiliation', count: 0, isVisible: !!affiliatedCommunity },
     ].filter(tab => tab.isVisible);
 
     return (

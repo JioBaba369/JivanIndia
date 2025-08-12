@@ -201,7 +201,7 @@ export default function EditCommunityPage() {
           contactEmail: values.contactEmail,
           website: values.website || '',
           founded: values.founded,
-          socialMedia: Object.fromEntries(Object.entries(socialMedia).filter(([_, v]) => v)),
+          socialMedia: Object.keys(socialMedia).length > 0 ? socialMedia : {},
         };
 
         try {

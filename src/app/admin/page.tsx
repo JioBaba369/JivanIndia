@@ -272,6 +272,7 @@ export default function AdminDashboardPage() {
           const adminUids = aboutContent.adminUids;
           const adminUsersData: User[] = [];
 
+          // Firestore 'in' query supports a maximum of 30 elements.
           for (let i = 0; i < adminUids.length; i += 30) {
             const chunk = adminUids.slice(i, i + 30);
             if (chunk.length > 0) {
