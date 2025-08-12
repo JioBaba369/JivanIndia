@@ -5,7 +5,7 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, LayoutDashboard, User, LogOut, Heart, Menu, Edit, Settings, Building, Loader2, Users } from "lucide-react";
-import Logo from "../logo";
+import Logo from "@/components/logo";
 import { useAuth } from "@/hooks/use-auth";
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import NotificationBell from "./notification-bell";
+import NotificationBell from "@/components/layout/notification-bell";
 import {
   NavigationMenu,
   NavigationMenuItem,

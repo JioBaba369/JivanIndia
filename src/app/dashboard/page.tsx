@@ -8,7 +8,7 @@ import { useAbout } from '@/hooks/use-about';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthLoading } = useAuth();
   const { aboutContent, isLoading: isAboutLoading } = useAbout();
   const router = useRouter();
 
@@ -27,8 +27,8 @@ export default function DashboardPage() {
     
     if (isAdmin) {
       router.replace('/admin');
-    } else if (user.affiliation?.orgSlug) {
-      router.replace(`/c/${user.affiliation.orgSlug}`);
+    } else if (user.affiliation?.communitySlug) {
+      router.replace(`/c/${user.affiliation.communitySlug}`);
     } else if (user.username) {
       router.replace(`/${user.username}`);
     } else {

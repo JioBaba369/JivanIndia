@@ -38,7 +38,7 @@ export default function CountrySelector({
   const countryOptions = countries.map((country) => ({
     value: country.name,
     label: country.name,
-    code: country.code,
+    code: country.countryCode,
   }));
 
   const selectedOption = countryOptions.find((option) => option.value === value);

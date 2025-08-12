@@ -35,7 +35,7 @@ const CountrySelector = dynamic(() => import('@/components/layout/country-select
 
 const formSchema = z.object({
   name: z.string().min(3, "Business name must be at least 3 characters."),
-  category: z.enum(businessCategories, { required_error: "A category is required."}),
+  category: z.enum(['Arts & Culture', 'Automotive', 'Education', 'Entertainment & Venues', 'Events & Planning', 'Financial Services', 'Food & Dining', 'Health & Wellness', 'Home Services', 'Professional Services', 'Religious Services', 'Retail & Shopping', 'Technology', 'Other'], { required_error: "A category is required."}),
   logoUrl: z.string().url({ message: "A logo image URL is required." }).or(z.literal('')),
   bannerUrl: z.string().url({ message: "A banner image URL is required." }).or(z.literal('')),
   description: z.string().min(10, "A short description is required."),

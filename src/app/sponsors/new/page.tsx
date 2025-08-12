@@ -46,7 +46,7 @@ const formSchema = z.object({
   logoUrl: z.string().url({ message: "A logo image is required." }),
   website: z.string().url("A valid website URL is required."),
   industry: z.string().min(2, "Industry is required."),
-  tier: z.enum(sponsorTiers),
+  tier: z.enum(['Platinum', 'Gold', 'Silver', 'Bronze', 'Supporter']),
   description: z.string().min(10, "A short description is required."),
   fullDescription: z.string().min(50, "A full description of at least 50 characters is required."),
   contactEmail: z.string().email("A valid contact email is required."),
@@ -111,6 +111,7 @@ export default function NewSponsorPage() {
 
         const newSponsorData: NewSponsorInput = {
             ...values,
+            tier: values.tier as any,
             socialMedia,
         };
 
