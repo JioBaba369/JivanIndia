@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { format } from 'date-fns';
-import { useSearchParams } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { cn, debounce } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
@@ -21,39 +20,50 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function EventsPage() {
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, error } = useEvents(); // Assuming useEvents can return error
   const { user } = useAuth();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   
-  const [searchQuery, setSearchQuery] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
-  const [category, setCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [locationQuery, setLocationQuery] = useState(searchParams.get('location') || '');
+  const [category, setCategory] = useState(searchParams.get('category') || 'all');
   
-  useEffect(() => {
-    setSearchQuery(searchParams.get('q') || '');
-  }, [searchParams]);
+  // Debounce filtering to improve performance on rapid inputs
+  const debouncedSetSearchQuery = useCallback(debounce((value) => setSearchQuery(value), 300), []);
+  const debouncedSetLocationQuery = useCallback(debounce((value) => setLocationQuery(value), 300), []);
 
-  const approvedEvents = useMemo(() => events.filter(e => e.status === 'Approved'), [events]);
-  const eventCategories = ['all', ...Array.from(new Set(approvedEvents.map(event => event.eventType)))];
+  // Sync URL params with state changes for bookmarkable/shareable URLs
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchQuery) params.set('q', searchQuery); else params.delete('q');
+    if (locationQuery) params.set('location', locationQuery); else params.delete('location');
+    if (category !== 'all') params.set('category', category); else params.delete('category');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchQuery, locationQuery, category, pathname, router, searchParams]);
+
+  const approvedEvents = useMemo(() => events?.filter(e => e.status === 'Approved') || [], [events]);
+  const eventCategories = useMemo(() => ['all', ...Array.from(new Set(approvedEvents.map(event => event.eventType)))], [approvedEvents]);
 
   const filteredEvents = useMemo(() => {
     return approvedEvents
-    .filter(event => {
-      const matchesSearch =
-        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.organizerName.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesLocation = 
-        event.location.venueName.toLowerCase().includes(locationQuery.toLowerCase()) ||
-        event.location.address.toLowerCase().includes(locationQuery.toLowerCase());
+      .filter(event => {
+        const matchesSearch =
+          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.organizerName.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesLocation = 
+          event.location.venueName.toLowerCase().includes(locationQuery.toLowerCase()) ||
+          event.location.address.toLowerCase().includes(locationQuery.toLowerCase());
 
-      const matchesCategory = category === 'all' || event.eventType === category;
-      
-      return matchesSearch && matchesLocation && matchesCategory;
-    })
-    .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
-    .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+        const matchesCategory = category === 'all' || event.eventType === category;
+        
+        return matchesSearch && matchesLocation && matchesCategory;
+      })
+      .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
+      .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
   }, [approvedEvents, searchQuery, locationQuery, category]);
 
   const EventSkeletons = () => (
@@ -61,15 +71,14 @@ export default function EventsPage() {
       <Card key={i} className="flex flex-col overflow-hidden">
         <Skeleton className="h-48 w-full" />
         <CardContent className="flex flex-grow flex-col p-4">
-          <Skeleton className="h-4 w-1/3 mb-2" />
-          <Skeleton className="h-6 w-full mb-4" />
-          <Skeleton className="h-4 w-full mb-2" />
-           <div className="mt-4 space-y-3 flex-grow">
-             <Skeleton className="h-4 w-5/6" />
-             <Skeleton className="h-4 w-4/6" />
+          <Skeleton className="h-4 w-1/3 mb-2" /> {/* Category Badge */}
+          <Skeleton className="h-6 w-full mb-4" /> {/* Title */}
+          <div className="mt-4 space-y-2 flex-grow">
+            <Skeleton className="h-4 w-5/6" /> {/* Date */}
+            <Skeleton className="h-4 w-4/6" /> {/* Location */}
           </div>
           <div className="mt-4">
-            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-8 w-32" /> {/* View Details Button */}
           </div>
         </CardContent>
       </Card>
@@ -77,8 +86,8 @@ export default function EventsPage() {
   );
 
   return (
-    <div className="flex flex-col">
-       <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
+    <div className="flex flex-col min-h-screen">
+      <section className="bg-gradient-to-b from-primary/10 via-background to-background py-20 text-center">
         <div className="container mx-auto px-4">
           <h1 className="font-headline text-4xl font-bold text-shadow-lg md:text-6xl">
             What's On
@@ -86,7 +95,7 @@ export default function EventsPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Discover cultural celebrations, professional meetups, concerts, and more.
           </p>
-           {user?.affiliation && (
+          {user?.affiliation && (
             <Button asChild size="lg" className="mt-8">
               <Link href="/events/new">
                 <PlusCircle className="mr-2 h-5 w-5"/>
@@ -99,149 +108,154 @@ export default function EventsPage() {
 
       <div className="sticky top-[65px] z-30 border-y bg-background/95 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                 <div className="relative lg:col-span-2">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                    placeholder="Search Events..."
-                    className="pl-10 text-base h-12"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-                 <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                    placeholder="Location..."
-                    className="pl-10 text-base h-12"
-                    value={locationQuery}
-                    onChange={(e) => setLocationQuery(e.target.value)}
-                    />
-                </div>
-                <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="text-base h-12">
-                        <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {eventCategories.map((cat, index) => (
-                        <SelectItem key={index} value={cat}>
-                        {cat === 'all' ? 'All Categories' : cat}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="relative lg:col-span-2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Search events by title, description, or organizer..."
+                className="pl-10 text-base h-12"
+                defaultValue={searchQuery}
+                onChange={(e) => debouncedSetSearchQuery(e.target.value)}
+              />
             </div>
-             <div className="flex items-center gap-2 mt-4">
-                <Button asChild className="flex-1" variant="outline">
-                    <Link href="/calendar">
-                        <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
-                    </Link>
-                </Button>
-              </div>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Filter by venue or address..."
+                className="pl-10 text-base h-12"
+                defaultValue={locationQuery}
+                onChange={(e) => debouncedSetLocationQuery(e.target.value)}
+              />
+            </div>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="text-base h-12">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                {eventCategories.map((cat, index) => (
+                  <SelectItem key={index} value={cat}>
+                    {cat === 'all' ? 'All Categories' : cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between mt-4">
+            <Button asChild variant="outline">
+              <Link href="/calendar">
+                <CalendarIcon className="mr-2 h-4 w-4" /> View Calendar
+              </Link>
+            </Button>
+            {!isLoading && filteredEvents.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                Showing {filteredEvents.length} of {approvedEvents.length} events
+              </p>
+            )}
+          </div>
         </div>
       </div>
         
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 py-12 flex-grow">
         <TooltipProvider>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
-                <EventSkeletons />
+              <EventSkeletons />
+            ) : error ? (
+              <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+                <Megaphone className="mx-auto h-12 w-12 text-destructive" />
+                <h3 className="font-headline text-xl font-semibold mt-4">Error Loading Events</h3>
+                <p className="text-muted-foreground mt-2">Something went wrong. Please try again later.</p>
+                <Button variant="outline" onClick={() => window.location.reload()} className="mt-4">Reload</Button>
+              </div>
             ) : approvedEvents.length === 0 ? (
-                <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
-                    <Megaphone className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="font-headline text-xl font-semibold mt-4">Be the First to Post an Event!</h3>
-                    <p className="text-muted-foreground mt-2">No upcoming events have been posted. Be the first to share one!</p>
-                    {user?.affiliation && <Button asChild className="mt-4">
-                        <Link href="/events/new">Post an Event</Link>
-                    </Button>}
-                </div>
+              <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+                <Megaphone className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="font-headline text-xl font-semibold mt-4">Be the First to Post an Event!</h3>
+                <p className="text-muted-foreground mt-2">No upcoming events have been posted. Be the first to share one!</p>
+                {user?.affiliation && <Button asChild className="mt-4">
+                  <Link href="/events/new">Post an Event</Link>
+                </Button>}
+              </div>
             ) : filteredEvents.length > 0 ? (
-                filteredEvents.map((event) => {
-                  const formattedDate = format(new Date(event.startDateTime), 'PPp');
-                  return (
-                     <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
-                          <div className="relative h-48 w-full">
-                              <Link href={`/events/${event.id}`}>
-                                <Image
-                                src={event.imageUrl}
-                                alt={event.title}
-                                fill
-                                className="object-cover"
-                                sizes="100vw"
-                                data-ai-hint="event photo"
-                                />
-                              </Link>
-                              {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
-                              <div className="absolute top-2 right-2">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
-                                              <MoreVertical size={20} />
-                                          </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end">
-                                          <ReportDialog 
-                                              contentId={event.id} 
-                                              contentType="Event" 
-                                              contentTitle={event.title} 
-                                              triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
-                                          />
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <div className="flex flex-col gap-2 p-1">
-                                       <div className="flex items-center gap-2">
-                                          <Flag className="h-4 w-4 text-primary" />
-                                          <p className="font-bold">More Options</p>
-                                      </div>
-                                      <p className="text-sm text-muted-foreground">
-                                        Report this event if it violates our community guidelines.
-                                      </p>
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
+              filteredEvents.map((event) => {
+                const formattedDate = format(new Date(event.startDateTime), 'PPp');
+                return (
+                  <Card key={event.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", event.isFeatured && "border-primary border-2")}>
+                    <div className="relative h-48 w-full">
+                      <Link href={`/events/${event.id}`}>
+                        <Image
+                          src={event.imageUrl || '/placeholder-event.jpg'} // Fallback image
+                          alt={event.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          priority={event.isFeatured} // Priority for featured
+                          data-ai-hint="event photo"
+                        />
+                      </Link>
+                      {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
+                      <div className="absolute top-2 right-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                  <MoreVertical size={20} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                More options
+                              </TooltipContent>
+                            </Tooltip>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <ReportDialog 
+                              contentId={event.id} 
+                              contentType="Event" 
+                              contentTitle={event.title} 
+                              triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}><Flag className="mr-2 h-4 w-4" /> Report</DropdownMenuItem>}
+                            />
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                    <CardContent className="flex-grow p-4">
+                      <Link href={`/events/${event.id}`} className="group/link flex-grow flex flex-col">
+                        <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
+                        <h3 className="mb-2 mt-2 font-headline text-xl group-hover/link:text-primary transition-colors flex-grow">{event.title}</h3>
+                        <div className="mt-4 space-y-2">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <CalendarIcon className="mr-2 h-4 w-4 text-primary"/>
+                            <span>{formattedDate}</span>
                           </div>
-                          <CardContent className="flex-grow p-4">
-                            <Link href={`/events/${event.id}`} className="group/link flex-grow flex flex-col">
-                              <Badge variant="secondary" className="w-fit">{event.eventType}</Badge>
-                              <h3 className="mb-2 mt-2 font-headline text-xl group-hover/link:text-primary transition-colors flex-grow">{event.title}</h3>
-                              <div className="mt-4 space-y-2">
-                                  <div className="flex items-center text-sm text-muted-foreground">
-                                      <CalendarIcon className="mr-2 h-4 w-4 text-primary"/>
-                                      <span>{formattedDate}</span>
-                                  </div>
-                                    <div className="flex items-center text-sm text-muted-foreground">
-                                      <MapPin className="mr-2 h-4 w-4 text-primary"/>
-                                      <span>{event.location.venueName}</span>
-                                  </div>
-                              </div>
-                            </Link>
-                          </CardContent>
-                          <div className="flex items-center p-4 pt-0 mt-auto">
-                              <Button asChild variant="link" className="p-0 h-auto">
-                                  <Link href={`/events/${event.id}`}>
-                                  View Details <ArrowRight className="ml-2 h-4 w-4" />
-                                  </Link>
-                              </Button>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <MapPin className="mr-2 h-4 w-4 text-primary"/>
+                            <span>{event.location.venueName}</span>
                           </div>
-                    </Card>
-                  ) 
-                })
+                        </div>
+                      </Link>
+                    </CardContent>
+                    <div className="flex items-center p-4 pt-0 mt-auto">
+                      <Button asChild variant="link" className="p-0 h-auto">
+                        <Link href={`/events/${event.id}`}>
+                          View Details <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </Card>
+                ) 
+              })
             ) : (
-                 <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
-                    <h3 className="font-headline text-xl font-semibold">No Events Found</h3>
-                    <p className="text-muted-foreground mt-2">No events match your criteria. Try adjusting your search or check back later.</p>
-                    <Button variant="link" onClick={() => {
-                        setSearchQuery('');
-                        setLocationQuery('');
-                        setCategory('all');
-                    }}>Clear Filters</Button>
-                </div>
-              )}
+              <div className="rounded-lg border-2 border-dashed py-16 text-center col-span-full">
+                <h3 className="font-headline text-xl font-semibold">No Events Found</h3>
+                <p className="text-muted-foreground mt-2">No events match your criteria. Try adjusting your search or check back later.</p>
+                <Button variant="link" onClick={() => {
+                  setSearchQuery('');
+                  setLocationQuery('');
+                  setCategory('all');
+                }}>Clear Filters</Button>
+              </div>
+            )}
           </div>
         </TooltipProvider>
       </section>
