@@ -76,7 +76,7 @@ export default function UserPublicProfilePage() {
     const userSavedEvents = useMemo(() => 
         (profileUser?.savedEvents || [])
             .map(eventId => getEventById(eventId))
-            .filter(event => !!event),
+            .filter((event): event is NonNullable<typeof event> => !!event),
         [profileUser?.savedEvents, getEventById]
     );
 
@@ -254,7 +254,7 @@ export default function UserPublicProfilePage() {
                                 <TabsContent value="saved-events" className="mt-6">
                                      {userSavedEvents.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {userSavedEvents.map((event) => event && (
+                                            {userSavedEvents.map((event) => (
                                                 <Card key={event.id} className="group flex flex-col overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                                                     <Link href={`/events/${event.id}`} className="flex h-full flex-col">
                                                         <CardContent className="flex flex-grow flex-col p-4">
