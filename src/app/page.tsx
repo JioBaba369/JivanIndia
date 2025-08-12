@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/hooks/use-events";
 import { useDeals } from "@/hooks/use-deals";
 import { format, addDays } from "date-fns";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,7 @@ export default function HomePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('events');
+  const [placeholder, setPlaceholder] = useState('Search for events, businesses...');
 
   const approvedEvents = useMemo(() => (events || []).filter(e => e?.status === 'Approved'), [events]);
 
@@ -54,6 +55,21 @@ export default function HomePage() {
     router.push(`${basePath}${query}`);
   };
 
+  const categoryLinks = [
+    { href: '/events', icon: Calendar, label: 'Events', placeholder: 'Search for cultural events...' },
+    { href: '/deals', icon: Tag, label: 'Deals', placeholder: 'Search for local deals...' },
+    { href: '/communities', icon: Users, label: 'Communities', placeholder: 'Search for local groups...' },
+    { href: '/businesses', icon: Building, label: 'Businesses', placeholder: 'Search for restaurants, services...' },
+    { href: '/careers', icon: Briefcase, label: 'Careers', placeholder: 'Search for job titles...' },
+    { href: '/movies', icon: Film, label: 'Movies', placeholder: 'Search for movies...' },
+  ];
+  
+  useEffect(() => {
+    const selected = categoryLinks.find(c => c.href.substring(1) === searchCategory);
+    setPlaceholder(selected?.placeholder || 'Search for events, businesses...');
+  }, [searchCategory, categoryLinks]);
+
+
   const CardSkeleton = ({ count = 3 }: { count?: number }) => (
     <>
       {Array.from({ length: count }).map((_, i) => (
@@ -69,15 +85,6 @@ export default function HomePage() {
       ))}
     </>
   );
-
-  const categoryLinks = [
-    { href: '/events', icon: Calendar, label: 'Events' },
-    { href: '/deals', icon: Tag, label: 'Deals' },
-    { href: '/communities', icon: Users, label: 'Communities' },
-    { href: '/businesses', icon: Building, label: 'Businesses' },
-    { href: '/careers', icon: Briefcase, label: 'Careers' },
-    { href: '/movies', icon: Film, label: 'Movies' },
-  ];
 
   return (
     <div className="flex flex-col bg-background">
@@ -97,7 +104,7 @@ export default function HomePage() {
                     <Input
                       id="search-input"
                       type="search"
-                      placeholder="Search for events, businesses..."
+                      placeholder={placeholder}
                       className="pl-11 pr-2 w-full border-0 focus-visible:ring-0 text-base bg-transparent"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
