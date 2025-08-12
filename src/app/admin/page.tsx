@@ -8,7 +8,7 @@ import { useEvents, type Event } from '@/hooks/use-events';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
 import { useBusinesses, type Business } from '@/hooks/use-businesses';
-import { useReports } from '@/hooks/use-reports';
+import { useReports, type ReportWithUser } from '@/hooks/use-reports';
 import { useMovies } from '@/hooks/use-movies';
 import { useDeals } from '@/hooks/use-deals';
 import { useJobs } from '@/hooks/use-jobs';
@@ -814,43 +814,56 @@ export default function AdminDashboardPage() {
                       <TableRow>
                         <TableHead>Content</TableHead>
                         <TableHead>Reason</TableHead>
-                        <TableHead>Reported</TableHead>
+                        <TableHead>Reported By</TableHead>
+                        <TableHead>Date</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {pendingReports.map(report => (
-                        <TableRow key={report.id}>
-                          <TableCell>
-                            <Link href={report.contentLink} className="font-medium hover:underline" target="_blank">{report.contentTitle}</Link>
-                            <p className="text-xs text-muted-foreground">{report.contentType}</p>
-                          </TableCell>
-                          <TableCell className="max-w-sm whitespace-pre-wrap">{report.reason}</TableCell>
-                          <TableCell>
-                            {isValid(report.createdAt?.toDate()) ? formatDistanceToNow(report.createdAt.toDate(), { addSuffix: true }) : 'N/A'}
-                          </TableCell>
-                          <TableCell className="text-right space-x-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button size="icon" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>
-                                    <Trash2 className="h-4 w-4"/>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Dismiss this report</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button size="icon" variant="default" onClick={() => updateReportStatus(report.id, 'resolved')}>
-                                    <Check className="h-4 w-4"/>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Mark as resolved</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {pendingReports.map((report: ReportWithUser) => {
+                          const createdAtDate = report.createdAt?.toDate ? report.createdAt.toDate() : null;
+                          const formattedDate = createdAtDate ? format(createdAtDate, 'PPp') : 'N/A';
+                          const timeAgo = createdAtDate ? formatDistanceToNow(createdAtDate, { addSuffix: true }) : 'N/A';
+
+                          return (
+                            <TableRow key={report.id}>
+                              <TableCell>
+                                <Link href={report.contentLink} className="font-medium hover:underline" target="_blank">{report.contentTitle}</Link>
+                                <Badge variant="secondary" className="ml-2">{report.contentType}</Badge>
+                              </TableCell>
+                              <TableCell className="max-w-xs whitespace-pre-wrap">{report.reason}</TableCell>
+                              <TableCell>{report.reporter?.name || 'Unknown User'}</TableCell>
+                              <TableCell>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>{timeAgo}</TooltipTrigger>
+                                    <TooltipContent>{formattedDate}</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className="text-right space-x-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button size="icon" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>
+                                        <Trash2 className="h-4 w-4"/>
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Dismiss this report</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button size="icon" variant="default" onClick={() => updateReportStatus(report.id, 'resolved')}>
+                                        <Check className="h-4 w-4"/>
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Mark as resolved</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                            </TableRow>
+                          );
+                      })}
                     </TableBody>
                   </Table>
                 )}

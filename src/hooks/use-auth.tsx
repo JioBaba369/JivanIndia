@@ -58,6 +58,7 @@ interface AuthContextType {
   updateUser: (updatedData: Partial<User>) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   getUserByUsername: (username: string) => Promise<User | undefined>;
+  getUserByUid: (uid: string) => Promise<User | undefined>;
   isUsernameUnique: (username: string, currentUid?: string) => Promise<boolean>;
   
   saveItem: (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => Promise<void>;
@@ -217,6 +218,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     return undefined;
   }, []);
+  
+  const getUserByUid = useCallback(async (uid: string): Promise<User | undefined> => {
+    if (!uid) return undefined;
+    const userDocRef = doc(firestore, 'users', uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      return { ...userDocSnap.data(), uid } as User;
+    }
+    return undefined;
+  }, []);
 
   const saveItem = useCallback(async (listType: keyof Pick<User, 'savedEvents' | 'joinedCommunities' | 'savedDeals' | 'savedMovies' | 'savedBusinesses'>, itemId: string) => {
     if (!firebaseUser) return;
@@ -250,6 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateUser,
     changePassword,
     getUserByUsername,
+    getUserByUid,
     isUsernameUnique,
     saveItem,
     unsaveItem,

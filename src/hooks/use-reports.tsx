@@ -5,7 +5,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback 
 import { collection, onSnapshot, doc, addDoc, updateDoc, serverTimestamp, query, orderBy, getDocs } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useToast } from './use-toast';
-import { useAuth } from './use-auth';
+import { useAuth, type User } from './use-auth';
 import { useAbout } from './use-about';
 
 export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
@@ -23,10 +23,14 @@ export interface Report {
   status: ReportStatus;
 }
 
+export interface ReportWithUser extends Report {
+  reporter?: User;
+}
+
 export type NewReportInput = Omit<Report, 'id' | 'createdAt' | 'status'>;
 
 interface ReportsContextType {
-  reports: Report[];
+  reports: ReportWithUser[];
   isLoading: boolean;
   addReport: (report: NewReportInput) => Promise<void>;
   updateReportStatus: (reportId: string, status: ReportStatus) => Promise<void>;
@@ -35,10 +39,10 @@ interface ReportsContextType {
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined);
 
 export function ReportsProvider({ children }: { children: ReactNode }) {
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<ReportWithUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { user, isAuthLoading } = useAuth();
+  const { user, getUserByUid, isAuthLoading } = useAuth();
   const { aboutContent } = useAbout();
 
   useEffect(() => {
@@ -50,9 +54,18 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
 
     if (isAdmin) {
       const q = query(collection(firestore, 'reports'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const unsubscribe = onSnapshot(q, async (querySnapshot) => {
         const reportsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
-        setReports(reportsData);
+        
+        // Fetch user data for each report
+        const reportsWithUsers = await Promise.all(
+          reportsData.map(async (report) => {
+            const reporter = await getUserByUid(report.reportedByUid);
+            return { ...report, reporter };
+          })
+        );
+        
+        setReports(reportsWithUsers);
         setIsLoading(false);
       }, (error) => {
         console.error("Failed to fetch reports from Firestore", error);
@@ -65,7 +78,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
       setReports([]);
       setIsLoading(false);
     }
-  }, [user, isAuthLoading, aboutContent, toast]);
+  }, [user, isAuthLoading, aboutContent, toast, getUserByUid]);
 
   const addReport = useCallback(async (reportData: NewReportInput) => {
     try {
