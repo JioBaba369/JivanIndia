@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useAbout } from "@/hooks/use-about";
 
 export default function BusinessesPage() {
     const { businesses, isLoading } = useBusinesses();
     const { user, saveItem, unsaveItem, isItemSaved } = useAuth();
+    const { aboutContent } = useAbout();
     const router = useRouter();
     const { toast } = useToast();
 
@@ -36,7 +39,15 @@ export default function BusinessesPage() {
     const [locationQuery, setLocationQuery] = useState('');
     const [category, setCategory] = useState('all');
 
-    const approvedBusinesses = useMemo(() => businesses.filter(b => b.isVerified), [businesses]);
+    const isAdmin = useMemo(() => user && aboutContent.adminUids.includes(user.uid), [user, aboutContent]);
+
+    const approvedBusinesses = useMemo(() => {
+        if (isAdmin) {
+            return businesses; // Admins see all businesses
+        }
+        return businesses.filter(b => b.isVerified); // Public sees only verified
+    }, [businesses, isAdmin]);
+
 
     const businessCategories = useMemo(() => {
         const categories = new Set(approvedBusinesses.map(p => p.category));
@@ -175,7 +186,7 @@ export default function BusinessesPage() {
                 filteredBusinesses.map(business => {
                     const isSaved = user ? isItemSaved('savedBusinesses', business.id) : false;
                     return (
-                    <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20")}>
+                    <Card key={business.id} className={cn("group flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl", business.isFeatured && "border-primary border-2 shadow-lg shadow-primary/20", !business.isVerified && "opacity-60 hover:opacity-100 border-destructive")}>
                         <div className="relative h-48 w-full bg-muted flex items-center justify-center">
                             <Link href={`/businesses/${business.id}`}>
                               {business.logoUrl ? (
@@ -189,6 +200,7 @@ export default function BusinessesPage() {
                                )}
                             </Link>
                             {business.isFeatured && <Badge variant="secondary" className="absolute left-3 top-3 border border-primary text-primary">Featured</Badge>}
+                            {!business.isVerified && <Badge variant="destructive" className="absolute left-3 top-3">Unverified</Badge>}
                             <div className="absolute top-2 right-2 flex gap-1">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
