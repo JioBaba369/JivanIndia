@@ -21,7 +21,7 @@ const locales = {
 };
 
 const localizer = dateFnsLocalizer({
-  format: (date, formatStr, locale) => formatDate(date, formatStr, { locale }),
+  format: formatDate,
   parse,
   startOfWeek,
   getDay,
