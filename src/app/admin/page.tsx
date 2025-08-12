@@ -37,6 +37,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import CountrySelector from '@/components/layout/country-selector';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
+    loading: () => <Skeleton className="h-48 w-full" />,
+    ssr: false,
+});
 
 interface ChecklistItemProps {
   id: string;
@@ -245,6 +252,8 @@ export default function AdminDashboardPage() {
   const [adminUsers, setAdminUsers] = useState<User[]>([]);
   const [isUsersLoading, setIsUsersLoading] = useState(true);
   const [story, setStory] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [faviconUrl, setFaviconUrl] = useState('');
   const [countryFilter, setCountryFilter] = useState(ALL_COUNTRIES_VALUE);
   const [sponsorCountFilter, setSponsorCountFilter] = useState('all');
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({});
@@ -319,6 +328,8 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (aboutContent) {
       setStory(aboutContent.story);
+      setLogoUrl(aboutContent.logoUrl || '');
+      setFaviconUrl(aboutContent.faviconUrl || '');
     }
   }, [aboutContent]);
 
@@ -978,11 +989,15 @@ export default function AdminDashboardPage() {
                 <CardDescription>Manage your site's logo and favicon.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2 rounded-lg border-2 border-dashed p-8 text-center">
-                  <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h3 className="font-semibold mt-4">Feature Not Available</h3>
-                  <p className="text-sm text-muted-foreground">The ability to upload a custom logo and favicon from the admin dashboard has not been implemented in this version.</p>
+                <div className="space-y-2">
+                  <Label>Site Logo (1:1 Ratio)</Label>
+                  <ImageUpload value={logoUrl} onChange={(url) => setLogoUrl(url || '')} aspectRatio={1/1} folderName="branding" toast={toast} />
                 </div>
+                 <div className="space-y-2">
+                  <Label>Site Favicon (1:1 Ratio)</Label>
+                  <ImageUpload value={faviconUrl} onChange={(url) => setFaviconUrl(url || '')} aspectRatio={1/1} folderName="branding" toast={toast} />
+                </div>
+                 <Button onClick={() => handleAboutContentSave({ logoUrl, faviconUrl })}>Save Branding</Button>
               </CardContent>
             </Card>
             <Card>

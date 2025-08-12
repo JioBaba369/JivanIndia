@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAbout } from '@/hooks/use-about';
 import { cn } from '@/lib/utils';
 import { Heart } from 'lucide-react';
+import Image from 'next/image';
 
 interface LogoProps extends Omit<React.HTMLAttributes<HTMLElement>, 'as'> {
     as?: React.ElementType;
@@ -26,10 +27,20 @@ export default function Logo({ as: Component = 'div', href, className, ...props 
         </span>
     </>
   );
+  
+  const CustomLogo = () => (
+    <>
+        {aboutContent.logoUrl ? (
+             <Image src={aboutContent.logoUrl} alt="JivanIndia.co" width={150} height={40} className="object-contain" />
+        ) : (
+            <DefaultLogo />
+        )}
+    </>
+  );
 
   const logoContent = (
     <div className="flex items-center gap-2" {...props}>
-      <DefaultLogo />
+      <CustomLogo />
     </div>
   );
   

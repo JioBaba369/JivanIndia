@@ -8,6 +8,8 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import CookieConsentBanner from "@/components/cookie-consent-banner";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "@/lib/firebase";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -20,13 +22,29 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-export const metadata: Metadata = {
-  title: "JivanIndia.co - The Heartbeat of the Indian Community",
-  description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
-  icons: {
-    icon: '/favicon.ico',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let faviconUrl = '/favicon.ico';
+  try {
+    const aboutDoc = await getDoc(doc(firestore, 'about', 'singleton'));
+    if (aboutDoc.exists()) {
+      const aboutData = aboutDoc.data();
+      if (aboutData.faviconUrl) {
+        faviconUrl = aboutData.faviconUrl;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch favicon, using default.", error);
+  }
+
+  return {
+    title: "JivanIndia.co - The Heartbeat of the Indian Community",
+    description: "Your one-stop destination for discovering events, connecting with community organizations, finding local deals, and exploring movies.",
+    icons: {
+      icon: faviconUrl,
+    },
+  };
+}
+
 
 export const viewport: Viewport = {
   width: 'device-width',
