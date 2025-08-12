@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, Search, PlusCircle, ArrowRight, Megaphone, Star, MoreVertical, Flag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ReportDialog from "@/components/feature/report-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function EventsPage() {
   const { events, isLoading } = useEvents();
@@ -141,6 +142,7 @@ export default function EventsPage() {
       </div>
         
       <section className="container mx-auto px-4 py-12">
+        <TooltipProvider>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
                 <EventSkeletons />
@@ -171,21 +173,36 @@ export default function EventsPage() {
                               </Link>
                               {event.isFeatured && <Badge className="absolute left-3 top-3"><Star className="mr-1 h-3 w-3" />Featured</Badge>}
                               <div className="absolute top-2 right-2">
-                                 <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
-                                            <MoreVertical size={20} />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <ReportDialog 
-                                            contentId={event.id} 
-                                            contentType="Event" 
-                                            contentTitle={event.title} 
-                                            triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
-                                        />
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white hover:text-white">
+                                              <MoreVertical size={20} />
+                                          </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                          <ReportDialog 
+                                              contentId={event.id} 
+                                              contentType="Event" 
+                                              contentTitle={event.title} 
+                                              triggerComponent={<DropdownMenuItem onSelect={(e) => e.preventDefault()}>Report</DropdownMenuItem>}
+                                          />
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <div className="flex flex-col gap-2 p-1">
+                                       <div className="flex items-center gap-2">
+                                          <Flag className="h-4 w-4 text-primary" />
+                                          <p className="font-bold">More Options</p>
+                                      </div>
+                                      <p className="text-sm text-muted-foreground">
+                                        Report this event if it violates our community guidelines.
+                                      </p>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
                               </div>
                           </div>
                           <CardContent className="flex-grow p-4">
@@ -226,6 +243,7 @@ export default function EventsPage() {
                 </div>
               )}
           </div>
+        </TooltipProvider>
       </section>
     </div>
   );
