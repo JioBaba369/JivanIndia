@@ -12,6 +12,7 @@ import { useBusinesses } from '@/hooks/use-businesses';
 import { useSavedItems } from '@/hooks/use-saved-items';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,7 +23,7 @@ import { format } from 'date-fns';
 import { getInitials } from '@/lib/utils';
 
 export default function ProfilePage() {
-  const { user, logout, isLoading: isAuthLoading } = useAuth();
+  const { user, logout, isAuthLoading } = useAuth();
   const router = useRouter();
 
   const { events: allEvents, isLoading: isEventsLoading } = useEvents();

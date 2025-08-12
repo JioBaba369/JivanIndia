@@ -82,7 +82,7 @@ const passwordFormSchema = z.object({
 
 export default function EditProfilePage() {
   const { toast } = useToast();
-  const { user, updateUser, changePassword, isLoading: isAuthLoading, isUsernameUnique } = useAuth();
+  const { user, updateUser, changePassword, isAuthLoading, isUsernameUnique } = useAuth();
   const router = useRouter();
   const [isProfilePending, startProfileTransition] = useTransition();
   const [isPasswordPending, startPasswordTransition] = useTransition();

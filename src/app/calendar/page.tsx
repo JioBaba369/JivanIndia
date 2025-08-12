@@ -6,7 +6,7 @@ import './react-big-calendar.css';
 
 import { Calendar as BigCalendar, dateFnsLocalizer, type Event as BigCalendarEvent, type View } from 'react-big-calendar';
 import { format as formatDate, parse, startOfWeek, getDay, isValid } from 'date-fns';
-import enUS from 'date-fns/locale/en-US';
+import { enUS } from 'date-fns/locale';
 import { useEvents } from '@/hooks/use-events';
 import { useMemo, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';

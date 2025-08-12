@@ -1,8 +1,8 @@
 
 import Link from "next/link";
-import Logo from "../logo";
+import Logo from "@/components/logo";
 import { Github, Twitter, Facebook, Instagram } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 export default function Footer() {
   return (

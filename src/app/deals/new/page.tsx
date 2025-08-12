@@ -119,7 +119,7 @@ export default function NewDealPage() {
         expires: values.expires,
         business: selectedEntity.name,
         businessLocation: 'address' in selectedEntity ? selectedEntity.address : `${selectedEntity.location.city}, ${selectedEntity.location.country}`,
-        businessWebsite: selectedEntity.website || '',
+        businessWebsite: 'website' in selectedEntity ? selectedEntity.website || '' : selectedEntity.contact?.website || '',
         submittedByUid: user.uid,
       };
       

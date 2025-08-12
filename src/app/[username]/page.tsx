@@ -107,7 +107,7 @@ export default function UserPublicProfilePage() {
     
     const currentCountryCode = useMemo(() => {
         if (!profileUser?.currentLocation?.country) return '';
-        const country = countries.find(c => c.name === profileUser.currentLocation.country);
+        const country = countries.find(c => c.name === profileUser.currentLocation!.country);
         return country?.countryCode || '';
     }, [profileUser, countries]);
 
@@ -254,12 +254,15 @@ export default function UserPublicProfilePage() {
                          <div className="mt-12">
                             <Tabs defaultValue={tabs[0]?.value} className="w-full">
                                 <TabsList className="grid w-full" style={{gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`}}>
-                                    {tabs.map(tab => (
-                                        <TabsTrigger key={tab.value} value={tab.value} className="text-xs md:text-sm whitespace-nowrap px-2">
-                                            <tab.icon className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block" />
-                                            {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
-                                        </TabsTrigger>
-                                    ))}
+                                    {tabs.map(tab => {
+                                        const IconComponent = tab.icon;
+                                        return (
+                                            <TabsTrigger key={tab.value} value={tab.value} className="text-xs md:text-sm whitespace-nowrap px-2">
+                                                {IconComponent && <IconComponent className="mr-1 md:mr-2 h-4 w-4 hidden md:inline-block" />}
+                                                {tab.label} {tab.count > 0 ? `(${tab.count})` : ''}
+                                            </TabsTrigger>
+                                        );
+                                    })}
                                 </TabsList>
 
                                 <TabsContent value="saved-events" className="mt-6">

@@ -29,7 +29,7 @@ export default function BusinessDetailPage() {
   const { aboutContent } = useAbout();
   const { toast } = useToast();
 
-  const relatedEvents = []; // Business pages no longer link to community events
+  const relatedEvents: any[] = []; // Business pages no longer link to community events
   
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -100,7 +100,7 @@ export default function BusinessDetailPage() {
                         </Link>
                     </Button>
                  )}
-                <ReportDialog contentId={business.id} contentType="Business" contentTitle={business.name} triggerVariant="secondary" />
+                <ReportDialog contentId={business.id} contentType="Business" contentTitle={business.name} triggerVariant="outline" />
             </div>
         </div>
 

@@ -25,7 +25,7 @@ const ChartContainer = dynamic(() => import('@/components/ui/chart').then(mod =>
 
 
 export default function AnalyticsDashboardPage() {
-    const { user, isLoading: isAuthLoading } = useAuth();
+    const { user, isAuthLoading } = useAuth();
     const router = useRouter();
     const params = useParams();
     const slug = typeof params.slug === 'string' ? params.slug : '';

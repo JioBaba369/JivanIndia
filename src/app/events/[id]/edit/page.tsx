@@ -52,7 +52,7 @@ const sponsorTiers: SponsorTier[] = ['Platinum', 'Gold', 'Silver', 'Bronze', 'Su
 
 const sponsorSchema = z.object({
   sponsorId: z.string().min(1, "Please select a sponsor."),
-  tier: z.enum(sponsorTiers, { required_error: "Please select a tier." }),
+  tier: z.enum(['Platinum', 'Gold', 'Silver', 'Bronze', 'Supporter'], { required_error: "Please select a tier." }),
 });
 
 const formSchema = z.object({
@@ -158,7 +158,7 @@ export default function EditEventPage() {
       };
         
       try {
-        await updateEvent(id, eventData, values.sponsors || []);
+        await updateEvent(id, eventData, (values.sponsors || []).map(s => ({ ...s, tier: s.tier as any })));
         router.push(`/events/${id}`);
       } catch (error) {
           toast({

@@ -54,13 +54,7 @@ const formSchema = (isSlugUnique: (slug: string, currentId?: string) => Promise<
   id: z.string(),
   name: z.string().min(3, "Community name must be at least 3 characters.").max(NAME_MAX_LENGTH),
   slug: z.string().min(3, "URL must be at least 3 characters.").max(SLUG_MAX_LENGTH)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces.")
-    .refine(async (slug, ctx) => {
-        const id = (ctx.parent as CommunityFormValues).id;
-        return await isSlugUnique(slug, id)
-    }, {
-        message: "This URL is already taken.",
-    }),
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "URL must be lowercase with dashes, no spaces."),
   type: z.enum(communityTypes),
   description: z.string().min(10, "Short description must be at least 10 characters.").max(DESC_MAX_LENGTH, `Short description must be ${DESC_MAX_LENGTH} characters or less.`),
   fullDescription: z.string().min(50, "Full description must be at least 50 characters.").max(FULL_DESC_MAX_LENGTH, `Full description must be ${FULL_DESC_MAX_LENGTH} characters or less.`),

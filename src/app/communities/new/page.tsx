@@ -39,6 +39,7 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
 import { generateSlug } from '@/lib/utils';

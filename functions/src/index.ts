@@ -13,9 +13,14 @@ const db = admin.firestore();
  */
 export const updateUserClaims = functions.firestore
   .document("about/singleton")
-  .onUpdate(async (change) => {
+  .onUpdate(async (change: functions.Change<functions.firestore.DocumentSnapshot>) => {
     const beforeData = change.before.data();
     const afterData = change.after.data();
+
+    if (!beforeData || !afterData) {
+      console.log("Missing data in document change.");
+      return null;
+    }
 
     const beforeAdmins: string[] = beforeData.adminUids || [];
     const afterAdmins: string[] = afterData.adminUids || [];

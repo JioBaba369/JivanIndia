@@ -1,16 +1,16 @@
 
-import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import admin from 'firebase-admin';
+import { getApps, cert, type App } from 'firebase-admin/app';
 
 // Function to safely initialize Firebase Admin SDK
 function initializeFirebaseAdmin(): App {
     if (getApps().length) {
         return getApps()[0];
     }
-    
+
     try {
         const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!);
-        return initializeApp({
+        return admin.initializeApp({
             credential: cert(serviceAccount)
         });
     } catch (error) {
@@ -22,6 +22,6 @@ function initializeFirebaseAdmin(): App {
 }
 
 const adminApp = initializeFirebaseAdmin();
-const adminDb = getFirestore(adminApp);
+const adminDb = admin.firestore();
 
 export { adminApp, adminDb };
