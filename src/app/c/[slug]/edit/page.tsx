@@ -11,13 +11,13 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth, type User } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Linkedin, Facebook, Twitter, Trash2, UserPlus, Shield, Settings, Users, Instagram } from 'lucide-react';
+import { Loader2, Linkedin, Facebook, Twitter, Trash2, Settings, Users, Instagram } from 'lucide-react';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,12 +32,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
-import { Badge } from "@/components/ui/badge";
-import { EmailInput } from "@/components/feature/user-search";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -96,7 +90,6 @@ const stripUsernameFromUrl = (fullUrl?: string) => {
         const pathParts = url.pathname.split('/').filter(p => p && p !== 'company' && p !== 'groups');
         return pathParts.pop() || '';
     } catch (e) {
-      // if it's not a valid URL, it might be just the handle
       return fullUrl.split('/').pop() || '';
     }
 }
@@ -106,7 +99,7 @@ export default function EditCommunityPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : '';
 
-  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique, addManager, removeManager, canManageCommunity } = useCommunities();
+  const { getCommunityBySlug, updateCommunity, deleteCommunity, isLoading: isLoadingCommunities, isSlugUnique, canManageCommunity } = useCommunities();
   const { toast } = useToast();
   const { user } = useAuth();
   
