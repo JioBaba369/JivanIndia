@@ -5,13 +5,16 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './react-big-calendar.css';
 
 import { Calendar as BigCalendar, dateFnsLocalizer, type Event as BigCalendarEvent } from 'react-big-calendar';
-import { format as formatDate, parse, startOfWeek, getDay } from 'date-fns';
+import { format as formatDate, parse, startOfWeek, getDay, isValid } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { useEvents } from '@/hooks/use-events';
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Event } from '@/hooks/use-events';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
+
 
 const locales = {
   'en-US': enUS,
@@ -59,7 +62,8 @@ export default function EventsCalendarPage() {
         start: new Date(event.startDateTime),
         end: new Date(event.endDateTime),
         resource: event,
-      }));
+      }))
+      .filter(event => isValid(event.start) && isValid(event.end));
   }, [events]);
 
   const eventStyleGetter = (event: BigCalendarEvent) => {
