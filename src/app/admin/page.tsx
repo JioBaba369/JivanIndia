@@ -7,7 +7,7 @@ import { useAuth, type User } from '@/hooks/use-auth';
 import { useEvents, type Event } from '@/hooks/use-events';
 import { useCommunities, type Community } from '@/hooks/use-communities';
 import { useAbout, type TeamMember, type AboutContent } from '@/hooks/use-about';
-import { useBusinesses } from '@/hooks/use-businesses';
+import { useBusinesses, type Business } from '@/hooks/use-businesses';
 import { useReports } from '@/hooks/use-reports';
 import { useMovies } from '@/hooks/use-movies';
 import { useDeals } from '@/hooks/use-deals';
@@ -34,11 +34,11 @@ import { collection, getDocs, where, query } from 'firebase/firestore';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import CountrySelector from '@/components/layout/country-selector';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
+import CountrySelector from '@/components/layout/country-selector';
 
 const ImageUpload = dynamic(() => import('@/components/feature/image-upload'), {
     loading: () => <Skeleton className="h-48 w-full" />,
@@ -261,7 +261,8 @@ export default function AdminDashboardPage() {
   const hasAdminRole = useMemo(() => user ? aboutContent.adminUids.includes(user.uid) : false, [user, aboutContent]);
   
   useEffect(() => {
-    if (isAuthLoading || isAboutLoading) {
+    const isLoading = isAuthLoading || isAboutLoading;
+    if (isLoading) {
         return; 
     }
     if (!user || !hasAdminRole) {
@@ -271,7 +272,11 @@ export default function AdminDashboardPage() {
   }, [user, isAuthLoading, hasAdminRole, router, toast, isAboutLoading]);
 
   useEffect(() => {
-    if (user && hasAdminRole && aboutContent.adminUids.length > 0) {
+    if (!hasAdminRole) {
+      setIsUsersLoading(false);
+      return;
+    };
+    if (aboutContent.adminUids.length > 0) {
       const fetchAdminUsers = async () => {
         setIsUsersLoading(true);
         try {
@@ -279,6 +284,7 @@ export default function AdminDashboardPage() {
           const adminUids = aboutContent.adminUids;
           const adminUsersData: User[] = [];
 
+          // Firestore 'in' query supports a maximum of 30 elements
           for (let i = 0; i < adminUids.length; i += 30) {
             const chunk = adminUids.slice(i, i + 30);
             if (chunk.length > 0) {
@@ -300,9 +306,10 @@ export default function AdminDashboardPage() {
       };
       fetchAdminUsers();
     } else {
+      setAdminUsers([]);
       setIsUsersLoading(false);
     }
-  }, [user, hasAdminRole, aboutContent.adminUids, toast]);
+  }, [hasAdminRole, aboutContent.adminUids, toast]);
 
 
   const eventsWithSponsorCount = useMemo(() => events.map(event => ({
@@ -409,8 +416,8 @@ export default function AdminDashboardPage() {
     try {
       await addAdmin(email);
       toast({ title: 'Admin Added', description: `${email} has been granted admin privileges.` });
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to add admin. Please check the email.", variant: "destructive" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to add admin.", variant: "destructive" });
       throw error;
     }
   }, [addAdmin, toast]);
@@ -561,8 +568,8 @@ export default function AdminDashboardPage() {
                                 {event.status === 'Approved' && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" variant="outline" onClick={() => updateEventFeaturedStatus(event.id, !event.isFeatured)}>
-                                        <Star className="mr-2 h-4 w-4" /> {event.isFeatured ? 'Un-Feature' : 'Feature'}
+                                      <Button size="icon" variant="outline" onClick={() => updateEventFeaturedStatus(event.id, !event.isFeatured)}>
+                                        <Star className="h-4 w-4" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>{event.isFeatured ? 'Remove featured status' : 'Mark as featured'}</TooltipContent>
@@ -571,8 +578,8 @@ export default function AdminDashboardPage() {
                                 {event.status !== 'Approved' && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" onClick={() => handleEventStatusChange(event.id, 'Approved')}>
-                                        <Check className="mr-2 h-4 w-4" /> Approve
+                                      <Button size="icon" variant="outline" onClick={() => handleEventStatusChange(event.id, 'Approved')}>
+                                        <Check className="h-4 w-4"/>
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>Approve this event</TooltipContent>
@@ -581,8 +588,8 @@ export default function AdminDashboardPage() {
                                 {event.status !== 'Archived' && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" variant="destructive" onClick={() => handleEventStatusChange(event.id, 'Archived')}>
-                                        <Archive className="mr-2 h-4 w-4" /> Archive
+                                      <Button size="icon" variant="outline" onClick={() => handleEventStatusChange(event.id, 'Archived')}>
+                                        <Archive className="h-4 w-4" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>Archive this event</TooltipContent>
@@ -626,8 +633,8 @@ export default function AdminDashboardPage() {
                                 {community.isVerified && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" variant="outline" onClick={() => updateCommunityFeaturedStatus(community.id, !community.isFeatured)}>
-                                        <Star className="mr-2 h-4 w-4" /> {community.isFeatured ? 'Un-Feature' : 'Feature'}
+                                      <Button size="icon" variant="outline" onClick={() => updateCommunityFeaturedStatus(community.id, !community.isFeatured)}>
+                                        <Star className="h-4 w-4" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>{community.isFeatured ? 'Remove featured status' : 'Mark as featured'}</TooltipContent>
@@ -636,8 +643,8 @@ export default function AdminDashboardPage() {
                                 {!community.isVerified && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" onClick={() => handleCommunityVerify(community.id)}>
-                                        <CheckCircle2 className="mr-2 h-4 w-4"/>Verify
+                                      <Button size="icon" onClick={() => handleCommunityVerify(community.id)}>
+                                        <CheckCircle2 className="h-4 w-4"/>
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>Verify this community</TooltipContent>
@@ -681,8 +688,8 @@ export default function AdminDashboardPage() {
                                 {business.isVerified && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" variant="outline" onClick={() => updateBusinessFeaturedStatus(business.id, !business.isFeatured)}>
-                                        <Star className="mr-2 h-4 w-4" /> {business.isFeatured ? 'Un-Feature' : 'Feature'}
+                                      <Button size="icon" variant="outline" onClick={() => updateBusinessFeaturedStatus(business.id, !business.isFeatured)}>
+                                        <Star className="h-4 w-4" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>{business.isFeatured ? 'Remove featured status' : 'Mark as featured'}</TooltipContent>
@@ -691,8 +698,8 @@ export default function AdminDashboardPage() {
                                 {!business.isVerified && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Button size="sm" onClick={() => handleBusinessVerify(business.id)}>
-                                        <CheckCircle2 className="mr-2 h-4 w-4"/>Verify
+                                      <Button size="icon" onClick={() => handleBusinessVerify(business.id)}>
+                                        <CheckCircle2 className="h-4 w-4"/>
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>Verify this business</TooltipContent>
@@ -826,16 +833,16 @@ export default function AdminDashboardPage() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button size="sm" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>
-                                    Dismiss
+                                  <Button size="icon" variant="outline" onClick={() => updateReportStatus(report.id, 'dismissed')}>
+                                    <Trash2 className="h-4 w-4"/>
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>Dismiss this report</TooltipContent>
                               </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button size="sm" onClick={() => updateReportStatus(report.id, 'resolved')}>
-                                    Resolve
+                                  <Button size="icon" variant="default" onClick={() => updateReportStatus(report.id, 'resolved')}>
+                                    <Check className="h-4 w-4"/>
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>Mark as resolved</TooltipContent>
@@ -1077,3 +1084,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
