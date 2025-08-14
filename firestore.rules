@@ -1,95 +1,100 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // =============================================================
+    // Helper Functions
+    // =============================================================
+    function isAuth() {
+      return request.auth != null;
+    }
 
-    // Helper functions
-    function isAdmin() {
-      return get(/databases/$(database)/documents/about/singleton).data.adminUids.has(request.auth.uid);
+    function isUser(userId) {
+      return isAuth() && request.auth.uid == userId;
     }
     
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    function isAdmin(userId) {
+      return isAuth() && get(/databases/$(database)/documents/about/singleton).data.adminUids.hasAny([userId]);
     }
-
-    function isCommunityManager(communityId) {
+    
+    function isCommunityManager(communityId, userId) {
         let community = get(/databases/$(database)/documents/communities/$(communityId)).data;
-        return request.auth.uid == community.founderUid || community.managers.hasAny([request.auth.uid]);
+        return isAuth() && (userId == community.founderUid || community.managers.exists(m => m.uid == userId));
     }
     
-    // PUBLIC: Anyone can read these collections
-    match /{collection}/{docId} 
-    where collection in ['festivals', 'sponsors', 'movies'] {
-       allow read: if true;
-       allow write: if isAdmin();
-    }
+    // =============================================================
+    // Collection Rules
+    // =============================================================
     
     match /about/singleton {
         allow read: if true;
-        allow write: if isAdmin();
+        allow write: if isAdmin(request.auth.uid);
     }
-    
-    // AUTHENTICATED READ, ADMIN WRITE
-     match /{collection}/{docId} 
-     where collection in ['deals', 'jobs', 'businesses', 'communities', 'events'] {
-       allow write: if isAdmin();
-     }
-     
-     match /events/{eventId} {
-       allow read: if resource.data.status == 'Approved';
-       allow create: if isCommunityManager(request.resource.data.organizerId);
-       allow update: if isCommunityManager(resource.data.organizerId) || isAdmin();
-       allow delete: if isAdmin();
-     }
-     
-     match /communities/{communityId} {
-        allow read: if resource.data.isVerified == true;
-        allow create: if isOwner(request.resource.data.founderUid);
-        allow update: if isCommunityManager(communityId) || isAdmin();
-        allow delete: if isOwner(resource.data.founderUid) || isAdmin();
-     }
-     
-     match /businesses/{businessId} {
-        allow read: if resource.data.isVerified == true;
-        allow create: if request.auth != null; // Any authenticated user can create
-        allow update: if isOwner(resource.data.ownerId) || isAdmin();
-        allow delete: if isOwner(resource.data.ownerId) || isAdmin();
-     }
-     
-     match /deals/{dealId} {
-        allow read: if true;
-        allow create: if isCommunityManager(request.resource.data.communityId) || isOwner(getAfter(/databases/$(database)/documents/businesses/$(request.resource.data.businessId)).data.ownerId);
-        allow update, delete: if isAdmin();
-     }
-     
-     match /jobs/{jobId} {
-        allow read: if true;
-        allow create: if isCommunityManager(request.resource.data.companyId);
-        allow update, delete: if isAdmin();
-     }
 
-    // USER-SPECIFIC
     match /users/{userId} {
       allow read: if true;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow create: if isAuth();
+      allow update: if isUser(userId) || isAdmin(request.auth.uid);
+      allow delete: if isAdmin(request.auth.uid);
     }
     
+    match /events/{eventId} {
+      allow read: if resource.data.status == 'Approved';
+      allow create: if isAuth() && isCommunityManager(request.resource.data.organizerId, request.auth.uid);
+      allow update: if isAuth() && (isCommunityManager(resource.data.organizerId, request.auth.uid) || isAdmin(request.auth.uid));
+      allow delete: if isAuth() && (isCommunityManager(resource.data.organizerId, request.auth.uid) || isAdmin(request.auth.uid));
+    }
+    
+    match /communities/{communityId} {
+        allow read: if true;
+        allow create: if isAuth() && request.auth.uid == request.resource.data.founderUid;
+        allow update: if isAuth() && (isCommunityManager(communityId, request.auth.uid) || isAdmin(request.auth.uid));
+        allow delete: if isAuth() && (resource.data.founderUid == request.auth.uid || isAdmin(request.auth.uid));
+    }
+
+    match /businesses/{businessId} {
+      allow read: if resource.data.isVerified == true || isAdmin(request.auth.uid);
+      allow create: if isAuth();
+      allow update: if isAuth() && (isUser(resource.data.ownerId) || isAdmin(request.auth.uid));
+      allow delete: if isAuth() && (isUser(resource.data.ownerId) || isAdmin(request.auth.uid));
+    }
+
+    match /deals/{dealId} {
+      allow read: if true;
+      allow create: if isAuth();
+      allow update, delete: if isAuth() && (isUser(resource.data.submittedByUid) || isAdmin(request.auth.uid));
+    }
+    
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin(request.auth.uid);
+    }
+
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create, update, delete: if isAuth() && (isUser(resource.data.submittedByUid) || isAdmin(request.auth.uid));
+    }
+    
+    match /sponsors/{sponsorId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin(request.auth.uid);
+    }
+
     match /reports/{reportId} {
-        allow create: if request.auth != null; // Any authenticated user can report
-        allow read, update, delete: if isAdmin();
-    }
-    
-     match /notifications/{notificationId} {
-        allow read, update: if isOwner(resource.data.userId);
-        allow create, delete: if isAdmin();
+      allow read, update: if isAdmin(request.auth.uid);
+      allow create: if isAuth();
     }
     
     match /contacts/{contactId} {
         allow create: if true;
-        allow read, update, delete: if isAdmin();
+        allow read, update, delete: if isAdmin(request.auth.uid);
     }
-    
+
+    match /notifications/{notificationId} {
+        allow read, update: if isUser(resource.data.userId);
+        allow create: if isAuth(); // Can be created by functions or system
+        allow delete: if isUser(resource.data.userId);
+    }
   }
 }
